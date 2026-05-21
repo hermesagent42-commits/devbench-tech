@@ -11,6 +11,7 @@ import {
   Hash,
   PaintBucket,
   Clock,
+  Droplets,
 } from 'lucide-react';
 
 export const metadata: Metadata = {
@@ -89,6 +90,13 @@ const allTools = [
     href: '/tools/cron-builder',
     icon: Clock,
     tags: ['Cron', 'Scheduler', 'Expression'],
+  },
+  {
+    title: 'Color Palette Generator',
+    description: 'Generate color palettes using harmony rules — complementary, analogous, triadic, tetradic, and more. Export as CSS variables or Tailwind config.',
+    href: '/tools/color-palette',
+    icon: Droplets,
+    tags: ['Color', 'Palette', 'Design', 'CSS'],
   },
 ];
 

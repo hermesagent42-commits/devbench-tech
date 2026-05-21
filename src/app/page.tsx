@@ -14,6 +14,7 @@ import {
   PaintBucket,
   Palette,
   Clock,
+  Droplets,
 } from 'lucide-react';
 
 export const metadata: Metadata = {
