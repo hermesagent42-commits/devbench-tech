@@ -1,5 +1,5 @@
 import type { LucideIcon } from 'lucide-react';
-import { Braces, Binary, Fingerprint, Regex, Palette, Key, Anchor, Layers, PaintBucket } from 'lucide-react';
+import { Braces, Binary, Fingerprint, Regex, Palette, Key, Anchor, Layers, PaintBucket, Layout } from 'lucide-react';
 export interface Tool {
   title: string;
   description: string;
@@ -17,4 +17,5 @@ export const tools: Tool[] = [
   { title: 'JWT Debugger', description: 'Decode and inspect JWT tokens — view header, payload, signature, and time claims.', href: '/tools/jwt-debugger', icon: Key, tags: ['jwt', 'auth', 'debugger'] },
   { title: 'Box Shadow Generator', description: 'Visually create CSS box-shadows with multiple layers, presets, and live preview.', href: '/tools/box-shadow-generator', icon: Layers, tags: ['css', 'shadows', 'design'] },
   { title: 'CSS Gradient Builder', description: 'Build CSS gradients visually — linear, radial, conic with live preview and presets.', href: '/tools/css-gradient-builder', icon: PaintBucket, tags: ['css', 'gradients', 'design'] },
+  { title: 'CSS Flexbox Playground', description: 'Visually build and test CSS Flexbox layouts — live preview and CSS generation.', href: '/tools/flexbox-playground', icon: Layout, tags: ['css', 'flexbox', 'layout'] },
 ];

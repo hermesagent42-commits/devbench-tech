@@ -16,6 +16,7 @@ import {
   Clock,
   Droplets,
   FileCode,
+  Layout,
 } from 'lucide-react';
 
 export const metadata: Metadata = {
@@ -68,11 +69,11 @@ const featuredTools = [
     tags: ['Markdown', 'Preview', 'Editor'],
   },
   {
-    title: 'Box Shadow Generator',
-    description: 'Create layered CSS box-shadows visually with live preview. Copy the CSS and ship.',
-    href: '/tools/box-shadow-generator',
-    icon: Layers,
-    tags: ['CSS', 'Design'],
+    title: 'CSS Flexbox Playground',
+    description: 'Visually build and test CSS Flexbox layouts — adjust every property in real-time and copy the CSS.',
+    href: '/tools/flexbox-playground',
+    icon: Layout,
+    tags: ['CSS', 'Flexbox', 'Layout'],
   },
   {
     title: 'CSS Gradient Builder',

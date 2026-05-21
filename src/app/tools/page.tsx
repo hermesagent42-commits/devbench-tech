@@ -9,10 +9,12 @@ import {
   Key,
   Anchor,
   Hash,
+  Layers,
   PaintBucket,
   Clock,
   Droplets,
   FileCode,
+  Layout,
 } from 'lucide-react';
 
 export const metadata: Metadata = {
@@ -105,6 +107,13 @@ const allTools = [
     href: '/tools/markdown-previewer',
     icon: FileCode,
     tags: ['Markdown', 'Preview', 'Editor'],
+  },
+  {
+    title: 'CSS Flexbox Playground',
+    description: 'Visually build and test CSS Flexbox layouts. Adjust container and item properties, see live results, and copy the CSS.',
+    href: '/tools/flexbox-playground',
+    icon: Layout,
+    tags: ['CSS', 'Flexbox', 'Layout', 'Design'],
   },
 ];
 
