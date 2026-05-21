@@ -15,6 +15,7 @@ import {
   Palette,
   Clock,
   Droplets,
+  FileCode,
 } from 'lucide-react';
 
 export const metadata: Metadata = {
@@ -58,6 +59,13 @@ const featuredTools = [
     href: '/tools/hash-generator',
     icon: Hash,
     tags: ['Hash', 'SHA', 'MD5'],
+  },
+  {
+    title: 'Markdown Previewer',
+    description: 'Write Markdown with a live preview. Split-pane view, toolbar for formatting, and download or copy the rendered HTML.',
+    href: '/tools/markdown-previewer',
+    icon: FileCode,
+    tags: ['Markdown', 'Preview', 'Editor'],
   },
   {
     title: 'Box Shadow Generator',

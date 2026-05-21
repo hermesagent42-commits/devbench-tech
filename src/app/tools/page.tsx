@@ -12,6 +12,7 @@ import {
   PaintBucket,
   Clock,
   Droplets,
+  FileCode,
 } from 'lucide-react';
 
 export const metadata: Metadata = {
@@ -97,6 +98,13 @@ const allTools = [
     href: '/tools/color-palette',
     icon: Droplets,
     tags: ['Color', 'Palette', 'Design', 'CSS'],
+  },
+  {
+    title: 'Markdown Previewer',
+    description: 'Write Markdown with a live split-pane preview. Formatting toolbar, HTML copy, and .md download — all client-side.',
+    href: '/tools/markdown-previewer',
+    icon: FileCode,
+    tags: ['Markdown', 'Preview', 'Editor'],
   },
 ];
 
