@@ -56,11 +56,10 @@ const allTools = [
   },
   {
     title: 'Color Converter',
-    description: 'Convert colors between HEX, RGB, HSL, and more. Coming soon!',
+    description: 'Convert colors between HEX, RGB, and HSL in real-time with live preview and color picker.',
     href: '/tools/color-converter',
     icon: Palette,
-    tags: ['Color', 'Converter', 'Coming Soon'],
-    upcoming: true,
+    tags: ['Color', 'Converter', 'Picker'],
   },
   {
     title: 'CSS Gradient Builder',

@@ -12,6 +12,7 @@ import {
   Hash,
   Layers,
   PaintBucket,
+  Palette,
 } from 'lucide-react';
 
 export const metadata: Metadata = {
@@ -69,6 +70,13 @@ const featuredTools = [
     href: '/tools/css-gradient-builder',
     icon: PaintBucket,
     tags: ['CSS', 'Gradient', 'Design'],
+  },
+  {
+    title: 'Color Converter',
+    description: 'Convert colors between HEX, RGB, and HSL in real-time with live preview and color picker.',
+    href: '/tools/color-converter',
+    icon: Palette,
+    tags: ['Color', 'Design', 'Converter'],
   },
 ];
 
