@@ -8,6 +8,7 @@ import {
   Palette,
   Key,
   Anchor,
+  Hash,
 } from 'lucide-react';
 
 export const metadata: Metadata = {
@@ -66,6 +67,13 @@ const allTools = [
     href: '/tools/jwt-debugger',
     icon: Key,
     tags: ['JWT', 'Debugger', 'Auth'],
+  },
+  {
+    title: 'Hash Generator',
+    description: 'Generate MD5, SHA-1, SHA-256, SHA-384 & SHA-512 hashes from text or files. Client-side only.',
+    href: '/tools/hash-generator',
+    icon: Hash,
+    tags: ['Hash', 'SHA', 'MD5', 'Crypto'],
   },
 ];
 

@@ -9,6 +9,7 @@ import {
   Binary,
   Fingerprint,
   Regex,
+  Hash,
 } from 'lucide-react';
 
 export const metadata: Metadata = {
@@ -45,6 +46,13 @@ const featuredTools = [
     href: '/tools/regex-tester',
     icon: Regex,
     tags: ['Regex', 'Tester'],
+  },
+  {
+    title: 'Hash Generator',
+    description: 'Generate MD5, SHA-1, SHA-256, SHA-384 & SHA-512 hashes. Text or file input, 100% client-side.',
+    href: '/tools/hash-generator',
+    icon: Hash,
+    tags: ['Hash', 'SHA', 'MD5'],
   },
 ];
 
