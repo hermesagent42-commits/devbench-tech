@@ -11,6 +11,7 @@ import {
   Regex,
   Hash,
   Layers,
+  PaintBucket,
 } from 'lucide-react';
 
 export const metadata: Metadata = {
@@ -61,6 +62,13 @@ const featuredTools = [
     href: '/tools/box-shadow-generator',
     icon: Layers,
     tags: ['CSS', 'Design'],
+  },
+  {
+    title: 'CSS Gradient Builder',
+    description: 'Build beautiful CSS gradients — linear, radial, and conic. Live preview, presets, instant CSS copy.',
+    href: '/tools/css-gradient-builder',
+    icon: PaintBucket,
+    tags: ['CSS', 'Gradient', 'Design'],
   },
 ];
 

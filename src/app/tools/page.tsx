@@ -9,6 +9,7 @@ import {
   Key,
   Anchor,
   Hash,
+  PaintBucket,
 } from 'lucide-react';
 
 export const metadata: Metadata = {
@@ -60,6 +61,13 @@ const allTools = [
     icon: Palette,
     tags: ['Color', 'Converter', 'Coming Soon'],
     upcoming: true,
+  },
+  {
+    title: 'CSS Gradient Builder',
+    description: 'Build beautiful CSS gradients visually — linear, radial, and conic. Live preview, presets, and instant copy.',
+    href: '/tools/css-gradient-builder',
+    icon: PaintBucket,
+    tags: ['CSS', 'Gradient', 'Design'],
   },
   {
     title: 'JWT Debugger',
