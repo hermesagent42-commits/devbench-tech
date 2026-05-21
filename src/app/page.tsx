@@ -13,6 +13,7 @@ import {
   Layers,
   PaintBucket,
   Palette,
+  Clock,
 } from 'lucide-react';
 
 export const metadata: Metadata = {
@@ -77,6 +78,13 @@ const featuredTools = [
     href: '/tools/color-converter',
     icon: Palette,
     tags: ['Color', 'Design', 'Converter'],
+  },
+  {
+    title: 'Cron Builder',
+    description: 'Build cron expressions interactively with human-readable output, presets, and next execution preview.',
+    href: '/tools/cron-builder',
+    icon: Clock,
+    tags: ['Cron', 'Scheduler', 'DevOps'],
   },
 ];
 

@@ -10,6 +10,7 @@ import {
   Anchor,
   Hash,
   PaintBucket,
+  Clock,
 } from 'lucide-react';
 
 export const metadata: Metadata = {
@@ -81,6 +82,13 @@ const allTools = [
     href: '/tools/hash-generator',
     icon: Hash,
     tags: ['Hash', 'SHA', 'MD5', 'Crypto'],
+  },
+  {
+    title: 'Cron Expression Builder',
+    description: 'Build and understand cron expressions visually. Human-readable output, presets, and next execution times.',
+    href: '/tools/cron-builder',
+    icon: Clock,
+    tags: ['Cron', 'Scheduler', 'Expression'],
   },
 ];
 
