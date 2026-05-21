@@ -7,12 +7,13 @@ import {
   Regex,
   Palette,
   Key,
+  Anchor,
 } from 'lucide-react';
 
 export const metadata: Metadata = {
   title: 'All Tools',
   description:
-    'Browse all free developer tools: JSON formatter, Base64 encoder/decoder, UUID generator, regex tester, and more.',
+    'Browse all free developer tools: JSON formatter, Base64 encoder/decoder, UUID generator, regex tester, CSS Anchor Playground, and more.',
 };
 
 const allTools = [
@@ -43,6 +44,13 @@ const allTools = [
     href: '/tools/regex-tester',
     icon: Regex,
     tags: ['Regex', 'Tester', 'Highlighting'],
+  },
+  {
+    title: 'CSS Anchor Playground',
+    description: 'Interactive playground for the new CSS Anchor Positioning API (Baseline 2026). Visual tooltip positioning.',
+    href: '/tools/css-anchor-playground',
+    icon: Anchor,
+    tags: ['CSS', 'Anchor', 'Positioning'],
   },
   {
     title: 'Color Converter',

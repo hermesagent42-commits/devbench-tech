@@ -1,0 +1,94 @@
+---
+title: "Google I/O 2026: Every Web Platform Announcement Developers Need to Know"
+date: "2026-05-21"
+excerpt: "From CSS Anchor Positioning reaching Baseline to HTML-in-Canvas, here's everything announced for web developers at Google I/O 2026 — with code examples you can use today."
+tags: ["css", "web-platform", "chrome", "google-io", "frontend"]
+---
+
+Google I/O 2026 dropped this week (May 19-21), and the web platform got *a lot* of love. Here's what matters for frontend developers — with real code you can try right now.
+
+## CSS Anchor Positioning: Baseline at Last
+
+The big one. CSS Anchor Positioning is now **cross-browser Baseline**. Chrome 125+, Safari 26+, and Firefox 147+ all support it.
+
+```css
+.anchor {
+  anchor-name: --tooltip-anchor;
+}
+
+.tooltip {
+  position: absolute;
+  position-anchor: --tooltip-anchor;
+  position-area: block-end center;
+  margin: 8px;
+}
+```
+
+No more `getBoundingClientRect()` + `requestAnimationFrame()` hacks. The browser handles positioning, scroll awareness, and viewport constraining natively.
+
+**Try it:** [CSS Anchor Playground on DevBench](/tools/css-anchor-playground)
+
+## @starting-style Enters Baseline
+
+Entry animations from `display: none` are now possible with zero JavaScript:
+
+```css
+dialog[open] {
+  opacity: 1;
+  transform: scale(1);
+  transition: opacity 0.3s, transform 0.3s;
+}
+
+@starting-style {
+  dialog[open] {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+}
+```
+
+This works in Chrome 125+, Safari 26+, Firefox 147+. The `display: none` to `display: block` transition problem is solved.
+
+## HTML-in-Canvas: Real DOM Inside WebGL/WebGPU
+
+This is wild. You can now embed real, accessible, searchable DOM elements directly inside a canvas with WebGL or WebGPU:
+
+```html
+<canvas>
+  <html-canvas>
+    <button onclick="handleClick()">Click Me</button>
+    <input type="text" placeholder="Type here..." />
+  </html-canvas>
+</canvas>
+```
+
+The elements are **real DOM** — they're searchable (Ctrl+F), accessible to screen readers, support native text input, and can be translated by the browser. This unlocks immersive 3D UIs without sacrificing accessibility.
+
+## View Transitions API: Multi-Page Support
+
+View Transitions now work for **multi-page navigations** (MPA), not just SPAs:
+
+```css
+@view-transition {
+  navigation: auto;
+}
+```
+
+Add that one line to your CSS and every page navigation gets a smooth crossfade. Customize with named `view-transition-name` properties for per-element animations.
+
+## Other Notable Drops
+
+- **Scroll-Driven Animations** — `animation-timeline: scroll()` is Baseline, letting you drive animations from scroll position without JavaScript.
+- **Popover API** — `popover` attribute is Baseline. Native tooltips, menus, and dialogs with proper focus management and light-dismiss.
+- **Modern Web Guidance** — Google open-sourced an [agent-injectable knowledge base](https://github.com/GoogleChrome/modern-web-guidance) so AI coding assistants can recommend modern web APIs instead of legacy patterns.
+- **`display: grid-lanes`** — Native masonry layout is shipping in Safari, with Chrome and Firefox implementing.
+
+## What This Means
+
+2026 is the year CSS replaces JavaScript for layout and interaction patterns. Tooltips, popovers, entry animations, scroll-driven effects, and view transitions all now work declaratively. The browser is the framework.
+
+Start using these today — they're all Baseline, meaning they work everywhere that matters.
+
+---
+
+*Want to play with Anchor Positioning? Check out our [interactive playground](/tools/css-anchor-playground).*
