@@ -62,11 +62,10 @@ const allTools = [
   },
   {
     title: 'JWT Debugger',
-    description: 'Decode and inspect JWT tokens. View header, payload, and signature details. Coming soon!',
+    description: 'Decode and inspect JWT tokens. View header, payload, signature, and time claims — all client-side.',
     href: '/tools/jwt-debugger',
     icon: Key,
-    tags: ['JWT', 'Debugger', 'Coming Soon'],
-    upcoming: true,
+    tags: ['JWT', 'Debugger', 'Auth'],
   },
 ];
 

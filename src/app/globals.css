@@ -93,6 +93,13 @@
   .section-subtitle {
     @apply text-slate-400 text-lg;
   }
+
+  /* JSON syntax highlighting for JWT Debugger */
+  .token-key { color: #7dd3fc; }
+  .token-string { color: #86efac; }
+  .token-number { color: #fbbf24; }
+  .token-boolean { color: #c084fc; }
+  .token-null { color: #94a3b8; }
 }
 
 @layer utilities {
