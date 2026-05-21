@@ -15,6 +15,7 @@ import {
   Droplets,
   FileCode,
   Layout,
+  CalendarClock,
 } from 'lucide-react';
 
 export const metadata: Metadata = {
@@ -114,6 +115,13 @@ const allTools = [
     href: '/tools/flexbox-playground',
     icon: Layout,
     tags: ['CSS', 'Flexbox', 'Layout', 'Design'],
+  },
+  {
+    title: 'Timestamp Converter',
+    description: 'Convert between UNIX timestamps and human-readable dates. Seconds or milliseconds, 12 timezones, relative time, ISO 8601 & RFC 2822 formats.',
+    href: '/tools/timestamp-converter',
+    icon: CalendarClock,
+    tags: ['Timestamp', 'Date', 'Converter', 'UNIX'],
   },
 ];
 

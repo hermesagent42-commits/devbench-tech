@@ -17,6 +17,7 @@ import {
   Droplets,
   FileCode,
   Layout,
+  CalendarClock,
 } from 'lucide-react';
 
 export const metadata: Metadata = {
@@ -95,6 +96,13 @@ const featuredTools = [
     href: '/tools/cron-builder',
     icon: Clock,
     tags: ['Cron', 'Scheduler', 'DevOps'],
+  },
+  {
+    title: 'Timestamp Converter',
+    description: 'Convert UNIX timestamps to dates and back. Seconds, milliseconds, timezones, relative time — all client-side.',
+    href: '/tools/timestamp-converter',
+    icon: CalendarClock,
+    tags: ['Timestamp', 'Date', 'UNIX'],
   },
 ];
 
