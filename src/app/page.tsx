@@ -10,6 +10,7 @@ import {
   Fingerprint,
   Regex,
   Hash,
+  Layers,
 } from 'lucide-react';
 
 export const metadata: Metadata = {
@@ -54,6 +55,13 @@ const featuredTools = [
     icon: Hash,
     tags: ['Hash', 'SHA', 'MD5'],
   },
+  {
+    title: 'Box Shadow Generator',
+    description: 'Create layered CSS box-shadows visually with live preview. Copy the CSS and ship.',
+    href: '/tools/box-shadow-generator',
+    icon: Layers,
+    tags: ['CSS', 'Design'],
+  },
 ];
 
 // Inline sample blog posts until content/blog/ directory is populated
@@ -95,7 +103,7 @@ export default function HomePage() {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {featuredTools.map((tool, i) => (
             <ToolCard
               key={tool.href}
