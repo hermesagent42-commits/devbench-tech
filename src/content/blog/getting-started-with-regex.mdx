@@ -1,0 +1,59 @@
+---
+title: "Getting Started with Regular Expressions"
+date: "2024-12-15"
+excerpt: "Learn the fundamentals of regular expressions, from basic patterns to advanced lookaheads and capture groups."
+tags: "Regex, Guide, Beginners"
+---
+
+## What Are Regular Expressions?
+
+Regular expressions (regex) are patterns used to match character combinations in strings. They're an essential tool in every developer's toolkit — used for validation, search-and-replace, data extraction, and more.
+
+## Basic Patterns
+
+Here are some fundamental regex patterns to get you started:
+
+### Matching Digits
+
+The `\d` character class matches any digit (0-9). For example:
+
+```js
+const regex = /\d+/g;
+"Order #42 and #17".match(regex); // ["42", "17"]
+```
+
+### Matching Words
+
+Use `\w` for word characters (letters, digits, underscores) and `\b` for word boundaries:
+
+```js
+const regex = /\b\w{4,}\b/g;
+"Find all words with 4+ characters".match(regex);
+```
+
+## Common Use Cases
+
+- **Email validation**: Check if a string is a valid email address
+- **Phone numbers**: Extract and format phone numbers
+- **URL parsing**: Pull domains, paths, and query parameters from URLs
+- **Code search**: Find specific patterns across codebases
+
+## Advanced Patterns
+
+### Capture Groups
+
+Parentheses `()` create capture groups that let you extract specific parts of a match:
+
+```js
+const regex = /(\w+)@(\w+\.\w+)/;
+const match = "user@example.com".match(regex);
+// match[1] = "user", match[2] = "example.com"
+```
+
+### Lookaheads and Lookbehinds
+
+Lookaheads `(?=...)` assert what follows without consuming characters. Lookbehinds `(?<=...)` assert what comes before.
+
+## Try It Yourself
+
+Head over to our [Regex Tester](/tools/regex-tester) to practice with these patterns in real-time. Happy regexing!

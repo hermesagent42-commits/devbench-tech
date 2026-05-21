@@ -1,0 +1,51 @@
+---
+title: "Understanding Base64 Encoding"
+date: "2024-12-10"
+excerpt: "A deep dive into how Base64 encoding works, when to use it, and common pitfalls to avoid."
+tags: "Base64, Encoding, Guide"
+---
+
+## What Is Base64?
+
+Base64 is a binary-to-text encoding scheme that represents binary data in an ASCII string format. It's widely used for embedding images in HTML/CSS, encoding credentials in HTTP headers, and transmitting data over text-based protocols.
+
+## How It Works
+
+Base64 works by dividing the input into 6-bit chunks (since 2^6 = 64 possible values) and mapping each chunk to a character in the Base64 alphabet:
+
+```
+A-Z (0-25), a-z (26-51), 0-9 (52-61), + (62), / (63)
+```
+
+The `=` character is used for padding when the input length isn't divisible by 3 bytes.
+
+## Common Use Cases
+
+- **Data URIs**: Embed images directly in HTML or CSS
+- **Basic Auth**: Encode `username:password` for HTTP Basic Authentication
+- **JSON Web Tokens**: Encode the header and payload of JWTs
+- **Email attachments**: MIME encoding for binary email attachments
+
+## Encoding Text to Base64
+
+```js
+const text = "Hello, World!";
+const encoded = btoa(text);
+console.log(encoded); // "SGVsbG8sIFdvcmxkIQ=="
+```
+
+## Decoding Base64 to Text
+
+```js
+const encoded = "SGVsbG8sIFdvcmxkIQ==";
+const decoded = atob(encoded);
+console.log(decoded); // "Hello, World!"
+```
+
+## Important Caveats
+
+- Base64 increases data size by approximately 33%
+- `btoa()` only handles Latin1 characters — use `TextEncoder` for full UTF-8 support
+- Base64 is encoding, **not encryption** — never rely on it for security
+
+Try our [Base64 Encoder/Decoder](/tools/base64) to experiment with Base64 encoding and decoding right in your browser.

@@ -1,0 +1,51 @@
+---
+title: "CSS Container Queries Are Finally Here — A Practical Guide"
+date: "2026-05-20"
+excerpt: "Container queries let you style elements based on their parent's size, not the viewport. Here's how to use them today with real-world examples."
+tags: ["css", "frontend", "responsive", "tutorial"]
+---
+
+For years, responsive design meant media queries — styling based on the viewport width. But what if you want a component to adapt based on its *container's* size, not the entire screen?
+
+**Container queries solve this.** And they've shipped in every major browser since late 2024.
+
+## The Basics
+
+```css
+.card-container {
+  container-type: inline-size;
+  container-name: card;
+}
+
+@container card (min-width: 400px) {
+  .card {
+    display: grid;
+    grid-template-columns: 200px 1fr;
+  }
+}
+```
+
+When `.card-container` is at least 400px wide, `.card` becomes a two-column grid. This works regardless of viewport size — the component adapts to its own space.
+
+## Real-World Use Cases
+
+### 1. Dashboard Widgets
+Widgets that reorganize from stacked to side-by-side when given more space in a grid layout.
+
+### 2. Article Cards
+Cards that switch from vertical to horizontal layout in wider containers — perfect for masonry grids and sidebar content.
+
+### 3. Form Layouts
+Forms that go from single-column to multi-column when the parent container permits.
+
+## Browser Support
+
+Container queries work in Chrome 105+, Safari 16+, Firefox 110+. That's ~95% of global users as of Q2 2026.
+
+## The One Gotcha
+
+You **cannot** style the container itself with `@container` — only its children. If you need the container to change based on its own width... you still need a media query, or JavaScript, or a parent wrapper that's the actual container.
+
+---
+
+Container queries are the feature CSS developers have been waiting for since 2011. They're here. Use them.

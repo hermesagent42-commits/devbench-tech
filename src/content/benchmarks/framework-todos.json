@@ -1,0 +1,13 @@
+{
+  "title": "TodoMVC Framework Benchmarks",
+  "description": "Time to render 1000 todo items (lower is better)",
+  "lastUpdated": "2026-05-20",
+  "results": [
+    { "name": "SvelteKit 2", "value": 42, "color": "#ff3e00" },
+    { "name": "Next.js 14 (RSC)", "value": 58, "color": "#0ea5e9" },
+    { "name": "Astro 5", "value": 67, "color": "#ff5a03" },
+    { "name": "Remix 2", "value": 82, "color": "#121212" },
+    { "name": "Nuxt 3", "value": 89, "color": "#00dc82" },
+    { "name": "Angular 18", "value": 124, "color": "#dd1b16" }
+  ]
+}

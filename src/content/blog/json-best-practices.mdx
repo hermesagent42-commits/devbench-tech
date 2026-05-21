@@ -1,0 +1,79 @@
+---
+title: "JSON Best Practices for API Design"
+date: "2024-12-05"
+excerpt: "Best practices for designing clean, predictable JSON APIs that your consumers will love."
+tags: "JSON, API, Best Practices"
+---
+
+## Why JSON API Design Matters
+
+A well-designed JSON API is a joy to work with. A poorly designed one causes frustration, bugs, and support requests. Here are battle-tested principles for designing JSON APIs that developers will love.
+
+## 1. Use Consistent Naming Conventions
+
+Pick one convention and stick with it throughout your entire API:
+
+```json
+// Good — camelCase
+{ "firstName": "Jane", "lastName": "Doe" }
+
+// Also Good — snake_case
+{ "first_name": "Jane", "last_name": "Doe" }
+
+// Bad — mixed
+{ "firstName": "Jane", "last_name": "Doe" }
+```
+
+## 2. Use Meaningful HTTP Status Codes
+
+- `200 OK` — Successful GET, PUT, PATCH
+- `201 Created` — Successful POST
+- `204 No Content` — Successful DELETE
+- `400 Bad Request` — Invalid input
+- `401 Unauthorized` — Missing auth
+- `404 Not Found` — Resource doesn't exist
+- `422 Unprocessable Entity` — Semantic validation error
+- `500 Internal Server Error` — Server crashed
+
+## 3. Structure Error Responses Consistently
+
+```json
+{
+  "error": {
+    "code": "VALIDATION_ERROR",
+    "message": "Email is required",
+    "details": [
+      { "field": "email", "message": "Must be a valid email address" }
+    ]
+  }
+}
+```
+
+## 4. Version Your API
+
+Include the version in the URL path:
+
+- `/api/v1/users`
+- `/api/v2/users`
+
+Or use a header:
+
+- `Accept: application/vnd.yourapi.v2+json`
+
+## 5. Paginate Collections
+
+```json
+{
+  "data": [...],
+  "pagination": {
+    "page": 1,
+    "perPage": 20,
+    "total": 143,
+    "totalPages": 8
+  }
+}
+```
+
+## Validate Your JSON
+
+Use our [JSON Formatter](/tools/json-formatter) to validate and format your API responses during development. It catches syntax errors instantly and makes deeply nested structures readable.

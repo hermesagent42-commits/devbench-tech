@@ -1,0 +1,143 @@
+import type { Metadata } from 'next';
+import Link from 'next/link';
+import { ArrowRight } from 'lucide-react';
+import { Hero } from '@/components/Hero';
+import { ToolCard } from '@/components/ToolCard';
+import { BlogCard } from '@/components/BlogCard';
+import {
+  Braces,
+  Binary,
+  Fingerprint,
+  Regex,
+} from 'lucide-react';
+
+export const metadata: Metadata = {
+  title: 'DevBench — Developer Tools, Benchmarks & Calculators',
+  description:
+    'Free developer tools for everyday use: JSON formatter, Base64 encoder/decoder, UUID generator, regex tester, benchmarks, and more.',
+};
+
+const featuredTools = [
+  {
+    title: 'JSON Formatter',
+    description: 'Format, minify, and validate JSON with syntax highlighting. Perfect for debugging API responses.',
+    href: '/tools/json-formatter',
+    icon: Braces,
+    tags: ['JSON', 'Formatter'],
+  },
+  {
+    title: 'Base64 Encoder/Decoder',
+    description: 'Encode and decode Base64 strings instantly. Supports UTF-8 text and binary data.',
+    href: '/tools/base64',
+    icon: Binary,
+    tags: ['Base64', 'Encoder'],
+  },
+  {
+    title: 'UUID Generator',
+    description: 'Generate random UUID v4 identifiers. Single or batch generation with copy support.',
+    href: '/tools/uuid-generator',
+    icon: Fingerprint,
+    tags: ['UUID', 'Generator'],
+  },
+  {
+    title: 'Regex Tester',
+    description: 'Test regular expressions in real-time with match highlighting and capture group display.',
+    href: '/tools/regex-tester',
+    icon: Regex,
+    tags: ['Regex', 'Tester'],
+  },
+];
+
+// Inline sample blog posts until content/blog/ directory is populated
+const sampleBlogPosts = [
+  {
+    title: 'Getting Started with Regular Expressions',
+    date: '2024-12-15',
+    excerpt: 'Learn the fundamentals of regular expressions, from basic patterns to advanced lookaheads and capture groups.',
+    slug: 'getting-started-with-regex',
+    tags: ['Regex', 'Guide'],
+  },
+  {
+    title: 'Understanding Base64 Encoding',
+    date: '2024-12-10',
+    excerpt: 'A deep dive into how Base64 encoding works, when to use it, and common pitfalls to avoid.',
+    slug: 'understanding-base64',
+    tags: ['Base64', 'Encoding'],
+  },
+  {
+    title: 'JSON Best Practices for API Design',
+    date: '2024-12-05',
+    excerpt: 'Best practices for designing clean, predictable JSON APIs that your consumers will love.',
+    slug: 'json-best-practices',
+    tags: ['JSON', 'API'],
+  },
+];
+
+export default function HomePage() {
+  return (
+    <>
+      <Hero />
+
+      {/* Featured Tools */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
+        <div className="text-center mb-12">
+          <h2 className="section-title">Featured Tools</h2>
+          <p className="section-subtitle mt-2">
+            Start with our most popular developer tools — free, fast, and private.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          {featuredTools.map((tool, i) => (
+            <ToolCard
+              key={tool.href}
+              title={tool.title}
+              description={tool.description}
+              href={tool.href}
+              icon={tool.icon}
+              tags={tool.tags}
+              index={i}
+            />
+          ))}
+        </div>
+
+        <div className="text-center mt-10">
+          <Link href="/tools" className="btn-primary inline-flex items-center gap-2">
+            View All Tools
+            <ArrowRight className="w-4 h-4" />
+          </Link>
+        </div>
+      </section>
+
+      {/* Latest from the Blog */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 border-t border-slate-700/50">
+        <div className="text-center mb-12">
+          <h2 className="section-title">Latest from the Blog</h2>
+          <p className="section-subtitle mt-2">
+            Tips, guides, and deep dives into developer tools and practices.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          {sampleBlogPosts.map((post) => (
+            <BlogCard
+              key={post.slug}
+              title={post.title}
+              date={post.date}
+              excerpt={post.excerpt}
+              slug={post.slug}
+              tags={post.tags}
+            />
+          ))}
+        </div>
+
+        <div className="text-center mt-10">
+          <Link href="/blog" className="btn-secondary inline-flex items-center gap-2">
+            Read All Posts
+            <ArrowRight className="w-4 h-4" />
+          </Link>
+        </div>
+      </section>
+    </>
+  );
+}
