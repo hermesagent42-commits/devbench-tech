@@ -17,6 +17,7 @@ import {
   Layout,
   CalendarClock,
   Grid3X3,
+  QrCode,
 } from 'lucide-react';
 
 export const metadata: Metadata = {
@@ -123,6 +124,13 @@ const allTools = [
     href: '/tools/css-grid-generator',
     icon: Grid3X3,
     tags: ['CSS', 'Grid', 'Layout', 'Design'],
+  },
+  {
+    title: 'QR Code Generator',
+    description: 'Generate QR codes from text, URLs, or any data. Customizable colors, error correction, and sizes — 100% client-side.',
+    href: '/tools/qr-code-generator',
+    icon: QrCode,
+    tags: ['QR', 'Barcode', 'Generator'],
   },
   {
     title: 'Timestamp Converter',

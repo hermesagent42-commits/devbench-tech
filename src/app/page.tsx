@@ -20,6 +20,7 @@ import {
   CalendarClock,
   ArrowLeftRight,
   Grid3X3,
+  QrCode,
 } from 'lucide-react';
 
 export const metadata: Metadata = {
@@ -112,6 +113,13 @@ const featuredTools = [
     href: '/tools/timestamp-converter',
     icon: CalendarClock,
     tags: ['Timestamp', 'Date', 'UNIX'],
+  },
+  {
+    title: 'QR Code Generator',
+    description: 'Generate QR codes from text, URLs, or any data. Customizable colors, error correction levels, and sizes — 100% client-side.',
+    href: '/tools/qr-code-generator',
+    icon: QrCode,
+    tags: ['QR', 'Barcode', 'Generator'],
   },
   {
     title: 'Diff Checker',
