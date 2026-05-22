@@ -9,7 +9,6 @@ import {
   Binary,
   Fingerprint,
   Regex,
-  Hash,
   Layers,
   PaintBucket,
   Palette,
@@ -23,6 +22,7 @@ import {
   Grid3X3,
   QrCode,
   Database,
+  Hash,
 } from 'lucide-react';
 
 export const metadata: Metadata = {
@@ -143,6 +143,13 @@ const featuredTools = [
     href: '/tools/json-csv-converter',
     icon: ArrowRightLeft,
     tags: ['JSON', 'CSV', 'Converter'],
+  },
+  {
+    title: 'Number Base Converter',
+    description: 'Convert numbers between binary, octal, decimal, and hex in real-time. ASCII preview, reference table — pure client-side.',
+    href: '/tools/number-base-converter',
+    icon: Hash,
+    tags: ['Number', 'Base', 'Binary', 'Hex'],
   },
 ];
 

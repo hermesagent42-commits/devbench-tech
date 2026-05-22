@@ -156,6 +156,13 @@ const allTools = [
     icon: ArrowRightLeft,
     tags: ['JSON', 'CSV', 'Converter', 'Data'],
   },
+  {
+    title: 'Number Base Converter',
+    description: 'Convert numbers between binary, octal, decimal, and hex in real-time. ASCII/Unicode preview, common reference values — all client-side.',
+    href: '/tools/number-base-converter',
+    icon: Hash,
+    tags: ['Number', 'Base', 'Binary', 'Hex', 'Converter'],
+  },
 ];
 
 export default function ToolsPage() {
