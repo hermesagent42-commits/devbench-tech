@@ -33,6 +33,7 @@ import {
   Tags,
   ArrowUpDown,
   BarChart3,
+  FileWarning,
 } from 'lucide-react';
 
 export const metadata: Metadata = {
@@ -230,6 +231,13 @@ const featuredTools = [
     href: '/tools/text-analyzer',
     icon: BarChart3,
     tags: ['Text', 'Analysis', 'Writer'],
+  },
+  {
+    title: 'Robots.txt Generator',
+    description: 'Build robots.txt files interactively — configure user-agents, allow/disallow rules, crawl delays, and sitemaps. Live preview, one-click copy.',
+    href: '/tools/robots-txt-generator',
+    icon: FileWarning,
+    tags: ['Robots.txt', 'SEO', 'Crawlers'],
   },
 ];
 
