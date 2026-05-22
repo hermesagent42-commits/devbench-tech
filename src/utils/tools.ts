@@ -1,5 +1,5 @@
 import type { LucideIcon } from 'lucide-react';
-import { Braces, Binary, Fingerprint, Regex, Palette, Key, Anchor, Layers, PaintBucket, Layout, Database, Shield, Server } from 'lucide-react';
+import { Braces, Binary, Fingerprint, Regex, Palette, Key, Anchor, Layers, PaintBucket, Layout, Database, Shield, Server, BarChart3 } from 'lucide-react';
 export interface Tool {
   title: string;
   description: string;
@@ -21,4 +21,5 @@ export const tools: Tool[] = [
   { title: 'SQL Formatter', description: 'Format, beautify, and minify SQL queries with keyword highlighting.', href: '/tools/sql-formatter', icon: Database, tags: ['sql', 'formatter', 'database'] },
   { title: 'Password Strength Checker', description: 'Check password strength with entropy analysis, crack-time estimates, and security checklist.', href: '/tools/password-strength-checker', icon: Shield, tags: ['password', 'security', 'checker'] },
   { title: 'HTTP Status Codes', description: 'Complete HTTP status code reference — search, filter by category, detailed explanations, and MDN links.', href: '/tools/http-status-codes', icon: Server, tags: ['http', 'status', 'reference'] },
+  { title: 'Text Analyzer', description: 'Analyze text — word count, character count, reading time, speaking time, keyword density, and more.', href: '/tools/text-analyzer', icon: BarChart3, tags: ['text', 'analysis', 'writing', 'seo'] },
 ];

@@ -32,6 +32,7 @@ import {
   SlidersHorizontal,
   Network,
   Tags,
+  BarChart3,
 } from 'lucide-react';
 
 export const metadata: Metadata = {
@@ -236,6 +237,13 @@ const allTools = [
     href: '/tools/yaml-json-converter',
     icon: ArrowUpDown,
     tags: ['YAML', 'JSON', 'Converter', 'Config'],
+  },
+  {
+    title: 'Text Analyzer',
+    description: 'Analyze text — word count, character count, reading time, speaking time, keyword density, and more. 100% client-side.',
+    href: '/tools/text-analyzer',
+    icon: BarChart3,
+    tags: ['Text', 'Analysis', 'Writing', 'SEO'],
   },
 ];
 
