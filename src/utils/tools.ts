@@ -1,5 +1,5 @@
 import type { LucideIcon } from 'lucide-react';
-import { Braces, Binary, Fingerprint, Regex, Palette, Key, Anchor, Layers, PaintBucket, Layout, Database } from 'lucide-react';
+import { Braces, Binary, Fingerprint, Regex, Palette, Key, Anchor, Layers, PaintBucket, Layout, Database, Shield } from 'lucide-react';
 export interface Tool {
   title: string;
   description: string;
@@ -19,4 +19,5 @@ export const tools: Tool[] = [
   { title: 'CSS Gradient Builder', description: 'Build CSS gradients visually — linear, radial, conic with live preview and presets.', href: '/tools/css-gradient-builder', icon: PaintBucket, tags: ['css', 'gradients', 'design'] },
   { title: 'CSS Flexbox Playground', description: 'Visually build and test CSS Flexbox layouts — live preview and CSS generation.', href: '/tools/flexbox-playground', icon: Layout, tags: ['css', 'flexbox', 'layout'] },
   { title: 'SQL Formatter', description: 'Format, beautify, and minify SQL queries with keyword highlighting.', href: '/tools/sql-formatter', icon: Database, tags: ['sql', 'formatter', 'database'] },
+  { title: 'Password Strength Checker', description: 'Check password strength with entropy analysis, crack-time estimates, and security checklist.', href: '/tools/password-strength-checker', icon: Shield, tags: ['password', 'security', 'checker'] },
 ];

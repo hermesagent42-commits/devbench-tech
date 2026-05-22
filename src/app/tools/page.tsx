@@ -21,6 +21,7 @@ import {
   Database,
   ArrowLeftRight,
   ArrowRightLeft,
+  Shield,
 } from 'lucide-react';
 
 export const metadata: Metadata = {
@@ -162,6 +163,13 @@ const allTools = [
     href: '/tools/number-base-converter',
     icon: Hash,
     tags: ['Number', 'Base', 'Binary', 'Hex', 'Converter'],
+  },
+  {
+    title: 'Password Strength Checker',
+    description: 'Check password strength with entropy analysis, crack-time estimates, and a 10-point security checklist — 100% client-side.',
+    href: '/tools/password-strength-checker',
+    icon: Shield,
+    tags: ['Password', 'Security', 'Strength', 'Entropy'],
   },
 ];
 
