@@ -253,6 +253,13 @@ const allTools = [
     icon: FileWarning,
     tags: ['Robots.txt', 'SEO', 'Crawlers', 'Generator'],
   },
+  {
+    title: 'Sitemap Generator',
+    description: 'Build XML sitemaps for search engines — add URLs, set priority and change frequency, batch-import, drag-to-reorder, and export as sitemap.xml. 100% client-side.',
+    href: '/tools/sitemap-generator',
+    icon: Globe,
+    tags: ['Sitemap', 'SEO', 'XML', 'Generator'],
+  },
 ];
 
 export default function ToolsPage() {

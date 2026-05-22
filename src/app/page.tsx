@@ -239,6 +239,13 @@ const featuredTools = [
     icon: FileWarning,
     tags: ['Robots.txt', 'SEO', 'Crawlers'],
   },
+  {
+    title: 'Sitemap Generator',
+    description: 'Build XML sitemaps for search engines — add URLs, set priority, batch-import, drag-to-reorder, and export as sitemap.xml.',
+    href: '/tools/sitemap-generator',
+    icon: Globe,
+    tags: ['Sitemap', 'SEO', 'XML'],
+  },
 ];
 
 // Inline sample blog posts until content/blog/ directory is populated
