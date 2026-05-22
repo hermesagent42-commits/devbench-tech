@@ -10,6 +10,7 @@ import {
   Fingerprint,
   Regex,
   Layers,
+  Minimize2,
   PaintBucket,
   Palette,
   Clock,
@@ -190,6 +191,13 @@ const featuredTools = [
     href: '/tools/lorem-ipsum',
     icon: AlignLeft,
     tags: ['Lorem', 'Text', 'Placeholder'],
+  },
+  {
+    title: 'Code Minifier',
+    description: 'Minify CSS, JavaScript, and HTML — strip comments and whitespace, see real-time size savings, download the result.',
+    href: '/tools/code-minifier',
+    icon: Minimize2,
+    tags: ['Minifier', 'CSS', 'JavaScript', 'HTML'],
   },
 ];
 

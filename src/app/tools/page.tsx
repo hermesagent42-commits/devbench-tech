@@ -10,6 +10,7 @@ import {
   Anchor,
   Hash,
   Layers,
+  Minimize2,
   PaintBucket,
   Clock,
   Droplets,
@@ -202,6 +203,13 @@ const allTools = [
     href: '/tools/chmod-calculator',
     icon: ShieldCheck,
     tags: ['chmod', 'Unix', 'Permissions'],
+  },
+  {
+    title: 'Code Minifier',
+    description: 'Minify CSS, JavaScript, and HTML — strip comments, whitespace, and shrink your code. 100% client-side with size comparison.',
+    href: '/tools/code-minifier',
+    icon: Minimize2,
+    tags: ['Minifier', 'CSS', 'JavaScript', 'HTML'],
   },
 ];
 
