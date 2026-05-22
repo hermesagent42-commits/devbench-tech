@@ -270,6 +270,13 @@ const featuredTools = [
     icon: Image,
     tags: ['Base64', 'Image', 'Converter'],
   },
+  {
+    title: 'Line Sorter',
+    description: 'Sort, deduplicate, shuffle, and reverse lines of text. Natural sort handles file1, file2, file10 correctly — all client-side.',
+    href: '/tools/line-sorter',
+    icon: ArrowUpDown,
+    tags: ['Sort', 'Deduplicate', 'Text'],
+  },
 ];
 
 // Inline sample blog posts until content/blog/ directory is populated
