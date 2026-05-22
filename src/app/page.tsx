@@ -36,6 +36,7 @@ import {
   FileWarning,
   Type,
   FileText,
+  Image,
 } from 'lucide-react';
 
 export const metadata: Metadata = {
@@ -261,6 +262,13 @@ const featuredTools = [
     href: '/tools/html-entity-converter',
     icon: FileText,
     tags: ['HTML', 'Entities', 'Encoder'],
+  },
+  {
+    title: 'Image to Base64',
+    description: 'Convert images to Base64 strings and back. Drag-and-drop, paste from clipboard, decode Base64 to image — 100% client-side.',
+    href: '/tools/image-base64',
+    icon: Image,
+    tags: ['Base64', 'Image', 'Converter'],
   },
 ];
 
