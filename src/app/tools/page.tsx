@@ -36,6 +36,7 @@ import {
   FileWarning,
   Type,
   FileText,
+  Eye,
 } from 'lucide-react';
 
 export const metadata: Metadata = {
@@ -275,6 +276,13 @@ const allTools = [
     href: '/tools/html-entity-converter',
     icon: FileText,
     tags: ['HTML', 'Entities', 'Encoder', 'Decoder'],
+  },
+  {
+    title: 'Color Contrast Checker',
+    description: 'Check color contrast ratios for WCAG 2.1 compliance. Test any foreground/background combination, see AA/AAA scores, and export reports — all client-side.',
+    href: '/tools/color-contrast-checker',
+    icon: Eye,
+    tags: ['Color', 'Contrast', 'WCAG', 'Accessibility'],
   },
 ];
 

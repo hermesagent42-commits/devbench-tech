@@ -1,5 +1,5 @@
 import type { LucideIcon } from 'lucide-react';
-import { Braces, Binary, Fingerprint, Regex, Palette, Key, Anchor, Layers, PaintBucket, Layout, Database, Shield, Server, BarChart3, FileText } from 'lucide-react';
+import { Braces, Binary, Fingerprint, Regex, Palette, Key, Anchor, Layers, PaintBucket, Layout, Database, Shield, Server, BarChart3, FileText, Eye } from 'lucide-react';
 export interface Tool {
   title: string;
   description: string;
@@ -23,4 +23,5 @@ export const tools: Tool[] = [
   { title: 'HTTP Status Codes', description: 'Complete HTTP status code reference — search, filter by category, detailed explanations, and MDN links.', href: '/tools/http-status-codes', icon: Server, tags: ['http', 'status', 'reference'] },
   { title: 'Text Analyzer', description: 'Analyze text — word count, character count, reading time, speaking time, keyword density, and more.', href: '/tools/text-analyzer', icon: BarChart3, tags: ['text', 'analysis', 'writing', 'seo'] },
   { title: 'HTML Entity Converter', description: 'Encode and decode HTML entities — named and numeric. Includes a searchable reference table of 200+ entities.', href: '/tools/html-entity-converter', icon: FileText, tags: ['html', 'entities', 'encoder', 'decoder'] },
+  { title: 'Color Contrast Checker', description: 'Check color contrast ratios for WCAG 2.1 compliance. AA/AAA scores, live preview, presets — all client-side.', href: '/tools/color-contrast-checker', icon: Eye, tags: ['color', 'contrast', 'wcag', 'accessibility'] },
 ];
