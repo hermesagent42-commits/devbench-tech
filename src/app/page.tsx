@@ -29,6 +29,7 @@ import {
   Globe,
   AlignLeft,
   ShieldCheck,
+  Network,
 } from 'lucide-react';
 
 export const metadata: Metadata = {
@@ -184,6 +185,13 @@ const featuredTools = [
     href: '/tools/chmod-calculator',
     icon: ShieldCheck,
     tags: ['chmod', 'Unix', 'Permissions'],
+  },
+  {
+    title: 'DNS Lookup',
+    description: 'Query DNS records for any domain — A, AAAA, CNAME, MX, TXT, NS, and more via Cloudflare DNS-over-HTTPS.',
+    href: '/tools/dns-lookup',
+    icon: Network,
+    tags: ['DNS', 'Network', 'Lookup'],
   },
   {
     title: 'Lorem Ipsum Generator',

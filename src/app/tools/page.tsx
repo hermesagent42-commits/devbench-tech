@@ -29,6 +29,7 @@ import {
   AlignLeft,
   ShieldCheck,
   SlidersHorizontal,
+  Network,
 } from 'lucide-react';
 
 export const metadata: Metadata = {
@@ -219,6 +220,13 @@ const allTools = [
     href: '/tools/unit-converter',
     icon: SlidersHorizontal,
     tags: ['Converter', 'Units', 'Length', 'Mass', 'Data'],
+  },
+  {
+    title: 'DNS Lookup',
+    description: 'Query DNS records for any domain — A, AAAA, CNAME, MX, TXT, NS, SOA, SRV, CAA, PTR. Uses Cloudflare DNS-over-HTTPS, fully client-side.',
+    href: '/tools/dns-lookup',
+    icon: Network,
+    tags: ['DNS', 'Lookup', 'Network', 'Domain'],
   },
 ];
 
