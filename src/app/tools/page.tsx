@@ -30,6 +30,7 @@ import {
   ShieldCheck,
   SlidersHorizontal,
   Network,
+  Tags,
 } from 'lucide-react';
 
 export const metadata: Metadata = {

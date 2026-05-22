@@ -30,6 +30,7 @@ import {
   AlignLeft,
   ShieldCheck,
   Network,
+  Tags,
 } from 'lucide-react';
 
 export const metadata: Metadata = {
@@ -206,6 +207,13 @@ const featuredTools = [
     href: '/tools/code-minifier',
     icon: Minimize2,
     tags: ['Minifier', 'CSS', 'JavaScript', 'HTML'],
+  },
+  {
+    title: 'Meta Tag Generator',
+    description: 'Generate complete HTML meta tags for SEO, Open Graph, and Twitter Cards. Social preview, JSX/HTML output, live updates.',
+    href: '/tools/meta-tag-generator',
+    icon: Tags,
+    tags: ['Meta', 'SEO', 'Open Graph', 'Twitter'],
   },
 ];
 
