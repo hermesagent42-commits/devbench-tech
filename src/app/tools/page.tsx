@@ -16,6 +16,7 @@ import {
   FileCode,
   Layout,
   CalendarClock,
+  Grid3X3,
 } from 'lucide-react';
 
 export const metadata: Metadata = {
@@ -115,6 +116,13 @@ const allTools = [
     href: '/tools/flexbox-playground',
     icon: Layout,
     tags: ['CSS', 'Flexbox', 'Layout', 'Design'],
+  },
+  {
+    title: 'CSS Grid Generator',
+    description: 'Visually build CSS Grid layouts with live preview. Adjust columns, rows, gaps, alignment, and presets — copy the generated CSS.',
+    href: '/tools/css-grid-generator',
+    icon: Grid3X3,
+    tags: ['CSS', 'Grid', 'Layout', 'Design'],
   },
   {
     title: 'Timestamp Converter',

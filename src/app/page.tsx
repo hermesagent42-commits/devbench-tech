@@ -19,6 +19,7 @@ import {
   Layout,
   CalendarClock,
   ArrowLeftRight,
+  Grid3X3,
 } from 'lucide-react';
 
 export const metadata: Metadata = {
@@ -83,6 +84,13 @@ const featuredTools = [
     href: '/tools/css-gradient-builder',
     icon: PaintBucket,
     tags: ['CSS', 'Gradient', 'Design'],
+  },
+  {
+    title: 'CSS Grid Generator',
+    description: 'Visually build CSS Grid layouts with live preview. Columns, rows, gaps, alignment, 8 presets — copy the CSS instantly.',
+    href: '/tools/css-grid-generator',
+    icon: Grid3X3,
+    tags: ['CSS', 'Grid', 'Layout'],
   },
   {
     title: 'Color Converter',
