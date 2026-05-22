@@ -19,6 +19,7 @@ import {
   Layout,
   CalendarClock,
   ArrowLeftRight,
+  ArrowRightLeft,
   Grid3X3,
   QrCode,
   Database,
@@ -135,6 +136,13 @@ const featuredTools = [
     href: '/tools/diff-checker',
     icon: ArrowLeftRight,
     tags: ['Diff', 'Compare', 'Text'],
+  },
+  {
+    title: 'JSON ↔ CSV Converter',
+    description: 'Convert JSON arrays to CSV and back. Interactive table preview, CSV escaping, download — all client-side.',
+    href: '/tools/json-csv-converter',
+    icon: ArrowRightLeft,
+    tags: ['JSON', 'CSV', 'Converter'],
   },
 ];
 

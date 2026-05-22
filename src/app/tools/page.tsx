@@ -19,6 +19,8 @@ import {
   Grid3X3,
   QrCode,
   Database,
+  ArrowLeftRight,
+  ArrowRightLeft,
 } from 'lucide-react';
 
 export const metadata: Metadata = {
@@ -146,6 +148,13 @@ const allTools = [
     href: '/tools/timestamp-converter',
     icon: CalendarClock,
     tags: ['Timestamp', 'Date', 'Converter', 'UNIX'],
+  },
+  {
+    title: 'JSON ↔ CSV Converter',
+    description: 'Convert JSON arrays to CSV and back. Table preview, CSV escaping, download — all client-side.',
+    href: '/tools/json-csv-converter',
+    icon: ArrowRightLeft,
+    tags: ['JSON', 'CSV', 'Converter', 'Data'],
   },
 ];
 
