@@ -34,6 +34,7 @@ import {
   ArrowUpDown,
   BarChart3,
   FileWarning,
+  Type,
 } from 'lucide-react';
 
 export const metadata: Metadata = {
@@ -245,6 +246,13 @@ const featuredTools = [
     href: '/tools/sitemap-generator',
     icon: Globe,
     tags: ['Sitemap', 'SEO', 'XML'],
+  },
+  {
+    title: 'Text Case Converter',
+    description: 'Convert text between 15 case styles — camelCase, snake_case, kebab-case, and more. Smart word detection, one-click copy.',
+    href: '/tools/text-case-converter',
+    icon: Type,
+    tags: ['Text', 'Case', 'Converter'],
   },
 ];
 
