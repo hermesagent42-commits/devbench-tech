@@ -31,6 +31,7 @@ import {
   ShieldCheck,
   Network,
   Tags,
+  ArrowUpDown,
 } from 'lucide-react';
 
 export const metadata: Metadata = {
@@ -214,6 +215,13 @@ const featuredTools = [
     href: '/tools/meta-tag-generator',
     icon: Tags,
     tags: ['Meta', 'SEO', 'Open Graph', 'Twitter'],
+  },
+  {
+    title: 'YAML ↔ JSON Converter',
+    description: 'Convert between YAML and JSON instantly. Config files, API payloads — swap direction, download results, 100% client-side.',
+    href: '/tools/yaml-json-converter',
+    icon: ArrowUpDown,
+    tags: ['YAML', 'JSON', 'Converter'],
   },
 ];
 

@@ -11,6 +11,7 @@ import {
   Hash,
   Layers,
   Minimize2,
+  ArrowUpDown,
   PaintBucket,
   Clock,
   Droplets,
@@ -228,6 +229,13 @@ const allTools = [
     href: '/tools/dns-lookup',
     icon: Network,
     tags: ['DNS', 'Lookup', 'Network', 'Domain'],
+  },
+  {
+    title: 'YAML ↔ JSON Converter',
+    description: 'Convert between YAML and JSON instantly. Handles nested objects, arrays, booleans, and nulls — pure client-side with sample data.',
+    href: '/tools/yaml-json-converter',
+    icon: ArrowUpDown,
+    tags: ['YAML', 'JSON', 'Converter', 'Config'],
   },
 ];
 
