@@ -35,6 +35,7 @@ import {
   BarChart3,
   FileWarning,
   Type,
+  FileText,
 } from 'lucide-react';
 
 export const metadata: Metadata = {
@@ -253,6 +254,13 @@ const featuredTools = [
     href: '/tools/text-case-converter',
     icon: Type,
     tags: ['Text', 'Case', 'Converter'],
+  },
+  {
+    title: 'HTML Entity Converter',
+    description: 'Encode and decode HTML entities — named and numeric formats. Searchable reference table of 200+ entities.',
+    href: '/tools/html-entity-converter',
+    icon: FileText,
+    tags: ['HTML', 'Entities', 'Encoder'],
   },
 ];
 
