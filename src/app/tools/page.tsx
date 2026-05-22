@@ -18,6 +18,7 @@ import {
   CalendarClock,
   Grid3X3,
   QrCode,
+  Database,
 } from 'lucide-react';
 
 export const metadata: Metadata = {
@@ -131,6 +132,13 @@ const allTools = [
     href: '/tools/qr-code-generator',
     icon: QrCode,
     tags: ['QR', 'Barcode', 'Generator'],
+  },
+  {
+    title: 'SQL Formatter',
+    description: 'Format, beautify, and minify SQL queries with syntax highlighting. Supports MySQL, PostgreSQL, SQLite and more.',
+    href: '/tools/sql-formatter',
+    icon: Database,
+    tags: ['SQL', 'Formatter', 'Minifier'],
   },
   {
     title: 'Timestamp Converter',
