@@ -18,6 +18,7 @@ import {
   FileCode,
   Layout,
   CalendarClock,
+  ArrowLeftRight,
 } from 'lucide-react';
 
 export const metadata: Metadata = {
@@ -103,6 +104,13 @@ const featuredTools = [
     href: '/tools/timestamp-converter',
     icon: CalendarClock,
     tags: ['Timestamp', 'Date', 'UNIX'],
+  },
+  {
+    title: 'Diff Checker',
+    description: 'Compare text side-by-side with line and character-level diffing. Myers algorithm, unified view, download as patch.',
+    href: '/tools/diff-checker',
+    icon: ArrowLeftRight,
+    tags: ['Diff', 'Compare', 'Text'],
   },
 ];
 
