@@ -24,9 +24,11 @@ import {
   ArrowRightLeft,
   Shield,
   Server,
+  Globe,
   Link,
   AlignLeft,
   ShieldCheck,
+  SlidersHorizontal,
 } from 'lucide-react';
 
 export const metadata: Metadata = {
@@ -210,6 +212,13 @@ const allTools = [
     href: '/tools/code-minifier',
     icon: Minimize2,
     tags: ['Minifier', 'CSS', 'JavaScript', 'HTML'],
+  },
+  {
+    title: 'Unit Converter',
+    description: 'Convert between hundreds of units across 11 categories — length, area, volume, mass, temperature, speed, time, data storage, pressure, angle, and frequency. 100% client-side.',
+    href: '/tools/unit-converter',
+    icon: SlidersHorizontal,
+    tags: ['Converter', 'Units', 'Length', 'Mass', 'Data'],
   },
 ];
 
