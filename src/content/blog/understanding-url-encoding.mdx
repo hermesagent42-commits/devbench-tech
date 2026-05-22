@@ -1,0 +1,54 @@
+---
+title: "Understanding URL Encoding — When, Why, and How to Use It"
+date: "2026-05-22"
+excerpt: "A practical guide to URL encoding and decoding: encodeURI vs encodeURIComponent, common pitfalls, and real-world examples."
+tags: ["url", "encoding", "web", "javascript"]
+---
+
+URL encoding (also called percent-encoding) is one of those things every web developer encounters but rarely thinks deeply about — until something breaks. Here's a practical guide.
+
+## Why URL Encoding Exists
+
+URLs can only contain a limited set of characters from the ASCII character set. Characters outside this set — spaces, non-ASCII letters (like ñ or 中文), and symbols with special meaning in URLs (like `&`, `=`, `?`, `#`) — must be encoded.
+
+For example, a space becomes `%20`, and an ampersand becomes `%26`.
+
+## encodeURI vs encodeURIComponent
+
+This is the #1 source of confusion. They encode different characters:
+
+### `encodeURI()`
+Preserves characters with structural meaning in a full URL: `; , / ? : @ & = + $ #`
+Use this when you have a complete URL and want to make it safe for transmission.
+
+```javascript
+encodeURI("https://example.com/path?name=John Doe&city=New York")
+// "https://example.com/path?name=John%20Doe&city=New%20York"
+```
+
+Notice: `:`, `/`, `?`, `=`, `&` are preserved.
+
+### `encodeURIComponent()`
+Encodes everything that isn't alphanumeric or `- _ . ! ~ * ' ( )`.
+Use this for individual query parameter values, form data, or path segments.
+
+```javascript
+encodeURIComponent("John Doe & Sons")
+// "John%20Doe%20%26%20Sons"
+```
+
+Notice: `&` and spaces are both encoded.
+
+## Common Gotchas
+
+- **Double encoding**: Applying `encodeURIComponent()` twice produces `%25` (an encoded `%`), causing decoding failures
+- **Mixing them up**: Using `encodeURI()` on query parameter values can leave dangerous characters unencoded
+- **The `+` vs `%20` debate**: `application/x-www-form-urlencoded` uses `+` for spaces, but raw URL encoding uses `%20`. They're not interchangeable everywhere.
+
+## Decoding
+
+Use `decodeURI()` and `decodeURIComponent()` to reverse the encoding. Always match the decoder to the encoder you used.
+
+---
+
+*Try our [URL Encoder / Decoder](/tools/url-encoder) tool to experiment with encoding interactively.*

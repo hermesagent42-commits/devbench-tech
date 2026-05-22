@@ -25,6 +25,9 @@ import {
   Hash,
   Shield,
   Server,
+  Globe,
+  AlignLeft,
+  ShieldCheck,
 } from 'lucide-react';
 
 export const metadata: Metadata = {
@@ -166,6 +169,27 @@ const featuredTools = [
     href: '/tools/http-status-codes',
     icon: Server,
     tags: ['HTTP', 'Status', 'Reference'],
+  },
+  {
+    title: 'URL Encoder / Decoder',
+    description: 'Encode and decode URLs and URI components. Perfect for query strings, form data, and international text.',
+    href: '/tools/url-encoder',
+    icon: Globe,
+    tags: ['URL', 'Encoder', 'Decoder'],
+  },
+  {
+    title: 'Unix Permissions Calculator',
+    description: 'Visually build chmod permissions with checkboxes. See octal, symbolic, and chmod commands in real-time.',
+    href: '/tools/chmod-calculator',
+    icon: ShieldCheck,
+    tags: ['chmod', 'Unix', 'Permissions'],
+  },
+  {
+    title: 'Lorem Ipsum Generator',
+    description: 'Generate placeholder text for mockups and prototypes. Customizable paragraphs, sentence count, and classic opening.',
+    href: '/tools/lorem-ipsum',
+    icon: AlignLeft,
+    tags: ['Lorem', 'Text', 'Placeholder'],
   },
 ];
 

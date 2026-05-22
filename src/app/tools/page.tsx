@@ -23,6 +23,9 @@ import {
   ArrowRightLeft,
   Shield,
   Server,
+  Link,
+  AlignLeft,
+  ShieldCheck,
 } from 'lucide-react';
 
 export const metadata: Metadata = {
@@ -178,6 +181,27 @@ const allTools = [
     href: '/tools/http-status-codes',
     icon: Server,
     tags: ['HTTP', 'Status', 'Reference', 'API'],
+  },
+  {
+    title: 'URL Encoder / Decoder',
+    description: 'Encode and decode URLs and URI components. Handles special characters, query strings, and international text — all client-side.',
+    href: '/tools/url-encoder',
+    icon: Link,
+    tags: ['URL', 'Encoder', 'Decoder'],
+  },
+  {
+    title: 'Lorem Ipsum Generator',
+    description: 'Generate placeholder text for mockups, designs, and prototypes. Customize paragraphs, sentence count, and classic opening.',
+    href: '/tools/lorem-ipsum',
+    icon: AlignLeft,
+    tags: ['Lorem', 'Text', 'Placeholder'],
+  },
+  {
+    title: 'Unix Permissions Calculator',
+    description: 'Visually build chmod permissions with checkboxes. See octal notation, symbolic notation, and chmod command output in real-time.',
+    href: '/tools/chmod-calculator',
+    icon: ShieldCheck,
+    tags: ['chmod', 'Unix', 'Permissions'],
   },
 ];
 

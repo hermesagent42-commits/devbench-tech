@@ -1,0 +1,57 @@
+---
+title: "chmod Demystified — A Visual Guide to Unix File Permissions"
+date: "2026-05-22"
+excerpt: "Stop guessing at chmod numbers. Learn the logic behind octal permissions, symbolic notation, and how to never set 777 again."
+tags: ["unix", "linux", "chmod", "permissions", "devops"]
+---
+
+If you've ever typed `chmod 755 deploy.sh` without being 100% sure what the numbers mean, this guide is for you.
+
+## The Three Entities
+
+Every file and directory has permissions for three entities:
+
+1. **Owner (u)** — The user who created the file
+2. **Group (g)** — Members of the file's group
+3. **Other (o)** — Everyone else
+
+## The Three Permissions
+
+Each entity gets three permission bits:
+
+| Permission | Letter | Value | Meaning |
+|-----------|--------|-------|---------|
+| Read | r | 4 | View contents / list directory |
+| Write | w | 2 | Modify contents / add-remove files |
+| Execute | x | 1 | Run as program / enter directory |
+
+## How Octal Works
+
+The octal number is just the sum of permission values for each entity:
+
+- `7` = 4+2+1 = rwx (full access)
+- `6` = 4+2 = rw- (read and write, no execute)
+- `5` = 4+1 = r-x (read and execute, no write)
+- `4` = 4 = r-- (read only)
+- `0` = --- (no access)
+
+So `chmod 755` means:
+- **Owner**: 7 = rwx
+- **Group**: 5 = r-x
+- **Other**: 5 = r-x
+
+## The Golden Rules
+
+- **Never use 777** — it gives everyone full access and is a massive security risk
+- **Files**: Use `644` (rw-r--r--) for regular files, `600` (rw-------) for sensitive ones
+- **Directories**: Use `755` (rwxr-xr-x) for directories, `700` (rwx------) for private ones
+- **Scripts**: Use `755` for executable scripts, `644` for non-executable data
+- **SSH keys**: Must be `600` — SSH will refuse to use keys with group/other permissions
+
+## Symbolic Notation
+
+You can also use letters: `chmod u+x file` adds execute for the owner, `chmod go-w file` removes write from group and other.
+
+---
+
+*Use our [Unix Permissions Calculator](/tools/chmod-calculator) to visually build permissions and see the chmod command in real-time.*
