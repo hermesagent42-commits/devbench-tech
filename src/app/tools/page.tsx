@@ -22,6 +22,7 @@ import {
   ArrowLeftRight,
   ArrowRightLeft,
   Shield,
+  Server,
 } from 'lucide-react';
 
 export const metadata: Metadata = {
@@ -170,6 +171,13 @@ const allTools = [
     href: '/tools/password-strength-checker',
     icon: Shield,
     tags: ['Password', 'Security', 'Strength', 'Entropy'],
+  },
+  {
+    title: 'HTTP Status Codes',
+    description: 'Complete reference for every HTTP status code. Search by code or name, filter by category (1xx–5xx), and get detailed explanations with MDN links.',
+    href: '/tools/http-status-codes',
+    icon: Server,
+    tags: ['HTTP', 'Status', 'Reference', 'API'],
   },
 ];
 

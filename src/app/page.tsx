@@ -24,6 +24,7 @@ import {
   Database,
   Hash,
   Shield,
+  Server,
 } from 'lucide-react';
 
 export const metadata: Metadata = {
@@ -158,6 +159,13 @@ const featuredTools = [
     href: '/tools/password-strength-checker',
     icon: Shield,
     tags: ['Password', 'Security', 'Entropy'],
+  },
+  {
+    title: 'HTTP Status Codes',
+    description: 'Complete HTTP status code reference — 60+ codes with search, category filters, detailed explanations, and one-click copy.',
+    href: '/tools/http-status-codes',
+    icon: Server,
+    tags: ['HTTP', 'Status', 'Reference'],
   },
 ];
 
