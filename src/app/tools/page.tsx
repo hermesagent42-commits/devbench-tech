@@ -43,6 +43,7 @@ import {
   Radius,
   Scissors,
   Sparkles,
+  TrendingUp,
 } from 'lucide-react';
 
 export const metadata: Metadata = {
@@ -324,6 +325,13 @@ const allTools = [
     href: '/tools/css-animation-builder',
     icon: Sparkles,
     tags: ['CSS', 'Animation', 'Keyframes', 'Design'],
+  },
+  {
+    title: 'CSS Easing Playground',
+    description: 'Design and preview cubic-bezier() easing curves visually. Drag control points, 10 presets, live animation preview, and instant CSS output — all client-side.',
+    href: '/tools/css-easing-playground',
+    icon: TrendingUp,
+    tags: ['CSS', 'Easing', 'Animation', 'cubic-bezier'],
   },
 ];
 

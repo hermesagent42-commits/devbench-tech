@@ -40,6 +40,7 @@ import {
   MapPin,
   Camera,
   Radius,
+  TrendingUp,
 } from 'lucide-react';
 
 export const metadata: Metadata = {
@@ -293,6 +294,13 @@ const featuredTools = [
     href: '/tools/css-filter-playground',
     icon: Camera,
     tags: ['CSS', 'Filter', 'Design'],
+  },
+  {
+    title: 'CSS Easing Playground',
+    description: 'Design and preview cubic-bezier() easing curves visually. Drag control points, 10 presets, and live animation preview.',
+    href: '/tools/css-easing-playground',
+    icon: TrendingUp,
+    tags: ['CSS', 'Easing', 'Animation'],
   },
 ];
 
