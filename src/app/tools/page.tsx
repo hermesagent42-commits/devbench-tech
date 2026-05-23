@@ -41,6 +41,7 @@ import {
   Camera,
   Search,
   Radius,
+  Scissors,
 } from 'lucide-react';
 
 export const metadata: Metadata = {
@@ -308,6 +309,13 @@ const allTools = [
     href: '/tools/border-radius-generator',
     icon: Radius,
     tags: ['CSS', 'Border-Radius', 'Design', 'Generator'],
+  },
+  {
+    title: 'CSS Clip-Path Maker',
+    description: 'Visually build CSS clip-path shapes — 14 presets (circle, ellipse, polygon stars, arrows, traps), parameter sliders, custom polygon editor, and live preview. Instantly copy CSS.',
+    href: '/tools/clip-path-maker',
+    icon: Scissors,
+    tags: ['CSS', 'Clip-Path', 'Shapes', 'Design'],
   },
 ];
 
