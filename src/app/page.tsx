@@ -37,6 +37,7 @@ import {
   Type,
   FileText,
   Image,
+  MapPin,
 } from 'lucide-react';
 
 export const metadata: Metadata = {
@@ -276,6 +277,13 @@ const featuredTools = [
     href: '/tools/line-sorter',
     icon: ArrowUpDown,
     tags: ['Sort', 'Deduplicate', 'Text'],
+  },
+  {
+    title: 'IP Lookup',
+    description: 'Look up geolocation, ISP, and network info for any IP address. Auto-detect your own IP — powered by ipapi.co.',
+    href: '/tools/ip-lookup',
+    icon: MapPin,
+    tags: ['IP', 'Geolocation', 'Network'],
   },
 ];
 

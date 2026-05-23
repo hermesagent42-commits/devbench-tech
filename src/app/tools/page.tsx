@@ -37,6 +37,8 @@ import {
   Type,
   FileText,
   Eye,
+  MapPin,
+  Search,
 } from 'lucide-react';
 
 export const metadata: Metadata = {
@@ -283,6 +285,13 @@ const allTools = [
     href: '/tools/color-contrast-checker',
     icon: Eye,
     tags: ['Color', 'Contrast', 'WCAG', 'Accessibility'],
+  },
+  {
+    title: 'IP Lookup',
+    description: 'Look up geolocation, ISP, timezone, and network info for any IPv4 or IPv6 address. Auto-detect your own IP, see country flags, and copy any field — powered by ipapi.co.',
+    href: '/tools/ip-lookup',
+    icon: MapPin,
+    tags: ['IP', 'Geolocation', 'Network', 'Lookup'],
   },
 ];
 
