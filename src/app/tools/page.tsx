@@ -44,6 +44,7 @@ import {
   Scissors,
   Sparkles,
   TrendingUp,
+  Ruler,
 } from 'lucide-react';
 
 export const metadata: Metadata = {
@@ -332,6 +333,13 @@ const allTools = [
     href: '/tools/css-easing-playground',
     icon: TrendingUp,
     tags: ['CSS', 'Easing', 'Animation', 'cubic-bezier'],
+  },
+  {
+    title: 'CSS Unit Converter',
+    description: 'Convert between px, rem, em, vw, vh and 20+ CSS units. Absolute, font-relative, and viewport categories with configurable base font size — all client-side.',
+    href: '/tools/css-unit-converter',
+    icon: Ruler,
+    tags: ['CSS', 'Units', 'Converter', 'px', 'rem'],
   },
 ];
 
