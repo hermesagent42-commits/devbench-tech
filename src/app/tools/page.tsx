@@ -38,6 +38,7 @@ import {
   FileText,
   Eye,
   MapPin,
+  Camera,
   Search,
 } from 'lucide-react';
 
@@ -292,6 +293,13 @@ const allTools = [
     href: '/tools/ip-lookup',
     icon: MapPin,
     tags: ['IP', 'Geolocation', 'Network', 'Lookup'],
+  },
+  {
+    title: 'CSS Filter Playground',
+    description: 'Build CSS filter effects visually — blur, brightness, contrast, grayscale, hue-rotate, and more. 12 presets, live image preview, backdrop-filter CSS generation, all client-side.',
+    href: '/tools/css-filter-playground',
+    icon: Camera,
+    tags: ['CSS', 'Filter', 'Design', 'Effects'],
   },
 ];
 

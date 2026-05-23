@@ -38,6 +38,7 @@ import {
   FileText,
   Image,
   MapPin,
+  Camera,
 } from 'lucide-react';
 
 export const metadata: Metadata = {
@@ -284,6 +285,13 @@ const featuredTools = [
     href: '/tools/ip-lookup',
     icon: MapPin,
     tags: ['IP', 'Geolocation', 'Network'],
+  },
+  {
+    title: 'CSS Filter Playground',
+    description: 'Build CSS filter effects visually — blur, brightness, contrast, and more. 12 presets, live image preview, backdrop-filter mode.',
+    href: '/tools/css-filter-playground',
+    icon: Camera,
+    tags: ['CSS', 'Filter', 'Design'],
   },
 ];
 
