@@ -42,6 +42,7 @@ import {
   Search,
   Radius,
   Scissors,
+  Sparkles,
 } from 'lucide-react';
 
 export const metadata: Metadata = {
@@ -316,6 +317,13 @@ const allTools = [
     href: '/tools/clip-path-maker',
     icon: Scissors,
     tags: ['CSS', 'Clip-Path', 'Shapes', 'Design'],
+  },
+  {
+    title: 'CSS Animation Builder',
+    description: 'Design CSS @keyframes animations visually — multiple stops with transform, opacity, and color control. 8 presets, live preview, and full CSS output.',
+    href: '/tools/css-animation-builder',
+    icon: Sparkles,
+    tags: ['CSS', 'Animation', 'Keyframes', 'Design'],
   },
 ];
 
