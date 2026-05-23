@@ -40,6 +40,7 @@ import {
   MapPin,
   Camera,
   Search,
+  Radius,
 } from 'lucide-react';
 
 export const metadata: Metadata = {
@@ -300,6 +301,13 @@ const allTools = [
     href: '/tools/css-filter-playground',
     icon: Camera,
     tags: ['CSS', 'Filter', 'Design', 'Effects'],
+  },
+  {
+    title: 'CSS Border-Radius Generator',
+    description: 'Visually craft border-radius corners with individual control, 10 presets, live preview, and CSS output — uniform or per-corner, all client-side.',
+    href: '/tools/border-radius-generator',
+    icon: Radius,
+    tags: ['CSS', 'Border-Radius', 'Design', 'Generator'],
   },
 ];
 

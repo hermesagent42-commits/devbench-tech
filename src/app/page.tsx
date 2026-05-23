@@ -39,6 +39,7 @@ import {
   Image,
   MapPin,
   Camera,
+  Radius,
 } from 'lucide-react';
 
 export const metadata: Metadata = {

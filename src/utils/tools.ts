@@ -1,5 +1,5 @@
 import type { LucideIcon } from 'lucide-react';
-import { Braces, Binary, Fingerprint, Regex, Palette, Key, Anchor, Layers, PaintBucket, Layout, Database, Shield, Server, BarChart3, FileText, Eye, ArrowUpDown, Camera } from 'lucide-react';
+import { Braces, Binary, Fingerprint, Regex, Palette, Key, Anchor, Layers, PaintBucket, Layout, Database, Shield, Server, BarChart3, FileText, Eye, ArrowUpDown, Camera, Radius } from 'lucide-react';
 export interface Tool {
   title: string;
   description: string;
@@ -26,4 +26,5 @@ export const tools: Tool[] = [
   { title: 'Color Contrast Checker', description: 'Check color contrast ratios for WCAG 2.1 compliance. AA/AAA scores, live preview, presets — all client-side.', href: '/tools/color-contrast-checker', icon: Eye, tags: ['color', 'contrast', 'wcag', 'accessibility'] },
   { title: 'Line Sorter', description: 'Sort, deduplicate, shuffle, and transform lines of text. Natural sort, numeric sort, reverse, case-sensitive — all client-side.', href: '/tools/line-sorter', icon: ArrowUpDown, tags: ['sort', 'deduplicate', 'text', 'data'] },
   { title: 'CSS Filter Playground', description: 'Visually build CSS filter effects — blur, brightness, contrast, grayscale, and more. 12 presets, live image preview, backdrop-filter mode, all client-side.', href: '/tools/css-filter-playground', icon: Camera, tags: ['css', 'filter', 'design', 'effects'] },
+  { title: 'CSS Border-Radius Generator', description: 'Visually craft border-radius corners — uniform or individual control, 10 presets, live preview, and copy-ready CSS output.', href: '/tools/border-radius-generator', icon: Radius, tags: ['css', 'border-radius', 'design', 'generator'] },
 ];
