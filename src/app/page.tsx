@@ -371,6 +371,13 @@ const featuredTools = [
     icon: Accessibility,
     tags: ['Accessibility', 'CVD', 'Simulation'],
   },
+  {
+    title: 'Glassmorphism Generator',
+    description: 'Design frosted-glass panels with live preview. 8 presets, blur/opacity/tint controls, and instant CSS with backdrop-filter.',
+    href: '/tools/glassmorphism-generator',
+    icon: Layers,
+    tags: ['CSS', 'Glassmorphism', 'Design'],
+  },
 ];
 
 // Inline sample blog posts — latest featured on homepage

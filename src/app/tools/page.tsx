@@ -426,6 +426,13 @@ const allTools = [
     icon: Accessibility,
     tags: ['Color Blindness', 'Accessibility', 'CVD', 'Simulation'],
   },
+  {
+    title: 'Glassmorphism Generator',
+    description: 'Design frosted-glass UI panels with live preview. 8 presets (Frosted, Dark, Neon, Mint, Ice), blur/saturation/opacity/radius controls, and instant CSS output with backdrop-filter.',
+    href: '/tools/glassmorphism-generator',
+    icon: Layers,
+    tags: ['CSS', 'Glassmorphism', 'Backdrop Filter', 'Design'],
+  },
 ];
 
 export default function ToolsPage() {
