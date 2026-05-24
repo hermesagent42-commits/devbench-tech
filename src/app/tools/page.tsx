@@ -197,6 +197,13 @@ const allTools = [
     tags: ['JSON', 'TypeScript', 'Types', 'Code Generation'],
   },
   {
+    title: 'HTML to JSX',
+    description: 'Convert HTML to valid JSX syntax — class→className, inline styles to JS objects, self-closing void elements, SVG/ARIA attributes, comments. 100% client-side.',
+    href: '/tools/html-to-jsx',
+    icon: FileCode,
+    tags: ['HTML', 'JSX', 'React', 'Converter'],
+  },
+  {
     title: 'Number Base Converter',
     description: 'Convert numbers between binary, octal, decimal, and hex in real-time. ASCII/Unicode preview, common reference values — all client-side.',
     href: '/tools/number-base-converter',
