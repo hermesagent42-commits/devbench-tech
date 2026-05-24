@@ -27,6 +27,8 @@ import {
   Server,
   Globe,
   Link,
+  DollarSign,
+  Coins,
   AlignLeft,
   ShieldCheck,
   SlidersHorizontal,
@@ -373,6 +375,13 @@ const allTools = [
     href: '/tools/image-compressor',
     icon: Image,
     tags: ['Image', 'Compressor', 'WebP', 'PNG', 'JPEG'],
+  },
+  {
+    title: 'Currency Converter',
+    description: 'Convert between 50 world currencies with live ECB exchange rates. Searchable dropdowns, swap direction, popular pairs, copy, and daily-updated rates via Frankfurter API.',
+    href: '/tools/currency-converter',
+    icon: DollarSign,
+    tags: ['Currency', 'Exchange', 'Finance', 'Converter'],
   },
   {
     title: 'JSON Diff Checker',
