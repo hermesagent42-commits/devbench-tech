@@ -50,6 +50,7 @@ import {
   Parentheses,
   Anchor,
   TreePine,
+  ScrollText,
 } from 'lucide-react';
 
 export const metadata: Metadata = {
@@ -408,6 +409,13 @@ const featuredTools = [
     href: '/tools/css-nesting-playground',
     icon: TreePine,
     tags: ['CSS', 'Nesting', 'Baseline 2026'],
+  },
+  {
+    title: 'Scroll-Driven Animations',
+    description: 'Build CSS scroll-driven animations visually — the new 2026 Baseline API. 8 presets, live scroll preview, instant CSS copy.',
+    href: '/tools/scroll-driven-animations',
+    icon: ScrollText,
+    tags: ['CSS', 'Scroll', 'Animation', 'Baseline 2026'],
   },
 ];
 
