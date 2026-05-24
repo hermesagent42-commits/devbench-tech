@@ -53,6 +53,7 @@ import {
   Container,
   Accessibility,
   Square,
+  Parentheses,
 } from 'lucide-react';
 
 export const metadata: Metadata = {
@@ -432,6 +433,13 @@ const allTools = [
     href: '/tools/glassmorphism-generator',
     icon: Layers,
     tags: ['CSS', 'Glassmorphism', 'Backdrop Filter', 'Design'],
+  },
+  {
+    title: 'CSS :has() Selector Playground',
+    description: 'Experiment with the CSS :has() relational pseudo-class — now Baseline everywhere. Write HTML, compose :has() selectors, and see live highlights on matching elements. 7 real-world presets, match inspector, and generated CSS output.',
+    href: '/tools/css-has-playground',
+    icon: Parentheses,
+    tags: ['CSS', ':has()', 'Selectors', 'Baseline 2026'],
   },
 ];
 

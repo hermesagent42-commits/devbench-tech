@@ -47,6 +47,7 @@ import {
   Accessibility,
   Square,
   Loader2,
+  Parentheses,
 } from 'lucide-react';
 
 export const metadata: Metadata = {
@@ -377,6 +378,13 @@ const featuredTools = [
     href: '/tools/glassmorphism-generator',
     icon: Layers,
     tags: ['CSS', 'Glassmorphism', 'Design'],
+  },
+  {
+    title: 'CSS :has() Playground',
+    description: 'Experiment with the :has() relational pseudo-class — now Baseline everywhere. 7 presets, live highlighting, match inspector.',
+    href: '/tools/css-has-playground',
+    icon: Parentheses,
+    tags: ['CSS', ':has()', 'Selectors', '2026'],
   },
 ];
 
