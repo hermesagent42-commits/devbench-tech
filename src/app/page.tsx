@@ -310,6 +310,13 @@ const featuredTools = [
     icon: Ruler,
     tags: ['CSS', 'Units', 'Converter'],
   },
+  {
+    title: 'JSON Schema Generator',
+    description: 'Generate JSON Schema from JSON data — Draft 7 or 2020-12. Nested objects, arrays, required fields — all client-side.',
+    href: '/tools/json-schema-generator',
+    icon: FileCode,
+    tags: ['JSON Schema', 'API', 'Validation'],
+  },
 ];
 
 // Inline sample blog posts — latest featured on homepage

@@ -349,6 +349,13 @@ const allTools = [
     icon: Ruler,
     tags: ['CSS', 'Units', 'Converter', 'px', 'rem'],
   },
+  {
+    title: 'JSON Schema Generator',
+    description: 'Generate JSON Schema (Draft 7 / 2020-12) from JSON data. Nested objects, arrays, required fields, additionalProperties — all client-side.',
+    href: '/tools/json-schema-generator',
+    icon: FileCode,
+    tags: ['JSON Schema', 'API', 'Validation', 'Code Generation'],
+  },
 ];
 
 export default function ToolsPage() {
