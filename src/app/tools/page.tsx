@@ -371,6 +371,13 @@ const allTools = [
     icon: Image,
     tags: ['Image', 'Compressor', 'WebP', 'PNG', 'JPEG'],
   },
+  {
+    title: 'JSON Diff Checker',
+    description: 'Compare two JSON documents structurally — added, removed, and changed keys at any nesting level. Color-coded tree view with expand/collapse. 100% client-side.',
+    href: '/tools/json-diff',
+    icon: ArrowLeftRight,
+    tags: ['JSON', 'Diff', 'Compare', 'API'],
+  },
 ];
 
 export default function ToolsPage() {
