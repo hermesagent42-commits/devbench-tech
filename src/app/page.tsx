@@ -49,6 +49,7 @@ import {
   Loader2,
   Parentheses,
   Anchor,
+  TreePine,
 } from 'lucide-react';
 
 export const metadata: Metadata = {
@@ -393,6 +394,13 @@ const featuredTools = [
     href: '/tools/css-has-playground',
     icon: Parentheses,
     tags: ['CSS', ':has()', 'Selectors', '2026'],
+  },
+  {
+    title: 'CSS Nesting Playground',
+    description: 'Write native CSS nesting and see the expanded browser-ready output — now Baseline everywhere. No preprocessor needed. 8 presets, real-time expansion.',
+    href: '/tools/css-nesting-playground',
+    icon: TreePine,
+    tags: ['CSS', 'Nesting', 'Baseline 2026'],
   },
 ];
 

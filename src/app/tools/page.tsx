@@ -54,6 +54,7 @@ import {
   Accessibility,
   Square,
   Parentheses,
+  TreePine,
 } from 'lucide-react';
 
 export const metadata: Metadata = {
@@ -447,6 +448,13 @@ const allTools = [
     href: '/tools/css-has-playground',
     icon: Parentheses,
     tags: ['CSS', ':has()', 'Selectors', 'Baseline 2026'],
+  },
+  {
+    title: 'CSS Nesting Playground',
+    description: 'Write native CSS nesting and see the expanded browser-ready output — now Baseline across all browsers. 8 presets (cards, buttons, forms, layout), real-time expansion, syntax highlighting, &/@nest/@media/@container support.',
+    href: '/tools/css-nesting-playground',
+    icon: TreePine,
+    tags: ['CSS', 'Nesting', 'Baseline 2026', 'Preprocessor-free'],
   },
 ];
 
