@@ -322,6 +322,13 @@ const featuredTools = [
 // Inline sample blog posts — latest featured on homepage
 const sampleBlogPosts = [
   {
+    title: 'CSS Scroll-Driven Animations: The Complete Guide',
+    date: '2026-05-24',
+    excerpt: 'Scroll-driven animations let you drive CSS animations by scroll position instead of time. Now Baseline everywhere — everything you need to know with 5 real-world patterns.',
+    slug: 'scroll-driven-animations',
+    tags: ['CSS', 'Scroll-Driven', 'Animation', 'Web Platform'],
+  },
+  {
     title: 'The View Transitions API: Smooth Page Animations Without JavaScript',
     date: '2026-05-24',
     excerpt: 'View Transitions API is now Baseline across all major browsers. Learn how to add smooth cross-page animations with one line of CSS.',
