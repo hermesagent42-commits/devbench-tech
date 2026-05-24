@@ -51,6 +51,7 @@ import {
   Anchor,
   TreePine,
   ScrollText,
+  Film,
 } from 'lucide-react';
 
 export const metadata: Metadata = {
@@ -416,6 +417,13 @@ const featuredTools = [
     href: '/tools/scroll-driven-animations',
     icon: ScrollText,
     tags: ['CSS', 'Scroll', 'Animation', 'Baseline 2026'],
+  },
+  {
+    title: 'View Transitions Playground',
+    description: 'Build and test View Transitions API animations — cross-fade, slide, 3D rotate, morph, and more. 9 presets, live preview, production-ready CSS.',
+    href: '/tools/view-transitions-playground',
+    icon: Film,
+    tags: ['CSS', 'View Transitions', 'Animation', 'Baseline 2026'],
   },
 ];
 
