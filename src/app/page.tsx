@@ -52,6 +52,7 @@ import {
   TreePine,
   ScrollText,
   Film,
+  PenTool,
 } from 'lucide-react';
 
 export const metadata: Metadata = {
@@ -424,6 +425,13 @@ const featuredTools = [
     href: '/tools/view-transitions-playground',
     icon: Film,
     tags: ['CSS', 'View Transitions', 'Animation', 'Baseline 2026'],
+  },
+  {
+    title: 'SVG Previewer & Optimizer',
+    description: 'Paste SVG code to preview, validate, and optimize. Strip whitespace, comments, and redundant attributes — see instant size savings. 5 sample SVGs, light/dark backgrounds.',
+    href: '/tools/svg-previewer',
+    icon: PenTool,
+    tags: ['SVG', 'Preview', 'Optimizer'],
   },
 ];
 

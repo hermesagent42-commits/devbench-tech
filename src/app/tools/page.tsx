@@ -56,6 +56,7 @@ import {
   Parentheses,
   TreePine,
   ScrollText,
+  PenTool,
 } from 'lucide-react';
 
 export const metadata: Metadata = {
@@ -463,6 +464,13 @@ const allTools = [
     href: '/tools/scroll-driven-animations',
     icon: ScrollText,
     tags: ['CSS', 'Scroll-Driven', 'Animation', 'Baseline 2026'],
+  },
+  {
+    title: 'SVG Previewer & Optimizer',
+    description: 'Paste SVG code, preview it live, validate for common issues, and optimize — strip whitespace, comments, and redundant attributes to shrink file size. 5 sample SVGs, light/dark preview backgrounds, instant download.',
+    href: '/tools/svg-previewer',
+    icon: PenTool,
+    tags: ['SVG', 'Preview', 'Optimizer', 'Minifier'],
   },
 ];
 
