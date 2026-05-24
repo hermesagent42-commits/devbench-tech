@@ -48,6 +48,7 @@ import {
   Square,
   Loader2,
   Parentheses,
+  Anchor,
 } from 'lucide-react';
 
 export const metadata: Metadata = {
@@ -380,6 +381,13 @@ const featuredTools = [
     tags: ['CSS', 'Glassmorphism', 'Design'],
   },
   {
+    title: 'CSS Anchor Positioning Playground',
+    description: 'Visually build CSS Anchor Positioning layouts — the new Baseline 2026 API that replaces JavaScript tooltip libraries. 3×3 grid, live preview, instant CSS copy.',
+    href: '/tools/css-anchor-playground',
+    icon: Anchor,
+    tags: ['CSS', 'Anchor', 'Baseline 2026'],
+  },
+  {
     title: 'CSS :has() Playground',
     description: 'Experiment with the :has() relational pseudo-class — now Baseline everywhere. 7 presets, live highlighting, match inspector.',
     href: '/tools/css-has-playground',
@@ -390,6 +398,13 @@ const featuredTools = [
 
 // Inline sample blog posts — latest featured on homepage
 const sampleBlogPosts = [
+  {
+    title: 'CSS Anchor Positioning Is Baseline — The End of JavaScript Tooltip Libraries',
+    date: '2026-05-24',
+    excerpt: 'CSS Anchor Positioning just hit Baseline across all browsers. No more Floating UI, Popper, or Tippy.js — the browser now natively tethers elements with zero JavaScript.',
+    slug: 'css-anchor-positioning-guide',
+    tags: ['CSS', 'Anchor Positioning', 'Baseline 2026'],
+  },
   {
     title: 'CSS :has() — The Parent Selector That Changes Everything',
     date: '2026-05-24',
