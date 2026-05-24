@@ -42,6 +42,7 @@ import {
   Radius,
   TrendingUp,
   Ruler,
+  Box,
 } from 'lucide-react';
 
 export const metadata: Metadata = {
@@ -323,6 +324,13 @@ const featuredTools = [
     href: '/tools/json-schema-generator',
     icon: FileCode,
     tags: ['JSON Schema', 'API', 'Validation'],
+  },
+  {
+    title: 'Box Model Visualizer',
+    description: 'Interactively build and visualize the CSS box model — margin, border, padding, and content. Real-time rendering, presets, CSS output.',
+    href: '/tools/box-model-visualizer',
+    icon: Box,
+    tags: ['CSS', 'Box Model', 'Layout'],
   },
 ];
 

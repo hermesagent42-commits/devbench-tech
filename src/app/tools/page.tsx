@@ -47,6 +47,7 @@ import {
   Ruler,
   Code2,
   Image,
+  Box,
 } from 'lucide-react';
 
 export const metadata: Metadata = {
@@ -377,6 +378,13 @@ const allTools = [
     href: '/tools/json-diff',
     icon: ArrowLeftRight,
     tags: ['JSON', 'Diff', 'Compare', 'API'],
+  },
+  {
+    title: 'Box Model Visualizer',
+    description: 'Interactively build and visualize the CSS box model — margin, border, padding, and content. Real-time rendering, 6 presets, generated CSS output.',
+    href: '/tools/box-model-visualizer',
+    icon: Box,
+    tags: ['CSS', 'Box Model', 'Layout', 'Visualizer'],
   },
 ];
 
