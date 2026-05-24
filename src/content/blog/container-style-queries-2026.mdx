@@ -1,0 +1,260 @@
+---
+title: "Building Resilient Components with Container Queries and Style Queries"
+date: 2026-05-24
+excerpt: "Container queries are the biggest shift in CSS layout since media queries. Now with style queries landing as part of Interop 2026, you can query not just size but computed styles — custom properties, text direction, and more. Here's how to build truly self-contained components that work in any context."
+tags: "CSS, Container Queries, Style Queries, Responsive, Components, Interop 2026, Web Platform"
+---
+
+## Why Container Queries Change Everything
+
+For two decades, we've built responsive layouts using media queries — checking the _viewport_ width and adjusting styles accordingly. The problem? Components don't care about the viewport. A card in a full-width section needs one layout; the same card in a 300px sidebar needs a completely different one. With media queries, you're forced to know the layout context at every nesting level:
+
+```css
+/* Fragile — breaks when the card moves */
+.card { display: grid; grid-template-columns: 1fr 1fr; }
+
+.sidebar .card { display: block; }
+.main-content .card { display: grid; grid-template-columns: 1fr 1fr; }
+.small-section .card { display: block; }
+```
+
+This is brittle, verbose, and requires updating every time you restructure your layout. Container queries fix this by letting components respond to their _own_ size:
+
+```css
+.card-container {
+  container-type: inline-size;
+  container-name: card;
+}
+
+@container card (min-width: 400px) {
+  .card { display: grid; grid-template-columns: 1fr 1fr; }
+}
+```
+
+The card now decides its own layout based on how much space it has — regardless of where it lives in the DOM.
+
+## Browser Support: It's Production-Ready
+
+Container **size** queries reached Baseline in 2023. Every major browser supports them:
+
+- **Chrome 105+** (August 2022)
+- **Safari 16+** (September 2022)
+- **Firefox 110+** (February 2023)
+- **Samsung Internet 20+**
+- **Edge 105+**
+
+You can use container size queries in production today with zero fallbacks. The Interop 2026 initiative is now bringing **style queries** across all browsers — Firefox is the last holdout but should land in 2026.
+
+## Container Size Queries in Practice
+
+### The Core Properties
+
+```css
+.my-container {
+  /* Query the inline dimension (width in horizontal writing modes) */
+  container-type: inline-size;
+
+  /* Optional: give it a name for scoped queries */
+  container-name: my-component;
+
+  /* Shorthand: container: my-component / inline-size; */
+}
+```
+
+Then write queries against it:
+
+```css
+@container my-component (min-width: 500px) {
+  .child { flex-direction: row; }
+}
+
+@container my-component (max-width: 499px) {
+  .child { flex-direction: column; }
+}
+```
+
+### `container-type` options
+
+| Value | Queries |
+|---|---|
+| `inline-size` | Inline axis only (width). Safest choice — doesn't trigger layout loops. |
+| `size` | Both inline and block dimensions. Use carefully — can cause infinite layout if children change height. |
+| `normal` | Not a query container. Explicitly opt-out even if you have `container-name`. |
+
+**Use `inline-size` by default.** The `size` value is powerful for height-aware layouts (like a hero section that changes layout when it's tall enough), but it can introduce cyclic dependencies.
+
+### Real-World Pattern: Responsive Card Grid
+
+```css
+/* Parent: establish the query context */
+.card-grid {
+  container-type: inline-size;
+  display: grid;
+  gap: 1rem;
+}
+
+/* Single column on narrow containers */
+@container (width < 600px) {
+  .card-grid { grid-template-columns: 1fr; }
+}
+
+/* Two columns on medium */
+@container (600px <= width < 900px) {
+  .card-grid { grid-template-columns: 1fr 1fr; }
+}
+
+/* Three columns on wide */
+@container (width >= 900px) {
+  .card-grid { grid-template-columns: 1fr 1fr 1fr; }
+}
+```
+
+Using the new range syntax (`width < 600px` instead of `max-width: 599px`) makes queries far more readable.
+
+## Style Queries: The Next Frontier
+
+Container **style** queries let you query computed styles — not just size. They're behind the `style()` function:
+
+```css
+@container style(--theme: dark) {
+  .card {
+    background: #1a1a2e;
+    color: #e0e0e0;
+  }
+}
+```
+
+Style queries can check:
+
+- **Custom properties**: `style(--layout: grid)`, `style(--density: compact)`
+- **Built-in properties**: `style(flex-direction: row)`, `style(writing-mode: vertical-rl)`
+
+This enables design system tokens to control component variants:
+
+```css
+:root {
+  --card-style: elevated;
+}
+
+.card-container {
+  container-name: card;
+}
+
+@container card style(--card-style: elevated) {
+  .card {
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    border-radius: 12px;
+  }
+}
+
+@container card style(--card-style: flat) {
+  .card {
+    box-shadow: none;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+  }
+}
+```
+
+Change one custom property and all matching style queries activate — no JavaScript needed.
+
+### Style Query Browser Support (May 2026)
+
+| Browser | Style Queries |
+|---|---|
+| Chrome 111+ | ✅ |
+| Safari 18+ | ✅ |
+| Firefox | 🔜 Interop 2026 |
+| Edge 111+ | ✅ |
+
+Progressive enhancement strategy: use style queries for enhanced variants with a CSS fallback that works everywhere.
+
+## The Container Query + Cascade Layers Combo
+
+Container queries and `@layer` work brilliantly together. Put your container query styles in a layer to manage specificity:
+
+```css
+@layer components {
+  .card-container {
+    container-type: inline-size;
+  }
+
+  @container (min-width: 400px) {
+    .card { grid-template-columns: 1fr 1fr; }
+  }
+}
+
+@layer overrides {
+  /* These always win regardless of source order */
+  .card.compact { container-type: inline-size; }
+  @container (max-width: 250px) {
+    .card.compact { display: none; }
+  }
+}
+```
+
+## Performance Considerations
+
+Container queries are well-optimized in modern browsers, but there are a few gotchas:
+
+1. **Don't make everything a container.** Each container element adds a small overhead to the layout pass. Only declare `container-type` on elements that actually need querying.
+
+2. **Avoid `container-type: size` on elements whose children affect their size.** This creates circular dependencies where changing child layout changes the container size, which changes the query match, which changes the child layout... Use `inline-size` unless you specifically need height/block queries.
+
+3. **Named containers are faster than unnamed queries.** Prefer `@container my-name (condition)` over `@container (condition)` — it scopes the lookup.
+
+4. **Style queries are comparable to size queries in performance**, since both are evaluated during layout/restyle rather than continuously.
+
+## Common Pitfalls
+
+### "My container query doesn't fire"
+
+Check that:
+- The parent element has `container-type: inline-size` (or `size`)
+- The element you're styling is a _descendant_ of the container (not a sibling or the container itself)
+- Container query conditions use the right units (`px`, not `rem` or `em` for the actual element size)
+
+### "The query works but the layout is wrong"
+
+Remember that container queries measure the _content box_ of the container, not including padding. If your container has `padding: 20px` and is 500px wide, the query sees 460px. Use `box-sizing: border-box` or account for the padding.
+
+### "Layout shifts when the query toggles"
+
+Container query thresholds can cause jarring layout changes. Smooth them with:
+
+```css
+.card {
+  transition: grid-template-columns 0.3s ease;
+}
+```
+
+CSS Grid properties _are_ animatable in modern browsers — use `transition` on `grid-template-columns`, `grid-template-rows`, and `gap`.
+
+## The Future: Container Queries + Anchor Positioning
+
+CSS Anchor Positioning (also Baseline 2026) pairs beautifully with container queries. A popover can position itself relative to its anchor, then use container queries to adjust its internal layout:
+
+```css
+.popover {
+  position-anchor: --trigger-btn;
+  position-area: bottom span-right;
+  container-type: inline-size;
+}
+
+@container (min-width: 300px) {
+  .popover-content { flex-direction: row; }
+}
+```
+
+For more on Anchor Positioning, try the [CSS Anchor Playground](/tools/css-anchor-playground) and build your queries interactively with the [Container Query Builder](/tools/container-query-builder).
+
+## Go Build With Confidence
+
+Container size queries are ready for production today — they've been Baseline for over three years. Style queries are right behind them with Interop 2026. The era of context-independent components has arrived. No more `.sidebar .card` specificity chains — just let components own their responsive behavior.
+
+**Start using container queries today:**
+
+- Refactor one component (a card, a nav, a grid) to use `container-type: inline-size`
+- Use range syntax (`width >= 500px`) for cleaner conditions
+- Pair with cascade layers for predictable specificity
+- Preview your breakpoints with the [Container Query Builder](/tools/container-query-builder) on DevBench

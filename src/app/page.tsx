@@ -43,6 +43,7 @@ import {
   TrendingUp,
   Ruler,
   Box,
+  Container,
 } from 'lucide-react';
 
 export const metadata: Metadata = {
@@ -324,6 +325,13 @@ const featuredTools = [
     href: '/tools/json-schema-generator',
     icon: FileCode,
     tags: ['JSON Schema', 'API', 'Validation'],
+  },
+  {
+    title: 'Container Query Builder',
+    description: 'Visually build CSS container size queries. Set container-type, add range conditions, preview at different widths, and copy production-ready CSS.',
+    href: '/tools/container-query-builder',
+    icon: Container,
+    tags: ['CSS', 'Container Queries', 'Responsive', '2026'],
   },
   {
     title: 'Box Model Visualizer',

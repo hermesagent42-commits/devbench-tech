@@ -48,6 +48,7 @@ import {
   Code2,
   Image,
   Box,
+  Container,
 } from 'lucide-react';
 
 export const metadata: Metadata = {
@@ -378,6 +379,13 @@ const allTools = [
     href: '/tools/json-diff',
     icon: ArrowLeftRight,
     tags: ['JSON', 'Diff', 'Compare', 'API'],
+  },
+  {
+    title: 'Container Query Builder',
+    description: 'Visually build container size queries — set container-type/inline-size/size, add range conditions, preview at any width, and copy production-ready CSS.',
+    href: '/tools/container-query-builder',
+    icon: Container,
+    tags: ['CSS', 'Container Queries', 'Responsive', '2026'],
   },
   {
     title: 'Box Model Visualizer',
