@@ -1,0 +1,561 @@
+---
+title: "CSS :has() — The Parent Selector That Changes Everything"
+date: "2026-05-24"
+excerpt: "The :has() pseudo-class is now Baseline across all major browsers. It's not just a 'parent selector' — it's a relational selector that unlocks patterns we've needed JavaScript for since the beginning of CSS. Here's the complete guide with real-world patterns."
+tags: ["css", "has-selector", "web-platform", "tutorial", "selectors"]
+---
+
+For two decades, CSS developers asked for a **parent selector** — a way to style an element based on what it *contains*. In 2023, we got it. And by late 2025, `:has()` reached Baseline — supported in every major browser, covering ~94% of global users.
+
+But `:has()` is much more than a parent selector. It's a **relational selector** that lets you style any element based on any of its descendants, siblings, or state. It unlocks patterns that used to require JavaScript — or were simply impossible in CSS.
+
+Let's dive deep.
+
+## What `:has()` Actually Does
+
+`:has()` is a functional pseudo-class that takes a **selector list** as its argument. It matches an element if any of the relative selectors in that list match at least one element.
+
+```css
+/* "Select any .card that contains an img" */
+.card:has(img) {
+  grid-column: span 2;
+}
+
+/* "Select any li that contains a ul (a sublist)" */
+li:has(> ul) {
+  list-style: none;
+}
+
+/* "Select a form that contains an invalid input" */
+form:has(:invalid) {
+  border-left: 4px solid #ef4444;
+}
+```
+
+The argument is a **relative selector** — it's scoped to the element you're checking. The `:has()` itself doesn't change which element gets styled; it changes *whether* it gets styled.
+
+## The Classic: Parent Selector
+
+The most requested use case — style a parent based on its child:
+
+```css
+/* A card that contains an image gets a two-column layout */
+.card:has(img) {
+  display: grid;
+  grid-template-columns: 200px 1fr;
+  gap: 1.5rem;
+}
+
+/* A nav item that has a dropdown gets a chevron */
+.nav-item:has(> .dropdown)::after {
+  content: ' ▾';
+  font-size: 0.7rem;
+}
+```
+
+Without `:has()`, you'd need JavaScript to toggle a class on the parent. Now it's a single CSS rule.
+
+## Previous Sibling Selector
+
+This is the one that blows people's minds. CSS has always had `+` (next sibling) but never "previous sibling." With `:has()`, you can:
+
+```css
+/* When a checkbox is checked, style the label BEFORE it */
+label:has(+ input:checked) {
+  color: #6366f1;
+  font-weight: 600;
+}
+
+/* Style all items BEFORE the active one differently */
+.item:has(+ .item.active) {
+  opacity: 0.6;
+}
+```
+
+This is a game-changer for custom form controls, navigation, and any UI where "the thing before the active thing" matters.
+
+## Real-World Patterns
+
+### Pattern 1: Form Validation States
+
+This is where `:has()` shines brightest. Style the entire form — or individual field groups — based on the validity of their inputs:
+
+```css
+/* Highlight the entire form when any field is invalid */
+form:has(:user-invalid) {
+  --form-border: #ef4444;
+}
+
+/* Show a submit button only when all required fields are filled */
+form:has(:required:valid) button[type="submit"] {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* Style a field group with an error state */
+.field-group:has(:user-invalid) {
+  border-left: 3px solid #ef4444;
+  padding-left: 1rem;
+  background: rgba(239, 68, 68, 0.05);
+}
+
+/* Show error message only when the associated input is invalid */
+.field-group:has(:user-invalid) .error-message {
+  display: block;
+}
+
+/* Style the password field differently when it passes validation */
+.field-group:has(input[type="password"]:valid) .strength-indicator {
+  background: #22c55e;
+}
+```
+
+No JavaScript. No class toggling. Pure CSS form validation feedback.
+
+### Pattern 2: Card Layout Adaptation
+
+Make your card layouts responsive to their *content*, not just the viewport:
+
+```css
+/* Cards with images get a horizontal layout */
+.product-card:has(img) {
+  display: grid;
+  grid-template-columns: 180px 1fr;
+  gap: 1rem;
+}
+
+/* Cards without images stay vertical */
+.product-card:not(:has(img)) {
+  display: flex;
+  flex-direction: column;
+}
+
+/* A featured card with a badge gets extra prominence */
+.product-card:has(.badge--featured) {
+  box-shadow: 0 0 0 2px #6366f1, 0 4px 20px rgba(99, 102, 241, 0.3);
+}
+
+/* Card with multiple tags gets a scrollable tag area */
+.product-card:has(.tag:nth-child(4)) .tags-container {
+  overflow-x: auto;
+  mask-image: linear-gradient(to right, black 80%, transparent);
+}
+```
+
+Content-aware layouts. No media queries. No container queries. Just the structure of the content deciding the layout.
+
+### Pattern 3: Navigation States
+
+```css
+/* Highlight the current nav section */
+nav:has([aria-current="page"]) {
+  /* We know we're on a page with active nav */
+}
+
+.nav-item:has([aria-current="page"]) {
+  background: rgba(99, 102, 241, 0.15);
+}
+
+/* Style a dropdown toggle when its menu is open */
+.dropdown:has([aria-expanded="true"]) .dropdown-toggle {
+  background: #6366f1;
+  color: white;
+}
+
+/* Breadcrumb with more than 3 items gets truncated */
+.breadcrumb:has(> li:nth-child(4)) {
+  /* Enable truncation mode */
+  --truncate-breadcrumbs: 1;
+}
+```
+
+### Pattern 4: Interactive Components
+
+```css
+/* Custom checkbox/radio styling */
+.checkbox-wrapper:has(input:checked) .checkmark {
+  background: #6366f1;
+  border-color: #6366f1;
+}
+
+.checkbox-wrapper:has(input:checked) .checkmark::after {
+  opacity: 1;
+  transform: scale(1);
+}
+
+/* Tab panels */
+.tab-panel:not(:has([aria-selected="true"])) {
+  display: none;
+}
+
+/* Accordion */
+.accordion-item:has([aria-expanded="true"]) .accordion-content {
+  grid-template-rows: 1fr;
+}
+
+/* A toggle switch */
+.toggle:has(input:checked) .toggle-track {
+  background: #22c55e;
+}
+
+.toggle:has(input:checked) .toggle-thumb {
+  transform: translateX(20px);
+}
+```
+
+### Pattern 5: Empty States and Edge Cases
+
+```css
+/* A list with no items gets an empty state */
+.list-container:has(> :not(.empty-state)) {
+  /* The list has items — hide the empty state */
+}
+
+.list-container:not(:has(> :not(.empty-state))) .empty-state {
+  display: flex;
+}
+
+/* A grid with only one item */
+.grid:has(> :only-child) {
+  grid-template-columns: 1fr;
+  max-width: 400px;
+  margin-inline: auto;
+}
+
+/* A table with no rows */
+.table-wrapper:not(:has(tbody tr)) .no-data-message {
+  display: block;
+}
+
+/* A button that contains only an icon (no text) gets rounded */
+button:has(svg:only-child):not(:has(:not(svg))) {
+  border-radius: 50%;
+  padding: 0.5rem;
+  aspect-ratio: 1;
+}
+```
+
+### Pattern 6: Article/Content Layouts
+
+```css
+/* An article with a hero image */
+article:has(> figure:first-child) h1 {
+  margin-top: 0;
+  font-size: 2.5rem;
+}
+
+/* A section with lots of content gets more padding */
+section:has(> *:nth-child(5)) {
+  padding-block: 4rem;
+}
+
+/* Style a code block that's inside a list item differently */
+li:has(> pre) {
+  margin-block: 1.5rem;
+}
+
+/* Show a "back to top" button on long articles */
+article:has(> *:nth-child(20)) .back-to-top {
+  display: flex;
+}
+```
+
+## Combining `:has()` with Other Selectors
+
+`:has()` composes beautifully with other modern CSS:
+
+```css
+/* :has() + :not() — cards WITHOUT images */
+.product-grid:has(.card:not(:has(img))) {
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+}
+
+/* :has() + :is() — any input that has an error state */
+.form:has(:is(input, select, textarea):user-invalid) {
+  --form-state: 'error';
+}
+
+/* :has() + :where() — low-specificity structural checks */
+.sidebar:where(:has(nav)) {
+  background: var(--surface);
+}
+
+/* :has() + :nth-child() — a grid with an odd number of items */
+.grid:has(> :nth-child(odd):last-child) {
+  /* The last item will span full width */
+  justify-items: center;
+}
+```
+
+## Browser Support
+
+As of May 2026:
+
+| Browser | Support |
+|---------|---------|
+| Chrome | ✅ 105+ |
+| Firefox | ✅ 121+ |
+| Safari | ✅ 15.4+ |
+| Edge | ✅ 105+ |
+| Samsung Internet | ✅ 20+ |
+| Opera | ✅ 91+ |
+
+**Baseline: Widely Available** as of December 2024. ~94% global coverage.
+
+### Progressive Enhancement
+
+```css
+/* Fallback: no special styling */
+.card {
+  padding: 1.5rem;
+}
+
+/* Enhancement: content-aware styling */
+@supports selector(:has(img)) {
+  .card:has(img) {
+    display: grid;
+    grid-template-columns: 200px 1fr;
+    gap: 1.5rem;
+    padding: 0;
+  }
+
+  .card:has(img) .card-body {
+    padding: 1.5rem;
+  }
+
+  .card:has(img) .card-image {
+    height: 100%;
+    object-fit: cover;
+  }
+}
+```
+
+## Performance Considerations
+
+The browser needs to evaluate `:has()` selectors carefully because they look *downward* in the DOM tree — opposite to the normal top-down selector matching. Here's what to know:
+
+### Good: Low specificity, shallow checks
+
+```css
+/* Fast — checks only immediate children */
+.card:has(> img) { }
+
+/* Fast — checks only one level deep */
+form:has(input:invalid) { }
+
+/* Fast — simple structural check */
+section:has(> h2) { }
+```
+
+### Watch out: Deep or complex selectors
+
+```css
+/* Slower — checks all descendants at any depth */
+.container:has(img) { }
+
+/* Slower — complex combinator chain */
+body:has(.modal .dialog button:focus) { }
+```
+
+### The browser is smart about it
+
+Browsers use a technique called "selector invalidation" — they only re-evaluate `:has()` when something changes that could affect the result. Changing the color of a child won't trigger a re-evaluation for `:has(img)`, but adding or removing an `<img>` will.
+
+In practice, for typical UI patterns, the performance impact of `:has()` is negligible. Don't avoid it out of premature optimization fear.
+
+### The "specificity gotcha"
+
+`:has()` itself **does not add specificity**. Only the selectors *inside* `:has()` contribute:
+
+```css
+/* Specificity: 0,1,0 (one class) */
+.card { }
+
+/* Specificity: 0,1,0 (still one class — :has() adds nothing) */
+.card:has(img) { }
+
+/* Specificity: 0,2,0 (.card + img inside :has()) */
+.card:has(img.hero) { }
+```
+
+This is different from `:not()` and `:is()` which take the specificity of their *most specific* argument. `:has()` is refreshingly simple.
+
+## Common Pitfalls
+
+### 1. `:has()` cannot be nested inside another `:has()`
+
+```css
+/* ❌ Not allowed — nested :has() */
+.card:has(.body:has(img)) { }
+
+/* ✅ Restructure instead */
+.card:has(.body img) { }
+```
+
+The CSSWG restricted this to keep selector matching performant.
+
+### 2. Pseudo-elements don't work inside `:has()`
+
+```css
+/* ❌ Won't work */
+.card:has(::before) { }
+```
+
+`::before` and `::after` are not real DOM elements — `:has()` only sees the real tree.
+
+### 3. `:has()` only works with supported selectors
+
+```css
+/* ❌ Pseudo-classes that represent element state may not work */
+/* (browser-dependent — check support) */
+.element:has(:focus-within) { } /* ✅ Works */
+.element:has(:hover) { }        /* ✅ Works */
+.element:has(:playing) { }      /* ⚠️ Check support */
+```
+
+### 4. Overusing `:has()` for everything
+
+Just because you *can* doesn't mean you *should*. Simple structural selectors are often clearer:
+
+```css
+/* Over-engineered */
+.wrapper:has(> .sidebar) { }
+
+/* Clearer and does the same thing */
+.wrapper > .sidebar { grid-column: 1; }
+```
+
+Use `:has()` when you need to style the **ancestor** or **previous sibling** — not when you can just target the element directly.
+
+## A Complete Example: Product Filter UI
+
+Here's a full product filter UI that uses `:has()` to handle almost all interactive states without JavaScript:
+
+```html
+<div class="filter-bar">
+  <div class="filter-group">
+    <label class="filter-label">
+      <input type="checkbox" value="in-stock" checked>
+      In Stock Only
+    </label>
+  </div>
+
+  <div class="filter-group">
+    <span class="filter-label-text">Category</span>
+    <select class="filter-select">
+      <option value="all">All</option>
+      <option value="electronics">Electronics</option>
+      <option value="clothing">Clothing</option>
+    </select>
+  </div>
+
+  <div class="active-filters" aria-live="polite"></div>
+</div>
+
+<div class="product-grid">
+  <!-- Product cards would go here -->
+</div>
+```
+
+```css
+/* Highlight active filter groups */
+.filter-group:has(input:checked),
+.filter-group:has(select:not([value="all"])) {
+  background: rgba(99, 102, 241, 0.1);
+  border-color: #6366f1;
+}
+
+/* Show the "active filters" section only when filters are applied */
+.active-filters:has(.filter-chip) {
+  display: flex;
+  padding: 0.75rem 0;
+  border-top: 1px solid var(--border);
+}
+
+/* Empty state: when no filters match */
+.product-grid:not(:has(.product-card))::after {
+  content: 'No products match your filters';
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 3rem;
+  color: var(--text-muted);
+}
+
+/* Filter chips for active filters */
+.filter-bar:has(input:checked) .active-filters {
+  display: flex;
+}
+```
+
+The entire filter interaction state is managed by CSS. JavaScript only needs to handle the actual list filtering — all visual feedback is declarative.
+
+## Debugging `:has()` Selectors
+
+### Chrome DevTools
+
+1. Open DevTools → **Elements** panel
+2. Find an element with a `:has()` rule
+3. In the **Styles** pane, hover over the selector — Chrome highlights matching elements
+4. If the selector isn't matching, check the **Computed** tab to see which rule is being overridden
+
+### Checking support dynamically
+
+```css
+@supports selector(:has(*)) {
+  /* :has() is supported */
+  .card:has(img) {
+    display: grid;
+    grid-template-columns: 200px 1fr;
+  }
+}
+
+@supports not selector(:has(*)) {
+  /* Fallback */
+  .card {
+    display: flex;
+    flex-direction: column;
+  }
+}
+```
+
+### Common debugging checklist
+
+- Is the element inside `:has()` actually a descendant? Use `> ` for direct children, space for any descendant.
+- Are you using a valid selector inside `:has()`? No pseudo-elements, no nested `:has()`.
+- Does the element exist in the DOM? `:has()` only sees real elements — not `::before`/`::after`.
+- Is your specificity right? `:has()` doesn't add specificity — you might be getting overridden.
+
+## The Bigger Picture: Why `:has()` Matters
+
+`:has()` represents a fundamental shift in CSS. For the first time, selectors can look *back up* the tree. This changes how we think about component architecture:
+
+- **Before `:has()`:** You styled elements from the top down. Components needed JavaScript to communicate state upward.
+- **After `:has()`:** Components can react to their *contents*. A card knows if it has an image. A form knows if it has errors. A list knows if it's empty.
+
+This is **declarative component logic** — the CSS equivalent of React's component state, but built into the browser itself.
+
+### What you can remove
+
+With `:has()`, you can often eliminate:
+
+| JavaScript Pattern | CSS Replacement |
+|---|---|
+| `parent.classList.toggle('has-image')` | `.card:has(img)` |
+| `form.classList.add('has-errors')` | `form:has(:invalid)` |
+| `menu.classList.toggle('open')` | `.dropdown:has([aria-expanded="true"])` |
+| `items.length === 0 && showEmptyState()` | `.list:not(:has(> *)) .empty-state` |
+| `previousSibling.classList.add('before-active')` | `.item:has(+ .item.active)` |
+
+Less JavaScript. Fewer state-management bugs. Faster initial render.
+
+## Resources
+
+- [MDN: :has() pseudo-class](https://developer.mozilla.org/en-US/docs/Web/CSS/:has)
+- [CSSWG Selectors Level 4 Spec](https://drafts.csswg.org/selectors-4/#relational)
+- [web.dev: The CSS :has() selector](https://web.dev/articles/has)
+- [Can I Use: :has() selector](https://caniuse.com/css-has)
+- [Chrome Developers: :has() — the family selector](https://developer.chrome.com/docs/css-ui/has-selector)
+
+---
+
+**`:has()` is Baseline.** It's not experimental. It's not "coming soon." It's here, it's fast, and it eliminates some of the last remaining reasons to use JavaScript for styling logic. If you haven't started using it yet, now is the time.

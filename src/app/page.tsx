@@ -376,6 +376,13 @@ const featuredTools = [
 // Inline sample blog posts — latest featured on homepage
 const sampleBlogPosts = [
   {
+    title: 'CSS :has() — The Parent Selector That Changes Everything',
+    date: '2026-05-24',
+    excerpt: 'The :has() pseudo-class is now Baseline across all major browsers. It\'s not just a parent selector — it\'s a relational selector that unlocks patterns we\'ve needed JavaScript for. Complete guide with 6 real-world patterns.',
+    slug: 'css-has-selector-guide',
+    tags: ['CSS', ':has()', 'Web Platform', 'Selectors'],
+  },
+  {
     title: 'CSS Scroll-Driven Animations: The Complete Guide',
     date: '2026-05-24',
     excerpt: 'Scroll-driven animations let you drive CSS animations by scroll position instead of time. Now Baseline everywhere — everything you need to know with 5 real-world patterns.',
@@ -395,13 +402,6 @@ const sampleBlogPosts = [
     excerpt: 'From CSS Anchor Positioning reaching Baseline to HTML-in-Canvas, here\'s everything announced for web developers at Google I/O 2026.',
     slug: 'google-io-2026-web-platform',
     tags: ['CSS', 'Google I/O', 'Chrome'],
-  },
-  {
-    title: 'CSS Container Queries Are Finally Here — A Practical Guide',
-    date: '2026-05-20',
-    excerpt: 'Container queries let you style elements based on their parent\'s size, not the viewport. Here\'s how to use them today.',
-    slug: 'css-container-queries-guide',
-    tags: ['CSS', 'Responsive', 'Tutorial'],
   },
 ];
 
