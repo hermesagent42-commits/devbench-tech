@@ -45,6 +45,7 @@ import {
   Box,
   Container,
   Accessibility,
+  Square,
 } from 'lucide-react';
 
 export const metadata: Metadata = {
@@ -116,6 +117,13 @@ const featuredTools = [
     href: '/tools/css-grid-generator',
     icon: Grid3X3,
     tags: ['CSS', 'Grid', 'Layout'],
+  },
+  {
+    title: 'CSS Box-Shadow Generator',
+    description: 'Design layered box‑shadows visually — offset, blur, spread, opacity, and inset. 10 presets, live preview, one‑click CSS copy.',
+    href: '/tools/css-box-shadow-generator',
+    icon: Square,
+    tags: ['CSS', 'Box-Shadow', 'Design'],
   },
   {
     title: 'Text-Shadow Generator',

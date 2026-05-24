@@ -52,6 +52,7 @@ import {
   Box,
   Container,
   Accessibility,
+  Square,
 } from 'lucide-react';
 
 export const metadata: Metadata = {
@@ -326,6 +327,13 @@ const allTools = [
     href: '/tools/border-radius-generator',
     icon: Radius,
     tags: ['CSS', 'Border-Radius', 'Design', 'Generator'],
+  },
+  {
+    title: 'CSS Box-Shadow Generator',
+    description: 'Design layered box‑shadows visually — offset, blur, spread, opacity, and inset. 10 presets (Neumorphism, Material, Glow), live preview, one‑click CSS copy — all client‑side.',
+    href: '/tools/css-box-shadow-generator',
+    icon: Square,
+    tags: ['CSS', 'Box-Shadow', 'Design', 'Generator'],
   },
   {
     title: 'CSS Clip-Path Maker',
