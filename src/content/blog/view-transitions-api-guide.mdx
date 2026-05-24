@@ -1,0 +1,332 @@
+---
+title: "The View Transitions API: Smooth Page Animations Without JavaScript"
+date: "2026-05-24"
+excerpt: "View Transitions API is now Baseline across all major browsers. Learn how to add smooth cross-page animations with one line of CSS — and master advanced MPA transitions, named elements, and custom animations."
+tags: ["css", "view-transitions", "web-platform", "performance", "frontend"]
+---
+
+The View Transitions API is one of the most transformative additions to the web platform in years. It lets you animate between two DOM states — or between two entirely different pages — with **zero JavaScript**.
+
+As of May 2026, it's Baseline. Chrome 125+, Safari 26+, and Firefox 147+ all ship it. That means you can use it in production today.
+
+## The One-Line Magic
+
+For multi-page applications (MPA), enabling page-level crossfades is literally one line:
+
+```css
+@view-transition {
+  navigation: auto;
+}
+```
+
+Add that to your global stylesheet, and every same-origin page navigation gets a smooth crossfade. No JavaScript. No SPA framework. Just the browser handling it natively.
+
+## How It Actually Works
+
+When a view transition triggers, the browser:
+
+1. **Captures** a screenshot of the old page state
+2. **Renders** the new page offscreen
+3. **Captures** a screenshot of the new page state
+4. **Animates** the old snapshot fading out while the new snapshot fades in using a `::view-transition-group` pseudo-element tree
+
+You can see and manipulate these pseudo-elements:
+
+```css
+::view-transition-old(root) {
+  animation: fade-out 0.3s ease-out;
+}
+
+::view-transition-new(root) {
+  animation: fade-in 0.5s ease-in;
+}
+
+@keyframes fade-out {
+  to { opacity: 0; }
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+}
+```
+
+## Named Elements: The Real Power
+
+Crossfading the entire page is nice, but the magic happens with **named transitions**. By assigning `view-transition-name` to specific elements, the browser morphs them between pages:
+
+```css
+/* On both pages, the product image gets a unique name */
+.product-hero-image {
+  view-transition-name: hero-image;
+}
+
+.product-title {
+  view-transition-name: hero-title;
+}
+```
+
+When navigating from a product list to a detail page, the browser will:
+
+- Morph the thumbnail into the full-size image (same `view-transition-name`)
+- Animate the title text position from the card to the heading
+- Crossfade everything else
+
+This creates an effect similar to what used to require complex JavaScript animation libraries — but now it's declarative CSS.
+
+### The Critical Rule
+
+`view-transition-name` values **must be unique per page**. If two elements on the same page share a name, the transition breaks. A common pattern:
+
+```css
+.product-card:first-child .product-image {
+  view-transition-name: hero-image;
+}
+```
+
+Only the first product card's image participates in the transition.
+
+## SPA Transitions Without a Router
+
+If you're using a client-side framework, you don't need `@view-transition`. Instead, call `document.startViewTransition()`:
+
+```javascript
+function navigateToCart() {
+  document.startViewTransition(() => {
+    // Update the DOM — React state change, innerHTML, whatever
+    updateCartView();
+  });
+}
+```
+
+The callback receives the old DOM state automatically. The browser captures a snapshot, runs your callback, captures the new state, and animates between them.
+
+### Handling Async State
+
+For transitions that depend on async data:
+
+```javascript
+document.startViewTransition(async () => {
+  // Fetch data first
+  const products = await fetch('/api/products').then(r => r.json());
+  
+  // Then update the DOM
+  renderProducts(products);
+  
+  // The transition snapshot is captured AFTER the promise resolves
+});
+```
+
+The transition doesn't start until your callback's promise resolves. This means no flash of loading state — the browser waits.
+
+## Types of Transitions
+
+The API supports several animation types out of the box:
+
+| Type | What it does | Example use case |
+|------|-------------|------------------|
+| **Default crossfade** | Old fades out, new fades in | Page navigation |
+| **Morph** | Element transforms between sizes/positions | Image gallery, product cards |
+| **Slide** | Element slides in from a direction | Navigation drawers |
+| **Scale** | Element scales up or down | Modal dialogs |
+| **Custom** | Full control via CSS animations | Anything you can imagine |
+
+### Morph Example: Expanding Card
+
+```css
+.card-image {
+  view-transition-name: card-img;
+}
+
+.card-title {
+  view-transition-name: card-title;
+}
+```
+
+On the list page, `.card-image` is 200px; on the detail page, it's 600px. The browser interpolates between both sizes and positions — no manual calculation needed.
+
+## Handling the "Old" State
+
+Sometimes you want the outgoing page to look different during the transition:
+
+```css
+/* While transitioning out, dim the old page */
+html.transitioning-out {
+  filter: brightness(0.8);
+}
+```
+
+You can detect transitions in JavaScript:
+
+```javascript
+document.addEventListener('pageswap', (e) => {
+  // About to navigate away — the old page still exists
+  document.documentElement.classList.add('transitioning-out');
+});
+
+document.addEventListener('pagereveal', (e) => {
+  // Arrived on the new page — transition is complete
+  document.documentElement.classList.remove('transitioning-in');
+});
+```
+
+## Performance Considerations
+
+View Transitions are GPU-accelerated. The browser:
+
+- Renders snapshots as textures on the compositor thread
+- Animates them without touching the main thread
+- Discards snapshots when the transition completes
+
+This means transitions stay smooth even under heavy JavaScript load. The trade-off is memory — each snapshot consumes GPU memory proportional to the element's pixel dimensions. Don't assign `view-transition-name` to massive elements or dozens of them simultaneously.
+
+### Measuring Impact
+
+```javascript
+const transition = document.startViewTransition(() => updateDOM());
+
+await transition.ready; // Snapshot captured, animation about to start
+console.log('Transition is playing');
+
+await transition.finished; // Animation complete, snapshots released
+console.log('Transition done, memory freed');
+```
+
+## Browser DevTools Support
+
+Chrome DevTools has excellent support:
+
+- **Animations panel**: View Transitions appear as animation groups you can scrub, pause, and inspect
+- **Rendering tab**: Toggle "Paint flashing" to see when snapshots are captured
+- **Performance panel**: View Transitions show as dedicated entries in the timeline
+
+## Common Patterns
+
+### 1. Navigation with Back-Button Polish
+
+```css
+@view-transition {
+  navigation: auto;
+}
+
+/* Forward navigation: slide new content in from right */
+::view-transition-new(root):only-child {
+  animation: slide-in-right 0.3s ease-out;
+}
+
+/* Back navigation: slide old content back */
+@view-transition {
+  navigation: auto;
+  types: back;
+}
+
+::view-transition-old(root):only-child {
+  animation: slide-out-right 0.3s ease-in;
+}
+```
+
+### 2. Dark Mode Toggle
+
+```javascript
+function toggleDarkMode() {
+  document.startViewTransition(() => {
+    document.documentElement.classList.toggle('dark');
+  });
+}
+```
+
+```css
+/* Customize the transition */
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+
+::view-transition-old(root) {
+  animation: clip-circle-out 0.5s ease-in;
+}
+
+@keyframes clip-circle-out {
+  from { clip-path: circle(100%); }
+  to { clip-path: circle(0% at 100% 0%); }
+}
+```
+
+### 3. List Reordering
+
+```css
+.list-item {
+  view-transition-name: var(--item-name);
+}
+```
+
+```javascript
+items.forEach((item, i) => {
+  item.style.setProperty('--item-name', `item-${item.id}`);
+});
+
+document.startViewTransition(() => {
+  // Sort the list
+  renderSortedItems();
+});
+```
+
+The browser animates each item from its old position to its new position automatically.
+
+## Gotchas and Edge Cases
+
+### 1. `view-transition-name` Must Be Unique
+
+If two elements share the same name on a page, the transition silently fails for that name. Use it sparingly — typically one element per logical entity.
+
+### 2. Fixed and Sticky Positioning
+
+Elements with `position: fixed` or `sticky` participate normally, but their snapshots are captured relative to the viewport, not the document flow.
+
+### 3. Cross-Origin Navigation
+
+`@view-transition { navigation: auto }` only works for same-origin navigations. For cross-origin links, the transition is skipped.
+
+### 4. The `only-child` Trick
+
+When navigating, sometimes only the "old" or "new" pseudo-element exists (e.g., a named element only on one page). Use `:only-child` to handle these cases:
+
+```css
+::view-transition-old(hero-image):only-child {
+  animation: fade-out 0.2s ease-out;
+}
+
+::view-transition-new(hero-image):only-child {
+  animation: fade-in 0.3s ease-out;
+}
+```
+
+### 5. Reduced Motion
+
+Always respect `prefers-reduced-motion`:
+
+```css
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(*) {
+    animation-duration: 0.001s;
+  }
+}
+```
+
+## When NOT to Use View Transitions
+
+View Transitions are not a replacement for all animations:
+
+- **Continuous animations** (spinners, progress bars): Use CSS animations or `requestAnimationFrame`
+- **Scroll-linked effects**: Use Scroll-Driven Animations
+- **Drag interactions**: Use pointer events and direct DOM manipulation
+- **Canvas/WebGL**: View Transitions capture DOM snapshots, not canvas contents
+
+## The Bottom Line
+
+View Transitions represent a fundamental shift: the browser is now an animation engine for page transitions. What used to take hundreds of lines of JavaScript and a framework-specific router can now be done with CSS.
+
+Start with the one-liner (`@view-transition { navigation: auto }`) and progressively enhance from there. Your users get smoother navigation, and you get to delete code.
+
+---
+
+*Want to experiment with CSS animations? Try our [CSS Animation Builder](/tools/css-animation-builder) or [CSS Easing Playground](/tools/css-easing-playground) to design custom transitions.*

@@ -312,28 +312,28 @@ const featuredTools = [
   },
 ];
 
-// Inline sample blog posts until content/blog/ directory is populated
+// Inline sample blog posts — latest featured on homepage
 const sampleBlogPosts = [
   {
-    title: 'Getting Started with Regular Expressions',
-    date: '2024-12-15',
-    excerpt: 'Learn the fundamentals of regular expressions, from basic patterns to advanced lookaheads and capture groups.',
-    slug: 'getting-started-with-regex',
-    tags: ['Regex', 'Guide'],
+    title: 'The View Transitions API: Smooth Page Animations Without JavaScript',
+    date: '2026-05-24',
+    excerpt: 'View Transitions API is now Baseline across all major browsers. Learn how to add smooth cross-page animations with one line of CSS.',
+    slug: 'view-transitions-api-guide',
+    tags: ['CSS', 'View Transitions', 'Web Platform'],
   },
   {
-    title: 'Understanding Base64 Encoding',
-    date: '2024-12-10',
-    excerpt: 'A deep dive into how Base64 encoding works, when to use it, and common pitfalls to avoid.',
-    slug: 'understanding-base64',
-    tags: ['Base64', 'Encoding'],
+    title: 'Google I/O 2026: Every Web Platform Announcement',
+    date: '2026-05-21',
+    excerpt: 'From CSS Anchor Positioning reaching Baseline to HTML-in-Canvas, here\'s everything announced for web developers at Google I/O 2026.',
+    slug: 'google-io-2026-web-platform',
+    tags: ['CSS', 'Google I/O', 'Chrome'],
   },
   {
-    title: 'JSON Best Practices for API Design',
-    date: '2024-12-05',
-    excerpt: 'Best practices for designing clean, predictable JSON APIs that your consumers will love.',
-    slug: 'json-best-practices',
-    tags: ['JSON', 'API'],
+    title: 'CSS Container Queries Are Finally Here — A Practical Guide',
+    date: '2026-05-20',
+    excerpt: 'Container queries let you style elements based on their parent\'s size, not the viewport. Here\'s how to use them today.',
+    slug: 'css-container-queries-guide',
+    tags: ['CSS', 'Responsive', 'Tutorial'],
   },
 ];
 
