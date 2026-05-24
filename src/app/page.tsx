@@ -340,6 +340,13 @@ const featuredTools = [
     icon: Box,
     tags: ['CSS', 'Box Model', 'Layout'],
   },
+  {
+    title: 'CSS Typography Playground',
+    description: 'Design type scales — 8 mathematical scales, font picker, live preview, and CSS output.',
+    href: '/tools/css-typography-playground',
+    icon: Type,
+    tags: ['CSS', 'Typography', 'Design'],
+  },
 ];
 
 // Inline sample blog posts — latest featured on homepage

@@ -394,6 +394,13 @@ const allTools = [
     icon: Box,
     tags: ['CSS', 'Box Model', 'Layout', 'Visualizer'],
   },
+  {
+    title: 'CSS Typography Playground',
+    description: 'Design type scales with mathematical harmony — 8 scales (Minor Third to Golden Ratio), font picker, weight/line-height/spacing controls, live preview, and production-ready CSS custom properties.',
+    href: '/tools/css-typography-playground',
+    icon: Type,
+    tags: ['CSS', 'Typography', 'Type Scale', 'Design'],
+  },
 ];
 
 export default function ToolsPage() {
