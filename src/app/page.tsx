@@ -46,6 +46,7 @@ import {
   Container,
   Accessibility,
   Square,
+  Loader2,
 } from 'lucide-react';
 
 export const metadata: Metadata = {
@@ -306,6 +307,13 @@ const featuredTools = [
     href: '/tools/ip-lookup',
     icon: MapPin,
     tags: ['IP', 'Geolocation', 'Network'],
+  },
+  {
+    title: 'CSS Loader Generator',
+    description: 'Design pure-CSS loading spinners — 12 presets (spinners, dots, bars, ripples), live customization, and instant CSS/HTML copy.',
+    href: '/tools/css-loader-generator',
+    icon: Loader2,
+    tags: ['CSS', 'Loader', 'Spinner', 'Animation'],
   },
   {
     title: 'CSS Filter Playground',
