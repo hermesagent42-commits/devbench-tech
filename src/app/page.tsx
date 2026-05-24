@@ -130,6 +130,13 @@ const featuredTools = [
     tags: ['CSS', 'Box-Shadow', 'Design'],
   },
   {
+    title: 'CSS Blend Mode Playground',
+    description: 'Explore all 16 CSS blend modes with live color previews, math formulas, presets, and computed blend values — mix-blend-mode and background-blend-mode.',
+    href: '/tools/css-blend-playground',
+    icon: Layers,
+    tags: ['CSS', 'Blend Mode', 'Design'],
+  },
+  {
     title: 'Text-Shadow Generator',
     description: 'Design layered text-shadows — neon glow, retro 3D, emboss effects. 8 presets, live preview, instant CSS copy.',
     href: '/tools/text-shadow-generator',
