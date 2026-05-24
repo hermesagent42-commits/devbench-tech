@@ -49,6 +49,7 @@ import {
   Image,
   Box,
   Container,
+  Accessibility,
 } from 'lucide-react';
 
 export const metadata: Metadata = {
@@ -400,6 +401,13 @@ const allTools = [
     href: '/tools/css-typography-playground',
     icon: Type,
     tags: ['CSS', 'Typography', 'Type Scale', 'Design'],
+  },
+  {
+    title: 'Color Blindness Simulator',
+    description: 'See what your color palette looks like to people with protanopia, deuteranopia, tritanopia, and achromatopsia. Simulate any hex color, compare side-by-side, and export accessibility reports.',
+    href: '/tools/color-blindness-simulator',
+    icon: Accessibility,
+    tags: ['Color Blindness', 'Accessibility', 'CVD', 'Simulation'],
   },
 ];
 

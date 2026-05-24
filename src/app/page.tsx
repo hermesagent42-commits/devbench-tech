@@ -44,6 +44,7 @@ import {
   Ruler,
   Box,
   Container,
+  Accessibility,
 } from 'lucide-react';
 
 export const metadata: Metadata = {
@@ -346,6 +347,13 @@ const featuredTools = [
     href: '/tools/css-typography-playground',
     icon: Type,
     tags: ['CSS', 'Typography', 'Design'],
+  },
+  {
+    title: 'Color Blindness Simulator',
+    description: 'Simulate any hex color with 4 types of color vision deficiency. Compare side-by-side, export accessibility reports.',
+    href: '/tools/color-blindness-simulator',
+    icon: Accessibility,
+    tags: ['Accessibility', 'CVD', 'Simulation'],
   },
 ];
 
