@@ -115,6 +115,13 @@ const featuredTools = [
     tags: ['CSS', 'Grid', 'Layout'],
   },
   {
+    title: 'Text-Shadow Generator',
+    description: 'Design layered text-shadows — neon glow, retro 3D, emboss effects. 8 presets, live preview, instant CSS copy.',
+    href: '/tools/text-shadow-generator',
+    icon: Type,
+    tags: ['CSS', 'Text-Shadow', 'Typography'],
+  },
+  {
     title: 'Color Converter',
     description: 'Convert colors between HEX, RGB, and HSL in real-time with live preview and color picker.',
     href: '/tools/color-converter',

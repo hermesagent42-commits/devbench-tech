@@ -329,6 +329,13 @@ const allTools = [
     tags: ['CSS', 'Clip-Path', 'Shapes', 'Design'],
   },
   {
+    title: 'Text-Shadow Generator',
+    description: 'Design layered CSS text-shadows visually — neon glow, retro 3D, emboss, and more. Live preview, 8 presets, instant CSS copy — all client-side.',
+    href: '/tools/text-shadow-generator',
+    icon: Type,
+    tags: ['CSS', 'Text-Shadow', 'Typography', 'Design'],
+  },
+  {
     title: 'CSS Animation Builder',
     description: 'Design CSS @keyframes animations visually — multiple stops with transform, opacity, and color control. 8 presets, live preview, and full CSS output.',
     href: '/tools/css-animation-builder',
