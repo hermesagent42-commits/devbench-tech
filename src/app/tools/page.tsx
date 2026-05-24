@@ -45,6 +45,7 @@ import {
   Sparkles,
   TrendingUp,
   Ruler,
+  Code2,
 } from 'lucide-react';
 
 export const metadata: Metadata = {
@@ -179,6 +180,13 @@ const allTools = [
     href: '/tools/json-csv-converter',
     icon: ArrowRightLeft,
     tags: ['JSON', 'CSV', 'Converter', 'Data'],
+  },
+  {
+    title: 'JSON to TypeScript',
+    description: 'Generate TypeScript type definitions from JSON data. Nested objects, arrays, unions, optional fields, interface/type toggle — 100% client-side.',
+    href: '/tools/json-ts-converter',
+    icon: Code2,
+    tags: ['JSON', 'TypeScript', 'Types', 'Code Generation'],
   },
   {
     title: 'Number Base Converter',
