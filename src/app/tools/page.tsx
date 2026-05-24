@@ -46,6 +46,7 @@ import {
   TrendingUp,
   Ruler,
   Code2,
+  Image,
 } from 'lucide-react';
 
 export const metadata: Metadata = {
@@ -362,6 +363,13 @@ const allTools = [
     href: '/tools/json-schema-generator',
     icon: FileCode,
     tags: ['JSON Schema', 'API', 'Validation', 'Code Generation'],
+  },
+  {
+    title: 'Image Compressor',
+    description: 'Compress and resize images client-side — JPEG, WebP, PNG. Drag-and-drop, quality slider, size comparison, presets for web/social/thumbnails, instant download.',
+    href: '/tools/image-compressor',
+    icon: Image,
+    tags: ['Image', 'Compressor', 'WebP', 'PNG', 'JPEG'],
   },
 ];
 
