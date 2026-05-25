@@ -63,6 +63,7 @@ import {
   Keyboard,
   GripHorizontal,
   Monitor,
+  ListTree,
 } from 'lucide-react';
 
 export const metadata: Metadata = {
@@ -540,6 +541,13 @@ const featuredTools = [
     href: '/tools/user-agent-parser',
     icon: Monitor,
     tags: ['User Agent', 'Parser', 'Debug'],
+  },
+  {
+    title: 'JSON Tree Viewer',
+    description: 'Explore deeply nested JSON with an interactive collapsible tree — search, copy paths, copy values, and upload files.',
+    href: '/tools/json-tree-viewer',
+    icon: ListTree,
+    tags: ['JSON', 'Tree', 'Explorer'],
   },
 ];
 

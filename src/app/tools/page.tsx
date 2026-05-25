@@ -66,6 +66,7 @@ import {
   GitBranch,
   GripHorizontal,
   Monitor,
+  ListTree,
 } from 'lucide-react';
 
 export const metadata: Metadata = {
@@ -557,6 +558,13 @@ const allTools = [
     href: '/tools/user-agent-parser',
     icon: Monitor,
     tags: ['User Agent', 'Parser', 'Browser', 'Debug'],
+  },
+  {
+    title: 'JSON Tree Viewer',
+    description: 'Explore deeply nested JSON with an interactive collapsible tree — search by key/value, copy paths and values, upload JSON files, and see node stats. Pure client-side.',
+    href: '/tools/json-tree-viewer',
+    icon: ListTree,
+    tags: ['JSON', 'Tree', 'Explorer', 'Visualizer'],
   },
 ];
 
