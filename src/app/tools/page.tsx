@@ -574,6 +574,13 @@ const allTools = [
     icon: Play,
     tags: ['JavaScript', 'Playground', 'REPL', 'Run'],
   },
+  {
+    title: 'HTML to Markdown',
+    description: 'Convert HTML to clean Markdown instantly — headings, lists, tables, code blocks, links, images, blockquotes, and more. 3 presets, live preview, 100% client-side.',
+    href: '/tools/html-to-markdown',
+    icon: FileCode,
+    tags: ['HTML', 'Markdown', 'Converter'],
+  },
 ];
 
 export default function ToolsPage() {

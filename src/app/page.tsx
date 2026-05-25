@@ -557,6 +557,13 @@ const featuredTools = [
     icon: Play,
     tags: ['JavaScript', 'Playground', 'REPL'],
   },
+  {
+    title: 'HTML to Markdown',
+    description: 'Convert HTML to clean Markdown — headings, lists, tables, code blocks, links, images. 3 presets, live preview.',
+    href: '/tools/html-to-markdown',
+    icon: FileCode,
+    tags: ['HTML', 'Markdown', 'Converter'],
+  },
 ];
 
 // Inline sample blog posts — latest featured on homepage
