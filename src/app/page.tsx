@@ -58,6 +58,7 @@ import {
   Code2,
   GitBranch,
   FlaskConical,
+  Table2,
 } from 'lucide-react';
 
 export const metadata: Metadata = {
@@ -479,6 +480,13 @@ const featuredTools = [
     href: '/tools/regex-explainer',
     icon: Regex,
     tags: ['Regex', 'Explainer', 'Learning'],
+  },
+  {
+    title: 'JSON to Markdown Table',
+    description: 'Convert JSON arrays into formatted Markdown tables — paste data, get ready-to-paste tables for READMEs and documentation.',
+    href: '/tools/json-to-markdown-table',
+    icon: Table2,
+    tags: ['JSON', 'Markdown', 'Table'],
   },
 ];
 

@@ -59,6 +59,7 @@ import {
   PenTool,
   Calendar,
   FlaskConical,
+  Table2,
 } from 'lucide-react';
 
 export const metadata: Metadata = {
@@ -487,6 +488,13 @@ const allTools = [
     href: '/tools/color-mix-playground',
     icon: FlaskConical,
     tags: ['CSS', 'color-mix', 'Color', '2025'],
+  },
+  {
+    title: 'JSON to Markdown Table',
+    description: 'Convert a JSON array of objects into a formatted Markdown table — paste JSON, get a ready-to-use table for READMEs, docs, and PR descriptions.',
+    href: '/tools/json-to-markdown-table',
+    icon: Table2,
+    tags: ['JSON', 'Markdown', 'Table', 'Converter'],
   },
 ];
 
