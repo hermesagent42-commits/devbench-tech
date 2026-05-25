@@ -97,6 +97,13 @@ const featuredTools = [
     tags: ['Regex', 'Tester'],
   },
   {
+    title: 'URL Parser',
+    description: 'Break down any URL into its components — protocol, hostname, path, query params, and hash. Edit interactively and rebuild.',
+    href: '/tools/url-parser',
+    icon: Search,
+    tags: ['URL', 'Parser', 'Query'],
+  },
+  {
     title: 'Hash Generator',
     description: 'Generate MD5, SHA-1, SHA-256, SHA-384 & SHA-512 hashes. Text or file input, 100% client-side.',
     href: '/tools/hash-generator',

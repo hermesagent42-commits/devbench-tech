@@ -98,6 +98,13 @@ const allTools = [
     tags: ['Regex', 'Tester', 'Highlighting'],
   },
   {
+    title: 'URL Parser & Visualizer',
+    description: 'Break down URLs into components — protocol, hostname, path, query params, hash. Edit each part and rebuild the URL in real-time. Color-coded visual breakdown.',
+    href: '/tools/url-parser',
+    icon: Search,
+    tags: ['URL', 'Parser', 'Query Params'],
+  },
+  {
     title: 'CSS Anchor Playground',
     description: 'Interactive playground for the new CSS Anchor Positioning API (Baseline 2026). Visual tooltip positioning.',
     href: '/tools/css-anchor-playground',
