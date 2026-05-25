@@ -581,6 +581,13 @@ const allTools = [
     icon: FileCode,
     tags: ['HTML', 'Markdown', 'Converter'],
   },
+  {
+    title: 'SVG Pattern Generator',
+    description: 'Create seamless CSS background patterns from 12 SVG pattern types — dots, grids, hexagons, waves, zigzag, and more. Tweak colors, scale, opacity, and rotation with live preview and instant CSS/SVG output.',
+    href: '/tools/svg-pattern-generator',
+    icon: Grid3X3,
+    tags: ['SVG', 'Pattern', 'Background', 'CSS', 'Design'],
+  },
 ];
 
 export default function ToolsPage() {
