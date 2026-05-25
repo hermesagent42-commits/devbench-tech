@@ -61,6 +61,7 @@ import {
   Table2,
   Boxes,
   Keyboard,
+  GripHorizontal,
 } from 'lucide-react';
 
 export const metadata: Metadata = {
@@ -524,6 +525,13 @@ const featuredTools = [
     href: '/tools/semver-calculator',
     icon: GitBranch,
     tags: ['Semver', 'Version', 'npm'],
+  },
+  {
+    title: 'CSS Scroll Snap Playground',
+    description: 'Visually build scroll-snap layouts — carousels, galleries, onboarding slides. Snap-type, alignment, padding, 4 presets, live preview.',
+    href: '/tools/css-scroll-snap-playground',
+    icon: GripHorizontal,
+    tags: ['CSS', 'Scroll Snap', 'Carousel'],
   },
 ];
 
