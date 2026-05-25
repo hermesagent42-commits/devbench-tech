@@ -57,6 +57,7 @@ import {
   Search,
   Code2,
   GitBranch,
+  FlaskConical,
 } from 'lucide-react';
 
 export const metadata: Metadata = {
@@ -457,6 +458,13 @@ const featuredTools = [
     href: '/tools/json-path-evaluator',
     icon: Search,
     tags: ['JSONPath', 'Query', 'JSON'],
+  },
+  {
+    title: 'CSS color-mix() Playground',
+    description: 'Mix colors natively in CSS across 15 color spaces (oklch, srgb, lab, display-p3, and more). Pick two colors, set a mix ratio, and get production-ready color-mix() CSS.',
+    href: '/tools/color-mix-playground',
+    icon: FlaskConical,
+    tags: ['CSS', 'color-mix', 'Color', 'Baseline 2025'],
   },
   {
     title: 'Gitignore Generator',

@@ -58,6 +58,7 @@ import {
   ScrollText,
   PenTool,
   Calendar,
+  FlaskConical,
 } from 'lucide-react';
 
 export const metadata: Metadata = {
@@ -479,6 +480,13 @@ const allTools = [
     href: '/tools/date-calculator',
     icon: Calendar,
     tags: ['Date', 'Calculator', 'Countdown', 'Diff'],
+  },
+  {
+    title: 'CSS color-mix() Playground',
+    description: 'Mix colors natively in CSS across 15 color spaces. Pick two colors, set a mix ratio, and get production-ready color-mix() CSS instantly.',
+    href: '/tools/color-mix-playground',
+    icon: FlaskConical,
+    tags: ['CSS', 'color-mix', 'Color', '2025'],
   },
 ];
 
