@@ -54,6 +54,7 @@ import {
   Film,
   PenTool,
   Calendar,
+  Code2,
 } from 'lucide-react';
 
 export const metadata: Metadata = {
@@ -195,6 +196,13 @@ const featuredTools = [
     href: '/tools/json-csv-converter',
     icon: ArrowRightLeft,
     tags: ['JSON', 'CSV', 'Converter'],
+  },
+  {
+    title: 'JSON ↔ XML Converter',
+    description: 'Convert JSON to XML and XML to JSON bidirectionally. Full XML attribute support (@attributes), CDATA sections, nested objects, arrays — 100% client-side.',
+    href: '/tools/json-xml-converter',
+    icon: Code2,
+    tags: ['JSON', 'XML', 'Converter'],
   },
   {
     title: 'Number Base Converter',
