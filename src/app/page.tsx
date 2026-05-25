@@ -56,6 +56,7 @@ import {
   Calendar,
   Search,
   Code2,
+  GitBranch,
 } from 'lucide-react';
 
 export const metadata: Metadata = {
@@ -456,6 +457,13 @@ const featuredTools = [
     href: '/tools/json-path-evaluator',
     icon: Search,
     tags: ['JSONPath', 'Query', 'JSON'],
+  },
+  {
+    title: 'Gitignore Generator',
+    description: 'Build .gitignore files for any tech stack. Select 30+ templates — languages, frameworks, editors, OS — combine them, and download instantly.',
+    href: '/tools/gitignore-generator',
+    icon: GitBranch,
+    tags: ['Gitignore', 'Generator', 'Git'],
   },
 ];
 
