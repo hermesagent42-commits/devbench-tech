@@ -59,6 +59,7 @@ import {
   GitBranch,
   FlaskConical,
   Table2,
+  Boxes,
 } from 'lucide-react';
 
 export const metadata: Metadata = {
@@ -487,6 +488,13 @@ const featuredTools = [
     href: '/tools/regex-explainer',
     icon: Regex,
     tags: ['Regex', 'Explainer', 'Learning'],
+  },
+  {
+    title: 'CSS 3D Transform Playground',
+    description: 'Build CSS 3D transforms visually — perspective, rotateX/Y/Z, translateZ, backface-visibility, and card flip presets. Live preview, instant CSS copy.',
+    href: '/tools/css-3d-transform-playground',
+    icon: Boxes,
+    tags: ['CSS', '3D', 'Transform', 'Perspective'],
   },
   {
     title: 'JSON to Markdown Table',

@@ -60,6 +60,7 @@ import {
   Calendar,
   FlaskConical,
   Table2,
+  Boxes,
 } from 'lucide-react';
 
 export const metadata: Metadata = {
@@ -495,6 +496,13 @@ const allTools = [
     href: '/tools/color-mix-playground',
     icon: FlaskConical,
     tags: ['CSS', 'color-mix', 'Color', '2025'],
+  },
+  {
+    title: 'CSS 3D Transform Playground',
+    description: 'Build CSS 3D transforms visually — perspective, rotateX/Y/Z, translateZ, backface-visibility, and card flip presets. Live preview, instant CSS copy.',
+    href: '/tools/css-3d-transform-playground',
+    icon: Boxes,
+    tags: ['CSS', '3D', 'Transform', 'Perspective'],
   },
   {
     title: 'JSON to Markdown Table',
