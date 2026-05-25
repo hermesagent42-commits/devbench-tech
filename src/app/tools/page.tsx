@@ -521,6 +521,13 @@ const allTools = [
     tags: ['JSON', 'HTML', 'Table', 'Converter'],
   },
   {
+    title: 'HTML Table Generator',
+    description: 'Build HTML tables visually — add rows/columns, toggle &lt;th&gt; headers, set per-cell alignment, and export clean HTML + CSS.',
+    href: '/tools/html-table-generator',
+    icon: Table2,
+    tags: ['HTML', 'Table', 'Generator'],
+  },
+  {
     title: 'Keycode Info',
     description: 'Press any key and see every KeyboardEvent property — key, code, keyCode, modifiers, and location. Debug keyboard shortcuts with live event capture and history.',
     href: '/tools/keycode-info',

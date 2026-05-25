@@ -511,6 +511,13 @@ const featuredTools = [
     icon: Table2,
     tags: ['JSON', 'Markdown', 'Table'],
   },
+  {
+    title: 'HTML Table Generator',
+    description: 'Build HTML tables visually — add rows/columns, toggle headers, set alignment, and export clean HTML + CSS instantly.',
+    href: '/tools/html-table-generator',
+    icon: Table2,
+    tags: ['HTML', 'Table', 'Generator'],
+  },
 ];
 
 // Inline sample blog posts — latest featured on homepage
