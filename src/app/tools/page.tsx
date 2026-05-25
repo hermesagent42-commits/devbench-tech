@@ -67,6 +67,7 @@ import {
   GripHorizontal,
   Monitor,
   ListTree,
+  Play,
 } from 'lucide-react';
 
 export const metadata: Metadata = {
@@ -565,6 +566,13 @@ const allTools = [
     href: '/tools/json-tree-viewer',
     icon: ListTree,
     tags: ['JSON', 'Tree', 'Explorer', 'Visualizer'],
+  },
+  {
+    title: 'JavaScript Playground',
+    description: 'Write and run JavaScript snippets instantly in your browser with live console output and TypeScript support. 7 presets, error handling, timing, and one-click copy — like a browser REPL.',
+    href: '/tools/javascript-playground',
+    icon: Play,
+    tags: ['JavaScript', 'Playground', 'REPL', 'Run'],
   },
 ];
 
