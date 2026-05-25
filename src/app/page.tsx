@@ -473,6 +473,13 @@ const featuredTools = [
     icon: GitBranch,
     tags: ['Gitignore', 'Generator', 'Git'],
   },
+  {
+    title: 'Regex Explainer',
+    description: 'Paste any regex and get a token-by-token plain-English explanation. Color-coded visual breakdown, 8 presets — learn what every symbol does.',
+    href: '/tools/regex-explainer',
+    icon: Regex,
+    tags: ['Regex', 'Explainer', 'Learning'],
+  },
 ];
 
 // Inline sample blog posts — latest featured on homepage
