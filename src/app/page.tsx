@@ -53,6 +53,7 @@ import {
   ScrollText,
   Film,
   PenTool,
+  Calendar,
 } from 'lucide-react';
 
 export const metadata: Metadata = {
@@ -432,6 +433,13 @@ const featuredTools = [
     href: '/tools/svg-previewer',
     icon: PenTool,
     tags: ['SVG', 'Preview', 'Optimizer'],
+  },
+  {
+    title: 'Date Calculator',
+    description: 'Calculate date differences with year/month/day breakdowns, add/subtract durations, and count down to events. Pure client-side.',
+    href: '/tools/date-calculator',
+    icon: Calendar,
+    tags: ['Date', 'Calculator', 'Countdown'],
   },
 ];
 

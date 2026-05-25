@@ -57,6 +57,7 @@ import {
   TreePine,
   ScrollText,
   PenTool,
+  Calendar,
 } from 'lucide-react';
 
 export const metadata: Metadata = {
@@ -471,6 +472,13 @@ const allTools = [
     href: '/tools/svg-previewer',
     icon: PenTool,
     tags: ['SVG', 'Preview', 'Optimizer', 'Minifier'],
+  },
+  {
+    title: 'Date Calculator',
+    description: 'Calculate date differences with year/month/day breakdowns, add or subtract durations, and count down to events. 100% client‑side.',
+    href: '/tools/date-calculator',
+    icon: Calendar,
+    tags: ['Date', 'Calculator', 'Countdown', 'Diff'],
   },
 ];
 
