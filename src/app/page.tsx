@@ -60,6 +60,7 @@ import {
   FlaskConical,
   Table2,
   Boxes,
+  Keyboard,
 } from 'lucide-react';
 
 export const metadata: Metadata = {
@@ -96,6 +97,13 @@ const featuredTools = [
     href: '/tools/regex-tester',
     icon: Regex,
     tags: ['Regex', 'Tester'],
+  },
+  {
+    title: 'Keycode Info',
+    description: 'Press any key and see every KeyboardEvent property — key, code, keyCode, modifiers, and location.',
+    href: '/tools/keycode-info',
+    icon: Keyboard,
+    tags: ['Keyboard', 'Events'],
   },
   {
     title: 'URL Parser',

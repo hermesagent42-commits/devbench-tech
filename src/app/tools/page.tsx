@@ -61,6 +61,8 @@ import {
   FlaskConical,
   Table2,
   Boxes,
+  Keyboard,
+  Zap,
 } from 'lucide-react';
 
 export const metadata: Metadata = {
@@ -510,6 +512,13 @@ const allTools = [
     href: '/tools/json-to-markdown-table',
     icon: Table2,
     tags: ['JSON', 'Markdown', 'Table', 'Converter'],
+  },
+  {
+    title: 'Keycode Info',
+    description: 'Press any key and see every KeyboardEvent property — key, code, keyCode, modifiers, and location. Debug keyboard shortcuts with live event capture and history.',
+    href: '/tools/keycode-info',
+    icon: Keyboard,
+    tags: ['Keyboard', 'Events', 'Debugging'],
   },
 ];
 
