@@ -538,6 +538,13 @@ const featuredTools = [
 // Inline sample blog posts — latest featured on homepage
 const sampleBlogPosts = [
   {
+    title: 'CSS Custom Properties Unleashed: Beyond Simple Variables',
+    date: '2026-05-25',
+    excerpt: 'CSS custom properties are far more than "CSS variables." With @property, typed values, animation support, and style queries, they are the most powerful primitive in modern CSS. Learn the space toggle, staggered animations, computed design tokens, and dynamic theming.',
+    slug: 'css-custom-properties-advanced',
+    tags: ['CSS', 'Custom Properties', '@property', 'Theming'],
+  },
+  {
     title: 'CSS Anchor Positioning Is Baseline — The End of JavaScript Tooltip Libraries',
     date: '2026-05-24',
     excerpt: 'CSS Anchor Positioning just hit Baseline across all browsers. No more Floating UI, Popper, or Tippy.js — the browser now natively tethers elements with zero JavaScript.',

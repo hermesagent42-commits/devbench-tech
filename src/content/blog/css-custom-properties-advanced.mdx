@@ -1,0 +1,472 @@
+---
+title: "CSS Custom Properties Unleashed: Beyond Simple Variables"
+date: 2026-05-25
+excerpt: "CSS custom properties are far more than 'CSS variables.' With @property, typed values, animation support, and integration with style queries, they're the most powerful primitive in modern CSS. Learn advanced patterns — the space toggle, staggered animations, dynamic theming, and computed design tokens — that will change how you write CSS."
+tags: "CSS, Custom Properties, @property, Variables, Theming, Animation, Style Queries, Houdini, Web Platform"
+---
+
+CSS custom properties (`--my-var`) have been Baseline since 2017. For years, we've used them for simple theming — define a few color tokens, swap them in a dark mode, done. But custom properties in 2026 are a completely different beast.
+
+With `@property` landing everywhere, custom properties now have **types, default values, and animation support**. Combined with style queries (part of Interop 2026), they unlock patterns that were previously impossible without JavaScript or preprocessors.
+
+Let's go beyond `--primary: blue` and see what custom properties can really do.
+
+## The Foundation: What Custom Properties Actually Are
+
+Custom properties aren't just "variables." They're **live values that participate in the cascade, inherit, and can be read by JavaScript**. This makes them fundamentally different from Sass variables (compile-time) or CSS preprocessor variables (static).
+
+```css
+:root {
+  --brand: oklch(0.6 0.2 250);
+  --spacing: 1rem;
+}
+
+.card {
+  /* These resolve at computed-value time, not parse time */
+  background: var(--brand);
+  padding: var(--spacing);
+}
+
+.card--compact {
+  /* Override inherits through the cascade */
+  --spacing: 0.5rem;
+}
+```
+
+Three properties that make custom properties unique:
+
+1. **They inherit** — unlike most CSS properties, custom properties inherit by default. Set `--spacing` on a parent, and every child sees it.
+2. **They're live** — change `--brand` with JavaScript via `element.style.setProperty('--brand', 'red')`, and every element that references it updates instantly.
+3. **They cascade** — you can override them at any level of specificity. This is the superpower.
+
+## @property: Typed Custom Properties
+
+The `@property` at-rule (part of CSS Houdini) lets you **register a custom property with a type, default value, and inheritance behavior**. This unlocks three things you can't do with unregistered properties:
+
+### 1. Animation and Transitions
+
+Unregistered custom properties can't animate — the browser treats them as strings. Registered properties with a syntax type can:
+
+```css
+@property --angle {
+  syntax: '<angle>';
+  initial-value: 0deg;
+  inherits: false;
+}
+
+.spinner {
+  --angle: 0deg;
+  animation: spin 1s linear infinite;
+  transform: rotate(var(--angle));
+}
+
+@keyframes spin {
+  to { --angle: 360deg; }
+}
+```
+
+This is huge: **you can now animate any CSS value that accepts a typed custom property**. Colors, lengths, percentages, angles, numbers, even `<transform-function>` — all animatable through custom properties.
+
+### 2. Default Values at Parse Time
+
+Without `@property`, if a custom property is undefined, `var()` falls back to whatever you specify inline. But with `@property`, the browser knows the type at parse time:
+
+```css
+@property --gradient-angle {
+  syntax: '<angle>';
+  initial-value: 180deg;
+  inherits: false;
+}
+
+.hero {
+  /* If --gradient-angle isn't set, defaults to 180deg */
+  background: linear-gradient(
+    var(--gradient-angle),
+    var(--brand, oklch(0.6 0.2 250)),
+    var(--accent, oklch(0.7 0.15 180))
+  );
+}
+```
+
+### 3. Validation and Error Recovery
+
+Registered properties reject invalid values and fall back to their initial-value. Unregistered properties accept anything — including typos:
+
+```css
+@property --columns {
+  syntax: '<integer>';
+  initial-value: 3;
+  inherits: false;
+}
+
+.grid {
+  --columns: 4;          /* valid integer */
+  grid-template-columns: repeat(var(--columns), 1fr);
+}
+
+.grid--broken {
+  --columns: auto;       /* invalid — falls back to 3 */
+  /* Browser silently uses initial-value: 3 */
+}
+```
+
+### Available Syntax Types
+
+`@property` supports these syntax strings:
+
+| Type | Example | Animateable |
+|------|---------|-------------|
+| `<length>` | `10px`, `2rem`, `5vw` | Yes |
+| `<percentage>` | `50%`, `-10%` | Yes |
+| `<length-percentage>` | `10px` or `50%` | Yes |
+| `<number>` | `0`, `1.5`, `-3` | Yes |
+| `<integer>` | `1`, `42` | No (discrete) |
+| `<angle>` | `45deg`, `1turn` | Yes |
+| `<time>` | `1s`, `500ms` | No |
+| `<color>` | `red`, `#ff0000`, `oklch(...)` | Yes |
+| `<transform-function>` | `rotate(45deg)` | Yes |
+| `<transform-list>` | `rotate(45deg) scale(1.2)` | Yes |
+| `<url>` | `url(...)` | No |
+| `<image>` | `<url>`, `<gradient>` | No |
+| `*` | Any value (no type checking) | No |
+
+## Pattern 1: The Space Toggle
+
+The "space toggle" is one of the most elegant custom property patterns. It uses `--var: ;` (a space) vs `--var: initial` to toggle between two values:
+
+```css
+:root {
+  --is-dark: ;  /* space = false */
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --is-dark: initial;  /* initial = true */
+  }
+}
+
+.card {
+  /* When --is-dark is a space: background = white, color = black */
+  /* When --is-dark is initial: background = var(--bg-dark) = #1a1a2e */
+  --bg: var(--is-dark, #1a1a2e);
+  --fg: var(--is-dark, #e0e0e0);
+
+  background: var(--bg, white);
+  color: var(--fg, black);
+}
+```
+
+How it works: `var(--is-dark, #1a1a2e)` resolves to `#1a1a2e` when `--is-dark` is `initial` (any value), and falls back to nothing (empty) when `--is-dark` is a space (empty/whitespace custom property). Then the outer `var(--bg, white)` falls back to `white`.
+
+This lets you chain multiple toggles:
+
+```css
+.button {
+  padding: var(--is-compact, 0.25rem 0.5rem) var(--spacing, 0.75rem 1.5rem);
+  font-size: var(--is-compact, 0.75rem) var(--font-size, 0.875rem);
+  border-radius: var(--is-pill, 9999px) var(--radius, 0.375rem);
+}
+```
+
+## Pattern 2: Staggered Animations Without nth-child
+
+Custom properties let you stagger animations using a single animation and cascaded custom properties:
+
+```css
+.list-item {
+  --index: 0;
+  --delay: calc(var(--index) * 100ms);
+  animation: slide-in 0.4s ease-out var(--delay) both;
+}
+
+.list-item:nth-child(1) { --index: 1; }
+.list-item:nth-child(2) { --index: 2; }
+.list-item:nth-child(3) { --index: 3; }
+.list-item:nth-child(4) { --index: 4; }
+.list-item:nth-child(5) { --index: 5; }
+
+@keyframes slide-in {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+}
+```
+
+Better yet, with `@property` and a single `@keyframes`:
+
+```css
+@property --item-delay {
+  syntax: '<time>';
+  initial-value: 0ms;
+  inherits: true;
+}
+
+.list-item {
+  animation: slide-in 0.4s ease-out var(--item-delay) both;
+}
+```
+
+## Pattern 3: Computed Design Tokens
+
+Custom properties can compute values from other custom properties using `calc()`:
+
+```css
+:root {
+  --base-size: 1rem;
+  --ratio: 1.25;
+
+  /* Computed from base and ratio */
+  --size-sm: calc(var(--base-size) / var(--ratio));
+  --size-md: var(--base-size);
+  --size-lg: calc(var(--base-size) * var(--ratio));
+  --size-xl: calc(var(--base-size) * var(--ratio) * var(--ratio));
+  --size-2xl: calc(var(--base-size) * var(--ratio) * var(--ratio) * var(--ratio));
+
+  /* Derived color tokens */
+  --surface-hue: 250;
+  --surface-lightness: 15%;
+  --surface-1: oklch(var(--surface-lightness) 0.02 var(--surface-hue));
+  --surface-2: oklch(calc(var(--surface-lightness) + 5%) 0.03 var(--surface-hue));
+  --surface-3: oklch(calc(var(--surface-lightness) + 10%) 0.04 var(--surface-hue));
+}
+```
+
+Now changing `--base-size` or `--ratio` propagates through the entire design system. This is impossible with preprocessor variables — they're baked in at compile time.
+
+## Pattern 4: Custom Properties + Style Queries
+
+Style queries (part of Interop 2026) let you query **computed styles** of a container. Combined with custom properties, you get truly context-aware components:
+
+```css
+.component-container {
+  container-type: inline-size;
+  /* Set these as "props" for children to query */
+  --theme: dark;
+  --density: compact;
+}
+
+/* Child queries the container's custom property values */
+@container style(--theme: dark) {
+  .card {
+    background: oklch(0.15 0.02 250);
+    color: oklch(0.9 0.01 250);
+  }
+}
+
+@container style(--density: compact) {
+  .card {
+    padding: 0.5rem;
+    font-size: 0.8125rem;
+  }
+}
+```
+
+This is essentially **component props in CSS** — a component can change its entire appearance based on custom properties set on any ancestor container.
+
+## Pattern 5: Dynamic Gradients and Effects
+
+With `@property`-typed `<angle>` and `<color>` properties, you can animate gradients and visual effects that were previously JavaScript territory:
+
+```css
+@property --gradient-1 {
+  syntax: '<color>';
+  initial-value: oklch(0.6 0.2 300);
+  inherits: false;
+}
+
+@property --gradient-2 {
+  syntax: '<color>';
+  initial-value: oklch(0.6 0.2 200);
+  inherits: false;
+}
+
+@property --angle {
+  syntax: '<angle>';
+  initial-value: 0deg;
+  inherits: false;
+}
+
+.animated-gradient {
+  --gradient-1: oklch(0.6 0.2 300);
+  --gradient-2: oklch(0.6 0.2 200);
+  --angle: 0deg;
+
+  background: linear-gradient(
+    var(--angle),
+    var(--gradient-1),
+    var(--gradient-2)
+  );
+
+  animation: gradient-shift 4s ease-in-out infinite;
+}
+
+@keyframes gradient-shift {
+  0%, 100% {
+    --gradient-1: oklch(0.6 0.2 300);
+    --gradient-2: oklch(0.6 0.2 200);
+    --angle: 0deg;
+  }
+  50% {
+    --gradient-1: oklch(0.6 0.2 150);
+    --gradient-2: oklch(0.6 0.2 50);
+    --angle: 180deg;
+  }
+}
+```
+
+## Pattern 6: The "Defensive" var() Fallback Chain
+
+`var()` supports fallback chains — but there's a subtlety with how they resolve:
+
+```css
+/* BAD: only one fallback */
+color: var(--text-color, black);
+
+/* GOOD: chain of custom properties, then a hard value */
+color: var(--text-color, var(--text-color-component, var(--text-color-global, black)));
+
+/* BEST: component-scoped with theme fallback */
+.component {
+  --_text: var(--text-color, var(--theme-text, CanvasText));
+
+  color: var(--_text);
+  background: var(--surface-color, var(--theme-surface, Canvas));
+}
+```
+
+The key insight: custom properties can fall back to **other custom properties**, which can fall back to hard values. This creates a hierarchy: component override → theme token → system default.
+
+## Real-World: A Complete Theming System
+
+Here's a production theming system using everything we've covered:
+
+```css
+/* ===== Design Tokens (computed) ===== */
+:root {
+  /* Core scale */
+  --size-base: 1rem;
+  --size-ratio: 1.25;
+  --size-0: calc(var(--size-base) / var(--size-ratio) / var(--size-ratio));
+  --size-1: calc(var(--size-base) / var(--size-ratio));
+  --size-2: var(--size-base);
+  --size-3: calc(var(--size-base) * var(--size-ratio));
+  --size-4: calc(var(--size-base) * var(--size-ratio) * var(--size-ratio));
+
+  /* Light theme (default) */
+  --color-surface: oklch(0.98 0 0);
+  --color-surface-raised: oklch(1 0 0);
+  --color-text: oklch(0.15 0 0);
+  --color-text-muted: oklch(0.45 0 0);
+  --color-border: oklch(0.85 0 0);
+  --color-accent: oklch(0.6 0.2 250);
+}
+
+/* ===== Dark Theme ===== */
+[data-theme="dark"] {
+  --color-surface: oklch(0.12 0.01 250);
+  --color-surface-raised: oklch(0.18 0.01 250);
+  --color-text: oklch(0.9 0.01 250);
+  --color-text-muted: oklch(0.6 0.01 250);
+  --color-border: oklch(0.25 0.01 250);
+}
+
+/* ===== High Contrast Theme ===== */
+[data-theme="high-contrast"] {
+  --color-surface: black;
+  --color-surface-raised: oklch(0.1 0 0);
+  --color-text: white;
+  --color-text-muted: oklch(0.85 0 0);
+  --color-border: oklch(0.5 0 0);
+  --color-accent: oklch(0.75 0.15 110);  /* bright green */
+}
+
+/* ===== Typed animation properties ===== */
+@property --hover-raise {
+  syntax: '<length>';
+  initial-value: 0px;
+  inherits: false;
+}
+
+/* ===== Component: Card ===== */
+.card {
+  --_surface: var(--card-surface, var(--color-surface-raised));
+  --_padding: var(--card-padding, var(--size-3));
+
+  background: var(--_surface);
+  padding: var(--_padding);
+  border: 1px solid var(--color-border);
+  border-radius: var(--size-1);
+
+  --hover-raise: 0px;
+  transform: translateY(var(--hover-raise));
+  transition: --hover-raise 0.2s ease, box-shadow 0.2s ease;
+}
+
+.card:hover {
+  --hover-raise: -4px;
+  box-shadow: 0 8px 24px oklch(0 0 0 / 0.12);
+}
+
+/* ===== Component: Button ===== */
+.button {
+  --_bg: var(--button-bg, var(--color-accent));
+  --_fg: var(--button-fg, white);
+  --_pad-inline: var(--button-pad, var(--size-2) var(--size-3));
+  --_radius: var(--button-radius, var(--size-0));
+
+  background: var(--_bg);
+  color: var(--_fg);
+  padding: var(--_pad-inline);
+  border-radius: var(--_radius);
+  border: none;
+  cursor: pointer;
+
+  transition: opacity 0.15s ease;
+}
+
+.button:hover {
+  opacity: 0.85;
+}
+
+/* Override at the instance level */
+.button--danger {
+  --button-bg: oklch(0.55 0.2 15);
+}
+
+.button--ghost {
+  --button-bg: transparent;
+  --button-fg: var(--color-accent);
+  border: 1px solid var(--color-border);
+}
+```
+
+## Browser Support (May 2026)
+
+| Feature | Chrome | Firefox | Safari | Baseline |
+|---------|--------|---------|--------|----------|
+| Custom Properties | 49 | 31 | 9.1 | Yes (2017) |
+| `@property` | 85 | 128 | 15.4 | Yes (2024) |
+| Style Queries (`style()`) | 115 | — | 26 | Chrome+Safari |
+| `var()` in `@keyframes` | 85 | 128 | 15.4 | Yes (2024) |
+
+Firefox is the holdout on style queries, but the feature works in Chrome and Safari today. For Firefox, wrap `@container style()` blocks in `@supports` queries for graceful degradation.
+
+## When NOT to Use Custom Properties
+
+Custom properties are powerful but not always the right tool:
+
+1. **Static design tokens that never change** — Preprocessor variables or just hardcoding values may be simpler. Custom properties have a small runtime cost from inheritance.
+2. **Values used in media queries** — You can't use `var()` in `@media` queries. Media queries resolve at parse time, custom properties at computed-value time.
+3. **Selectors or property names** — Custom properties store values, not property names or selectors. `var(--some-prop): value;` doesn't work.
+4. **Extreme performance-critical rendering** — Custom properties that change frequently (on scroll, every frame) trigger style recalculations on all inheriting descendants. Use `inherits: false` with `@property` to limit the blast radius.
+
+## Key Takeaways
+
+- **Register with `@property`** — Unlocks animation, type safety, and default values. Do this for every design token.
+- **Compute, don't duplicate** — Design tokens that derive from a few base values are easier to maintain. Use `calc()`.
+- **The cascade is your component API** — Set custom properties on containers and let children query them with `@container style()`.
+- **Chain your fallbacks** — `var(--component, var(--theme, var(--global, hard-fallback)))` gives you a full override hierarchy.
+- **Use `inherits: false`** — Unless inheritance is explicitly needed, false prevents accidental style leakage.
+
+Custom properties are no longer just "CSS variables." They're the backbone of modern CSS architecture — typed, animatable, and context-aware. If you're still treating them as simple color swaps, you're missing 90% of what they can do.
