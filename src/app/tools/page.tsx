@@ -514,6 +514,13 @@ const allTools = [
     tags: ['JSON', 'Markdown', 'Table', 'Converter'],
   },
   {
+    title: 'JSON to HTML Table',
+    description: 'Convert a JSON array of objects into a clean, styled HTML table — embedded CSS, striped rows, hover effects, responsive wrapper. Instantly copy or download.',
+    href: '/tools/json-html-table',
+    icon: Table2,
+    tags: ['JSON', 'HTML', 'Table', 'Converter'],
+  },
+  {
     title: 'Keycode Info',
     description: 'Press any key and see every KeyboardEvent property — key, code, keyCode, modifiers, and location. Debug keyboard shortcuts with live event capture and history.',
     href: '/tools/keycode-info',
