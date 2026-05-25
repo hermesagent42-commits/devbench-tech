@@ -54,6 +54,7 @@ import {
   Film,
   PenTool,
   Calendar,
+  Search,
   Code2,
 } from 'lucide-react';
 
@@ -448,6 +449,13 @@ const featuredTools = [
     href: '/tools/date-calculator',
     icon: Calendar,
     tags: ['Date', 'Calculator', 'Countdown'],
+  },
+  {
+    title: 'JSON Path Evaluator',
+    description: 'Query and extract data from JSON using JSONPath expressions — like jq for your browser. Filter, slice, recursive descent, 100% client-side.',
+    href: '/tools/json-path-evaluator',
+    icon: Search,
+    tags: ['JSONPath', 'Query', 'JSON'],
   },
 ];
 
