@@ -63,6 +63,7 @@ import {
   Boxes,
   Keyboard,
   Zap,
+  GitBranch,
 } from 'lucide-react';
 
 export const metadata: Metadata = {
@@ -533,6 +534,13 @@ const allTools = [
     href: '/tools/keycode-info',
     icon: Keyboard,
     tags: ['Keyboard', 'Events', 'Debugging'],
+  },
+  {
+    title: 'Semver Calculator',
+    description: 'Validate, compare, and bump semantic versions per the full semver 2.0.0 spec. Parse and visualize major/minor/patch/prerelease/build components with one-click bumps.',
+    href: '/tools/semver-calculator',
+    icon: GitBranch,
+    tags: ['Semver', 'Version', 'Release', 'npm'],
   },
 ];
 

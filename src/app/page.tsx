@@ -518,6 +518,13 @@ const featuredTools = [
     icon: Table2,
     tags: ['HTML', 'Table', 'Generator'],
   },
+  {
+    title: 'Semver Calculator',
+    description: 'Validate, compare, and bump semantic versions per the semver 2.0.0 spec. Parse version components and preview bumps — like npm version, in your browser.',
+    href: '/tools/semver-calculator',
+    icon: GitBranch,
+    tags: ['Semver', 'Version', 'npm'],
+  },
 ];
 
 // Inline sample blog posts — latest featured on homepage
