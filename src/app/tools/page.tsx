@@ -65,6 +65,7 @@ import {
   Zap,
   GitBranch,
   GripHorizontal,
+  Monitor,
 } from 'lucide-react';
 
 export const metadata: Metadata = {
@@ -549,6 +550,13 @@ const allTools = [
     href: '/tools/css-scroll-snap-playground',
     icon: GripHorizontal,
     tags: ['CSS', 'Scroll Snap', 'Carousel', 'Layout'],
+  },
+  {
+    title: 'User Agent Parser',
+    description: 'Parse any user agent string into its components — browser, OS, rendering engine, device type, and CPU architecture. 15 sample UAs, auto-detect your current browser.',
+    href: '/tools/user-agent-parser',
+    icon: Monitor,
+    tags: ['User Agent', 'Parser', 'Browser', 'Debug'],
   },
 ];
 

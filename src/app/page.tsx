@@ -62,6 +62,7 @@ import {
   Boxes,
   Keyboard,
   GripHorizontal,
+  Monitor,
 } from 'lucide-react';
 
 export const metadata: Metadata = {
@@ -532,6 +533,13 @@ const featuredTools = [
     href: '/tools/css-scroll-snap-playground',
     icon: GripHorizontal,
     tags: ['CSS', 'Scroll Snap', 'Carousel'],
+  },
+  {
+    title: 'User Agent Parser',
+    description: 'Parse any user agent string — browser, OS, engine, device type, and CPU architecture. Auto-detect your current browser.',
+    href: '/tools/user-agent-parser',
+    icon: Monitor,
+    tags: ['User Agent', 'Parser', 'Debug'],
   },
 ];
 
