@@ -73,6 +73,7 @@ import {
   SlidersHorizontal,
   AlignJustify,
   Share2,
+  Eye,
 } from 'lucide-react';
 
 export const metadata: Metadata = {
@@ -655,6 +656,13 @@ const featuredTools = [
     href: '/tools/social-card-preview',
     icon: Share2,
     tags: ['Meta', 'Social', 'SEO', 'OG Tags'],
+  },
+  {
+    title: 'SERP Preview',
+    description: 'Preview your page title, meta description, and URL as they appear in Google, Bing, and DuckDuckGo search results. SEO checklist, truncation warnings — 100% client-side.',
+    href: '/tools/serp-preview',
+    icon: Eye,
+    tags: ['SERP', 'SEO', 'Google', 'Meta'],
   },
 ];
 
