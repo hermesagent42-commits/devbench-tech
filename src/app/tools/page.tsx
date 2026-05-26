@@ -680,6 +680,13 @@ const allTools = [
     icon: Share2,
     tags: ['Meta', 'Social', 'SEO', 'OG', 'Twitter'],
   },
+  {
+    title: 'Intersection Observer Playground',
+    description: 'Visualize the Intersection Observer API live — configure thresholds, root margins, watch entries fire, see boundingClientRect / intersectionRect data. 5 presets for lazy loading, infinite scroll, and ad viewability.',
+    href: '/tools/intersection-observer-playground',
+    icon: Eye,
+    tags: ['Browser API', 'Intersection Observer', 'Performance', 'Lazy Load'],
+  },
 ];
 
 export default function ToolsPage() {
