@@ -72,6 +72,7 @@ import {
   Focus,
   MousePointer2,
   Folders,
+  AlignJustify,
 } from 'lucide-react';
 
 export const metadata: Metadata = {
@@ -640,6 +641,13 @@ const allTools = [
     href: '/tools/htmx-reference',
     icon: Code2,
     tags: ['HTMX', 'Reference', 'Attributes', 'Cheatsheet'],
+  },
+  {
+    title: 'CSS text-wrap Playground',
+    description: 'Experiment with text-wrap: balance, pretty, stable, wrap, and nowrap — new Baseline 2026 CSS features. Live preview with custom text and instant CSS output.',
+    href: '/tools/css-text-wrap-playground',
+    icon: AlignJustify,
+    tags: ['CSS', 'text-wrap', 'Typography', 'Baseline 2026'],
   },
 ];
 

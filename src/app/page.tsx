@@ -70,6 +70,7 @@ import {
   MousePointer2,
   Scissors,
   SlidersHorizontal,
+  AlignJustify,
 } from 'lucide-react';
 
 export const metadata: Metadata = {
@@ -624,6 +625,13 @@ const featuredTools = [
     href: '/tools/htmx-reference',
     icon: Code2,
     tags: ['HTMX', 'Reference', 'Cheatsheet'],
+  },
+  {
+    title: 'CSS text-wrap Playground',
+    description: 'Experiment with text-wrap: balance, pretty, stable — new Baseline 2026 features for professional typography. Live preview.',
+    href: '/tools/css-text-wrap-playground',
+    icon: AlignJustify,
+    tags: ['CSS', 'text-wrap', 'Typography'],
   },
 ];
 
