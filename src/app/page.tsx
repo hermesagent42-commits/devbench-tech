@@ -611,10 +611,38 @@ const featuredTools = [
     icon: Monitor,
     tags: ['CSS', 'Media Queries', 'Responsive', '@media'],
   },
+  {
+    title: 'CSS Cascade Layers',
+    description: 'Explore CSS @layer — organize styles into layers and see exactly which one wins the cascade. Rearrange, edit properties, resolve conflicts — the cascade, visualized.',
+    href: '/tools/css-cascade-layers',
+    icon: Layers,
+    tags: ['CSS', '@layer', 'Cascade'],
+  },
+  {
+    title: 'HTMX Reference',
+    description: 'Complete searchable HTMX attribute reference — all hx-* attributes with descriptions, values, defaults, and one-click copy. From core requests to advanced swap strategies.',
+    href: '/tools/htmx-reference',
+    icon: Code2,
+    tags: ['HTMX', 'Reference', 'Cheatsheet'],
+  },
 ];
 
 // Inline sample blog posts — latest featured on homepage
 const sampleBlogPosts = [
+  {
+    title: 'HTMX in 2026: The Renaissance of Hypermedia-Driven Applications',
+    date: '2026-05-26',
+    excerpt: 'HTMX has surpassed React in GitHub stars and is reshaping how developers think about web architecture. Learn every hx-* attribute and why frontend minimalism is winning.',
+    slug: 'htmx-2026-renaissance',
+    tags: ['HTMX', 'Hypermedia', 'Web Development', '2026'],
+  },
+  {
+    title: 'CSS Cascade Layers: Ending the Specificity Wars',
+    date: '2026-05-26',
+    excerpt: 'CSS Cascade Layers (@layer) give you explicit control over which styles win — no more specificity hacks, no more !important. Organize your stylesheets with 98% browser support.',
+    slug: 'css-cascade-layers-2026',
+    tags: ['CSS', '@layer', 'Cascade Layers', 'Architecture'],
+  },
   {
     title: 'CSS Cascade Layers: Taming Specificity Once and For All',
     date: '2026-05-26',

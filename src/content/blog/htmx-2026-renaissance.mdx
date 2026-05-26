@@ -1,0 +1,88 @@
+---
+title: "HTMX in 2026: The Renaissance of Hypermedia-Driven Applications"
+date: "2026-05-26"
+excerpt: "HTMX has surpassed React in GitHub stars and is reshaping how developers think about web architecture. Learn what HTMX is, why it's surging, and how to use every hx-* attribute effectively."
+tags: ["HTMX", "Hypermedia", "Web Development", "2026", "Architecture"]
+---
+
+## What Is HTMX?
+
+HTMX is a small (~14 KB gzipped) JavaScript library that gives you access to AJAX, CSS Transitions, WebSockets, and Server-Sent Events directly in HTML — using attributes rather than JavaScript. Instead of writing `fetch()` calls and DOM manipulations, you add attributes like `hx-get`, `hx-target`, and `hx-swap` to your HTML elements.
+
+```html
+<button hx-post="/api/like" hx-target="#like-count" hx-swap="innerHTML">
+  👍 Like
+</button>
+<span id="like-count">42</span>
+```
+
+That's it. When clicked, HTMX POSTs to `/api/like`, takes the response HTML, and swaps it into `#like-count`. No `fetch()`, no `innerHTML =`, no state management — it reuses the server-rendered HTML that your backend already produces.
+
+## The Renaissance
+
+In 2026, HTMX has reached a cultural tipping point:
+
+- **GitHub stars**: HTMX has surpassed React, Vue, and Svelte in total stars — a signal of developer enthusiasm that no framework has matched
+- **Hacker News**: You can barely read a web development thread without finding HTMX in the comments
+- **"Frontend Minimalism"**: A growing movement of developers rejecting heavy SPA frameworks in favor of hypermedia-driven architecture
+
+The appeal is straightforward: server-side rendering works. You already have templates. You already have routing. You already handle state on the server. HTMX lets you build interactive UIs without duplicating all that logic in JavaScript.
+
+## The Complete HTMX Attribute System
+
+HTMX has a rich attribute vocabulary. Here are the essentials:
+
+### Core Request Attributes
+
+- `hx-get`, `hx-post`, `hx-put`, `hx-patch`, `hx-delete` — Issue HTTP requests on trigger events
+
+### Targeting & Swapping
+
+- `hx-target` — CSS selector for which element receives the response
+- `hx-swap` — How the response is placed: `innerHTML`, `outerHTML`, `beforebegin`, `afterend`, etc.
+- `hx-swap-oob` — "Out-of-band" swaps: update elements anywhere on the page in one request
+
+### Triggers
+
+- `hx-trigger` — The most powerful attribute. Control what event fires the request, with modifiers like `delay`, `throttle`, `once`, `from:`, `every 2s`, `revealed`, and `load`
+- `hx-on` — Inline event handlers for any HTMX lifecycle event
+
+### Request Configuration
+
+- `hx-params`, `hx-vals`, `hx-include` — Control which data gets sent
+- `hx-headers` — Add custom HTTP headers
+- `hx-ext` — Enable HTMX extensions (JSON encoding, WebSockets, SSE)
+
+### History
+
+- `hx-push-url`, `hx-replace-url` — Update the browser URL bar
+- `hx-boost` — Progressively enhance all links and forms to use AJAX (one attribute on `<body>` gives you SPA-like navigation)
+
+### UX
+
+- `hx-indicator` — Show a loading spinner during requests
+- `hx-confirm`, `hx-prompt` — Ask for confirmation or user input before firing
+- `hx-validate` — Enforce HTML5 form validation before requests
+- `hx-swap-oob` — Update multiple unrelated sections in one response
+
+## When NOT to Use HTMX
+
+HTMX is not for every project. It works best when:
+
+1. Your backend renders HTML (Django, Rails, Laravel, Phoenix, Go templates, etc.)
+2. Most of your interactivity is server-driven (form submissions, search, navigation)
+3. You don't need complex client-side state management
+
+It's not ideal for:
+
+- Highly interactive client-side apps (Figma, Google Sheets)
+- Offline-first applications
+- Teams that have already invested heavily in React/Vue/Svelte component libraries
+
+## Use Our HTMX Reference
+
+Our new [HTMX Attribute Reference](/tools/htmx-reference) covers every HTMX attribute with detailed descriptions, accepted values, defaults, and one-click copy. It's organized by category (Core, Swap, Triggers, Config, Loading, History, Confirm) and fully searchable.
+
+---
+
+*HTMX version 2.0 is the current stable release. The library is maintained by Carson Gross and a growing community of contributors.*

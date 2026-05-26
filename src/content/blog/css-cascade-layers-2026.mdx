@@ -1,0 +1,143 @@
+---
+title: "CSS Cascade Layers: Ending the Specificity Wars"
+date: "2026-05-26"
+excerpt: "CSS Cascade Layers (@layer) give you explicit control over which styles win — no more specificity hacks, no more !important. Learn how @layer works, when to use it, and how to organize your stylesheets with 98% browser support."
+tags: ["CSS", "@layer", "Cascade Layers", "Architecture", "2026"]
+---
+
+## The Specificity Problem
+
+Every CSS developer knows the pain. You write a clean `.button { color: blue; }`, but somewhere else `.header .actions .button { color: red; }` overrides it — not because it should, but because it has higher specificity. You add `!important`. Then `!important` fights `!important`. It spirals.
+
+This "specificity war" has been CSS's biggest architectural weakness for 25 years. We've been choosing selectors based on priority instead of semantics.
+
+## Enter @layer
+
+CSS Cascade Layers (`@layer`) change the fundamental rule of CSS: **layer order beats specificity.**
+
+```css
+@layer base, components, utilities;
+
+@layer base {
+  a { color: blue; font-weight: 700; }
+}
+
+@layer components {
+  .card a { color: green; }
+}
+
+@layer utilities {
+  .text-red { color: red; }
+}
+```
+
+With traditional CSS, `.card a` would beat `.text-red` (two class selectors > one). With layers, `utilities` is declared last so **it always wins** — regardless of specificity. One class beats two, because it's in a higher-priority layer.
+
+## The Mental Model
+
+Think of layers like sheets of glass stacked on top of each other:
+
+```
+🎨 Layer 4: utilities     (highest priority — ALWAYS wins)
+🎨 Layer 3: components
+🎨 Layer 2: themes
+🎨 Layer 1: reset/base    (lowest priority)
+```
+
+A selector in Layer 4 beats any selector in Layer 3, even if Layer 3's selector has higher specificity. The layer order governs the cascade, not the selector weight.
+
+## Browser Support
+
+As of 2026, **@layer has 98% global browser support**. Chrome 99+, Firefox 97+, Safari 15.4+, Edge 99+ — all released in early 2022. The only holdouts are Internet Explorer (discontinued) and very old mobile browsers. For legacy support, browsers that don't understand `@layer` simply ignore the wrapper and process the rules normally — so layered styles degrade gracefully.
+
+## Real-World Architecture
+
+Here's a production-ready layer declaration:
+
+```css
+@layer reset, base, layout, components, utilities, overrides;
+
+/* 1. Reset — normalize browser defaults */
+@layer reset {
+  *, *::before, *::after { box-sizing: border-box; margin: 0; }
+}
+
+/* 2. Base — element defaults, typography */
+@layer base {
+  body { font-family: system-ui; line-height: 1.6; }
+  a { color: #3b82f6; }
+}
+
+/* 3. Layout — page structure, grid areas */
+@layer layout {
+  .sidebar { grid-area: sidebar; width: 280px; }
+}
+
+/* 4. Components — BEM, design system patterns */
+@layer components {
+  .card { padding: 1.5rem; border-radius: 8px; }
+  .button { padding: 0.5rem 1rem; border-radius: 6px; }
+}
+
+/* 5. Utilities — atomic classes, always win */
+@layer utilities {
+  .mt-0 { margin-top: 0 !important; }
+  .text-center { text-align: center; }
+}
+
+/* 6. Overrides — page-specific overrides */
+@layer overrides {
+  .homepage .card { background: linear-gradient(135deg, ...); }
+}
+```
+
+## Unlayered Styles
+
+Any CSS **not** inside an `@layer` block is "unlayered." Unlayered styles take highest priority — they beat all layers. This is intentional: it lets you add quick overrides without worrying about layer order. Use unlayered styles sparingly for debugging or temporary fixes.
+
+## Nested Layers
+
+You can nest layers for finer control:
+
+```css
+@layer components {
+  @layer button, card, modal;
+}
+
+@layer components.button {
+  .btn { padding: 8px 16px; }
+}
+```
+
+## @import with Layers
+
+You can assign entire stylesheets to layers:
+
+```css
+@import url('reset.css') layer(reset);
+@import url('design-system.css') layer(components);
+@import url('tailwind.css') layer(utilities);
+```
+
+Third-party CSS now plays nicely in your cascade.
+
+## Anonymous Layers
+
+Create unnamed layers that can't be referenced later:
+
+```css
+@layer {
+  /* These styles are in an anonymous layer */
+  .debug { outline: 1px solid red; }
+}
+```
+
+Useful for throwaway debugging styles that you don't want to accidentally depend on.
+
+## Try It Yourself
+
+Our new [CSS Cascade Layers Playground](/tools/css-cascade-layers) lets you build layers visually. Create layers, add CSS rules, rearrange the stack, and see exactly which layer wins each property. The cascade resolution table shows every property's winning layer and which layers were overridden.
+
+---
+
+*CSS Cascade Layers are defined in the CSS Cascading and Inheritance Level 5 specification. The `@layer` at-rule is supported in all modern browsers as of 2022 and has reached 98% global coverage in 2026.*

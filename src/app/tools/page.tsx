@@ -71,6 +71,7 @@ import {
   Wifi,
   Focus,
   MousePointer2,
+  Folders,
 } from 'lucide-react';
 
 export const metadata: Metadata = {
@@ -625,6 +626,20 @@ const allTools = [
     href: '/tools/media-query-playground',
     icon: Monitor,
     tags: ['CSS', 'Media Queries', '@media', 'Viewport'],
+  },
+  {
+    title: 'CSS Cascade Layers Playground',
+    description: 'Explore CSS @layer visually — organize styles into layers, add CSS rules, and see exactly which layer wins the cascade. Rearrange layers, edit properties, resolve conflicts, and copy production-ready @layer CSS.',
+    href: '/tools/css-cascade-layers',
+    icon: Layers,
+    tags: ['CSS', '@layer', 'Cascade', 'Architecture'],
+  },
+  {
+    title: 'HTMX Reference',
+    description: 'Complete searchable reference for every HTMX attribute — core requests, triggers, swap strategies, history, validation, OOB swaps, and more. Copy attributes with one click.',
+    href: '/tools/htmx-reference',
+    icon: Code2,
+    tags: ['HTMX', 'Reference', 'Attributes', 'Cheatsheet'],
   },
 ];
 
