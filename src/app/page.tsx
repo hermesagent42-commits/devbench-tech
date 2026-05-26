@@ -8,6 +8,7 @@ import {
   Braces,
   Binary,
   Fingerprint,
+  HardDrive,
   Regex,
   Layers,
   Move,
@@ -632,6 +633,13 @@ const featuredTools = [
     href: '/tools/css-text-wrap-playground',
     icon: AlignJustify,
     tags: ['CSS', 'text-wrap', 'Typography'],
+  },
+  {
+    title: 'Browser Storage Explorer',
+    description: 'Inspect, edit, import, and export localStorage & sessionStorage. Type detection, search, quota usage bar — the DevTools storage panel, supercharged.',
+    href: '/tools/browser-storage-explorer',
+    icon: HardDrive,
+    tags: ['Storage', 'localStorage', 'Debug'],
   },
 ];
 

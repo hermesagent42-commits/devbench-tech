@@ -67,6 +67,7 @@ import {
   GripHorizontal,
   Monitor,
   ListTree,
+  HardDrive,
   Play,
   Wifi,
   Focus,
@@ -644,10 +645,17 @@ const allTools = [
   },
   {
     title: 'CSS text-wrap Playground',
-    description: 'Experiment with text-wrap: balance, pretty, stable, wrap, and nowrap — new Baseline 2026 CSS features. Live preview with custom text and instant CSS output.',
+    description: 'Experiment with text-wrap: balance, pretty, stable — new Baseline 2026 features for professional typography. Live preview.',
     href: '/tools/css-text-wrap-playground',
     icon: AlignJustify,
     tags: ['CSS', 'text-wrap', 'Typography', 'Baseline 2026'],
+  },
+  {
+    title: 'Browser Storage Explorer',
+    description: 'Inspect, edit, import, and export localStorage & sessionStorage. Type detection, search, quota usage bar — the DevTools storage panel, supercharged.',
+    href: '/tools/browser-storage-explorer',
+    icon: HardDrive,
+    tags: ['Storage', 'localStorage', 'sessionStorage', 'Debug'],
   },
 ];
 
