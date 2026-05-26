@@ -68,6 +68,7 @@ import {
   Monitor,
   ListTree,
   Play,
+  Wifi,
 } from 'lucide-react';
 
 export const metadata: Metadata = {
@@ -461,6 +462,13 @@ const allTools = [
     href: '/tools/glassmorphism-generator',
     icon: Layers,
     tags: ['CSS', 'Glassmorphism', 'Backdrop Filter', 'Design'],
+  },
+  {
+    title: 'WebSocket Tester',
+    description: 'Test WebSocket connections — connect, send messages, and see real-time responses. Echo servers, JSON mode, message log — pure client-side.',
+    href: '/tools/websocket-tester',
+    icon: Wifi,
+    tags: ['WebSocket', 'Tester', 'Real-time'],
   },
   {
     title: 'CSS :has() Selector Playground',
