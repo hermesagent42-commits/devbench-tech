@@ -569,6 +569,13 @@ const featuredTools = [
 // Inline sample blog posts — latest featured on homepage
 const sampleBlogPosts = [
   {
+    title: 'CSS Cascade Layers: Taming Specificity Once and For All',
+    date: '2026-05-26',
+    excerpt: 'CSS Cascade Layers (@layer) give you explicit control over the cascade — no more specificity wars, no more !important. Learn how layers work, when to use them, and how they change CSS architecture.',
+    slug: 'css-cascade-layers',
+    tags: ['CSS', 'Cascade Layers', '@layer', 'Architecture'],
+  },
+  {
     title: 'CSS Custom Properties Unleashed: Beyond Simple Variables',
     date: '2026-05-25',
     excerpt: 'CSS custom properties are far more than "CSS variables." With @property, typed values, animation support, and style queries, they are the most powerful primitive in modern CSS. Learn the space toggle, staggered animations, computed design tokens, and dynamic theming.',

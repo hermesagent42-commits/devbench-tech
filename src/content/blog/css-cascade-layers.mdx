@@ -1,0 +1,232 @@
+---
+title: "CSS Cascade Layers: Taming Specificity Once and For All"
+date: "2026-05-26"
+excerpt: "CSS Cascade Layers (@layer) give you explicit control over the cascade — no more specificity wars, no more !important. Learn how layers work, when to use them, and how they change CSS architecture."
+tags: ["CSS", "Cascade Layers", "@layer", "Architecture", "Specificity"]
+---
+
+For decades, CSS specificity has been a source of frustration. We've all been there: a style won't apply, so you add a more specific selector. Then another. Then `!important`. Before you know it, your stylesheet is a specificity battlefield.
+
+CSS Cascade Layers (`@layer`) — landing in all major browsers in 2022 and now Baseline Widely Available — change this entirely. They give you **explicit, predictable control over the cascade**. You decide which styles win, not the specificity math.
+
+## The Problem Layers Solve
+
+Consider a typical project with three sources of styles:
+
+```css
+/* 1. Third-party component library (high specificity to "win") */
+.theme-card .theme-card__header h2 { color: #333; }
+
+/* 2. Your design system / base styles */
+.card-header { color: var(--color-heading); }
+
+/* 3. A one-off override on a specific page */
+#pricing .card-header { color: #0066ff; }
+```
+
+The third-party library used a deeply nested selector. Your override needs even more specificity to beat it. Now every future override must escalate further. This is the specificity arms race — and `!important` is the nuclear option nobody wants.
+
+Cascade layers flip the script: **layer order determines precedence**, regardless of specificity.
+
+## How `@layer` Works
+
+### Defining Layers
+
+```css
+/* Declare layer order — later layers override earlier ones */
+@layer reset, base, components, utilities;
+```
+
+Styles in `utilities` will always beat styles in `components`, which beat `base`, which beat `reset`. Specificity within a layer still matters, but **no amount of specificity in an earlier layer can override any style in a later layer**.
+
+### Putting Styles Into Layers
+
+You can define layers inline:
+
+```css
+@layer reset {
+  *,
+  *::before,
+  *::after { box-sizing: border-box; margin: 0; padding: 0; }
+}
+
+@layer base {
+  body { font-family: system-ui; line-height: 1.5; }
+  h1 { font-size: 2rem; }
+}
+
+@layer components {
+  .card { border-radius: 8px; padding: 1rem; background: white; }
+}
+
+@layer utilities {
+  .text-center { text-align: center; }
+  .mt-4 { margin-top: 1rem; }
+}
+```
+
+Or reference layers via `@import`:
+
+```css
+@import url('reset.css') layer(reset);
+@import url('theme.css') layer(base);
+@import url('components.css') layer(components);
+```
+
+### Unlayered Styles
+
+Here's a crucial detail: **unlayered styles always win against layered styles**. This is by design — it means your existing CSS keeps working while you migrate to layers. Unlayered styles sit at the top of the cascade, above all declared layers.
+
+```css
+/* This beats everything in any layer */
+h1 { color: red; }
+
+@layer base {
+  h1 { color: blue; } /* Loses to unlayered red */
+}
+```
+
+### Anonymous Layers
+
+You can define layers without naming them — each gets a unique position:
+
+```css
+@layer { h1 { color: blue; } }
+@layer { h1 { color: green; } }
+/* Green wins — it's defined later */
+```
+
+However, anonymous layers are **not recommended** for maintainable codebases. Named layers make your intent clear.
+
+## Practical Architecture
+
+A battle-tested layer pattern for medium-to-large projects:
+
+```
+@layer reset, base, theme, layout, components, overrides, utilities, states;
+```
+
+| Layer | Purpose | Examples |
+|-------|---------|---------|
+| `reset` | Normalize browser defaults | `box-sizing`, margin reset |
+| `base` | Element-level defaults | Typography, links, smooth scroll |
+| `theme` | Design tokens & theming | CSS custom properties, dark mode vars |
+| `layout` | Structural containers | Grid areas, page sections |
+| `components` | Reusable UI components | Cards, buttons, modals, nav |
+| `overrides` | Intentional overrides | CMS content, A/B test styles |
+| `utilities` | Single-purpose helpers | `.sr-only`, `.truncate` |
+| `states` | Interactive states | `:hover`, `:focus-visible`, `[aria-current]` |
+
+The ordering logic: **general → specific → exceptional**.
+
+- `reset` and `base` are the foundation — everything else builds on them.
+- `components` sits above `layout` so a component can override the layout it sits in.
+- `overrides` lets you make intentional exceptions without resorting to `!important`.
+- `utilities` and `states` come last because they're the most specific intent.
+
+## Nesting Layers
+
+Layers can be nested for further organization:
+
+```css
+@layer components {
+  @layer cards { .card { ... } }
+  @layer buttons { .btn { ... } }
+}
+
+/* Or shorthand: */
+@layer components.cards { .card { ... } }
+@layer components.buttons { .btn { ... } }
+```
+
+Nested layers inherit their parent's position in the cascade. `components.cards` and `components.buttons` are siblings within the `components` layer — the one declared last wins.
+
+## Real-World Example: Taming a Third-Party Library
+
+Here's the specificity problem solved with layers:
+
+```css
+@layer lib, app;
+
+/* Third-party CSS goes into the lower-priority layer */
+@import url('third-party-ui.css') layer(lib);
+
+/* Your styles always win because they're in a later layer */
+@layer app {
+  .btn {
+    /* Override the library's button styles without specificity hacks */
+    border-radius: 12px;
+    padding: 1rem 2rem;
+  }
+}
+```
+
+No more inspecting the library's selectors to figure out specificity. No more `!important`. Your layer wins because it comes after `lib`.
+
+## Layer-Aware Fallbacks
+
+What about older browsers? Cascade layers are **Baseline Widely Available** as of March 2024 — supported in Chrome 99+, Firefox 97+, Safari 15.4+, and Edge 99+. For older browsers, styles gracefully degrade:
+
+```css
+/* Unlayered fallback (wins in browsers without @layer support) */
+.card { padding: 1rem; }
+
+@layer components {
+  /* Layered version — used in modern browsers */
+  .card { padding: 1.5rem; }
+}
+```
+
+In browsers that support `@layer`, the unlayered `.card` takes precedence (remember: unlayered styles win over layered). This isn't ideal for progressive enhancement — for true graceful fallback, use `@supports`:
+
+```css
+.card { padding: 1rem; } /* Fallback */
+
+@supports (selector(:is(*))) {
+  @layer components {
+    .card { padding: 1.5rem; }
+  }
+}
+```
+
+## Common Pitfalls
+
+**Pitfall 1: Forgetting that unlayered beats layers.** If you define `<style>` without a layer and expect it to be overridden by `@layer utilities`, you'll be surprised. Everything unlayered sits above all layers.
+
+**Pitfall 2: Mixing `!important` with layers.** Inside a layer, `!important` flips the cascade: an `!important` style in an *earlier* layer beats a normal style in a *later* layer. This is consistent with the cascade order but counterintuitive at first.
+
+**Pitfall 3: Over-ordering layers.** Too many layers defeats the purpose. Most projects only need 5–8 layers. If you have 15+ layers, you're probably overthinking it.
+
+**Pitfall 4: Relying on layer order alone.** Layers don't eliminate the need for good naming conventions and component architecture. They're a cascade management tool, not a replacement for well-structured CSS.
+
+## Migrating to Layers
+
+You don't need to rewrite everything at once. Start by wrapping your existing styles:
+
+```css
+/* Step 1: Define your layer order */
+@layer legacy, components, utilities;
+
+/* Step 2: Wrap all existing CSS */
+@layer legacy {
+  /* All your current styles go here */
+  @import url('existing-styles.css');
+}
+
+/* Step 3: New styles go in appropriate layers */
+@layer components {
+  .new-card { ... }
+}
+```
+
+Over time, refactor styles out of `legacy` and into more specific layers. This incremental approach means zero downtime and no big-bang migration.
+
+## Conclusion
+
+CSS Cascade Layers solve one of the longest-standing pain points in web development: the specificity wars. By making the cascade explicit and predictable, they let you focus on what matters — building great interfaces — instead of fighting the platform.
+
+If you're starting a new project, use layers from day one. If you're maintaining an existing codebase, wrap everything in a `legacy` layer and build new features in targeted layers. Either way, you'll write less `!important`, fewer deeply nested selectors, and more maintainable CSS.
+
+---
+
+**Further reading:** [MDN: @layer](https://developer.mozilla.org/en-US/docs/Web/CSS/@layer) · [CSS Cascade 5 Specification](https://www.w3.org/TR/css-cascade-5/#layering) · [web.dev: Cascade Layers](https://web.dev/articles/cascade-layers)
