@@ -68,6 +68,7 @@ import {
   Wifi,
   Focus,
   MousePointer2,
+  Scissors,
 } from 'lucide-react';
 
 export const metadata: Metadata = {
@@ -587,6 +588,13 @@ const featuredTools = [
     href: '/tools/css-cursor-playground',
     icon: MousePointer2,
     tags: ['CSS', 'Cursor', 'UX', 'Design'],
+  },
+  {
+    title: 'CSS Mask Playground',
+    description: 'Shape images with CSS masks — 12 gradient and SVG presets, live preview, size/position/repeat controls. Create image cutouts and reveals without Photoshop.',
+    href: '/tools/css-mask-playground',
+    icon: Scissors,
+    tags: ['CSS', 'Mask', 'Image', 'Design'],
   },
 ];
 
