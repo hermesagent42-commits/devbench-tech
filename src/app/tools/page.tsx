@@ -69,6 +69,7 @@ import {
   ListTree,
   Play,
   Wifi,
+  Focus,
 } from 'lucide-react';
 
 export const metadata: Metadata = {
@@ -595,6 +596,13 @@ const allTools = [
     href: '/tools/svg-pattern-generator',
     icon: Grid3X3,
     tags: ['SVG', 'Pattern', 'Background', 'CSS', 'Design'],
+  },
+  {
+    title: 'CSS Outline Generator',
+    description: 'Design accessible focus rings, debug outlines, and decorative borders. Choose width, style, color, and offset — copy CSS and :focus-visible snippets.',
+    href: '/tools/css-outline-generator',
+    icon: Focus,
+    tags: ['CSS', 'Outline', 'Accessibility', 'Focus'],
   },
 ];
 

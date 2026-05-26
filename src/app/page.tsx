@@ -66,6 +66,7 @@ import {
   ListTree,
   Play,
   Wifi,
+  Focus,
 } from 'lucide-react';
 
 export const metadata: Metadata = {
@@ -571,6 +572,13 @@ const featuredTools = [
     href: '/tools/html-to-markdown',
     icon: FileCode,
     tags: ['HTML', 'Markdown', 'Converter'],
+  },
+  {
+    title: 'CSS Outline Generator',
+    description: 'Design accessible focus rings, debug outlines, and decorative borders. Width, style, color, offset — copy :focus-visible CSS instantly.',
+    href: '/tools/css-outline-generator',
+    icon: Focus,
+    tags: ['CSS', 'Outline', 'Accessibility'],
   },
 ];
 
