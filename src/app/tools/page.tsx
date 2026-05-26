@@ -75,6 +75,7 @@ import {
   Folders,
   AlignJustify,
   Package,
+  Share2,
 } from 'lucide-react';
 
 export const metadata: Metadata = {
@@ -671,6 +672,13 @@ const allTools = [
     href: '/tools/package-json-generator',
     icon: Package,
     tags: ['package.json', 'npm', 'Node.js', 'Generator'],
+  },
+  {
+    title: 'Social Card Preview',
+    description: 'Preview how your meta tags render on Twitter/X, Facebook, LinkedIn, and Discord. Edit title, description, image, and see exact platform renderings — with generated meta tags ready to copy.',
+    href: '/tools/social-card-preview',
+    icon: Share2,
+    tags: ['Meta', 'Social', 'SEO', 'OG', 'Twitter'],
   },
 ];
 

@@ -72,6 +72,7 @@ import {
   Scissors,
   SlidersHorizontal,
   AlignJustify,
+  Share2,
 } from 'lucide-react';
 
 export const metadata: Metadata = {
@@ -647,6 +648,13 @@ const featuredTools = [
     href: '/tools/browser-storage-explorer',
     icon: HardDrive,
     tags: ['Storage', 'localStorage', 'Debug'],
+  },
+  {
+    title: 'Social Card Preview',
+    description: 'Preview how your meta tags render on Twitter/X, Facebook, LinkedIn, and Discord. Edit title, description, and image — see exactly what users will see when they share your links.',
+    href: '/tools/social-card-preview',
+    icon: Share2,
+    tags: ['Meta', 'Social', 'SEO', 'OG Tags'],
   },
 ];
 
