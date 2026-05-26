@@ -70,6 +70,7 @@ import {
   Play,
   Wifi,
   Focus,
+  MousePointer2,
 } from 'lucide-react';
 
 export const metadata: Metadata = {
@@ -603,6 +604,13 @@ const allTools = [
     href: '/tools/css-outline-generator',
     icon: Focus,
     tags: ['CSS', 'Outline', 'Accessibility', 'Focus'],
+  },
+  {
+    title: 'CSS Cursor Playground',
+    description: 'Explore all 36 CSS cursor values — hover each card to see the cursor in action, filter by category (General, Links, Selection, Resize, Drag & Drop, Zoom), search, and copy CSS with one click.',
+    href: '/tools/css-cursor-playground',
+    icon: MousePointer2,
+    tags: ['CSS', 'Cursor', 'UX', 'Design'],
   },
 ];
 
