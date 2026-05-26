@@ -69,6 +69,7 @@ import {
   Focus,
   MousePointer2,
   Scissors,
+  SlidersHorizontal,
 } from 'lucide-react';
 
 export const metadata: Metadata = {
@@ -595,6 +596,13 @@ const featuredTools = [
     href: '/tools/css-mask-playground',
     icon: Scissors,
     tags: ['CSS', 'Mask', 'Image', 'Design'],
+  },
+  {
+    title: 'CSS clamp() Generator',
+    description: 'Build fluid responsive values with clamp() — no media queries. Set min/max, see the curve, copy CSS instantly. 8 presets for typography, spacing & sizing.',
+    href: '/tools/clamp-generator',
+    icon: SlidersHorizontal,
+    tags: ['CSS', 'clamp()', 'Responsive'],
   },
 ];
 

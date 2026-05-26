@@ -612,6 +612,13 @@ const allTools = [
     icon: MousePointer2,
     tags: ['CSS', 'Cursor', 'UX', 'Design'],
   },
+  {
+    title: 'CSS clamp() Generator',
+    description: 'Build fluid responsive values with clamp() — no media queries needed. Set min/max values and viewport range, see the curve, and copy ready-to-use CSS. 8 presets for typography, spacing, and sizing.',
+    href: '/tools/clamp-generator',
+    icon: SlidersHorizontal,
+    tags: ['CSS', 'clamp()', 'Responsive', 'Typography'],
+  },
 ];
 
 export default function ToolsPage() {
