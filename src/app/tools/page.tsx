@@ -619,6 +619,13 @@ const allTools = [
     icon: SlidersHorizontal,
     tags: ['CSS', 'clamp()', 'Responsive', 'Typography'],
   },
+  {
+    title: 'Media Query Playground',
+    description: 'Test CSS media queries against your live viewport — breakpoints, user preferences, device features. 22 presets, real-time results on resize, and instant CSS output. Pure client-side.',
+    href: '/tools/media-query-playground',
+    icon: Monitor,
+    tags: ['CSS', 'Media Queries', '@media', 'Viewport'],
+  },
 ];
 
 export default function ToolsPage() {

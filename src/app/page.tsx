@@ -604,6 +604,13 @@ const featuredTools = [
     icon: SlidersHorizontal,
     tags: ['CSS', 'clamp()', 'Responsive'],
   },
+  {
+    title: 'Media Query Playground',
+    description: 'Test CSS media queries against your live viewport — breakpoints, user preferences, device features. 22 presets, real-time results that update on resize, and instant CSS output.',
+    href: '/tools/media-query-playground',
+    icon: Monitor,
+    tags: ['CSS', 'Media Queries', 'Responsive', '@media'],
+  },
 ];
 
 // Inline sample blog posts — latest featured on homepage
