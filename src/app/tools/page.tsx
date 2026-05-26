@@ -140,6 +140,13 @@ const allTools = [
     tags: ['CSS', 'Gradient', 'Design'],
   },
   {
+    title: 'Gradient Text Generator',
+    description: 'Build stunning gradient text effects — linear, radial, and conic. Live preview, glow effects, 10 presets, instant CSS copy.',
+    href: '/tools/gradient-text-generator',
+    icon: Type,
+    tags: ['CSS', 'Gradient', 'Text', 'Typography'],
+  },
+  {
     title: 'JWT Debugger',
     description: 'Decode and inspect JWT tokens. View header, payload, signature, and time claims — all client-side.',
     href: '/tools/jwt-debugger',
