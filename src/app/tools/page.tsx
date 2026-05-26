@@ -74,6 +74,7 @@ import {
   MousePointer2,
   Folders,
   AlignJustify,
+  Package,
 } from 'lucide-react';
 
 export const metadata: Metadata = {
@@ -663,6 +664,13 @@ const allTools = [
     href: '/tools/browser-storage-explorer',
     icon: HardDrive,
     tags: ['Storage', 'localStorage', 'sessionStorage', 'Debug'],
+  },
+  {
+    title: 'Package.json Generator',
+    description: 'Build a valid Node.js package.json interactively — configure name, version, scripts, dependencies, and more. Live preview, one-click copy or download.',
+    href: '/tools/package-json-generator',
+    icon: Package,
+    tags: ['package.json', 'npm', 'Node.js', 'Generator'],
   },
 ];
 
