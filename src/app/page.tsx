@@ -74,6 +74,7 @@ import {
   AlignJustify,
   Share2,
   Eye,
+  Paintbrush,
 } from 'lucide-react';
 
 export const metadata: Metadata = {
@@ -663,6 +664,13 @@ const featuredTools = [
     href: '/tools/serp-preview',
     icon: Eye,
     tags: ['SERP', 'SEO', 'Google', 'Meta'],
+  },
+  {
+    title: 'Canvas 2D Playground',
+    description: 'Write live Canvas 2D drawing code with 7 presets — gradients, data viz, Mondrian art, spiral galaxies, and more. Real-time preview, instant rendering, download as PNG.',
+    href: '/tools/canvas-playground',
+    icon: Paintbrush,
+    tags: ['Canvas', 'Graphics', '2D', 'Art'],
   },
 ];
 
