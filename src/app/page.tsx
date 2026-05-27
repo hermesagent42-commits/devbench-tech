@@ -755,6 +755,13 @@ const sampleBlogPosts = [
     tags: ['CSS', 'View Transitions', 'Web Platform'],
   },
   {
+    title: 'CSS @starting-style & transition-behavior: Animate display:none and height:auto Without JavaScript',
+    date: '2026-05-27',
+    excerpt: 'For decades, two CSS animations have been impossible: fading in after display:none, and animating to height:auto. The @starting-style at-rule, transition-behavior, and interpolate-size change that forever. Complete guide with production-ready code.',
+    slug: 'css-starting-style-transition-behavior',
+    tags: ['CSS', '@starting-style', 'transition-behavior', 'Animation', '2026'],
+  },
+  {
     title: 'Google I/O 2026: Every Web Platform Announcement',
     date: '2026-05-21',
     excerpt: 'From CSS Anchor Positioning reaching Baseline to HTML-in-Canvas, here\'s everything announced for web developers at Google I/O 2026.',

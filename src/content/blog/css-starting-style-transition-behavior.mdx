@@ -1,0 +1,325 @@
+---
+title: "CSS @starting-style & transition-behavior: Animate display:none and height:auto Without JavaScript"
+date: "2026-05-27"
+excerpt: "For decades, two CSS animations have been impossible: fading in after display:none, and animating to height:auto. The @starting-style at-rule, transition-behavior, and interpolate-size change that forever. Learn every pattern with production-ready code."
+tags: ["CSS", "@starting-style", "transition-behavior", "interpolate-size", "animation", "Web Platform", "2026"]
+---
+
+## The Two Impossible CSS Animations
+
+Ask any frontend developer what CSS animation they've always wanted but couldn't have, and you'll get the same two answers:
+
+1. **Animating from `display: none`** — you want a dialog to fade in when it opens, but `display` can't animate and `visibility: hidden` still takes up space
+2. **Animating to `height: auto`** — you want an accordion to smoothly expand, but you can only animate to explicit pixel values
+
+Until 2024, the answer was always "use JavaScript." You'd measure heights with `getBoundingClientRect()`, toggle classes after `requestAnimationFrame()`, or reach for a library. In 2026, the browser handles both natively. Here's how.
+
+## The Three Primitives
+
+Three new CSS features work together to make this possible:
+
+| Feature | What It Solves | Baseline Since |
+|---------|---------------|----------------|
+| `@starting-style` | Defines initial state for entry transitions | Chrome 117, Safari 18, Firefox 129 |
+| `transition-behavior: allow-discrete` | Enables transitions on discrete properties (like `display`) | Chrome 117, Safari 18, Firefox 129 |
+| `interpolate-size: allow-keywords` | Enables interpolation to/from `auto` and intrinsic sizes | Chrome 129, Safari 18, Firefox 133 |
+
+All three are now cross-browser Baseline. Let's take them one at a time.
+
+## @starting-style: Entry Animations From Nothing
+
+The problem: CSS transitions need a *before* state and an *after* state. When an element goes from `display: none` to `display: block`, the browser has no "before" state to transition from — it just appears.
+
+`@starting-style` gives you that before state:
+
+```css
+.popover {
+  opacity: 1;
+  transform: scale(1);
+  transition: opacity 0.2s, transform 0.2s;
+}
+
+/* This runs only during the FIRST frame the element exists */
+@starting-style {
+  .popover {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+}
+```
+
+That's it. When the `.popover` appears (via changing `display` or inserting into the DOM), it starts at `opacity: 0; transform: scale(0.95)` and transitions to `opacity: 1; transform: scale(1)`. This works for **exit animations** too with regular transitions in reverse.
+
+### Real Pattern: Dialog Entry
+
+```css
+dialog[open] {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  transition: 
+    opacity 0.2s ease-out,
+    transform 0.2s ease-out,
+    overlay 0.2s ease-out allow-discrete,
+    display 0.2s ease-out allow-discrete;
+}
+
+@starting-style {
+  dialog[open] {
+    opacity: 0;
+    transform: translateY(10px) scale(0.97);
+  }
+}
+```
+
+**Wait — what's `allow-discrete` doing there?** Let's get to that.
+
+## transition-behavior: Making display Animatable
+
+Normally, `display` and `content-visibility` are **discrete** properties — they have no intermediate states. You can't be "halfway between block and none." So CSS transitions skip them entirely — the property changes at the *end* of the transition duration.
+
+`transition-behavior: allow-discrete` tells the browser: "Transition this discrete property at the boundary of the animation — apply it at the **start** (for entry) or **end** (for exit) of the transition instead."
+
+```css
+.tooltip {
+  opacity: 1;
+  transform: translateY(0);
+  transition: 
+    opacity 0.15s ease-out,
+    transform 0.15s ease-out,
+    /* display animates at the START — element becomes 'block' first, then fades in */
+    display 0.15s ease-out allow-discrete;
+}
+
+.tooltip[hidden],
+.tooltip:not(.visible) {
+  opacity: 0;
+  transform: translateY(4px);
+  /* display becomes 'none' at the END — fades out first, then disappears */
+  display: none;
+}
+
+@starting-style {
+  .tooltip:not([hidden]),
+  .tooltip.visible {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+}
+```
+
+The `0.15s` duration on `display` sets the timing boundary. For entry: `display: block` at frame 0, then the visual properties animate over 0.15s. For exit: visual properties animate over 0.15s, then `display: none` at the very end.
+
+### The overlay Property
+
+`dialog` and `popover` elements have an additional discrete property: `overlay`. Without `allow-discrete` on `overlay`, a closing dialog sits in the top layer until the very last frame, blocking clicks.
+
+```css
+dialog {
+  transition: 
+    opacity 0.3s,
+    transform 0.3s,
+    overlay 0.3s allow-discrete,
+    display 0.3s allow-discrete;
+}
+```
+
+Always pair `overlay` with `display` when animating dialogs and popovers.
+
+## interpolate-size: The Height:auto Holy Grail
+
+This is the one developers have wanted for 20 years:
+
+```css
+details::details-content {
+  height: 0;
+  overflow: hidden;
+  transition: height 0.3s ease;
+  interpolate-size: allow-keywords;  /* ← THE MAGIC LINE */
+}
+
+details[open]::details-content {
+  height: auto;  /* ← YES, AUTO. It actually works. */
+}
+```
+
+That `interpolate-size: allow-keywords` one-liner tells the browser: "When interpolating sizing properties, treat `auto`, `min-content`, `max-content`, and `fit-content` as numeric values." The browser calculates the actual pixel value of `auto` and animates to it.
+
+### Complete Accordion Pattern
+
+```html
+<details name="faq">
+  <summary>What is DevBench?</summary>
+  <div class="accordion-content">
+    DevBench is a collection of free developer tools — no sign-up, no ads.
+  </div>
+</details>
+```
+
+```css
+/* Progressive enhancement — only animate if supported */
+@supports (interpolate-size: allow-keywords) {
+  details .accordion-content {
+    height: 0;
+    overflow: hidden;
+    transition: height 0.35s ease;
+    interpolate-size: allow-keywords;
+  }
+
+  details[open] .accordion-content {
+    height: auto;
+  }
+}
+```
+
+The `@supports` guard means unsupported browsers get the instant toggle — which is fine, they've been fine with it for 20 years.
+
+### The Exclusive Accordion
+
+With the `name` attribute on `<details>`, browsers now support exclusive accordions natively (open one, others close). Combined with `interpolate-size`:
+
+```html
+<details name="faq-section">
+  <summary>Question 1</summary>
+  <p>Answer 1</p>
+</details>
+<details name="faq-section">
+  <summary>Question 2</summary>
+  <p>Answer 2</p>
+</details>
+```
+
+No JavaScript. The `name` attribute groups them and the CSS handles the animation. This is production-ready in all modern browsers.
+
+## calc-size(): When You Need Math In Your Animation
+
+`interpolate-size` handles `auto` ↔ numeric, but what if you need calculations during the animation? Enter `calc-size()`:
+
+```css
+.slide-panel {
+  width: 0;
+  overflow: hidden;
+  transition: width 0.3s ease;
+  interpolate-size: allow-keywords;
+}
+
+.slide-panel.open {
+  /* 100% of the auto width, minus 2rem */
+  width: calc-size(auto, size - 2rem);
+}
+```
+
+The `size` keyword inside `calc-size()` represents the `auto` value. You can do: `calc-size(fit-content, size * 0.8)`, `calc-size(auto, size + 20px)`, etc.
+
+## Putting It All Together: A Notification Toast
+
+Here's a complete pattern combining all three primitives:
+
+```css
+.notification {
+  position: fixed;
+  bottom: 1rem;
+  right: 1rem;
+  
+  /* Visible state */
+  opacity: 1;
+  transform: translateY(0);
+  max-height: 200px;
+  
+  transition: 
+    opacity 0.3s ease,
+    transform 0.3s ease,
+    max-height 0.3s ease;
+  interpolate-size: allow-keywords;
+}
+
+/* Hidden state — remove from layout */
+.notification.dismissed {
+  opacity: 0;
+  transform: translateY(100%);
+  max-height: 0;
+  margin: 0;
+  padding-top: 0;
+  padding-bottom: 0;
+  /* display animates at the end so it fades out first */
+  transition: 
+    opacity 0.25s ease,
+    transform 0.25s ease,
+    max-height 0.25s ease,
+    margin 0.25s ease,
+    padding 0.25s ease,
+    display 0.25s ease allow-discrete;
+  display: none;
+}
+
+@starting-style {
+  .notification:not(.dismissed) {
+    opacity: 0;
+    transform: translateY(100%);
+    max-height: 0;
+  }
+}
+```
+
+## Performance Considerations
+
+These features are implemented at the compositor level — they don't trigger layout during animation frames (unlike the JavaScript `getBoundingClientRect()` approach). However:
+
+- **`height` animations still trigger layout** on every frame. Prefer `transform: scaleY()` + a wrapper with `overflow: hidden` for pure-compositor performance in complex layouts.
+- **`interpolate-size` calculates the `auto` value once** at transition start. If content changes mid-transition, the target size won't update until the next transition.
+- **Nested accordions work fine** — each `details` element gets its own `interpolate-size` context.
+- **`display: none` transitions with `allow-discrete` are instant** — the transition duration only controls *when* in the sequence the discrete change happens, not a gradual change in `display` itself (which is impossible).
+
+## Browser Support
+
+As of May 2026:
+
+| Feature | Chrome | Safari | Firefox | Edge |
+|---------|--------|--------|---------|------|
+| `@starting-style` | 117 ✓ | 18.0 ✓ | 129 ✓ | 117 ✓ |
+| `transition-behavior` | 117 ✓ | 18.0 ✓ | 129 ✓ | 117 ✓ |
+| `interpolate-size` | 129 ✓ | 18.0 ✓ | 133 ✓ | 129 ✓ |
+
+All three are cross-browser Baseline. The `@supports` guard is for the ~5% of users on older versions.
+
+## Migration: Drop the JavaScript
+
+Here's what you can delete:
+
+**Before (JavaScript accordion):**
+```javascript
+accordion.addEventListener('click', () => {
+  const content = accordion.nextElementSibling;
+  content.style.height = content.scrollHeight + 'px';
+  // ... RAF, transitionend cleanup, resize observer ...
+});
+```
+
+**After (CSS only):**
+```css
+details::details-content {
+  height: 0;
+  overflow: hidden;
+  transition: height 0.3s;
+  interpolate-size: allow-keywords;
+}
+details[open]::details-content {
+  height: auto;
+}
+```
+
+Two CSS rules replace ~30 lines of JavaScript. No resize observer, no RAF orchestration, no cleanup.
+
+## What's Next
+
+The CSS Working Group is actively working on:
+- **`animation-timeline: view()`** — already Baseline, covered in our [scroll-driven animations guide](/tools/scroll-driven-animations)
+- **`transition-behavior` for `content-visibility`** — same pattern, different property
+- **`@starting-style` with `position-anchor`** — animate tooltip appearance with CSS Anchor Positioning
+
+The era of "you need JavaScript for that" is ending. The browser is becoming the animation engine.
+
+---
+
+**Try these patterns live:** Open your browser DevTools, paste any of the CSS above into the Styles panel, and toggle `display` on an element. It just works.
+
+*Check our [CSS Anchor Positioning Playground](/tools/css-anchor-playground) and [Scroll-Driven Animations Playground](/tools/scroll-driven-animations) for more CSS animation tools.*
