@@ -742,6 +742,13 @@ const featuredTools = [
 ];
 const sampleBlogPosts = [
   {
+    title: 'CSS Nesting Is Baseline in 2026 — Say Goodbye to Sass Nesting',
+    date: '2026-05-27',
+    excerpt: 'Native CSS nesting is now Baseline across all major browsers — Chrome, Firefox, Safari, and Edge. It works exactly like Sass nesting but runs in the browser with zero build step. Learn the syntax rules, gotchas, and how to migrate.',
+    slug: 'css-nesting-baseline-2026',
+    tags: ['CSS', 'Nesting', 'Baseline 2026', 'Sass'],
+  },
+  {
     title: 'HTMX in 2026: The Renaissance of Hypermedia-Driven Applications',
     date: '2026-05-26',
     excerpt: 'HTMX has surpassed React in GitHub stars and is reshaping how developers think about web architecture. Learn every hx-* attribute and why frontend minimalism is winning.',

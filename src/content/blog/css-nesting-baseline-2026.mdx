@@ -1,0 +1,540 @@
+---
+title: "CSS Nesting Is Baseline in 2026 — Say Goodbye to Sass Nesting"
+date: "2026-05-27"
+excerpt: "Native CSS nesting is now Baseline across all major browsers — Chrome, Firefox, Safari, and Edge. It works exactly like Sass nesting but runs in the browser with zero build step. Learn the syntax rules, gotchas, and how to migrate your preprocessor nesting to native CSS."
+tags: ["CSS", "Nesting", "Baseline 2026", "Web Platform", "Sass", "Preprocessors", "Architecture"]
+---
+
+## The Last Preprocessor Feature Falls
+
+For two decades, one feature kept developers reaching for Sass, Less, and Stylus: **nesting**. The ability to write selectors inside other selectors — mirroring the DOM tree structure — is the single most adopted preprocessor feature in frontend history.
+
+In 2026, native CSS nesting is **Baseline** across all four major browsers. Chrome shipped it in 2023, Safari in 2024, Firefox in 2025, and Edge followed the Chrome timeline. You can now write this in a plain `.css` file:
+
+```css
+.card {
+  background: white;
+  border-radius: 8px;
+
+  & .title {
+    font-size: 1.5rem;
+    font-weight: 700;
+  }
+
+  & .body {
+    padding: 1rem;
+  }
+
+  &:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  }
+}
+```
+
+No compiler. No build step. No `node-sass` dependency that breaks every time you update Node.js. The browser parses it natively.
+
+This is the final nail in the coffin for preprocessor-only features. CSS Variables replaced Sass variables. `@layer` replaced file organization hacks. `color-mix()` and `oklch()` replaced `darken()` and `lighten()`. And now nesting completes the picture.
+
+## The Two Forms of Nesting
+
+Native CSS supports two nesting forms, and understanding when to use each is critical.
+
+### 1. Simple Nesting (with `&`)
+
+This is the safest, most widely supported form. Every nested selector MUST start with the `&` combinator:
+
+```css
+.parent {
+  color: blue;
+
+  & .child {
+    color: red;
+  }
+
+  &:hover {
+    color: green;
+  }
+
+  & > .direct-child {
+    color: purple;
+  }
+
+  & + .sibling {
+    color: orange;
+  }
+}
+```
+
+The `&` is replaced with the parent selector at parse time. `& .child` becomes `.parent .child`. `&:hover` becomes `.parent:hover`. Simple, predictable, and identical to Sass behavior.
+
+### 2. Relaxed Nesting (without `&`)
+
+The spec also allows omitting `&` when the nested selector starts with a letter, `[`, `:`, or `.` — essentially anything that can't be confused with a property declaration:
+
+```css
+.card {
+  background: white;
+
+  .title {
+    /* Equivalent to .card .title */
+    font-weight: bold;
+  }
+
+  :hover {
+    /* Equivalent to .card:hover */
+    transform: scale(1.02);
+  }
+
+  [data-variant="outline"] {
+    /* Equivalent to .card[data-variant="outline"] */
+    border: 2px solid currentColor;
+  }
+}
+```
+
+**This is controversial.** Many developers (including the Sass team) argued that relaxed nesting introduces ambiguity. If a browser encounters `color` inside a nested context, it has to decide: is this a property declaration or a type selector `.color`? The spec resolves this by always treating valid property names as properties — but edge cases exist. Here's a real ambiguity:
+
+```css
+div {
+  border: 1px solid;
+  /* Is this the border property or a .border class selector? */
+  border {
+    /* ... */
+  }
+}
+```
+
+The browser always treats `border` as a property since it's a valid CSS property name. This means **you can't nest a `.border` class selector inside `div` without using `&`**. If you have a class called `.border`, `.padding`, `.margin`, or any other class that matches a CSS property name, you must write `& .border`, not `.border`.
+
+**My recommendation:** Always use `&` explicitly. It's one extra character and eliminates every ambiguity. Code is read far more often than written — make it unmistakable.
+
+## Nesting At-Rules
+
+You can nest `@media`, `@container`, `@supports`, and `@layer` inside any selector:
+
+```css
+.sidebar {
+  display: flex;
+  flex-direction: column;
+
+  @media (width <= 768px) {
+    flex-direction: row;
+    overflow-x: auto;
+  }
+
+  @container (min-width: 400px) {
+    padding: 2rem;
+  }
+}
+```
+
+This is perhaps the single biggest win of native nesting. Instead of repeating the selector inside every media query (and having them scattered across your file), the responsive behavior lives right next to the base styles:
+
+```css
+/* Old way — media queries far from their selectors */
+.sidebar { display: flex; flex-direction: column; }
+.widget { padding: 1rem; }
+
+@media (width <= 768px) {
+  .sidebar { flex-direction: row; }
+  .widget { padding: 0.5rem; }
+}
+
+/* New way — responsive behavior co-located */
+.sidebar {
+  display: flex;
+  flex-direction: column;
+
+  @media (width <= 768px) {
+    flex-direction: row;
+  }
+}
+
+.widget {
+  padding: 1rem;
+
+  @media (width <= 768px) {
+    padding: 0.5rem;
+  }
+}
+```
+
+Co-location is a massive maintainability win. When you need to change a component's responsive behavior, everything is in one place.
+
+## Nesting `@supports` and `@layer`
+
+Both work identically:
+
+```css
+.grid-layout {
+  display: grid;
+
+  @supports (grid-template-rows: subgrid) {
+    grid-template-rows: subgrid;
+  }
+}
+
+/* Or with @layer for cascade management */
+@layer components {
+  .button {
+    padding: 0.75rem 1.5rem;
+
+    @media (hover: hover) {
+      &:hover {
+        filter: brightness(1.1);
+      }
+    }
+  }
+}
+```
+
+## The `&` Combinator Rules
+
+Understanding exactly how `&` works prevents 90% of nesting bugs:
+
+| Nested selector | Resolves to | Notes |
+|-----------------|-------------|-------|
+| `& .child` | `.parent .child` | Descendant combinator added |
+| `& > .child` | `.parent > .child` | Direct child |
+| `&.active` | `.parent.active` | Same element, additional class |
+| `&:hover` | `.parent:hover` | Pseudo-class on parent |
+| `&::before` | `.parent::before` | Pseudo-element on parent |
+| `& + p` | `.parent + p` | Adjacent sibling |
+| `& ~ p` | `.parent ~ p` | General sibling |
+| `&[open]` | `.parent[open]` | Attribute selector |
+| `:is(&)` | `:is(.parent)` | Specificity trick (see below) |
+
+### The Specificity Trap
+
+This is the most important gotcha. Nesting with `&` produces the same specificity as writing the selector out flat:
+
+```css
+.article {
+  color: black;
+
+  & .highlight {
+    color: blue; /* specificity: 0,2,0 — .article + .highlight */
+  }
+}
+```
+
+But relaxed nesting (without `&`) uses `:is()` internally, which can change specificity:
+
+```css
+.article {
+  color: black;
+
+  .highlight {
+    /* The browser desugars this to: :is(.article) .highlight */
+    /* specificity: (0,1,0) from :is() + (0,1,0) from .highlight = 0,2,0 */
+    /* Same as explicit &, so this case is fine. */
+    color: blue;
+  }
+}
+```
+
+The real trap: if the parent has a complex selector, `:is()` takes the highest specificity from its argument list:
+
+```css
+#page .article {
+  /* specificity: 1,1,0 */
+
+  .highlight {
+    /* Desugars to: :is(#page .article) .highlight */
+    /* :is() specificity = max(1,0,0,  0,1,0) = 1,1,0 */
+    /* Total: 1,2,0 — HIGHER than you might expect! */
+    color: red;
+  }
+}
+```
+
+**Rule of thumb:** If you nest under a selector containing an ID or element type, use explicit `&` to avoid `:is()` specificity surprises. Better yet, avoid IDs in CSS entirely and the problem disappears.
+
+## Real-World Patterns
+
+### Pattern 1: Component with Variants
+
+```css
+.alert {
+  padding: 1rem;
+  border-radius: 6px;
+  border: 1px solid;
+
+  &[data-variant="success"] {
+    background: oklch(0.95 0.04 150);
+    border-color: oklch(0.85 0.08 150);
+    color: oklch(0.30 0.06 150);
+  }
+
+  &[data-variant="error"] {
+    background: oklch(0.95 0.04 20);
+    border-color: oklch(0.85 0.08 20);
+    color: oklch(0.30 0.06 20);
+  }
+
+  &[data-variant="warning"] {
+    background: oklch(0.95 0.08 90);
+    border-color: oklch(0.85 0.12 90);
+    color: oklch(0.35 0.06 80);
+  }
+
+  & .icon {
+    margin-right: 0.5rem;
+  }
+
+  & .title {
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+  }
+}
+```
+
+### Pattern 2: Card with Responsive Grid
+
+```css
+.product-grid {
+  display: grid;
+  gap: 1.5rem;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+
+  @media (width >= 1024px) {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  @media (width <= 640px) {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+}
+
+.product-card {
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+  transition: box-shadow 0.2s, transform 0.2s;
+
+  @media (hover: hover) {
+    &:hover {
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+      transform: translateY(-2px);
+    }
+  }
+
+  & img {
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    object-fit: cover;
+  }
+
+  & .content {
+    padding: 1.25rem;
+
+    & h3 {
+      font-size: 1.125rem;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+    }
+
+    & p {
+      color: var(--text-secondary);
+      font-size: 0.875rem;
+      line-height: 1.5;
+    }
+  }
+}
+```
+
+### Pattern 3: Navigation with Mobile Toggle
+
+```css
+.nav {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  padding: 1rem 2rem;
+
+  @media (width <= 768px) {
+    flex-direction: column;
+    align-items: stretch;
+    padding: 1rem;
+
+    &:not(.open) {
+      display: none;
+    }
+  }
+
+  & .link {
+    text-decoration: none;
+    color: inherit;
+    padding: 0.5rem 0;
+    position: relative;
+
+    &::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: currentColor;
+      transform: scaleX(0);
+      transition: transform 0.2s;
+    }
+
+    @media (hover: hover) {
+      &:hover::after {
+        transform: scaleX(1);
+      }
+    }
+
+    &.active::after {
+      transform: scaleX(1);
+    }
+  }
+}
+```
+
+## Migrating from Sass: The Differences That Matter
+
+If you're coming from Sass, here are the differences you'll hit:
+
+### 1. No `@at-root`
+
+Sass lets you break out of nesting with `@at-root`. CSS Nesting has no equivalent. Instead, use `@layer` or restructure your selectors:
+
+```css
+/* Sass pattern */
+.component {
+  color: blue;
+
+  @at-root .global-class {
+    color: red;
+  }
+}
+
+/* Native CSS: just write it flat */
+.component {
+  color: blue;
+}
+
+.global-class {
+  color: red;
+}
+```
+
+### 2. BEM Concatenation Still Works
+
+Sass lets you concatenate selectors with `&__element` and `&--modifier` for BEM naming. **Native CSS can do this too**:
+
+```css
+/* Both Sass and Native CSS support this */
+.block {
+  color: blue;
+
+  &__element {
+    /* Sass: .block__element. Native: .block__element. Same! */
+    color: red;
+  }
+
+  &--modifier {
+    /* .block--modifier */
+    color: green;
+  }
+}
+```
+
+This works! You can keep your BEM naming conventions with native nesting.
+
+### 3. No Mixins, Functions, or Control Flow
+
+Sass features like `@mixin`, `@function`, `@if`, `@for`, `@each`, and `@while` have no CSS equivalents. That said, CSS Custom Properties + `calc()` cover many `@function` use cases, and `:has()` + `@container` cover many conditional styling needs.
+
+### 4. No Parent Selector in Strings
+
+Sass lets you use `&` in strings for generated content. CSS doesn't support this:
+
+```css
+/* Sass only — not possible in native CSS */
+.element {
+  &::after {
+    content: "You are hovering .element";
+  }
+}
+```
+
+### 5. No `@extend`
+
+Sass `@extend` has no native equivalent. This is actually fine — `@extend` was widely considered an anti-pattern due to unpredictable output order and selector bloat. Use CSS Custom Properties or utility classes instead.
+
+## Browser Support and Progressive Enhancement
+
+As of May 2026, CSS Nesting is Baseline — meaning it works in all four major browsers:
+
+| Browser | Version | Release |
+|---------|---------|---------|
+| Chrome | 120+ | December 2023 |
+| Safari | 17.2+ | December 2023 |
+| Firefox | 131+ | October 2024 |
+| Edge | 120+ | December 2023 |
+
+Global support is ~94% as of May 2026. If you need to support older browsers, you have two options:
+
+### Option 1: PostCSS with `postcss-nesting`
+
+Use the popular `postcss-nesting` plugin in your build pipeline. It converts native CSS nesting syntax into flat CSS. This gives you native syntax authoring with universal compatibility:
+
+```bash
+npm install -D postcss postcss-nesting
+```
+
+```js
+// postcss.config.js
+module.exports = {
+  plugins: [
+    require('postcss-nesting'),
+  ],
+};
+```
+
+### Option 2: Only Nest Non-Critical Styles
+
+Nest everything. If an old browser encounters nested CSS, it simply ignores the nested rules and applies the parent styles flat. Your layout still works; it just loses some polish:
+
+```css
+.card {
+  padding: 1rem;
+  background: white;
+  /* This always applies, even in old browsers */
+
+  & .title {
+    font-weight: bold;
+    /* Old browsers ignore this — title just won't be bold */
+  }
+}
+```
+
+## Should You Still Use Sass?
+
+Maybe, but for far fewer reasons. Here's a decision framework:
+
+**Drop Sass if:** You only used it for nesting, variables, and color functions. Native CSS now covers all three: nesting for structure, `var()` + `@property` for variables, and `color-mix()` + `oklch()` for color manipulation.
+
+**Keep Sass if:** You rely heavily on mixins, loops (`@for`, `@each`), or functions. These have no native equivalents and likely never will — they're programming constructs, not styling features.
+
+**Hybrid approach:** Keep Sass for your design system tokens, mixins, and utility generation. Write component styles in native CSS with nesting. The two interoperate perfectly since Sass processes to flat CSS before nesting is applied.
+
+## The Bottom Line
+
+CSS Nesting becoming Baseline is a watershed moment. For the first time in web history, you can write structured, maintainable CSS without a build step. The syntax is clean. The mental model is identical to Sass. And it works in every browser.
+
+If you haven't tried native nesting yet, here's your starter: pick one component. Rewrite its Sass-flavored CSS using native nesting. Delete the `scss` extension and rename it `.css`. Watch it work. It's that simple.
+
+The preprocessor era isn't quite over — but the single biggest reason to use one just disappeared.
+
+## Further Reading
+
+- **[CSS Nesting Module (W3C)](https://www.w3.org/TR/css-nesting-1/)** — The official specification
+- **[Can I Use: CSS Nesting](https://caniuse.com/css-nesting)** — Live browser support data
+- **[Try it on DevBench](/tools/css-nesting-playground)** — Interactive nesting playground with live expansion
+- **[MDN: CSS Nesting](https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_nesting)** — Complete reference with examples
+- **[Sass: Nesting](https://sass-lang.com/documentation/style-rules/#nesting)** — Compare with the original
