@@ -750,6 +750,13 @@ const featuredTools = [
 ];
 const sampleBlogPosts = [
   {
+    title: 'Signals in 2026: Why Every Framework Is Converging on This One Primitive',
+    date: '2026-05-28',
+    excerpt: 'Solid, Preact, Vue, Angular, Svelte — every major framework is adopting signals as their core reactive primitive. A deep dive into the dependency graph, push-pull evaluation, framework comparisons, and the TC39 proposal to standardize signals in JavaScript.',
+    slug: 'signals-every-framework-2026',
+    tags: ['Signals', 'SolidJS', 'React', 'TC39', '2026'],
+  },
+  {
     title: 'CSS Nesting Is Baseline in 2026 — Say Goodbye to Sass Nesting',
     date: '2026-05-27',
     excerpt: 'Native CSS nesting is now Baseline across all major browsers — Chrome, Firefox, Safari, and Edge. It works exactly like Sass nesting but runs in the browser with zero build step. Learn the syntax rules, gotchas, and how to migrate.',
