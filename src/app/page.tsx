@@ -205,6 +205,13 @@ const featuredTools = [
     tags: ['Color', 'Design', 'Converter'],
   },
   {
+    title: 'Color Palette Generator',
+    description: 'Generate beautiful, harmonious palettes using color theory — complementary, analogous, triadic, monochromatic, and more. Export as CSS, Tailwind, or JSON.',
+    href: '/tools/color-palette',
+    icon: Droplets,
+    tags: ['Color', 'Palette', 'Design', 'Harmony'],
+  },
+  {
     title: 'Cron Builder',
     description: 'Build cron expressions interactively with human-readable output, presets, and next execution preview.',
     href: '/tools/cron-builder',
