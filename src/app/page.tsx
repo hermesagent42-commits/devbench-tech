@@ -78,6 +78,7 @@ import {
   Paintbrush,
   Key,
   Variable,
+  Zap,
 } from 'lucide-react';
 
 export const metadata: Metadata = {
@@ -709,6 +710,13 @@ const featuredTools = [
     href: '/tools/geolocation-playground',
     icon: MapPin,
     tags: ['Browser API', 'Geolocation', 'GPS', 'Position'],
+  },
+  {
+    title: 'DOM Event Explorer',
+    description: 'Explore every DOM event in real-time — click, type, drag, and scroll to see all event properties captured live. Filter by category, inspect event objects, understand the complete DOM event model.',
+    href: '/tools/event-listener-explorer',
+    icon: Zap,
+    tags: ['Browser API', 'Events', 'DOM', 'Debug'],
   },
   {
     title: 'JWT Debugger',
