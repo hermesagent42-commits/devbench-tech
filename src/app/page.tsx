@@ -704,6 +704,13 @@ const featuredTools = [
     tags: ['Browser API', 'Intersection Observer', 'Performance'],
   },
   {
+    title: 'Geolocation API Playground',
+    description: 'Test the browser Geolocation API — watch your position in real-time, track accuracy, speed, altitude, heading. Live history, open in maps — 100% client-side.',
+    href: '/tools/geolocation-playground',
+    icon: MapPin,
+    tags: ['Browser API', 'Geolocation', 'GPS', 'Position'],
+  },
+  {
     title: 'JWT Debugger',
     description: 'Decode, inspect, and validate JWTs — see header, payload, claims, expiry, and timeline. Paste any JWT or load samples. 100% client-side.',
     href: '/tools/jwt-debugger',
