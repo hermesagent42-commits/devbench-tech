@@ -77,6 +77,7 @@ import {
   Package,
   Share2,
   Variable,
+  FileSpreadsheet,
 } from 'lucide-react';
 
 export const metadata: Metadata = {
@@ -722,6 +723,13 @@ const allTools = [
     href: '/tools/css-named-colors',
     icon: Palette,
     tags: ['CSS', 'Colors', 'Reference', 'Design'],
+  },
+  {
+    title: 'CSV Viewer & Editor',
+    description: 'Paste CSV data and view it as an interactive, editable table — sort by column, filter rows, view column stats (min/max/avg/sum), and export as CSV, TSV, or Markdown. 100% client-side.',
+    href: '/tools/csv-viewer',
+    icon: FileSpreadsheet,
+    tags: ['CSV', 'Table', 'Editor', 'Data', 'Spreadsheet'],
   },
 ];
 

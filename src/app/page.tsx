@@ -79,6 +79,7 @@ import {
   Key,
   Variable,
   Zap,
+  FileSpreadsheet,
 } from 'lucide-react';
 
 export const metadata: Metadata = {
@@ -738,6 +739,13 @@ const featuredTools = [
     href: '/tools/font-face-generator',
     icon: FileCode,
     tags: ['CSS', '@font-face', 'Typography', 'Fonts'],
+  },
+  {
+    title: 'CSV Viewer & Editor',
+    description: 'Paste CSV data to view, edit, sort, and filter in an interactive table — column stats, export to CSV/TSV/Markdown. Full spreadsheet-like editing in your browser.',
+    href: '/tools/csv-viewer',
+    icon: FileSpreadsheet,
+    tags: ['CSV', 'Table', 'Data', 'Spreadsheet'],
   },
 ];
 const sampleBlogPosts = [
