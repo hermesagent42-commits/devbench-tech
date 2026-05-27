@@ -687,6 +687,13 @@ const allTools = [
     icon: Eye,
     tags: ['Browser API', 'Intersection Observer', 'Performance', 'Lazy Load'],
   },
+  {
+    title: 'JWT Debugger',
+    description: 'Decode, inspect, and validate JSON Web Tokens — parse header & payload, check claims, view expiry timeline, and detect issues. 3 sample tokens, 100% client-side.',
+    href: '/tools/jwt-debugger',
+    icon: Key,
+    tags: ['JWT', 'Auth', 'Debug', 'Security', 'Claims'],
+  },
 ];
 
 export default function ToolsPage() {

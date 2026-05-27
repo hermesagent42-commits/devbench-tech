@@ -76,6 +76,7 @@ import {
   Share2,
   Eye,
   Paintbrush,
+  Key,
 } from 'lucide-react';
 
 export const metadata: Metadata = {
@@ -693,6 +694,13 @@ const featuredTools = [
     href: '/tools/intersection-observer-playground',
     icon: Eye,
     tags: ['Browser API', 'Intersection Observer', 'Performance'],
+  },
+  {
+    title: 'JWT Debugger',
+    description: 'Decode, inspect, and validate JWTs — see header, payload, claims, expiry, and timeline. Paste any JWT or load samples. 100% client-side.',
+    href: '/tools/jwt-debugger',
+    icon: Key,
+    tags: ['JWT', 'Auth', 'Debug', 'Security'],
   },
 ];
 
