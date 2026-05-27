@@ -34,3 +34,5 @@ All tools process data locally in your browser. No data is sent to any server. P
 ## License
 
 MIT
+
+<!-- deploy trigger: 2026-05-27T17:53:11.964226 -->
