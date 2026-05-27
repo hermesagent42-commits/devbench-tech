@@ -709,6 +709,13 @@ const allTools = [
     icon: FileCode,
     tags: ['CSS', '@font-face', 'Typography', 'Fonts'],
   },
+  {
+    title: 'CSS Named Colors',
+    description: 'Explore all 148 CSS named colors — search, filter by family, sort by hue or lightness, and copy hex/RGB/HSL values. Interactive color grid with instant preview.',
+    href: '/tools/css-named-colors',
+    icon: Palette,
+    tags: ['CSS', 'Colors', 'Reference', 'Design'],
+  },
 ];
 
 export default function ToolsPage() {
