@@ -661,6 +661,13 @@ const allTools = [
     tags: ['CSS', 'text-wrap', 'Typography', 'Baseline 2026'],
   },
   {
+    title: 'CSS Overflow Playground',
+    description: 'Experiment with overflow, text-overflow, word-break, overscroll-behavior, and scroll-behavior in real-time. 8 presets for scrolling, ellipsis, word-breaking, and overscroll containment. Live preview and instant CSS copy.',
+    href: '/tools/css-overflow-playground',
+    icon: Container,
+    tags: ['CSS', 'Overflow', 'Scroll', 'Text', 'Layout'],
+  },
+  {
     title: 'Browser Storage Explorer',
     description: 'Inspect, edit, import, and export localStorage & sessionStorage. Type detection, search, quota usage bar — the DevTools storage panel, supercharged.',
     href: '/tools/browser-storage-explorer',
