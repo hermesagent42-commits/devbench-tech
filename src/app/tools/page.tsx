@@ -76,6 +76,7 @@ import {
   AlignJustify,
   Package,
   Share2,
+  Variable,
 } from 'lucide-react';
 
 export const metadata: Metadata = {
@@ -693,6 +694,13 @@ const allTools = [
     href: '/tools/jwt-debugger',
     icon: Key,
     tags: ['JWT', 'Auth', 'Debug', 'Security', 'Claims'],
+  },
+  {
+    title: 'CSS Custom Properties Playground',
+    description: 'Define, preview, and manage CSS custom properties (variables) — build theme systems, test color schemes, reorder by drag-and-drop, and export production-ready :root CSS with usage examples.',
+    href: '/tools/css-custom-properties',
+    icon: Variable,
+    tags: ['CSS', 'Custom Properties', 'Variables', 'Themes'],
   },
 ];
 
