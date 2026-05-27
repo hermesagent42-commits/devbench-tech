@@ -17,6 +17,7 @@ import {
   Palette,
   Clock,
   Droplets,
+  MonitorSmartphone,
   FileCode,
   Layout,
   CalendarClock,
@@ -167,6 +168,13 @@ const featuredTools = [
     href: '/tools/gradient-text-generator',
     icon: Type,
     tags: ['CSS', 'Gradient', 'Text', 'Typography'],
+  },
+  {
+    title: 'CSS Display Playground',
+    description: 'Explore every CSS display value — block, inline, flex, grid, table, contents — with live visual layout previews and CSS output.',
+    href: '/tools/css-display-playground',
+    icon: MonitorSmartphone,
+    tags: ['CSS', 'Display', 'Layout', 'Learning'],
   },
   {
     title: 'CSS Box-Shadow Generator',
