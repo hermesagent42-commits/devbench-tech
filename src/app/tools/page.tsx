@@ -702,6 +702,13 @@ const allTools = [
     icon: Variable,
     tags: ['CSS', 'Custom Properties', 'Variables', 'Themes'],
   },
+  {
+    title: '@font-face Generator',
+    description: 'Build production-ready @font-face declarations — font family, weight, style, display strategy, and fallback source URLs. Copy, download, or embed. 8 presets for common patterns.',
+    href: '/tools/font-face-generator',
+    icon: FileCode,
+    tags: ['CSS', '@font-face', 'Typography', 'Fonts'],
+  },
 ];
 
 export default function ToolsPage() {

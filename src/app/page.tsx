@@ -710,9 +710,14 @@ const featuredTools = [
     icon: Variable,
     tags: ['CSS', 'Custom Properties', 'Variables', 'Themes'],
   },
+  {
+    title: '@font-face Generator',
+    description: 'Build production-ready @font-face declarations — font family, weight, style, display strategy, and fallback source URLs. 8 presets, live preview, copy or download CSS.',
+    href: '/tools/font-face-generator',
+    icon: FileCode,
+    tags: ['CSS', '@font-face', 'Typography', 'Fonts'],
+  },
 ];
-
-// Inline sample blog posts — latest featured on homepage
 const sampleBlogPosts = [
   {
     title: 'HTMX in 2026: The Renaissance of Hypermedia-Driven Applications',
