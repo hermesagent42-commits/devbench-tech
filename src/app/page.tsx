@@ -186,6 +186,13 @@ const featuredTools = [
     tags: ['CSS', 'Box-Shadow', 'Design'],
   },
   {
+    title: 'CSS Aspect Ratio Playground',
+    description: 'Visually build and test CSS aspect-ratio values — 15 presets, live preview at multiple device widths, CSS + Tailwind output.',
+    href: '/tools/aspect-ratio-playground',
+    icon: Ruler,
+    tags: ['CSS', 'Aspect Ratio', 'Layout'],
+  },
+  {
     title: 'CSS Blend Mode Playground',
     description: 'Explore all 16 CSS blend modes with live color previews, math formulas, presets, and computed blend values — mix-blend-mode and background-blend-mode.',
     href: '/tools/css-blend-playground',
