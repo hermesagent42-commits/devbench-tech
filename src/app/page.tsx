@@ -81,6 +81,7 @@ import {
   Zap,
   FileSpreadsheet,
   PanelRight,
+  Package,
 } from 'lucide-react';
 
 export const metadata: Metadata = {
@@ -761,6 +762,13 @@ const featuredTools = [
     href: '/tools/css-popover-playground',
     icon: PanelRight,
     tags: ['CSS', 'Popover', 'Baseline 2026', 'Tooltip', 'Dialog'],
+  },
+  {
+    title: 'Docker Compose Builder',
+    description: 'Visually build docker-compose.yml — add services, configure ports, volumes, env vars, and dependencies. 4 presets, live YAML preview, copy & download.',
+    href: '/tools/docker-compose-builder',
+    icon: Package,
+    tags: ['Docker', 'Compose', 'DevOps', 'YAML'],
   },
 ];
 const sampleBlogPosts = [

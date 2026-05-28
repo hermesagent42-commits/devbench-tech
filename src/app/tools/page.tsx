@@ -754,6 +754,13 @@ const allTools = [
     icon: FileSearch,
     tags: ['MIME', 'Content-Type', 'Reference', 'HTTP', 'Headers'],
   },
+  {
+    title: 'Docker Compose Builder',
+    description: 'Visually build docker-compose.yml files — add services, configure ports, volumes, environment variables, restart policies and dependencies. 4 presets (WP+MySQL, Node+PG, Nginx+App, Redis), live YAML preview, instant copy & download.',
+    href: '/tools/docker-compose-builder',
+    icon: Package,
+    tags: ['Docker', 'Compose', 'DevOps', 'YAML', 'Generator'],
+  },
 ];
 
 export default function ToolsPage() {
