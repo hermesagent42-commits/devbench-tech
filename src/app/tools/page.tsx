@@ -79,6 +79,7 @@ import {
   Variable,
   FileSpreadsheet,
   PanelRight,
+  FileSearch,
 } from 'lucide-react';
 
 export const metadata: Metadata = {
@@ -745,6 +746,13 @@ const allTools = [
     href: '/tools/subnet-calculator',
     icon: Network,
     tags: ['CIDR', 'Subnet', 'IP', 'Network', 'DevOps'],
+  },
+  {
+    title: 'MIME Type Lookup',
+    description: 'Search and browse 150+ MIME types by extension or content type. Filter by category (text, image, audio, video, font, model, application). Click any value to copy — 100% client-side.',
+    href: '/tools/mime-type-lookup',
+    icon: FileSearch,
+    tags: ['MIME', 'Content-Type', 'Reference', 'HTTP', 'Headers'],
   },
 ];
 
