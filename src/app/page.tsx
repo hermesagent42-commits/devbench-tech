@@ -698,6 +698,13 @@ const featuredTools = [
     tags: ['CSS', 'text-wrap', 'Typography'],
   },
   {
+    title: 'CSS Text Overflow & Clamp',
+    description: 'Master text truncation — single-line ellipsis, multi-line clamp, word-break, overflow-wrap, and hyphens. Live preview with 8 presets, instant CSS + Tailwind output.',
+    href: '/tools/css-text-overflow-playground',
+    icon: GripHorizontal,
+    tags: ['CSS', 'Text-Overflow', 'Line-Clamp', 'Typography'],
+  },
+  {
     title: 'Browser Storage Explorer',
     description: 'Inspect, edit, import, and export localStorage & sessionStorage. Type detection, search, quota usage bar — the DevTools storage panel, supercharged.',
     href: '/tools/browser-storage-explorer',
