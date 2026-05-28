@@ -749,6 +749,13 @@ const featuredTools = [
     tags: ['CSV', 'Table', 'Data', 'Spreadsheet'],
   },
   {
+    title: 'CIDR / Subnet Calculator',
+    description: 'Calculate subnet masks, network/broadcast addresses, usable host ranges, and wildcard masks. CIDR and dotted-decimal input, visual bit bar, 12 presets — zero dependencies.',
+    href: '/tools/subnet-calculator',
+    icon: Network,
+    tags: ['CIDR', 'Subnet', 'IP', 'Network', 'DevOps'],
+  },
+  {
     title: 'CSS Popover API Playground',
     description: 'Build tooltips, menus, dialogs, drawers, and toast notifications with zero JavaScript — using the new CSS Popover API (Baseline 2026). 6 presets, live preview, ::backdrop styles, instant HTML+CSS export.',
     href: '/tools/css-popover-playground',

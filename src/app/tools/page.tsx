@@ -739,6 +739,13 @@ const allTools = [
     icon: PanelRight,
     tags: ['CSS', 'Popover', 'Baseline 2026', 'Tooltip', 'Dialog'],
   },
+  {
+    title: 'CIDR / Subnet Calculator',
+    description: 'Calculate subnet masks, network/broadcast addresses, host ranges, and wildcard masks. Supports CIDR notation (10.0.0.0/8) and dotted-decimal masks. Visual bit bar, 12 presets — 100% client-side.',
+    href: '/tools/subnet-calculator',
+    icon: Network,
+    tags: ['CIDR', 'Subnet', 'IP', 'Network', 'DevOps'],
+  },
 ];
 
 export default function ToolsPage() {
