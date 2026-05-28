@@ -2,519 +2,458 @@
 
 import { useState, useCallback, useMemo } from 'react';
 import { ToolLayout } from '@/components/ToolLayout';
-import { Copy, ArrowLeftRight, Trash2 } from 'lucide-react';
+import {
+  Ruler,
+  Weight,
+  Thermometer,
+  Maximize2,
+  Droplets,
+  Gauge,
+  Clock,
+  HardDrive,
+  Waves,
+  Zap,
+  ArrowLeftRight,
+  Copy,
+  RotateCcw,
+} from 'lucide-react';
 import toast from 'react-hot-toast';
 
-// ── Types ──────────────────────────────────────────────────────────────────
+// ============================================================
+// Unit definitions — all conversions use SI base as intermediate
+// ============================================================
 
-interface Unit {
+interface UnitDef {
+  name: string;
   symbol: string;
-  label: string;
-  toBase: (v: number) => number;
-  fromBase: (v: number) => number;
-  formatInput?: (v: string) => string;
+  /** Multiplier to get to SI base unit */
+  toBase: number;
+  /** Additive offset (for temperature) */
+  offset?: number;
 }
 
 interface Category {
   id: string;
   label: string;
-  icon: string;
-  units: Unit[];
+  icon: React.ComponentType<{ className?: string }>;
+  baseUnit: string;
+  units: UnitDef[];
 }
-
-// ── Unit definitions ───────────────────────────────────────────────────────
 
 const CATEGORIES: Category[] = [
   {
     id: 'length',
     label: 'Length',
-    icon: '📏',
+    icon: Ruler,
+    baseUnit: 'meter',
     units: [
-      { symbol: 'm', label: 'Meters', toBase: v => v, fromBase: v => v },
-      { symbol: 'km', label: 'Kilometers', toBase: v => v * 1000, fromBase: v => v / 1000 },
-      { symbol: 'cm', label: 'Centimeters', toBase: v => v / 100, fromBase: v => v * 100 },
-      { symbol: 'mm', label: 'Millimeters', toBase: v => v / 1000, fromBase: v => v * 1000 },
-      { symbol: 'mi', label: 'Miles', toBase: v => v * 1609.344, fromBase: v => v / 1609.344 },
-      { symbol: 'yd', label: 'Yards', toBase: v => v * 0.9144, fromBase: v => v / 0.9144 },
-      { symbol: 'ft', label: 'Feet', toBase: v => v * 0.3048, fromBase: v => v / 0.3048 },
-      { symbol: 'in', label: 'Inches', toBase: v => v * 0.0254, fromBase: v => v / 0.0254 },
-      { symbol: 'nmi', label: 'Nautical Miles', toBase: v => v * 1852, fromBase: v => v / 1852 },
-    ],
-  },
-  {
-    id: 'area',
-    label: 'Area',
-    icon: '📐',
-    units: [
-      { symbol: 'm²', label: 'Square Meters', toBase: v => v, fromBase: v => v },
-      { symbol: 'km²', label: 'Square Kilometers', toBase: v => v * 1e6, fromBase: v => v / 1e6 },
-      { symbol: 'cm²', label: 'Square Centimeters', toBase: v => v / 10000, fromBase: v => v * 10000 },
-      { symbol: 'ha', label: 'Hectares', toBase: v => v * 10000, fromBase: v => v / 10000 },
-      { symbol: 'acre', label: 'Acres', toBase: v => v * 4046.8564224, fromBase: v => v / 4046.8564224 },
-      { symbol: 'ft²', label: 'Square Feet', toBase: v => v * 0.09290304, fromBase: v => v / 0.09290304 },
-      { symbol: 'in²', label: 'Square Inches', toBase: v => v * 0.00064516, fromBase: v => v / 0.00064516 },
-      { symbol: 'mi²', label: 'Square Miles', toBase: v => v * 2589988.110336, fromBase: v => v / 2589988.110336 },
-    ],
-  },
-  {
-    id: 'volume',
-    label: 'Volume',
-    icon: '🧪',
-    units: [
-      { symbol: 'L', label: 'Liters', toBase: v => v, fromBase: v => v },
-      { symbol: 'mL', label: 'Milliliters', toBase: v => v / 1000, fromBase: v => v * 1000 },
-      { symbol: 'm³', label: 'Cubic Meters', toBase: v => v * 1000, fromBase: v => v / 1000 },
-      { symbol: 'gal (US)', label: 'Gallons (US)', toBase: v => v * 3.785411784, fromBase: v => v / 3.785411784 },
-      { symbol: 'qt (US)', label: 'Quarts (US)', toBase: v => v * 0.946352946, fromBase: v => v / 0.946352946 },
-      { symbol: 'pt (US)', label: 'Pints (US)', toBase: v => v * 0.473176473, fromBase: v => v / 0.473176473 },
-      { symbol: 'cup (US)', label: 'Cups (US)', toBase: v => v * 0.2365882365, fromBase: v => v / 0.2365882365 },
-      { symbol: 'fl oz (US)', label: 'Fluid Ounces (US)', toBase: v => v * 0.0295735295625, fromBase: v => v / 0.0295735295625 },
-      { symbol: 'tbsp (US)', label: 'Tablespoons (US)', toBase: v => v * 0.01478676478125, fromBase: v => v / 0.01478676478125 },
-      { symbol: 'tsp (US)', label: 'Teaspoons (US)', toBase: v => v * 0.00492892159375, fromBase: v => v / 0.00492892159375 },
+      { name: 'Kilometer', symbol: 'km', toBase: 1000 },
+      { name: 'Meter', symbol: 'm', toBase: 1 },
+      { name: 'Centimeter', symbol: 'cm', toBase: 0.01 },
+      { name: 'Millimeter', symbol: 'mm', toBase: 0.001 },
+      { name: 'Micrometer', symbol: 'µm', toBase: 1e-6 },
+      { name: 'Nanometer', symbol: 'nm', toBase: 1e-9 },
+      { name: 'Mile', symbol: 'mi', toBase: 1609.344 },
+      { name: 'Yard', symbol: 'yd', toBase: 0.9144 },
+      { name: 'Foot', symbol: 'ft', toBase: 0.3048 },
+      { name: 'Inch', symbol: 'in', toBase: 0.0254 },
+      { name: 'Nautical Mile', symbol: 'nmi', toBase: 1852 },
     ],
   },
   {
     id: 'mass',
-    label: 'Mass',
-    icon: '⚖️',
+    label: 'Mass / Weight',
+    icon: Weight,
+    baseUnit: 'kilogram',
     units: [
-      { symbol: 'kg', label: 'Kilograms', toBase: v => v, fromBase: v => v },
-      { symbol: 'g', label: 'Grams', toBase: v => v / 1000, fromBase: v => v * 1000 },
-      { symbol: 'mg', label: 'Milligrams', toBase: v => v / 1e6, fromBase: v => v * 1e6 },
-      { symbol: 't', label: 'Metric Tonnes', toBase: v => v * 1000, fromBase: v => v / 1000 },
-      { symbol: 'lb', label: 'Pounds', toBase: v => v * 0.45359237, fromBase: v => v / 0.45359237 },
-      { symbol: 'oz', label: 'Ounces', toBase: v => v * 0.028349523125, fromBase: v => v / 0.028349523125 },
-      { symbol: 'st', label: 'Stone', toBase: v => v * 6.35029318, fromBase: v => v / 6.35029318 },
-      { symbol: 'gr', label: 'Grains', toBase: v => v * 0.00006479891, fromBase: v => v / 0.00006479891 },
+      { name: 'Metric Ton', symbol: 't', toBase: 1000 },
+      { name: 'Kilogram', symbol: 'kg', toBase: 1 },
+      { name: 'Gram', symbol: 'g', toBase: 0.001 },
+      { name: 'Milligram', symbol: 'mg', toBase: 1e-6 },
+      { name: 'Microgram', symbol: 'µg', toBase: 1e-9 },
+      { name: 'Pound', symbol: 'lb', toBase: 0.45359237 },
+      { name: 'Ounce', symbol: 'oz', toBase: 0.028349523125 },
+      { name: 'Stone', symbol: 'st', toBase: 6.35029318 },
     ],
   },
   {
     id: 'temperature',
     label: 'Temperature',
-    icon: '🌡️',
+    icon: Thermometer,
+    baseUnit: 'kelvin',
     units: [
-      { symbol: '°C', label: 'Celsius', toBase: v => v + 273.15, fromBase: v => v - 273.15 },
-      { symbol: '°F', label: 'Fahrenheit', toBase: v => (v - 32) * 5 / 9 + 273.15, fromBase: v => (v - 273.15) * 9 / 5 + 32 },
-      { symbol: 'K', label: 'Kelvin', toBase: v => v, fromBase: v => v },
+      { name: 'Celsius', symbol: '°C', toBase: 1, offset: 273.15 },
+      { name: 'Fahrenheit', symbol: '°F', toBase: 5 / 9, offset: 459.67 },
+      { name: 'Kelvin', symbol: 'K', toBase: 1, offset: 0 },
+    ],
+  },
+  {
+    id: 'area',
+    label: 'Area',
+    icon: Maximize2,
+    baseUnit: 'square meter',
+    units: [
+      { name: 'Square Kilometer', symbol: 'km²', toBase: 1e6 },
+      { name: 'Hectare', symbol: 'ha', toBase: 10000 },
+      { name: 'Square Meter', symbol: 'm²', toBase: 1 },
+      { name: 'Square Centimeter', symbol: 'cm²', toBase: 0.0001 },
+      { name: 'Square Mile', symbol: 'mi²', toBase: 2589988.110336 },
+      { name: 'Acre', symbol: 'ac', toBase: 4046.8564224 },
+      { name: 'Square Yard', symbol: 'yd²', toBase: 0.83612736 },
+      { name: 'Square Foot', symbol: 'ft²', toBase: 0.09290304 },
+      { name: 'Square Inch', symbol: 'in²', toBase: 0.00064516 },
+    ],
+  },
+  {
+    id: 'volume',
+    label: 'Volume',
+    icon: Droplets,
+    baseUnit: 'liter',
+    units: [
+      { name: 'Cubic Meter', symbol: 'm³', toBase: 1000 },
+      { name: 'Liter', symbol: 'L', toBase: 1 },
+      { name: 'Milliliter', symbol: 'mL', toBase: 0.001 },
+      { name: 'Gallon (US)', symbol: 'gal', toBase: 3.785411784 },
+      { name: 'Quart (US)', symbol: 'qt', toBase: 0.946352946 },
+      { name: 'Pint (US)', symbol: 'pt', toBase: 0.473176473 },
+      { name: 'Cup (US)', symbol: 'cup', toBase: 0.2365882365 },
+      { name: 'Fluid Ounce (US)', symbol: 'fl oz', toBase: 0.0295735295625 },
+      { name: 'Tablespoon (US)', symbol: 'tbsp', toBase: 0.01478676478125 },
+      { name: 'Teaspoon (US)', symbol: 'tsp', toBase: 0.00492892159375 },
+      { name: 'Cubic Centimeter', symbol: 'cm³', toBase: 0.001 },
     ],
   },
   {
     id: 'speed',
     label: 'Speed',
-    icon: '🚀',
+    icon: Gauge,
+    baseUnit: 'm/s',
     units: [
-      { symbol: 'm/s', label: 'Meters/sec', toBase: v => v, fromBase: v => v },
-      { symbol: 'km/h', label: 'Kilometers/hour', toBase: v => v / 3.6, fromBase: v => v * 3.6 },
-      { symbol: 'mph', label: 'Miles/hour', toBase: v => v * 0.44704, fromBase: v => v / 0.44704 },
-      { symbol: 'kn', label: 'Knots', toBase: v => v * 0.514444, fromBase: v => v / 0.514444 },
-      { symbol: 'ft/s', label: 'Feet/sec', toBase: v => v * 0.3048, fromBase: v => v / 0.3048 },
+      { name: 'Meters per Second', symbol: 'm/s', toBase: 1 },
+      { name: 'Kilometers per Hour', symbol: 'km/h', toBase: 1 / 3.6 },
+      { name: 'Miles per Hour', symbol: 'mph', toBase: 0.44704 },
+      { name: 'Knot', symbol: 'kn', toBase: 0.514444444 },
+      { name: 'Feet per Second', symbol: 'ft/s', toBase: 0.3048 },
     ],
   },
   {
     id: 'time',
     label: 'Time',
-    icon: '⏱️',
+    icon: Clock,
+    baseUnit: 'second',
     units: [
-      { symbol: 's', label: 'Seconds', toBase: v => v, fromBase: v => v },
-      { symbol: 'ms', label: 'Milliseconds', toBase: v => v / 1000, fromBase: v => v * 1000 },
-      { symbol: 'min', label: 'Minutes', toBase: v => v * 60, fromBase: v => v / 60 },
-      { symbol: 'hr', label: 'Hours', toBase: v => v * 3600, fromBase: v => v / 3600 },
-      { symbol: 'day', label: 'Days', toBase: v => v * 86400, fromBase: v => v / 86400 },
-      { symbol: 'week', label: 'Weeks', toBase: v => v * 604800, fromBase: v => v / 604800 },
-      { symbol: 'mo', label: 'Months (avg)', toBase: v => v * 2629800, fromBase: v => v / 2629800 },
-      { symbol: 'yr', label: 'Years (avg)', toBase: v => v * 31557600, fromBase: v => v / 31557600 },
+      { name: 'Year', symbol: 'yr', toBase: 31557600 },
+      { name: 'Month (avg)', symbol: 'mo', toBase: 2629800 },
+      { name: 'Week', symbol: 'wk', toBase: 604800 },
+      { name: 'Day', symbol: 'd', toBase: 86400 },
+      { name: 'Hour', symbol: 'hr', toBase: 3600 },
+      { name: 'Minute', symbol: 'min', toBase: 60 },
+      { name: 'Second', symbol: 's', toBase: 1 },
+      { name: 'Millisecond', symbol: 'ms', toBase: 0.001 },
+      { name: 'Microsecond', symbol: 'µs', toBase: 1e-6 },
+      { name: 'Nanosecond', symbol: 'ns', toBase: 1e-9 },
     ],
   },
   {
-    id: 'data',
-    label: 'Data',
-    icon: '💾',
+    id: 'digital',
+    label: 'Digital Storage',
+    icon: HardDrive,
+    baseUnit: 'byte',
     units: [
-      { symbol: 'bit', label: 'Bits', toBase: v => v / 8, fromBase: v => v * 8 },
-      { symbol: 'B', label: 'Bytes', toBase: v => v, fromBase: v => v },
-      { symbol: 'KB', label: 'Kilobytes (10³)', toBase: v => v * 1000, fromBase: v => v / 1000 },
-      { symbol: 'MB', label: 'Megabytes (10⁶)', toBase: v => v * 1e6, fromBase: v => v / 1e6 },
-      { symbol: 'GB', label: 'Gigabytes (10⁹)', toBase: v => v * 1e9, fromBase: v => v / 1e9 },
-      { symbol: 'TB', label: 'Terabytes (10¹²)', toBase: v => v * 1e12, fromBase: v => v / 1e12 },
-      { symbol: 'KiB', label: 'Kibibytes (2¹⁰)', toBase: v => v * 1024, fromBase: v => v / 1024 },
-      { symbol: 'MiB', label: 'Mebibytes (2²⁰)', toBase: v => v * 1048576, fromBase: v => v / 1048576 },
-      { symbol: 'GiB', label: 'Gibibytes (2³⁰)', toBase: v => v * 1073741824, fromBase: v => v / 1073741824 },
-      { symbol: 'TiB', label: 'Tebibytes (2⁴⁰)', toBase: v => v * 1099511627776, fromBase: v => v / 1099511627776 },
+      { name: 'Petabyte', symbol: 'PB', toBase: 1e15 },
+      { name: 'Terabyte', symbol: 'TB', toBase: 1e12 },
+      { name: 'Gigabyte', symbol: 'GB', toBase: 1e9 },
+      { name: 'Megabyte', symbol: 'MB', toBase: 1e6 },
+      { name: 'Kilobyte', symbol: 'KB', toBase: 1000 },
+      { name: 'Byte', symbol: 'B', toBase: 1 },
+      { name: 'Bit', symbol: 'bit', toBase: 0.125 },
+      { name: 'Kibibyte', symbol: 'KiB', toBase: 1024 },
+      { name: 'Mebibyte', symbol: 'MiB', toBase: 1048576 },
+      { name: 'Gibibyte', symbol: 'GiB', toBase: 1073741824 },
     ],
   },
   {
     id: 'pressure',
     label: 'Pressure',
-    icon: '💨',
+    icon: Waves,
+    baseUnit: 'pascal',
     units: [
-      { symbol: 'Pa', label: 'Pascals', toBase: v => v, fromBase: v => v },
-      { symbol: 'kPa', label: 'Kilopascals', toBase: v => v * 1000, fromBase: v => v / 1000 },
-      { symbol: 'bar', label: 'Bar', toBase: v => v * 100000, fromBase: v => v / 100000 },
-      { symbol: 'atm', label: 'Atmospheres', toBase: v => v * 101325, fromBase: v => v / 101325 },
-      { symbol: 'psi', label: 'PSI (lb/in²)', toBase: v => v * 6894.757293168, fromBase: v => v / 6894.757293168 },
-      { symbol: 'mmHg', label: 'mmHg', toBase: v => v * 133.322368421, fromBase: v => v / 133.322368421 },
-      { symbol: 'torr', label: 'Torr', toBase: v => v * 133.322368421, fromBase: v => v / 133.322368421 },
+      { name: 'Pascal', symbol: 'Pa', toBase: 1 },
+      { name: 'Kilopascal', symbol: 'kPa', toBase: 1000 },
+      { name: 'Bar', symbol: 'bar', toBase: 100000 },
+      { name: 'PSI', symbol: 'psi', toBase: 6894.757293168 },
+      { name: 'Atmosphere', symbol: 'atm', toBase: 101325 },
+      { name: 'mmHg (Torr)', symbol: 'mmHg', toBase: 133.322368421 },
     ],
   },
   {
-    id: 'angle',
-    label: 'Angle',
-    icon: '📐',
+    id: 'energy',
+    label: 'Energy',
+    icon: Zap,
+    baseUnit: 'joule',
     units: [
-      { symbol: '°', label: 'Degrees', toBase: v => v * Math.PI / 180, fromBase: v => v * 180 / Math.PI },
-      { symbol: 'rad', label: 'Radians', toBase: v => v, fromBase: v => v },
-      { symbol: 'grad', label: 'Gradians', toBase: v => v * Math.PI / 200, fromBase: v => v * 200 / Math.PI },
-      { symbol: 'arcmin', label: 'Arcminutes', toBase: v => v * Math.PI / 10800, fromBase: v => v * 10800 / Math.PI },
-    ],
-  },
-  {
-    id: 'frequency',
-    label: 'Frequency',
-    icon: '〰️',
-    units: [
-      { symbol: 'Hz', label: 'Hertz', toBase: v => v, fromBase: v => v },
-      { symbol: 'kHz', label: 'Kilohertz', toBase: v => v * 1000, fromBase: v => v / 1000 },
-      { symbol: 'MHz', label: 'Megahertz', toBase: v => v * 1e6, fromBase: v => v / 1e6 },
-      { symbol: 'GHz', label: 'Gigahertz', toBase: v => v * 1e9, fromBase: v => v / 1e9 },
-      { symbol: 'THz', label: 'Terahertz', toBase: v => v * 1e12, fromBase: v => v / 1e12 },
+      { name: 'Kilojoule', symbol: 'kJ', toBase: 1000 },
+      { name: 'Joule', symbol: 'J', toBase: 1 },
+      { name: 'Calorie', symbol: 'cal', toBase: 4.184 },
+      { name: 'Kilocalorie', symbol: 'kcal', toBase: 4184 },
+      { name: 'Watt-hour', symbol: 'Wh', toBase: 3600 },
+      { name: 'Kilowatt-hour', symbol: 'kWh', toBase: 3600000 },
+      { name: 'Electronvolt', symbol: 'eV', toBase: 1.602176634e-19 },
     ],
   },
 ];
 
-// ── Helpers ────────────────────────────────────────────────────────────────
-
-function formatNumber(n: number, precision: number = 12): string {
-  if (n === 0) return '0';
-  if (Math.abs(n) < 1e-16) return '0';
-
-  // Use toPrecision for small numbers
-  if (Math.abs(n) < 0.000001 || Math.abs(n) >= 1e15) {
-    const exp = n.toExponential(precision - 1);
-    // Remove trailing zeros from coefficient: 1.20000000000e+5 → 1.2e+5
-    return exp.replace(/\.?0+e/, 'e').replace(/(\.[^e]*)0+e/, '$1e');
+function convert(
+  value: number,
+  from: UnitDef,
+  to: UnitDef,
+): number {
+  if (from.offset !== undefined || to.offset !== undefined) {
+    // Temperature: convert to Kelvin then to target
+    const kelvin = value * from.toBase + (from.offset ?? 0);
+    return (kelvin - (to.offset ?? 0)) / to.toBase;
   }
-
-  // Format with appropriate decimals
-  const absN = Math.abs(n);
-  let decimals: number;
-  if (absN < 0.001) decimals = 8;
-  else if (absN < 0.01) decimals = 6;
-  else if (absN < 1) decimals = 5;
-  else if (absN < 100) decimals = 4;
-  else if (absN < 10000) decimals = 2;
-  else decimals = 1;
-
-  // Strip trailing zeros
-  let formatted = n.toFixed(decimals);
-  if (formatted.includes('.')) {
-    formatted = formatted.replace(/0+$/, '').replace(/\.$/, '');
-  }
-  return formatted;
+  const baseValue = value * from.toBase;
+  return baseValue / to.toBase;
 }
 
-function safeParse(s: string): number | null {
-  const cleaned = s.replace(/,/g, '').trim();
-  if (cleaned === '' || cleaned === '-' || cleaned === '.') return null;
-  const n = Number(cleaned);
-  if (isNaN(n) || !isFinite(n)) return null;
-  return n;
+function formatResult(value: number): string {
+  if (value === 0) return '0';
+  const abs = Math.abs(value);
+  if (abs < 1e-15) return '0';
+  if (abs < 0.000001) return value.toExponential(6);
+  if (abs < 0.001) return value.toFixed(9).replace(/\.?0+$/, '');
+  if (abs < 1) return value.toFixed(6).replace(/\.?0+$/, '');
+  if (abs < 1000) return value.toFixed(4).replace(/\.?0+$/, '');
+  if (abs < 1e6) return value.toFixed(2).replace(/\.?0+$/, '');
+  return value.toExponential(6);
 }
-
-// ── Quick Presets (category → preset values) ───────────────────────────────
-
-const PRESETS: Record<string, { label: string; from: string; to: string; fromVal: string; toVal: string }[]> = {
-  length: [
-    { label: '1 mile → km', from: 'mi', to: 'km', fromVal: '1', toVal: '1.609344' },
-    { label: '6 ft → cm', from: 'ft', to: 'cm', fromVal: '6', toVal: '182.88' },
-    { label: '1 m → inches', from: 'm', to: 'in', fromVal: '1', toVal: '39.37' },
-  ],
-  temperature: [
-    { label: '32°F → °C', from: '°F', to: '°C', fromVal: '32', toVal: '0' },
-    { label: '100°C → °F', from: '°C', to: '°F', fromVal: '100', toVal: '212' },
-    { label: '0K → °C', from: 'K', to: '°C', fromVal: '0', toVal: '-273.15' },
-  ],
-  mass: [
-    { label: '1 lb → kg', from: 'lb', to: 'kg', fromVal: '1', toVal: '0.45359237' },
-    { label: '1 kg → lb', from: 'kg', to: 'lb', fromVal: '1', toVal: '2.20462262' },
-    { label: '1 st → lb', from: 'st', to: 'lb', fromVal: '1', toVal: '14' },
-  ],
-  data: [
-    { label: '1 GB → MB', from: 'GB', to: 'MB', fromVal: '1', toVal: '1000' },
-    { label: '1 GiB → MiB', from: 'GiB', to: 'MiB', fromVal: '1', toVal: '1024' },
-    { label: '1 TB → GiB', from: 'TB', to: 'GiB', fromVal: '1', toVal: '931.323' },
-  ],
-  speed: [
-    { label: '100 km/h → mph', from: 'km/h', to: 'mph', fromVal: '100', toVal: '62.14' },
-    { label: '60 mph → km/h', from: 'mph', to: 'km/h', fromVal: '60', toVal: '96.56' },
-    { label: '1 knot → km/h', from: 'kn', to: 'km/h', fromVal: '1', toVal: '1.852' },
-  ],
-  time: [
-    { label: '1 day → seconds', from: 'day', to: 's', fromVal: '1', toVal: '86400' },
-    { label: '1 week → hours', from: 'week', to: 'hr', fromVal: '1', toVal: '168' },
-    { label: '1 year → days', from: 'yr', to: 'day', fromVal: '1', toVal: '365.25' },
-  ],
-  pressure: [
-    { label: '1 atm → psi', from: 'atm', to: 'psi', fromVal: '1', toVal: '14.6959' },
-    { label: '1 bar → Pa', from: 'bar', to: 'Pa', fromVal: '1', toVal: '100000' },
-  ],
-};
-
-// ── Component ───────────────────────────────────────────────────────────────
 
 export default function UnitConverterPage() {
   const [categoryId, setCategoryId] = useState('length');
-  const [fromUnitIdx, setFromUnitIdx] = useState(0);
-  const [toUnitIdx, setToUnitIdx] = useState(1);
-  const [fromValue, setFromValue] = useState('1');
+  const [fromIndex, setFromIndex] = useState(0);
+  const [toIndex, setToIndex] = useState(1);
+  const [inputValue, setInputValue] = useState('1');
 
-  const category = useMemo(() => CATEGORIES.find(c => c.id === categoryId)!, [categoryId]);
+  const category = useMemo(
+    () => CATEGORIES.find((c) => c.id === categoryId)!,
+    [categoryId],
+  );
 
-  // When we change category, reset unit indices
-  const handleCategoryChange = useCallback((id: string) => {
-    setCategoryId(id);
-    setFromUnitIdx(0);
-    setToUnitIdx(1);
-    setFromValue('1');
-  }, []);
+  const fromUnit = category.units[fromIndex];
+  const toUnit = category.units[toIndex];
 
-  const fromUnit = category.units[fromUnitIdx]!;
-  const toUnit = category.units[toUnitIdx]!;
+  const parsedValue = parseFloat(inputValue);
+  const isValid = inputValue !== '' && !isNaN(parsedValue);
 
-  const parsed = safeParse(fromValue);
+  const result = useMemo(() => {
+    if (!isValid) return '';
+    return formatResult(convert(parsedValue, fromUnit, toUnit));
+  }, [isValid, parsedValue, fromUnit, toUnit]);
 
-  const toValue = useMemo(() => {
-    if (parsed === null) return '';
-    try {
-      const base = fromUnit.toBase(parsed);
-      const result = toUnit.fromBase(base);
-      return formatNumber(result);
-    } catch {
-      return '';
+  const swapUnits = useCallback(() => {
+    setFromIndex(toIndex);
+    setToIndex(fromIndex);
+    if (isValid) {
+      setInputValue(result || '');
     }
-  }, [parsed, fromUnit, toUnit]);
+  }, [toIndex, fromIndex, isValid, result]);
 
-  // When fromUnitIdx changes, clear the input so stale values don't carry over.
-  const handleFromUnitChange = useCallback((idx: number) => {
-    setFromUnitIdx(idx);
+  const handleCategoryChange = useCallback((catId: string) => {
+    setCategoryId(catId);
+    setFromIndex(0);
+    setToIndex(1);
+    setInputValue('1');
   }, []);
 
-  const handleToUnitChange = useCallback((idx: number) => {
-    setToUnitIdx(idx);
+  const copyResult = useCallback(() => {
+    if (!result) return;
+    navigator.clipboard.writeText(result).then(
+      () => toast.success('Result copied!'),
+      () => toast.error('Failed to copy'),
+    );
+  }, [result]);
+
+  const reset = useCallback(() => {
+    setInputValue('1');
+    setFromIndex(0);
+    setToIndex(1);
   }, []);
-
-  const handleSwap = useCallback(() => {
-    if (parsed !== null && toValue !== '') {
-      setFromValue(toValue);
-    }
-    setFromUnitIdx(toUnitIdx);
-    setToUnitIdx(fromUnitIdx);
-  }, [fromUnitIdx, toUnitIdx, parsed, toValue]);
-
-  const handleClear = useCallback(() => {
-    setFromValue('');
-  }, []);
-
-  const handleCopy = useCallback(async () => {
-    if (toValue !== '') {
-      await navigator.clipboard.writeText(toValue);
-      toast.success('Result copied');
-    }
-  }, [toValue]);
-
-  const handlePreset = useCallback((preset: typeof PRESETS[string][0]) => {
-    // Find units in current category
-    const fromIdx = category.units.findIndex(u => u.symbol === preset.from);
-    const toIdx = category.units.findIndex(u => u.symbol === preset.to);
-    if (fromIdx >= 0) setFromUnitIdx(fromIdx);
-    if (toIdx >= 0) setToUnitIdx(toIdx);
-    setFromValue(preset.fromVal);
-  }, [category]);
-
-  const presets = PRESETS[categoryId] || [];
 
   return (
     <ToolLayout
       title="Unit Converter"
-      description="Convert between hundreds of units across 11 categories — length, area, volume, mass, temperature, speed, time, data, pressure, angle, and frequency. All 100% private, client-side."
+      description="Convert between hundreds of units across 10 categories — length, mass, temperature, area, volume, speed, time, digital storage, pressure, and energy. Live conversion, instant results."
     >
-      {/* Category Tabs */}
+      {/* Category tabs */}
       <div className="flex flex-wrap gap-1.5 mb-6">
-        {CATEGORIES.map((cat) => (
-          <button
-            key={cat.id}
-            onClick={() => handleCategoryChange(cat.id)}
-            className={`px-3 py-1.5 text-sm rounded-lg font-medium transition-all ${
-              categoryId === cat.id
-                ? 'bg-brand-500 text-white shadow-lg shadow-brand-500/25'
-                : 'bg-slate-700/50 text-slate-300 hover:bg-slate-600/50 hover:text-white'
-            }`}
-          >
-            <span className="mr-1">{cat.icon}</span>
-            {cat.label}
-          </button>
-        ))}
+        {CATEGORIES.map((cat) => {
+          const Icon = cat.icon;
+          const active = categoryId === cat.id;
+          return (
+            <button
+              key={cat.id}
+              onClick={() => handleCategoryChange(cat.id)}
+              className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium transition-all ${
+                active
+                  ? 'bg-brand-500 text-white shadow-sm'
+                  : 'text-slate-400 hover:text-slate-200 hover:bg-surface-lighter'
+              }`}
+            >
+              <Icon className="w-4 h-4" />
+              <span className="hidden sm:inline">{cat.label}</span>
+            </button>
+          );
+        })}
       </div>
 
-      {/* Main Converter */}
-      <div className="grid grid-cols-1 lg:grid-cols-[1fr_auto_1fr] gap-4 items-start">
+      {/* Converter panel */}
+      <div className="grid grid-cols-1 md:grid-cols-[1fr_auto_1fr] gap-4 items-start">
         {/* From */}
-        <div className="p-5 rounded-xl border-2 border-brand-500/30 bg-brand-500/5">
-          <div className="flex items-center gap-2 mb-3">
-            <span className="text-xs uppercase tracking-wider font-semibold text-brand-400">From</span>
+        <div className="card space-y-3">
+          <label className="text-xs font-semibold uppercase tracking-wider text-slate-500">
+            From
+          </label>
+          <select
+            value={fromIndex}
+            onChange={(e) => setFromIndex(Number(e.target.value))}
+            className="input-field w-full"
+          >
+            {category.units.map((u, i) => (
+              <option key={u.symbol} value={i}>
+                {u.name} ({u.symbol})
+              </option>
+            ))}
+          </select>
+          <div className="relative">
+            <input
+              type="text"
+              inputMode="decimal"
+              value={inputValue}
+              onChange={(e) => setInputValue(e.target.value)}
+              className="input-field w-full text-xl font-mono pr-16"
+              placeholder="Enter value"
+              spellCheck={false}
+            />
+            <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-slate-500 font-medium">
+              {fromUnit.symbol}
+            </span>
           </div>
-
-          <div className="mb-3">
-            <select
-              value={fromUnitIdx}
-              onChange={(e) => handleFromUnitChange(Number(e.target.value))}
-              className="w-full bg-slate-800 border border-slate-600 rounded-lg px-3 py-2 text-sm text-white focus:border-brand-500 focus:ring-1 focus:ring-brand-500 outline-none"
-            >
-              {category.units.map((u, i) => (
-                <option key={u.symbol} value={i}>
-                  {u.label} ({u.symbol})
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <input
-            type="text"
-            inputMode="decimal"
-            value={fromValue}
-            onChange={(e) => setFromValue(e.target.value)}
-            placeholder="Enter value"
-            className="w-full bg-slate-800/50 border border-slate-600 rounded-lg px-4 py-3 text-2xl font-mono font-bold text-white placeholder-slate-500 outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500"
-            spellCheck={false}
-            autoComplete="off"
-          />
         </div>
 
-        {/* Swap Button */}
-        <div className="flex justify-center py-4 lg:py-12">
+        {/* Swap button */}
+        <div className="flex justify-center pt-8">
           <button
-            onClick={handleSwap}
-            className="p-3 rounded-full bg-slate-700/50 border border-slate-600 hover:bg-slate-600/50 hover:border-brand-500/50 text-slate-300 hover:text-brand-400 transition-all"
+            onClick={swapUnits}
+            className="p-2.5 rounded-full bg-surface-lighter border border-slate-700/50 hover:border-brand-400 hover:bg-brand-500/10 transition-all group"
             title="Swap units"
           >
-            <ArrowLeftRight className="w-5 h-5" />
+            <ArrowLeftRight className="w-5 h-5 text-slate-400 group-hover:text-brand-400 transition-colors" />
           </button>
         </div>
 
         {/* To */}
-        <div className="p-5 rounded-xl border-2 border-slate-700/50 bg-surface-light">
-          <div className="flex items-center gap-2 mb-3">
-            <span className="text-xs uppercase tracking-wider font-semibold text-slate-400">To</span>
-          </div>
-
-          <div className="mb-3">
-            <select
-              value={toUnitIdx}
-              onChange={(e) => handleToUnitChange(Number(e.target.value))}
-              className="w-full bg-slate-800 border border-slate-600 rounded-lg px-3 py-2 text-sm text-white focus:border-brand-500 focus:ring-1 focus:ring-brand-500 outline-none"
-            >
-              {category.units.map((u, i) => (
-                <option key={u.symbol} value={i}>
-                  {u.label} ({u.symbol})
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div className="relative">
-            <div className="w-full bg-slate-800/30 border border-slate-600 rounded-lg px-4 py-3 text-2xl font-mono font-bold text-brand-300 min-h-[3.25rem] flex items-center">
-              {toValue || <span className="text-slate-500 text-lg font-normal">Result</span>}
-            </div>
-            {toValue && (
-              <button
-                onClick={handleCopy}
-                className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 rounded-md hover:bg-slate-700/50 text-slate-400 hover:text-brand-400 transition-colors"
-                title="Copy result"
-              >
-                <Copy className="w-4 h-4" />
-              </button>
-            )}
-          </div>
-
-          {/* Conversion rate */}
-          {parsed !== null && (
-            <p className="mt-2 text-xs text-slate-500">
-              1 {fromUnit.symbol} = {formatNumber(toUnit.fromBase(fromUnit.toBase(1)))} {toUnit.symbol}
-            </p>
-          )}
-        </div>
-      </div>
-
-      {/* Actions row */}
-      <div className="flex items-center gap-3 mt-6">
-        <button
-          onClick={handleClear}
-          className="px-3 py-1.5 text-sm rounded-lg bg-slate-700/50 text-slate-300 hover:bg-slate-600/50 transition-colors flex items-center gap-1.5"
-        >
-          <Trash2 className="w-3.5 h-3.5" />
-          Clear
-        </button>
-      </div>
-
-      {/* Quick Presets */}
-      {presets.length > 0 && (
-        <div className="mt-8">
-          <h3 className="text-sm font-semibold text-slate-400 uppercase tracking-wider mb-3">
-            Common Conversions
-          </h3>
-          <div className="flex flex-wrap gap-2">
-            {presets.map((p, i) => (
-              <button
-                key={i}
-                onClick={() => handlePreset(p)}
-                className="px-3 py-1.5 text-sm rounded-lg bg-slate-700/30 border border-slate-700/50 text-slate-300 hover:bg-brand-500/10 hover:border-brand-500/30 hover:text-brand-300 transition-all"
-              >
-                {p.label}
-              </button>
+        <div className="card space-y-3">
+          <label className="text-xs font-semibold uppercase tracking-wider text-slate-500">
+            To
+          </label>
+          <select
+            value={toIndex}
+            onChange={(e) => setToIndex(Number(e.target.value))}
+            className="input-field w-full"
+          >
+            {category.units.map((u, i) => (
+              <option key={u.symbol} value={i}>
+                {u.name} ({u.symbol})
+              </option>
             ))}
+          </select>
+          <div className="relative">
+            <input
+              type="text"
+              readOnly
+              value={isValid ? result : inputValue === '' ? '' : 'Invalid input'}
+              className="input-field w-full text-xl font-mono bg-surface-lighter text-brand-300 pr-16"
+              placeholder="Result"
+              spellCheck={false}
+            />
+            <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-slate-500 font-medium">
+              {toUnit.symbol}
+            </span>
           </div>
         </div>
-      )}
+      </div>
 
-      {/* All units quick-glance table */}
-      {parsed !== null && (
-        <div className="mt-8 rounded-xl border border-slate-700/50 bg-surface-light overflow-hidden">
-          <div className="px-5 py-3 border-b border-slate-700/50">
-            <h3 className="text-sm font-semibold text-slate-300">
-              All {category.label} Conversions
-            </h3>
+      {/* Action bar */}
+      <div className="flex items-center gap-2 mt-6">
+        <button
+          onClick={copyResult}
+          disabled={!result}
+          className="btn-primary flex items-center gap-1.5 text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          <Copy className="w-4 h-4" />
+          Copy Result
+        </button>
+        <button
+          onClick={reset}
+          className="btn-secondary flex items-center gap-1.5 text-sm"
+        >
+          <RotateCcw className="w-4 h-4" />
+          Reset
+        </button>
+
+        {isValid && result && (
+          <div className="ml-auto text-sm text-slate-500 font-mono bg-surface-lighter px-3 py-1.5 rounded-lg border border-slate-700/30">
+            <span className="text-slate-400">{parsedValue}</span>{' '}
+            <span className="text-slate-600">{fromUnit.symbol}</span>
+            <span className="mx-2 text-slate-600">=</span>
+            <span className="text-brand-300">{result}</span>{' '}
+            <span className="text-slate-600">{toUnit.symbol}</span>
           </div>
+        )}
+      </div>
+
+      {/* Quick conversions table */}
+      <div className="mt-8">
+        <h3 className="text-sm font-semibold text-slate-400 mb-3">
+          All {category.label} Conversions
+        </h3>
+        <div className="card overflow-hidden p-0">
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-slate-700/50 text-slate-500">
-                  <th className="text-left px-5 py-2 font-medium">Unit</th>
-                  <th className="text-right px-5 py-2 font-medium">Value</th>
+                <tr className="border-b border-slate-700/50">
+                  <th className="text-left px-4 py-2.5 text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                    {fromUnit.symbol}
+                  </th>
+                  <th className="text-left px-4 py-2.5 text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                    Result
+                  </th>
                 </tr>
               </thead>
-              <tbody>
+              <tbody className="divide-y divide-slate-700/30">
                 {category.units.map((u) => {
-                  try {
-                    const base = fromUnit.toBase(parsed);
-                    const val = u.fromBase(base);
-                    return (
-                      <tr key={u.symbol} className="border-b border-slate-700/30">
-                        <td className="px-5 py-2.5 text-slate-300">
-                          {u.label} <span className="text-slate-500">({u.symbol})</span>
-                        </td>
-                        <td className="px-5 py-2.5 text-right font-mono text-brand-300">
-                          {formatNumber(val)}
-                        </td>
-                      </tr>
-                    );
-                  } catch {
-                    return null;
-                  }
+                  const converted = isValid
+                    ? formatResult(convert(parsedValue, fromUnit, u))
+                    : '—';
+                  return (
+                    <tr
+                      key={u.symbol}
+                      className="hover:bg-surface-lighter/50 transition-colors"
+                    >
+                      <td className="px-4 py-2 text-slate-400 font-mono">{u.symbol}</td>
+                      <td className="px-4 py-2">
+                        <span className="font-mono text-brand-300">{converted}</span>
+                        <span className="text-slate-600 ml-1.5">{u.name}</span>
+                      </td>
+                    </tr>
+                  );
                 })}
               </tbody>
             </table>
           </div>
         </div>
-      )}
+      </div>
     </ToolLayout>
   );
 }

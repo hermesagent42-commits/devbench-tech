@@ -785,6 +785,13 @@ const featuredTools = [
     icon: Package,
     tags: ['Docker', 'Compose', 'DevOps', 'YAML'],
   },
+  {
+    title: 'Unit Converter',
+    description: 'Convert between hundreds of units across 10 categories — length, mass, temperature, area, volume, speed, time, digital storage, pressure, and energy. Live conversion, instant results.',
+    href: '/tools/unit-converter',
+    icon: ArrowLeftRight,
+    tags: ['Units', 'Converter', 'Science', 'Math'],
+  },
 ];
 const sampleBlogPosts = [
   {
