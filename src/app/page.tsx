@@ -80,6 +80,7 @@ import {
   Variable,
   Zap,
   FileSpreadsheet,
+  PanelRight,
 } from 'lucide-react';
 
 export const metadata: Metadata = {
@@ -746,6 +747,13 @@ const featuredTools = [
     href: '/tools/csv-viewer',
     icon: FileSpreadsheet,
     tags: ['CSV', 'Table', 'Data', 'Spreadsheet'],
+  },
+  {
+    title: 'CSS Popover API Playground',
+    description: 'Build tooltips, menus, dialogs, drawers, and toast notifications with zero JavaScript — using the new CSS Popover API (Baseline 2026). 6 presets, live preview, ::backdrop styles, instant HTML+CSS export.',
+    href: '/tools/css-popover-playground',
+    icon: PanelRight,
+    tags: ['CSS', 'Popover', 'Baseline 2026', 'Tooltip', 'Dialog'],
   },
 ];
 const sampleBlogPosts = [

@@ -78,6 +78,7 @@ import {
   Share2,
   Variable,
   FileSpreadsheet,
+  PanelRight,
 } from 'lucide-react';
 
 export const metadata: Metadata = {
@@ -730,6 +731,13 @@ const allTools = [
     href: '/tools/csv-viewer',
     icon: FileSpreadsheet,
     tags: ['CSV', 'Table', 'Editor', 'Data', 'Spreadsheet'],
+  },
+  {
+    title: 'CSS Popover API Playground',
+    description: 'Build interactive popovers with zero JavaScript — the new Baseline 2026 API. Tooltips, menus, dialogs, drawers, and notifications with just HTML attributes and CSS. 6 presets, live preview, ::backdrop control, and code export.',
+    href: '/tools/css-popover-playground',
+    icon: PanelRight,
+    tags: ['CSS', 'Popover', 'Baseline 2026', 'Tooltip', 'Dialog'],
   },
 ];
 
