@@ -256,6 +256,13 @@ const featuredTools = [
     tags: ['QR', 'Barcode', 'Generator'],
   },
   {
+    title: 'Favicon Generator',
+    description: 'Design favicons with text, emoji, or initials. Pick colors, choose a shape (square/rounded/circle), and export at any size — 100% client-side.',
+    href: '/tools/favicon-generator',
+    icon: Image,
+    tags: ['Favicon', 'Icon', 'Design', 'Canvas'],
+  },
+  {
     title: 'SQL Formatter',
     description: 'Format, beautify, and minify SQL queries with syntax highlighting. Supports MySQL, PostgreSQL, SQLite and more.',
     href: '/tools/sql-formatter',
