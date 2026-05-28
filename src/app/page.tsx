@@ -100,6 +100,13 @@ const featuredTools = [
     tags: ['JSON', 'Formatter'],
   },
   {
+    title: 'XML Formatter',
+    description: 'Format, minify, and validate XML with syntax highlighting. Pretty-print minified XML or compress it for production — all client-side.',
+    href: '/tools/xml-formatter',
+    icon: FileCode,
+    tags: ['XML', 'Formatter', 'Minifier'],
+  },
+  {
     title: 'Base64 Encoder/Decoder',
     description: 'Encode and decode Base64 strings instantly. Supports UTF-8 text and binary data.',
     href: '/tools/base64',
