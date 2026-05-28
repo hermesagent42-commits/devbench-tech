@@ -1,0 +1,539 @@
+---
+title: "CSS light-dark() in 2026: One Function, Complete Theming"
+date: "2026-05-28"
+excerpt: "The light-dark() CSS function lets you define light and dark mode colors in a single property value — no media queries, no JavaScript, no complex variable systems. Learn every pattern with production-ready code."
+tags: ["CSS", "light-dark()", "color-scheme", "Theming", "Dark Mode", "2026", "Baseline 2026"]
+---
+
+## The Two-Colors Problem
+
+Every web developer knows the pattern:
+
+```css
+:root {
+  --bg: #ffffff;
+  --text: #1a1a1a;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #1a1a1a;
+    --text: #ffffff;
+  }
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+}
+```
+
+Four variables, a media query, and every component needs to remember to use `var(--bg)` instead of `white`. At scale, you end up with 30+ variables just to track color pairs. Tailwind's `dark:` prefix solves the ergonomics but doesn't change the fundamental problem: every color has a dark-mode twin, and CSS had no native way to express that relationship.
+
+In 2026, we now have exactly that: the `light-dark()` function.
+
+```css
+body {
+  background: light-dark(#ffffff, #1a1a1a);
+  color: light-dark(#1a1a1a, #ffffff);
+}
+```
+
+Two lines. No media queries. No variables. No JavaScript. The browser handles everything. Here's how it works — and what you can build with it.
+
+## How light-dark() Works
+
+`light-dark()` is a CSS function that accepts two values: the first for light mode, the second for dark mode. The browser picks which one to use based on the **used color scheme** of the element.
+
+```css
+/* Syntax */
+property: light-dark(<light-value>, <dark-value>);
+```
+
+The browser determines the color scheme from three sources, in this priority order:
+
+1. **`color-scheme` property** on the element — most explicit
+2. **`color-scheme` meta tag** — `<meta name="color-scheme" content="light dark">`
+3. **`prefers-color-scheme` user preference** — the OS/system setting
+
+The key insight: `light-dark()` *doesn't* read `prefers-color-scheme` directly. It reads the element's **used `color-scheme`**. This distinction is critical because it means you can force a section of the page to use a specific scheme independently.
+
+```css
+/* This div is always in dark mode, regardless of system preference */
+.dark-panel {
+  color-scheme: dark;
+  background: light-dark(#fff, #111);
+  color: light-dark(#111, #eee);
+}
+```
+
+## The color-scheme Property: The Missing Piece
+
+`light-dark()` is only half the story. The `color-scheme` property tells the browser which schemes an element supports — and this feeds directly into `light-dark()`:
+
+```css
+:root {
+  /* Allow both. light-dark() will follow system preference */
+  color-scheme: light dark;
+}
+
+.force-light {
+  color-scheme: light; /* light-dark(light, dark) → always picks light */
+}
+
+.force-dark {
+  color-scheme: dark; /* light-dark(light, dark) → always picks dark */
+}
+```
+
+This is how theme toggles work. When the user clicks a theme toggle:
+
+```css
+/* System default — follows OS preference */
+:root {
+  color-scheme: light dark;
+}
+
+/* User forced light — overrides OS preference */
+:root.light {
+  color-scheme: light;
+}
+
+/* User forced dark — overrides OS preference */
+:root.dark {
+  color-scheme: dark;
+}
+```
+
+Toggle the class on `<html>` and every `light-dark()` on the page responds instantly. No CSS variable swaps. No class propagation. One attribute change re-themes the entire site.
+
+### JavaScript Toggle (8 lines)
+
+```javascript
+function setTheme(theme) {
+  document.documentElement.className = theme;
+  localStorage.setItem('theme', theme);
+}
+
+// Restore on load
+setTheme(localStorage.getItem('theme') || '');
+```
+
+That's the entire JavaScript for a theme toggle. No complex CSS variable management, no DOM traversal. One `className` assignment on `<html>`.
+
+## Real Patterns
+
+### Pattern 1: Design Tokens With light-dark()
+
+Instead of the old variable-pair approach:
+
+```css
+/* Old way — two variables, media query, manual pairing */
+:root {
+  --color-surface: #ffffff;
+  --color-surface-dark: #1a1a1a;
+  --color-text: #1a1a1a;
+  --color-text-dark: #f0f0f0;
+  --color-border: #e0e0e0;
+  --color-border-dark: #333333;
+  --color-accent: #0066ff;
+  --color-accent-dark: #4499ff;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-surface: var(--color-surface-dark);
+    --color-text: var(--color-text-dark);
+    --color-border: var(--color-border-dark);
+    --color-accent: var(--color-accent-dark);
+  }
+}
+```
+
+New way with `light-dark()`:
+
+```css
+:root {
+  color-scheme: light dark;
+  
+  --color-surface: light-dark(#ffffff, #1a1a1a);
+  --color-text: light-dark(#1a1a1a, #f0f0f0);
+  --color-border: light-dark(#e0e0e0, #333333);
+  --color-accent: light-dark(#0066ff, #4499ff);
+}
+```
+
+Four variables, no media query, no dark-variant variables. Each token encodes its own light/dark pairing. You still use `var(--color-surface)` everywhere — the variable's value just happens to be a `light-dark()` expression instead of a static color.
+
+### Pattern 2: Component-Level Overrides
+
+A common pattern: a "hero" section that's always dark even when the rest of the page is light.
+
+```css
+.hero {
+  color-scheme: dark;
+  background: light-dark(#1a1a2e, #0d0d1a);
+  color: light-dark(#e0e0e0, #ffffff);
+}
+
+.hero .cta-button {
+  background: light-dark(#0066ff, #3399ff);
+  color: light-dark(#ffffff, #1a1a1a);
+}
+```
+
+The `.hero` sets `color-scheme: dark`, which means **all** `light-dark()` calls within `.hero` default to their dark values — even if the rest of the page is in light mode. No class propagation. No BEM modifier chains. No nested overrides.
+
+### Pattern 3: Card That Inverts Its Parent
+
+Want a card that's dark on a light background, or light on a dark background? Set its `color-scheme` opposite to the parent:
+
+```css
+.inverted-card {
+  /* This card always reads as the 'opposite' scheme */
+  color-scheme: only light; /* forces light, regardless of parent */
+}
+```
+
+But `color-scheme: only light` locks it — what if you want it to *toggle*? Use a custom property:
+
+```css
+:root {
+  --card-scheme: light;
+}
+
+[data-theme="dark"] {
+  --card-scheme: dark;
+}
+
+.inverted-card {
+  color-scheme: var(--card-scheme);
+}
+```
+
+### Pattern 4: Skeleton Loaders
+
+Skeleton loaders need to work in both modes. `light-dark()` makes this trivial:
+
+```css
+.skeleton {
+  background: light-dark(#e0e0e0, #2a2a2a);
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: light-dark(0.4, 0.6); }
+}
+```
+
+Yes, `light-dark()` works in `@keyframes` too. The animation respects the color scheme at the time it runs.
+
+### Pattern 5: System-Level Components (Forms, Scrollbars)
+
+Browser form controls (inputs, selects, checkboxes) automatically adapt to `color-scheme`. But custom-styled inputs need explicit colors:
+
+```css
+input, select, textarea {
+  background: light-dark(#ffffff, #1a1a1a);
+  color: light-dark(#1a1a1a, #f0f0f0);
+  border: 1px solid light-dark(#d0d0d0, #444444);
+}
+
+input::placeholder {
+  color: light-dark(#999999, #666666);
+}
+
+/* Focus ring */
+input:focus-visible {
+  outline: 2px solid light-dark(#0066ff, #4499ff);
+  outline-offset: 2px;
+}
+```
+
+Custom scrollbars:
+
+```css
+::-webkit-scrollbar-track {
+  background: light-dark(#f5f5f5, #1a1a1a);
+}
+
+::-webkit-scrollbar-thumb {
+  background: light-dark(#c0c0c0, #555555);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: light-dark(#a0a0a0, #777777);
+}
+```
+
+### Pattern 6: Syntax Highlighting Themes
+
+A code block that respects the page theme without separate CSS files:
+
+```css
+pre {
+  background: light-dark(#f6f8fa, #1e1e2e);
+  color: light-dark(#24292e, #cdd6f4);
+}
+
+.token.keyword { color: light-dark(#d73a49, #cba6f7); }
+.token.string  { color: light-dark(#032f62, #a6e3a1); }
+.token.comment { color: light-dark(#6a737d, #6c7086); }
+.token.function { color: light-dark(#6f42c1, #89b4fa); }
+.token.number   { color: light-dark(#005cc5, #fab387); }
+```
+
+One CSS file, two themes, zero JavaScript. This is the GitHub/VSCode approach — except instead of maintaining two separate theme files, you maintain one file where every color is a `light-dark()` pair.
+
+## Combining light-dark() With Custom Properties
+
+The real power comes from composing these features:
+
+```css
+:root {
+  color-scheme: light dark;
+  
+  /* Base palette */
+  --gray-50: light-dark(#fafafa, #0d0d0d);
+  --gray-100: light-dark(#f0f0f0, #1a1a1a);
+  --gray-200: light-dark(#e0e0e0, #2a2a2a);
+  --gray-500: light-dark(#888888, #666666);
+  --gray-700: light-dark(#444444, #aaaaaa);
+  --gray-900: light-dark(#1a1a1a, #f0f0f0);
+}
+
+.card {
+  background: var(--gray-100);
+  border: 1px solid var(--gray-200);
+  color: var(--gray-900);
+  padding: 1.5rem;
+  border-radius: 8px;
+}
+```
+
+This is the sweet spot. You define your palette once — each shade is a `light-dark()` pair — then use the variables everywhere. Theme toggling is instant. No class propagation through component trees. No "dark variant" of every component.
+
+## light-dark() With accent-color
+
+The `accent-color` property controls the color of checkboxes, radio buttons, range sliders, and progress bars. Combine with `light-dark()`:
+
+```css
+:root {
+  accent-color: light-dark(#0066ff, #4499ff);
+}
+```
+
+Now all form controls across your entire site adapt to the color scheme automatically. No per-element styling needed.
+
+## The light-dark() + oklch() Combo
+
+`oklch()` is the perceptually uniform color space that's now Baseline. Combine it with `light-dark()`:
+
+```css
+:root {
+  color-scheme: light dark;
+  
+  /* Same hue, different lightness — consistent branding across modes */
+  --brand: light-dark(oklch(0.55 0.2 260), oklch(0.7 0.2 260));
+  --brand-bg: light-dark(oklch(0.95 0.02 260), oklch(0.2 0.02 260));
+  
+  /* Success: green hue, lighter in dark mode for contrast */
+  --success: light-dark(oklch(0.5 0.18 145), oklch(0.65 0.15 145));
+  
+  /* Warning: amber hue, adjusted for readability */
+  --warning: light-dark(oklch(0.55 0.18 85), oklch(0.7 0.15 85));
+}
+```
+
+The `oklch(lightness chroma hue)` format makes it easy to adjust only lightness while keeping the hue consistent. In dark mode, you typically want slightly higher lightness for text and UI elements to maintain contrast against dark backgrounds.
+
+## Browser Support
+
+As of May 2026, `light-dark()` is **Baseline Newly Available**:
+
+| Browser | Version | Status |
+|---------|---------|--------|
+| Chrome | 123 | ✓ |
+| Safari | 17.5 | ✓ |
+| Firefox | 120 | ✓ |
+| Edge | 123 | ✓ |
+| Samsung Internet | 25 | ✓ |
+| Opera | 109 | ✓ |
+
+`color-scheme` has even broader support (Chrome 81+, Safari 13+, Firefox 96+).
+
+### Progressive Enhancement
+
+If you need to support older browsers, the fallback pattern is straightforward:
+
+```css
+body {
+  /* Fallback for browsers without light-dark() */
+  background: #ffffff;
+  color: #1a1a1a;
+  
+  /* light-dark() for modern browsers */
+  background: light-dark(#ffffff, #1a1a1a);
+  color: light-dark(#1a1a1a, #ffffff);
+}
+
+@media (prefers-color-scheme: dark) {
+  body {
+    /* Override fallback for dark mode */
+    background: #1a1a1a;
+    color: #ffffff;
+  }
+}
+```
+
+Browsers that support `light-dark()` will use the second declaration (which overrides the first). Browsers without it will use the first fallback and the media query. There's no `@supports` wrapper needed — CSS cascade handles it.
+
+## Performance Implications
+
+`light-dark()` is a CSS function evaluated at **computed-value time**, not at layout or paint time. This means:
+
+- **Zero JavaScript overhead** — no `matchMedia` listeners, no class toggling
+- **Instant mode switching** — changing `color-scheme` recalculates computed values synchronously, no repaint delay
+- **No style recalculation cascade** — unlike CSS variable swaps (which invalidate every dependent element), `light-dark()` values are self-contained
+- **GPU-compatible** — `light-dark()` works inside `background`, `color`, `border-color`, and all properties that can be GPU-accelerated
+
+The only cost is the function evaluation at computed-value time — which is essentially free (nanoseconds per call, evaluated once until the color scheme changes).
+
+## Migration Guide
+
+### Step 1: Add color-scheme to :root
+
+```css
+:root {
+  color-scheme: light dark;
+}
+```
+
+### Step 2: Replace variable pairs with light-dark()
+
+Before:
+```css
+:root {
+  --bg: #fff;
+  --text: #111;
+}
+@media (prefers-color-scheme: dark) {
+  :root { --bg: #111; --text: #eee; }
+}
+```
+
+After:
+```css
+:root {
+  --bg: light-dark(#fff, #111);
+  --text: light-dark(#111, #eee);
+}
+```
+
+### Step 3: Remove media queries for colors
+
+Once `light-dark()` covers all your color tokens, delete the `@media (prefers-color-scheme: dark)` blocks. Keep media queries for non-color adaptations (spacing, shadows, etc.).
+
+### Step 4: Add a theme toggle (optional)
+
+```javascript
+const toggle = document.getElementById('theme-toggle');
+toggle.addEventListener('click', () => {
+  const current = document.documentElement.className;
+  const next = current === 'dark' ? 'light' : current === 'light' ? '' : 'dark';
+  document.documentElement.className = next;
+  localStorage.setItem('theme', next);
+});
+
+// Three states: '' (system), 'light' (forced), 'dark' (forced)
+```
+
+### Step 5: Audit remaining hardcoded colors
+
+```bash
+# Find colors that aren't using light-dark() or variables
+grep -rn 'color:\|background:' src/ --include="*.css" | grep -v 'light-dark\|var(--'
+```
+
+## Common Pitfalls
+
+### Pitfall 1: Forgetting color-scheme
+
+`light-dark()` without `color-scheme: light dark` will always pick the **first** value (light). This is the most common mistake:
+
+```css
+/* Wrong — always picks light value */
+body {
+  background: light-dark(#fff, #111); /* Always #fff */
+}
+
+/* Right */
+:root {
+  color-scheme: light dark;
+}
+body {
+  background: light-dark(#fff, #111); /* #fff in light, #111 in dark */
+}
+```
+
+### Pitfall 2: Using light-dark() for non-color properties
+
+`light-dark()` only works with `<color>` values. You can't use it for lengths, shadows, or gradients:
+
+```css
+/* Won't work — light-dark() only accepts colors */
+box-shadow: light-dark(0 2px 4px rgba(0,0,0,0.1), 0 2px 4px rgba(0,0,0,0.3));
+```
+
+For shadows and other non-color properties, use custom properties with a media query or the `color-scheme` class toggle.
+
+### Pitfall 3: Nesting light-dark() inside other color functions
+
+This works fine:
+
+```css
+color: rgb(light-dark(255 255 255, 26 26 26)); /* WRONG — doesn't work */
+```
+
+`light-dark()` returns a `<color>`, not a number. You can't nest it inside `rgb()`, `hsl()`, or `oklch()` numeric forms. Use the color form directly:
+
+```css
+color: light-dark(rgb(255 255 255), rgb(26 26 26)); /* Correct */
+color: light-dark(#fff, #1a1a1a); /* Correct */
+color: light-dark(white, #1a1a1a); /* Correct — named colors work too */
+```
+
+### Pitfall 4: Assuming light-dark() reads OS preference directly
+
+`light-dark()` reads the used `color-scheme`, not `prefers-color-scheme`. If you set `color-scheme: light` on an element, `light-dark()` will always use the light value — even if the user's OS is in dark mode. This is by design and is how component-level overrides work.
+
+## The Future: Beyond Two Colors
+
+The CSS Working Group is exploring extensions to the concept:
+
+- **`color-mix()` with scheme awareness** — dynamically mix scheme-appropriate colors
+- **`light-dark()` in non-color contexts** — potentially for length values, shadow intensities, and other properties
+- **Multiple-scheme support** — beyond just "light" and "dark" for high-contrast, sepia, and other accessibility modes
+
+For now, `light-dark()` + `color-scheme` handles the 95% use case: every website needs a dark mode, and this makes it trivial.
+
+## Summary
+
+| Before (2023) | After (2026) |
+|---------------|--------------|
+| `@media (prefers-color-scheme: dark)` blocks | `light-dark(light, dark)` inline |
+| Variable pairs (`--bg`, `--bg-dark`) | Self-contained tokens |
+| Theme class propagation through components | One `color-scheme` on `:root` |
+| ~50 CSS variables for a design system | ~20 variables with `light-dark()` |
+| JavaScript `matchMedia` listeners | Browser-native with instant switching |
+| Component-level dark mode = BEM classes | Component-level `color-scheme` override |
+
+The migration isn't theoretical — it's production-ready today across all modern browsers. A complete design system can drop 50-60% of its CSS variables and media query blocks by adopting `light-dark()` as the primary token format.
+
+---
+
+**Try it live**: Open DevTools, paste `background: light-dark(#fff, #111)` on any element, then toggle your OS dark mode. The element changes instantly — no page reload, no JavaScript.
+
+*Check our [Gradient Text Generator](/tools/gradient-text-generator), [Glassmorphism Generator](/tools/glassmorphism-generator), and [CSS Custom Properties Playground](/tools/css-custom-properties) for more CSS exploration tools.*

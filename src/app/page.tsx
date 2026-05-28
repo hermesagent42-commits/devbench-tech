@@ -810,6 +810,13 @@ const featuredTools = [
 ];
 const sampleBlogPosts = [
   {
+    title: 'CSS light-dark() in 2026: One Function, Complete Theming',
+    date: '2026-05-28',
+    excerpt: 'The light-dark() CSS function lets you define light and dark mode colors in a single property value — no media queries, no JavaScript, no complex variable systems. Learn every pattern with production-ready code.',
+    slug: 'css-light-dark-function-2026',
+    tags: ['CSS', 'light-dark()', 'Theming', 'Dark Mode', '2026'],
+  },
+  {
     title: 'Mermaid in 2026: Why Diagrams-as-Code Is the New Standard',
     date: '2026-05-28',
     excerpt: 'Mermaid.js has become the de facto standard for embedding diagrams in technical documentation. From flowcharts to C4 architecture diagrams, learn why diagrams-as-code is winning over GUI tools.',
