@@ -81,6 +81,9 @@ import {
   PanelRight,
   FileSearch,
   Music,
+  GitGraph,
+  Heading,
+  Cpu,
 } from 'lucide-react';
 
 export const metadata: Metadata = {
@@ -768,6 +771,27 @@ const allTools = [
     href: '/tools/audio-synthesizer',
     icon: Music,
     tags: ['Audio', 'Synthesizer', 'Web Audio API', 'Music', 'ADSR'],
+  },
+  {
+    title: 'Mermaid Live Editor',
+    description: 'Create flowcharts, sequence diagrams, and more with Mermaid.js — live preview, 8 sample diagrams, export as SVG/PNG. Diagrams as code, right in your browser.',
+    href: '/tools/mermaid-editor',
+    icon: GitGraph,
+    tags: ['Mermaid', 'Diagram', 'Flowchart', 'Documentation'],
+  },
+  {
+    title: 'CSS @property Playground',
+    description: 'Define typed CSS custom properties with the @property at-rule — syntax checking, inheritance, animation. Live preview, 5 presets, generated CSS output.',
+    href: '/tools/css-at-property',
+    icon: Cpu,
+    tags: ['CSS', '@property', 'Custom Properties', 'Animation'],
+  },
+  {
+    title: 'HTTP Headers Reference',
+    description: 'Complete searchable reference for 60+ HTTP headers — security, CORS, caching, authentication, proxies, cookies. Filter by category, view examples, copy in one click.',
+    href: '/tools/http-headers',
+    icon: Heading,
+    tags: ['HTTP', 'Headers', 'Reference', 'Security', 'CORS'],
   },
 ];
 

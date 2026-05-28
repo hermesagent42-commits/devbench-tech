@@ -1,0 +1,146 @@
+---
+title: "CSS @property in 2026: Typed Custom Properties Are Changing How We Animate"
+date: 2026-05-28
+excerpt: The CSS @property at-rule is now universally supported, and it fundamentally changes what's possible with CSS animations. Learn how typed custom properties enable smooth color transitions, gradient animations, and transform interpolation — all without JavaScript.
+tags: CSS, @property, Custom Properties, Animation, 2026
+---
+
+## What Is @property?
+
+The `@property` at-rule lets you define typed CSS custom properties directly in your stylesheet. Unlike regular custom properties (`--color: blue`), `@property` properties have a defined syntax type, inheritance behavior, and initial value.
+
+This typing is the key innovation — it tells the browser engine what kind of value to expect, which enables smooth interpolation in animations and transitions.
+
+## Why Typed Properties Matter
+
+Without `@property`, custom properties are treated as strings. The browser can't interpolate between two arbitrary string values. With `@property`, the browser knows it's dealing with a `<color>`, `<length>`, or `<angle>` and can animate between them smoothly.
+
+```css
+@property --gradient-angle {
+  syntax: '<angle>';
+  inherits: false;
+  initial-value: 0deg;
+}
+
+.gradient-spin {
+  --gradient-angle: 0deg;
+  background: conic-gradient(
+    from var(--gradient-angle),
+    #06b6d4,
+    #8b5cf6,
+    #06b6d4
+  );
+  animation: spin 3s linear infinite;
+}
+
+@keyframes spin {
+  to { --gradient-angle: 360deg; }
+}
+```
+
+This was impossible before `@property` — you couldn't animate gradient angles with pure CSS because the browser couldn't interpolate a custom property between `0deg` and `360deg`.
+
+## Key Syntax Types
+
+The `@property` rule supports all major CSS value types:
+
+| Syntax | Example | Animatable |
+|--------|---------|------------|
+| `<color>` | `#3b82f6` | ✓ Smooth color interpolation |
+| `<length>` | `16px`, `2rem` | ✓ Length interpolation |
+| `<percentage>` | `50%` | ✓ Percentage interpolation |
+| `<angle>` | `45deg` | ✓ Angle interpolation |
+| `<number>` | `0.5` | ✓ Number interpolation |
+| `<time>` | `2s` | ✓ Time interpolation |
+| `<transform-function>` | `rotate(0deg)` | ✓ Individual transforms |
+
+## Real-World Patterns
+
+### 1. Animated Progress Bars
+
+```css
+@property --progress {
+  syntax: '<percentage>';
+  inherits: false;
+  initial-value: 0%;
+}
+
+.progress-bar {
+  --progress: 0%;
+  width: var(--progress);
+  background: linear-gradient(90deg, #06b6d4, #8b5cf6);
+  animation: fill 2s ease-in-out forwards;
+}
+
+@keyframes fill {
+  to { --progress: 100%; }
+}
+```
+
+### 2. Smooth Color Theme Transitions
+
+```css
+@property --theme-primary {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #3b82f6;
+}
+
+html {
+  --theme-primary: #3b82f6;
+  transition: --theme-primary 0.3s ease;
+}
+
+html[data-theme="dark"] {
+  --theme-primary: #818cf8;
+}
+```
+
+Now switching themes animates smoothly — button colors, link colors, and any element using `var(--theme-primary)` will transition gracefully.
+
+### 3. Gradient Sweep
+
+```css
+@property --sweep-angle {
+  syntax: '<angle>';
+  inherits: false;
+  initial-value: 0deg;
+}
+
+.sweep {
+  background: conic-gradient(
+    from var(--sweep-angle),
+    #06b6d4, #8b5cf6, #06b6d4
+  );
+  animation: sweep 4s linear infinite;
+}
+```
+
+## Browser Support
+
+As of 2026, `@property` is **Baseline Widely Available** — supported in all modern browsers:
+
+- Chrome 85+
+- Firefox 128+
+- Safari 16.4+
+- Edge 85+
+
+No polyfills needed. Ship it in production.
+
+## The Future: @property Meets Style Queries
+
+The next frontier is combining `@property` with style queries. Style queries let you check the computed value of a custom property and conditionally apply styles:
+
+```css
+@container style(--theme: dark) {
+  .card {
+    background: #1e293b;
+  }
+}
+```
+
+This pattern eliminates the need for JavaScript-based theme switching entirely. Define your theme tokens as typed custom properties, and let style queries handle the conditional rendering.
+
+## Try It Yourself
+
+Our new [CSS @property Playground](/tools/css-at-property) lets you define typed properties with a visual builder, see the generated CSS, and test animations in real time — no setup required.

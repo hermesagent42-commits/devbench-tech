@@ -83,6 +83,7 @@ import {
   PanelRight,
   Package,
   Music,
+  GitGraph,
 } from 'lucide-react';
 
 export const metadata: Metadata = {
@@ -792,8 +793,29 @@ const featuredTools = [
     icon: ArrowLeftRight,
     tags: ['Units', 'Converter', 'Science', 'Math'],
   },
+  {
+    title: 'Mermaid Live Editor',
+    description: 'Create flowcharts, sequence diagrams, and more with Mermaid.js — live preview, 8 sample diagrams, export as SVG/PNG. Diagrams as code, right in your browser.',
+    href: '/tools/mermaid-editor',
+    icon: GitGraph,
+    tags: ['Mermaid', 'Diagram', 'Flowchart'],
+  },
 ];
 const sampleBlogPosts = [
+  {
+    title: 'Mermaid in 2026: Why Diagrams-as-Code Is the New Standard',
+    date: '2026-05-28',
+    excerpt: 'Mermaid.js has become the de facto standard for embedding diagrams in technical documentation. From flowcharts to C4 architecture diagrams, learn why diagrams-as-code is winning over GUI tools.',
+    slug: 'mermaid-diagrams-as-code-2026',
+    tags: ['Mermaid', 'Diagrams', 'Documentation', '2026'],
+  },
+  {
+    title: 'CSS @property in 2026: Typed Custom Properties Change Everything',
+    date: '2026-05-28',
+    excerpt: 'The @property at-rule enables smooth color transitions, gradient animations, and transform interpolation — all without JavaScript. Complete guide with real-world patterns.',
+    slug: 'css-at-property-2026',
+    tags: ['CSS', '@property', 'Custom Properties', 'Animation'],
+  },
   {
     title: 'Signals in 2026: Why Every Framework Is Converging on This One Primitive',
     date: '2026-05-28',
