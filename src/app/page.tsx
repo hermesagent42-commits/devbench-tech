@@ -837,6 +837,13 @@ const featuredTools = [
     icon: Image,
     tags: ['CSS', 'border-image', 'Design', 'Borders'],
   },
+  {
+    title: 'CSS Clip-Path Generator',
+    description: 'Craft stunning shapes with CSS clip-path — circles, polygons, stars, arrows, and 10+ presets. Live preview on gradient/image/checker backgrounds, instant CSS output.',
+    href: '/tools/clip-path-generator',
+    icon: Scissors,
+    tags: ['CSS', 'Clip-Path', 'Shapes', 'Design'],
+  },
 ];
 const sampleBlogPosts = [
   {
