@@ -668,6 +668,13 @@ const featuredTools = [
     tags: ['CSS', '@layer', 'Cascade'],
   },
   {
+    title: 'JSON → GraphQL Schema',
+    description: 'Convert JSON data to GraphQL SDL type definitions — nested objects become named types, array element inference, Query/Mutation scaffolding. 100% client-side.',
+    href: '/tools/json-to-graphql',
+    icon: Network,
+    tags: ['JSON', 'GraphQL', 'SDL', 'Converter'],
+  },
+  {
     title: 'HTMX Reference',
     description: 'Complete searchable HTMX attribute reference — all hx-* attributes with descriptions, values, defaults, and one-click copy. From core requests to advanced swap strategies.',
     href: '/tools/htmx-reference',
