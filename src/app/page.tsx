@@ -815,6 +815,13 @@ const featuredTools = [
     icon: ListOrdered,
     tags: ['CSS', '@counter-style', 'Lists'],
   },
+  {
+    title: 'CSS border-image Generator',
+    description: 'Visually build CSS border-image — slice gradients into 9 regions, control repeat modes, and create decorative borders. 8 presets, live preview, instant CSS + shorthand.',
+    href: '/tools/css-border-image-generator',
+    icon: Image,
+    tags: ['CSS', 'border-image', 'Design', 'Borders'],
+  },
 ];
 const sampleBlogPosts = [
   {
