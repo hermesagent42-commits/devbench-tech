@@ -775,6 +775,13 @@ const featuredTools = [
     tags: ['CSS', 'Custom Properties', 'Variables', 'Themes'],
   },
   {
+    title: 'CSS Specificity Calculator',
+    description: 'Parse and compare CSS selectors side-by-side to understand specificity. Visual token breakdown, :is()/:not()/:has()/:where() support, 18 presets — master the cascade.',
+    href: '/tools/css-specificity-calculator',
+    icon: Layers,
+    tags: ['CSS', 'Specificity', 'Cascade', 'Debug'],
+  },
+  {
     title: '@font-face Generator',
     description: 'Build production-ready @font-face declarations — font family, weight, style, display strategy, and fallback source URLs. 8 presets, live preview, copy or download CSS.',
     href: '/tools/font-face-generator',

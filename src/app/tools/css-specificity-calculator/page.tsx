@@ -2,441 +2,597 @@
 
 import { useState, useCallback, useMemo } from 'react';
 import { ToolLayout } from '@/components/ToolLayout';
-import { ArrowLeftRight, Trash2, Info, Star, Layers, AlertTriangle } from 'lucide-react';
+import { Copy, RotateCcw, ArrowRightLeft, Layers, Zap, Info, AlertTriangle, CheckCircle2, Gauge } from 'lucide-react';
+import toast from 'react-hot-toast';
 
 // ── Types ──────────────────────────────────────────────────────────────────
 
-interface SpecificityScore {
-  a: number; // Inline styles (1 or 0)
-  b: number; // IDs
-  c: number; // Classes, attributes, pseudo-classes
-  d: number; // Elements, pseudo-elements
+interface SpecificityParts {
+  ids: number;        // a — ID selectors
+  classes: number;    // b — class, attribute, pseudo-class selectors
+  elements: number;   // c — type (element) and pseudo-element selectors
 }
 
-interface SelectorPart {
-  part: string;
-  type: 'id' | 'class' | 'attr' | 'pseudo-class' | 'pseudo-element' | 'element' | 'universal' | 'combinator' | 'inline' | 'important';
-  score: SpecificityScore;
-  weight: 'high' | 'medium' | 'low' | 'none';
+interface TokenInfo {
+  token: string;
+  type: 'id' | 'class' | 'attribute' | 'pseudo-class' | 'pseudo-element' | 'type' | 'universal' | 'combinator';
+  weight: SpecificityParts;
 }
 
-interface ParsedSelector {
-  raw: string;
-  parts: SelectorPart[];
-  total: SpecificityScore;
-  inline: boolean;
-  important: boolean;
+// ── Parser ─────────────────────────────────────────────────────────────────
+
+// CSS pseudo-elements (spec)
+const PSEUDO_ELEMENTS = new Set([
+  'after', 'before', 'first-letter', 'first-line', 'selection',
+  'backdrop', 'placeholder', 'marker', 'spelling-error', 'grammar-error',
+  'cue', 'file-selector-button', 'part', 'slotted', 'target-text',
+  'highlight', 'view-transition', 'view-transition-group', 'view-transition-image-pair',
+  'view-transition-old', 'view-transition-new',
+]);
+
+// CSS pseudo-classes that are structural (not functional)
+const PSEUDO_CLASSES_RAW = new Set([
+  'hover', 'active', 'focus', 'visited', 'link', 'target', 'focus-visible',
+  'focus-within', 'root', 'empty', 'blank', 'checked', 'enabled', 'disabled',
+  'required', 'optional', 'valid', 'invalid', 'in-range', 'out-of-range',
+  'read-only', 'read-write', 'default', 'indeterminate', 'only-child',
+  'only-of-type', 'first-child', 'last-child', 'first-of-type', 'last-of-type',
+  'defined', 'open', 'closed', 'popover-open', 'modal',
+  'autofill', 'user-valid', 'user-invalid',
+  'playing', 'paused', 'seeking',
+  'buffering', 'stalled', 'muted', 'volume-locked',
+  'picture-in-picture', 'fullscreen',
+  'any-link', 'local-link', 'scope',
+  'current', 'past', 'future',
+  'target-within', 'playing', 'paused',
+]);
+
+function specificityWeight(tokenType: TokenInfo['type']): SpecificityParts {
+  switch (tokenType) {
+    case 'id':             return { ids: 1, classes: 0, elements: 0 };
+    case 'class':
+    case 'attribute':
+    case 'pseudo-class':   return { ids: 0, classes: 1, elements: 0 };
+    case 'type':
+    case 'pseudo-element': return { ids: 0, classes: 0, elements: 1 };
+    default:               return { ids: 0, classes: 0, elements: 0 };
+  }
 }
 
-// ── Specificity Engine ─────────────────────────────────────────────────────
+function classifyToken(token: string): TokenInfo['type'] {
+  if (token.startsWith('#')) return 'id';
+  if (token.startsWith('.')) return 'class';
+  if (token.startsWith('[') && token.endsWith(']')) return 'attribute';
 
-/** Match a single piece of a selector: IDs, classes, attributes, pseudo-*, elements */
-const SELECTOR_TOKEN_RE = /([#.][\w-]+|\[[^\]]+\]|::?[\w-]+|[\w-]+|\*|[+>~]\s*|::?\s*|\(|\))/g;
-const ID_RE = /^#[\w-]+$/;
-const CLASS_RE = /^\.[\w-]+$/;
-const ATTR_RE = /^\[.+\]$/;
-const PSEUDO_CLASS_RE = /^:(?:(?:not|is|has|where|nth-child|nth-of-type|nth-last-child|nth-last-of-type|first-child|last-child|only-child|first-of-type|last-of-type|only-of-type|empty|root|target|enabled|disabled|checked|indeterminate|default|required|optional|valid|invalid|in-range|out-of-range|read-only|read-write|focus|focus-within|focus-visible|hover|active|visited|link|any-link|local-link|lang|dir|scope|current|past|future|playing|paused|seeking|buffering|stalled|muted|volume-locked|picture-in-picture|fullscreen|modal|popover-open|defined|host|host-context)\(.*\)|:(?!:)[\w-]+)$/;
-const PSEUDO_ELEMENT_RE = /^::[\w-]+$/;
-const UNIVERSAL_RE = /^\*$/;
-const COMBINATOR_RE = /^[+>~]$/;
-const IMPORTANT_RE = /!important/i;
-
-/** Zero-weight pseudo-classes: :where() and :is() — these contribute the highest selector inside, but :where() always contributes zero */
-function parseToken(token: string): SelectorPart | null {
-  const clean = token.trim().replace(/\s+/g, '');
-  if (!clean) return null;
-
-  // Combinators
-  if (COMBINATOR_RE.test(clean)) {
-    return { part: clean, type: 'combinator', score: { a: 0, b: 0, c: 0, d: 0 }, weight: 'none' };
+  // Pseudo elements start with ::
+  if (token.startsWith('::')) {
+    const name = token.slice(2).toLowerCase();
+    if (PSEUDO_ELEMENTS.has(name)) return 'pseudo-element';
+    // Some can be written as ::pseudo (e.g. ::before and :before are both valid)
+    return 'pseudo-element';
   }
 
-  // :where() — always contributes 0 specificity
-  if (/^:where\(/i.test(clean)) {
-    return { part: clean, type: 'pseudo-class', score: { a: 0, b: 0, c: 0, d: 0 }, weight: 'none' };
+  // Pseudo-classes start with :
+  if (token.startsWith(':')) {
+    // Functional pseudo-classes like :not(), :has(), :is(), etc. — parse them
+    const nameMatch = token.match(/^:([a-zA-Z-]+)/);
+    if (nameMatch) {
+      const name = nameMatch[1].toLowerCase();
+      if (PSEUDO_ELEMENTS.has(name)) return 'pseudo-element';
+      return 'pseudo-class';
+    }
+    return 'pseudo-class';
   }
 
-  // ID
-  if (ID_RE.test(clean)) {
-    return { part: clean, type: 'id', score: { a: 0, b: 1, c: 0, d: 0 }, weight: 'high' };
-  }
-
-  // Class
-  if (CLASS_RE.test(clean)) {
-    return { part: clean, type: 'class', score: { a: 0, b: 0, c: 1, d: 0 }, weight: 'medium' };
-  }
-
-  // Attribute selectors
-  if (ATTR_RE.test(clean)) {
-    return { part: clean, type: 'attr', score: { a: 0, b: 0, c: 1, d: 0 }, weight: 'medium' };
-  }
-
-  // Pseudo-class
-  if (PSEUDO_CLASS_RE.test(clean)) {
-    return { part: clean, type: 'pseudo-class', score: { a: 0, b: 0, c: 1, d: 0 }, weight: 'medium' };
-  }
-
-  // Pseudo-element
-  if (PSEUDO_ELEMENT_RE.test(clean)) {
-    return { part: clean, type: 'pseudo-element', score: { a: 0, b: 0, c: 0, d: 1 }, weight: 'low' };
-  }
+  // Element type selectors
+  if (/^[a-zA-Z_][\w-]*$/i.test(token)) return 'type';
 
   // Universal selector
-  if (UNIVERSAL_RE.test(clean)) {
-    return { part: clean, type: 'universal', score: { a: 0, b: 0, c: 0, d: 0 }, weight: 'none' };
-  }
+  if (token === '*') return 'universal';
 
-  // Element / type selector
-  if (/^[a-zA-Z_][\w-]*$/.test(clean)) {
-    return { part: clean, type: 'element', score: { a: 0, b: 0, c: 0, d: 1 }, weight: 'low' };
-  }
-
-  // Unknown — treat as element
-  return { part: clean, type: 'element', score: { a: 0, b: 0, c: 0, d: 1 }, weight: 'low' };
+  return 'type'; // fallback
 }
 
-function parseSelector(raw: string): ParsedSelector {
-  const trimmed = raw.trim();
-  const important = IMPORTANT_RE.test(trimmed);
-  const cleaned = trimmed.replace(IMPORTANT_RE, '').trim();
+// ── Tokenizer ──────────────────────────────────────────────────────────────
 
-  // Check for inline hint — if it starts with "style=" or contains property:value
-  const inline = /^style\s*=/i.test(cleaned);
+function tokenizeSelector(selector: string): string[] {
+  // Normalize whitespace
+  const s = selector.replace(/\s+/g, ' ').trim();
+  const tokens: string[] = [];
+  let i = 0;
 
-  const tokens = cleaned.match(SELECTOR_TOKEN_RE) || [];
-  const parts: SelectorPart[] = [];
-
-  for (const token of tokens) {
-    const parsed = parseToken(token);
-    if (parsed) parts.push(parsed);
-  }
-
-  const total: SpecificityScore = { a: 0, b: 0, c: 0, d: 0 };
-  for (const p of parts) {
-    total.b += p.score.b;
-    total.c += p.score.c;
-    total.d += p.score.d;
-  }
-
-  // Inline styles get a=1
-  if (inline) total.a = 1;
-
-  // If there are no parts but the string is non-empty, treat as element
-  if (parts.length === 0 && cleaned.length > 0) {
-    const p = parseToken(cleaned);
-    if (p) {
-      parts.push(p);
-      total.b += p.score.b;
-      total.c += p.score.c;
-      total.d += p.score.d;
+  while (i < s.length) {
+    // Skip whitespace (combinator)
+    if (s[i] === ' ') {
+      // We group combinators as whitespace tokens for clarity but don't
+      // count them in specificity. Skip for now, add as token.
+      tokens.push(' ');
+      i++;
+      continue;
     }
+
+    // Combinators: >, +, ~
+    if ('>+~'.includes(s[i])) {
+      tokens.push(s[i]);
+      i++;
+      continue;
+    }
+
+    // ID selector: #...
+    if (s[i] === '#') {
+      let j = i + 1;
+      // Valid ID chars: alphanumeric, hyphen, underscore, plus unicode escapes
+      while (j < s.length && /[a-zA-Z0-9_-]/.test(s[j])) j++;
+      tokens.push(s.slice(i, j));
+      i = j;
+      continue;
+    }
+
+    // Class selector: .name
+    if (s[i] === '.') {
+      let j = i + 1;
+      while (j < s.length && /[a-zA-Z0-9_-]/.test(s[j])) j++;
+      tokens.push(s.slice(i, j));
+      i = j;
+      continue;
+    }
+
+    // Attribute selector: [attr] / [attr=val] / [attr^=val] etc.
+    if (s[i] === '[') {
+      let j = i + 1;
+      let depth = 1;
+      while (j < s.length && depth > 0) {
+        if (s[j] === '[') depth++;
+        if (s[j] === ']') depth--;
+        if (s[j] === '"' || s[j] === "'") {
+          const quote = s[j];
+          j++;
+          while (j < s.length && s[j] !== quote) j++;
+        }
+        j++;
+      }
+      tokens.push(s.slice(i, j));
+      i = j;
+      continue;
+    }
+
+    // Pseudo-element (::) or pseudo-class (:)
+    if (s[i] === ':') {
+      // Check for double colon
+      const isDouble = s[i + 1] === ':';
+      let j = isDouble ? i + 2 : i + 1;
+
+      // Parse the name (letters and hyphens)
+      while (j < s.length && /[a-zA-Z-]/.test(s[j])) j++;
+
+      // Check for parentheses — functional pseudo-class like :not(...), :has(...), :is(...)
+      if (j < s.length && s[j] === '(') {
+        let depth = 1;
+        j++;
+        while (j < s.length && depth > 0) {
+          if (s[j] === '(') depth++;
+          if (s[j] === ')') depth--;
+          if (s[j] === '"' || s[j] === "'") {
+            const quote = s[j];
+            j++;
+            while (j < s.length && s[j] !== quote) j++;
+          }
+          j++;
+        }
+      }
+
+      tokens.push(s.slice(i, j));
+      i = j;
+      continue;
+    }
+
+    // Type selector or universal
+    if (/[a-zA-Z*]/.test(s[i])) {
+      let j = i + 1;
+      while (j < s.length && /[a-zA-Z0-9_-]/.test(s[j])) j++;
+      tokens.push(s.slice(i, j));
+      i = j;
+      continue;
+    }
+
+    // Fallback — skip unknown character
+    i++;
   }
 
-  return { raw: trimmed, parts, total, inline, important };
+  return tokens;
 }
 
-function scoreToString(s: SpecificityScore): string {
-  return `${s.a},${s.b},${s.c},${s.d}`;
+// ── Specificity calculator ─────────────────────────────────────────────────
+
+function calculateSpecificity(selector: string): {
+  tokens: TokenInfo[];
+  parts: SpecificityParts;
+  formatted: string;
+  score: number;
+} {
+  const rawTokens = tokenizeSelector(selector);
+  const tokens: TokenInfo[] = [];
+  const parts: SpecificityParts = { ids: 0, classes: 0, elements: 0 };
+
+  for (const raw of rawTokens) {
+    const type = classifyToken(raw);
+    const weight = specificityWeight(type);
+
+    // Functional pseudo-classes like :not(), :has(), :is(), :where()
+    // :where() contributes 0 specificity
+    // :is() and :not() take the specificity of their most specific argument
+    // :has() takes the specificity of its most specific argument
+    const funcMatch = raw.match(/^:(not|has|is|where)\((.+)\)$/i);
+    if (funcMatch) {
+      const funcName = funcMatch[1].toLowerCase();
+      const innerSelector = funcMatch[2];
+
+      if (funcName === 'where') {
+        // :where() adds 0 specificity — just record the token
+        tokens.push({ token: raw, type: 'pseudo-class', weight: { ids: 0, classes: 0, elements: 0 } });
+        continue;
+      }
+
+      // :not(), :has(), :is() — compute inner specificity and add it
+      const innerResult = calculateSpecificity(innerSelector);
+      const innerWeight = innerResult.parts;
+
+      // For :not(), :is(), :has(): the pseudo-class itself contributes
+      // class-level weight PLUS the inner specificity
+      tokens.push({
+        token: raw,
+        type: 'pseudo-class',
+        weight: {
+          ids: innerWeight.ids,
+          classes: innerWeight.classes + 1, // +1 for the pseudo-class itself
+          elements: innerWeight.elements,
+        },
+      });
+
+      parts.ids += innerWeight.ids;
+      parts.classes += innerWeight.classes + 1;
+      parts.elements += innerWeight.elements;
+      continue;
+    }
+
+    tokens.push({ token: raw, type, weight });
+    parts.ids += weight.ids;
+    parts.classes += weight.classes;
+    parts.elements += weight.elements;
+  }
+
+  const score = parts.ids * 10000 + parts.classes * 100 + parts.elements;
+  const formatted = `${parts.ids},${parts.classes},${parts.elements}`;
+
+  return { tokens, parts, formatted, score };
 }
 
-function compareScore(a: SpecificityScore, b: SpecificityScore): number {
-  if (a.a !== b.a) return a.a - b.a;
-  if (a.b !== b.b) return a.b - b.b;
-  if (a.c !== b.c) return a.c - b.c;
-  return a.d - b.d;
+// ── Color helpers ──────────────────────────────────────────────────────────
+
+function typeColor(type: TokenInfo['type']): string {
+  switch (type) {
+    case 'id':             return 'text-amber-400';
+    case 'class':
+    case 'attribute':
+    case 'pseudo-class':   return 'text-cyan-400';
+    case 'type':
+    case 'pseudo-element': return 'text-emerald-400';
+    case 'combinator':     return 'text-slate-500';
+    case 'universal':      return 'text-slate-500';
+    default:               return 'text-slate-400';
+  }
 }
 
-function explainScore(s: SpecificityScore): string {
-  const parts: string[] = [];
-  if (s.a > 0) parts.push(`${s.a} from inline styles`);
-  if (s.b > 0) parts.push(`${s.b} from ID selectors`);
-  if (s.c > 0) parts.push(`${s.c} from classes/attributes/pseudo-classes`);
-  if (s.d > 0) parts.push(`${s.d} from elements/pseudo-elements`);
-  return parts.length > 0 ? `Specificity: ${parts.join(', ')}` : 'No specificity (universal/combinator)';
+function typeBg(type: TokenInfo['type']): string {
+  switch (type) {
+    case 'id':             return 'bg-amber-500/10 border-amber-500/30';
+    case 'class':
+    case 'attribute':
+    case 'pseudo-class':   return 'bg-cyan-500/10 border-cyan-500/30';
+    case 'type':
+    case 'pseudo-element': return 'bg-emerald-500/10 border-emerald-500/30';
+    case 'combinator':     return 'bg-slate-500/10 border-slate-500/30';
+    case 'universal':      return 'bg-slate-500/10 border-slate-500/30';
+    default:               return 'bg-slate-500/10 border-slate-500/30';
+  }
 }
 
-// ── Color mapping for specificity columns ──────────────────────────────────
-
-function columnColor(col: 'a' | 'b' | 'c' | 'd', val: number): string {
-  if (val === 0) return 'text-slate-500';
-  const colors: Record<string, string> = {
-    a: 'text-red-400',
-    b: 'text-amber-400',
-    c: 'text-brand-400',
-    d: 'text-green-400',
-  };
-  return colors[col];
+function typeLabel(type: TokenInfo['type']): string {
+  switch (type) {
+    case 'id':             return 'ID';
+    case 'class':          return 'Class';
+    case 'attribute':      return 'Attr';
+    case 'pseudo-class':   return 'Pseudo-class';
+    case 'pseudo-element': return 'Pseudo-el';
+    case 'type':           return 'Element';
+    case 'combinator':     return 'Combinator';
+    case 'universal':      return 'Universal';
+    default:               return type;
+  }
 }
 
-// ── Part badge colors ──────────────────────────────────────────────────────
+// ── Presets ────────────────────────────────────────────────────────────────
 
-const PART_COLORS: Record<string, { bg: string; text: string }> = {
-  id: { bg: 'bg-amber-500/15', text: 'text-amber-300' },
-  class: { bg: 'bg-brand-500/15', text: 'text-brand-300' },
-  attr: { bg: 'bg-purple-500/15', text: 'text-purple-300' },
-  'pseudo-class': { bg: 'bg-cyan-500/15', text: 'text-cyan-300' },
-  'pseudo-element': { bg: 'bg-green-500/15', text: 'text-green-300' },
-  element: { bg: 'bg-slate-500/15', text: 'text-slate-300' },
-  universal: { bg: 'bg-slate-500/10', text: 'text-slate-500' },
-  combinator: { bg: 'bg-slate-500/10', text: 'text-slate-500' },
-  inline: { bg: 'bg-red-500/20', text: 'text-red-300' },
-  important: { bg: 'bg-red-500/30', text: 'text-red-200' },
-};
-
-const PART_LABELS: Record<string, string> = {
-  id: 'ID',
-  class: 'Class',
-  attr: 'Attribute',
-  'pseudo-class': 'Pseudo-class',
-  'pseudo-element': 'Pseudo-element',
-  element: 'Element',
-  universal: 'Universal',
-  combinator: 'Combinator',
-  inline: 'Inline',
-  important: '!important',
-};
-
-// ── Sample selectors ───────────────────────────────────────────────────────
-
-const SAMPLES = [
-  {
-    label: 'Complex form selector',
-    selector1: '#login-form input[type="email"]:focus',
-    selector2: '.form-input.error',
-  },
-  {
-    label: 'ID vs. many classes',
-    selector1: '#header',
-    selector2: '.nav.menu.primary.fixed.top-level',
-  },
-  {
-    label: 'Nested specificity',
-    selector1: 'nav ul li a.active',
-    selector2: '.nav-link',
-  },
-  {
-    label: 'Inline vs selector',
-    selector1: 'style="color: red"',
-    selector2: 'div#main .highlight',
-  },
-  {
-    label: 'Pseudo-class vs element',
-    selector1: 'li:last-child',
-    selector2: 'ul li',
-  },
-  {
-    label: ':where() vs. :is()',
-    selector1: ':is(#main, .header) a',
-    selector2: ':where(#main, .header) a',
-  },
-  {
-    label: 'Attribute selectors',
-    selector1: 'a[href^="https"][rel~="noopener"]',
-    selector2: 'a.external',
-  },
+const PRESETS = [
+  { label: 'Simple element', selector: 'div' },
+  { label: 'Element + class', selector: 'div.container' },
+  { label: 'Nested classes', selector: '.nav .item.active' },
+  { label: 'ID selector', selector: '#main' },
+  { label: 'ID + class + element', selector: 'div#main.container' },
+  { label: 'Attribute selector', selector: 'input[type="text"]' },
+  { label: 'Pseudo-class', selector: 'a:hover' },
+  { label: 'Pseudo-element', selector: 'p::first-line' },
+  { label: 'Child combinator', selector: 'ul > li' },
+  { label: ':not() with class', selector: 'div:not(.excluded)' },
+  { label: ':is() selector', selector: ':is(h1, h2, h3).title' },
+  { label: ':has() selector', selector: 'article:has(img)' },
+  { label: ':where() (0 specificity)', selector: ':where(.theme-dark) .button' },
+  { label: '10 classes', selector: '.a.b.c.d.e.f.g.h.i.j' },
+  { label: 'Complex real-world', selector: '#content article.post:not(.draft) > h2.title' },
+  { label: 'Attribute wildcard', selector: '[class^="prefix-"]' },
+  { label: 'Adjacent sibling', selector: 'h2 + p' },
+  { label: '::slotted()', selector: '::slotted(div.active)' },
 ];
 
-// ── Component ───────────────────────────────────────────────────────────────
+// ── Component ──────────────────────────────────────────────────────────────
 
-export default function CSSSpecificityCalculatorPage() {
-  const [selector1, setSelector1] = useState('#login-form .input-group input[type="text"]:focus');
-  const [selector2, setSelector2] = useState('.form-field input.error');
-  const [showInline, setShowInline] = useState(false);
+export default function CssSpecificityCalculator() {
+  const [selectorA, setSelectorA] = useState('.nav .item.active');
+  const [selectorB, setSelectorB] = useState('#sidebar .item');
 
-  const parsed1 = useMemo(() => parseSelector(selector1), [selector1]);
-  const parsed2 = useMemo(() => parseSelector(selector2), [selector2]);
+  const resultA = useMemo(() => {
+    try { return calculateSpecificity(selectorA); }
+    catch { return null; }
+  }, [selectorA]);
 
-  const winner = useMemo(() => {
-    // !important overrides everything
-    if (parsed1.important && !parsed2.important) return 1;
-    if (parsed2.important && !parsed1.important) return 2;
-    // Both important or neither — compare scores
-    const cmp = compareScore(parsed1.total, parsed2.total);
-    if (cmp > 0) return 1;
-    if (cmp < 0) return 2;
-    // Equal specificity — source order wins (later = selector2)
-    return 2;
-  }, [parsed1, parsed2]);
+  const resultB = useMemo(() => {
+    try { return calculateSpecificity(selectorB); }
+    catch { return null; }
+  }, [selectorB]);
 
-  const loadSample = useCallback((sample: (typeof SAMPLES)[0]) => {
-    setSelector1(sample.selector1);
-    setSelector2(sample.selector2);
-    setShowInline(false);
+  const comparison = useMemo(() => {
+    if (!resultA || !resultB) return null;
+    if (resultA.score > resultB.score) return 'a';
+    if (resultB.score > resultA.score) return 'b';
+    return 'tie';
+  }, [resultA, resultB]);
+
+  const handleCopy = useCallback((text: string) => {
+    navigator.clipboard.writeText(text);
+    toast.success('Copied!');
   }, []);
 
-  const clear = useCallback(() => {
-    setSelector1('');
-    setSelector2('');
-    setShowInline(false);
+  const handleReset = useCallback(() => {
+    setSelectorA('.nav .item.active');
+    setSelectorB('#sidebar .item');
   }, []);
+
+  const applyPresetLeft = useCallback((sel: string) => setSelectorA(sel), []);
+  const applyPresetRight = useCallback((sel: string) => setSelectorB(sel), []);
 
   return (
     <ToolLayout
       title="CSS Specificity Calculator"
-      description="Paste any CSS selector to see its specificity score broken down by IDs, classes, and elements. Compare two selectors to see which wins — understand cascade resolution visually."
+      description="Parse CSS selectors, visualize their specificity, and compare two selectors side-by-side to understand which wins the cascade."
     >
-      {/* Sample presets */}
-      <div className="mb-6">
-        <h3 className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">
-          Sample Comparisons
-        </h3>
-        <div className="flex flex-wrap gap-2">
-          {SAMPLES.map((s) => (
-            <button
-              key={s.label}
-              onClick={() => loadSample(s)}
-              className="px-3 py-1.5 text-xs rounded-lg bg-slate-700/40 border border-slate-600/50 text-slate-300 hover:bg-brand-500/10 hover:border-brand-500/30 hover:text-brand-300 transition-all"
-            >
-              {s.label}
-            </button>
-          ))}
+      <div className="space-y-8">
+        {/* ── Inputs ────────────────────────────────────────────────── */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Selector A */}
+          <div className="p-5 rounded-xl bg-slate-800/50 border border-slate-700/50 space-y-3">
+            <label className="text-sm font-semibold text-slate-300 flex items-center gap-2">
+              <span className="w-3 h-3 rounded-full bg-brand-400" />
+              Selector A
+            </label>
+            <input
+              type="text"
+              value={selectorA}
+              onChange={(e) => setSelectorA(e.target.value)}
+              placeholder=".class #id element"
+              className="w-full px-4 py-2.5 rounded-lg bg-slate-900 border border-slate-600 text-slate-200 font-mono text-sm focus:outline-none focus:border-brand-400 placeholder-slate-500"
+            />
+          </div>
+
+          {/* Selector B */}
+          <div className="p-5 rounded-xl bg-slate-800/50 border border-slate-700/50 space-y-3">
+            <label className="text-sm font-semibold text-slate-300 flex items-center gap-2">
+              <span className="w-3 h-3 rounded-full bg-purple-400" />
+              Selector B
+            </label>
+            <input
+              type="text"
+              value={selectorB}
+              onChange={(e) => setSelectorB(e.target.value)}
+              placeholder=".class #id element"
+              className="w-full px-4 py-2.5 rounded-lg bg-slate-900 border border-slate-600 text-slate-200 font-mono text-sm focus:outline-none focus:border-purple-400 placeholder-slate-500"
+            />
+          </div>
+        </div>
+
+        {/* ── Comparison Bar ────────────────────────────────────────── */}
+        {resultA && resultB && (
+          <div className="p-4 rounded-xl bg-slate-800/50 border border-slate-700/50">
+            <div className="flex items-center justify-center gap-6">
+              <div className="text-center">
+                <div className="text-2xl font-bold text-brand-400 font-mono">{resultA.formatted}</div>
+                <div className="text-xs text-slate-400 mt-0.5">Score: {resultA.score.toLocaleString()}</div>
+              </div>
+
+              <div className="flex flex-col items-center gap-1">
+                {comparison === 'a' && (
+                  <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-brand-500/15 border border-brand-500/30 text-brand-400 text-sm font-semibold">
+                    <ArrowRightLeft className="w-3.5 h-3.5" />
+                    A wins
+                  </div>
+                )}
+                {comparison === 'b' && (
+                  <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-purple-500/15 border border-purple-500/30 text-purple-400 text-sm font-semibold">
+                    <ArrowRightLeft className="w-3.5 h-3.5 rotate-180" />
+                    B wins
+                  </div>
+                )}
+                {comparison === 'tie' && (
+                  <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-500/15 border border-slate-500/30 text-slate-300 text-sm font-semibold">
+                    <Layers className="w-3.5 h-3.5" />
+                    Tie — order in source wins
+                  </div>
+                )}
+              </div>
+
+              <div className="text-center">
+                <div className="text-2xl font-bold text-purple-400 font-mono">{resultB.formatted}</div>
+                <div className="text-xs text-slate-400 mt-0.5">Score: {resultB.score.toLocaleString()}</div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ── Breakdown panels ──────────────────────────────────────── */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* A breakdown */}
+          {resultA && (
+            <div className="p-5 rounded-xl bg-slate-800/30 border border-slate-700/30 space-y-4">
+              <h3 className="text-sm font-semibold text-slate-300 flex items-center gap-2">
+                <span className="w-2.5 h-2.5 rounded-full bg-brand-400" />
+                Selector A Breakdown
+              </h3>
+
+              {/* Specificity bars */}
+              <div className="space-y-2">
+                <SpecificityRow label="IDs" value={resultA.parts.ids} color="bg-amber-500" />
+                <SpecificityRow label="Classes, Attrs, Pseudo-classes" value={resultA.parts.classes} color="bg-cyan-500" />
+                <SpecificityRow label="Elements, Pseudo-elements" value={resultA.parts.elements} color="bg-emerald-500" />
+              </div>
+
+              {/* Tokens */}
+              <div className="flex flex-wrap gap-1.5">
+                {resultA.tokens.map((t, i) => (
+                  <TokenBadge key={i} token={t} />
+                ))}
+              </div>
+
+              <button
+                onClick={() => handleCopy(`${selectorA} → (${resultA.formatted}) score: ${resultA.score}`)}
+                className="flex items-center gap-1.5 text-xs text-slate-400 hover:text-brand-400 transition-colors"
+              >
+                <Copy className="w-3 h-3" />
+                Copy specificity
+              </button>
+            </div>
+          )}
+
+          {/* B breakdown */}
+          {resultB && (
+            <div className="p-5 rounded-xl bg-slate-800/30 border border-slate-700/30 space-y-4">
+              <h3 className="text-sm font-semibold text-slate-300 flex items-center gap-2">
+                <span className="w-2.5 h-2.5 rounded-full bg-purple-400" />
+                Selector B Breakdown
+              </h3>
+
+              <div className="space-y-2">
+                <SpecificityRow label="IDs" value={resultB.parts.ids} color="bg-amber-500" />
+                <SpecificityRow label="Classes, Attrs, Pseudo-classes" value={resultB.parts.classes} color="bg-cyan-500" />
+                <SpecificityRow label="Elements, Pseudo-elements" value={resultB.parts.elements} color="bg-emerald-500" />
+              </div>
+
+              <div className="flex flex-wrap gap-1.5">
+                {resultB.tokens.map((t, i) => (
+                  <TokenBadge key={i} token={t} />
+                ))}
+              </div>
+
+              <button
+                onClick={() => handleCopy(`${selectorB} → (${resultB.formatted}) score: ${resultB.score}`)}
+                className="flex items-center gap-1.5 text-xs text-slate-400 hover:text-purple-400 transition-colors"
+              >
+                <Copy className="w-3 h-3" />
+                Copy specificity
+              </button>
+            </div>
+          )}
+        </div>
+
+        {/* ── Toolbar ───────────────────────────────────────────────── */}
+        <div className="flex items-center gap-3">
           <button
-            onClick={clear}
-            className="px-3 py-1.5 text-xs rounded-lg bg-slate-700/40 border border-slate-600/50 text-slate-400 hover:bg-red-500/10 hover:border-red-500/30 hover:text-red-300 transition-all flex items-center gap-1"
+            onClick={handleReset}
+            className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-slate-800 border border-slate-600 text-sm text-slate-300 hover:bg-slate-700 transition-colors"
           >
-            <Trash2 className="w-3 h-3" />
-            Clear
+            <RotateCcw className="w-4 h-4" />
+            Reset
           </button>
+          <span className="text-xs text-slate-500">Try different selectors above or pick from the presets below.</span>
         </div>
-      </div>
 
-      {/* Two-panel selector input & analysis */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Selector 1 */}
-        <SelectorPanel
-          label="Selector 1"
-          value={selector1}
-          onChange={setSelector1}
-          parsed={parsed1}
-          showInline={showInline}
-        />
-
-        {/* Selector 2 */}
-        <SelectorPanel
-          label="Selector 2"
-          value={selector2}
-          onChange={setSelector2}
-          parsed={parsed2}
-          showInline={showInline}
-        />
-      </div>
-
-      {/* !important and inline toggle */}
-      <div className="mt-4 flex items-center gap-4 text-sm">
-        <label className="flex items-center gap-2 text-slate-400 cursor-pointer">
-          <input
-            type="checkbox"
-            checked={showInline}
-            onChange={(e) => setShowInline(e.target.checked)}
-            className="rounded bg-slate-700 border-slate-600 text-brand-500 focus:ring-brand-500"
-          />
-          Show inline style hints
-        </label>
-      </div>
-
-      {/* Winner banner */}
-      {selector1 && selector2 && (
-        <div className="mt-6 p-4 rounded-xl border-2 border-slate-700/50 bg-surface-light">
-          <div className="flex items-center gap-3">
-            <ArrowLeftRight className="w-5 h-5 text-brand-400" />
-            <div>
-              <p className="text-sm font-medium text-white">
-                {parsed1.important && parsed2.important
-                  ? 'Both have !important — '
-                  : parsed1.important
-                  ? 'Selector 1 has !important — '
-                  : parsed2.important
-                  ? 'Selector 2 has !important — '
-                  : ''}
-                <span className="text-brand-400">
-                  {winner === 1 ? 'Selector 1 wins' : 'Selector 2 wins'}
-                </span>
-                {!parsed1.important && !parsed2.important && parsed1.total.a > 0 && ' (inline style)'}
-                {!parsed1.important && !parsed2.important && parsed2.total.a > 0 && ' (inline style)'}
-              </p>
-              <p className="text-xs text-slate-400 mt-1">
-                {compareScore(parsed1.total, parsed2.total) === 0 && !parsed1.important && !parsed2.important
-                  ? 'Equal specificity — the later rule in the stylesheet wins (source order).'
-                  : compareScore(parsed1.total, parsed2.total) === 0 && parsed1.important && parsed2.important
-                  ? 'Both !important with equal specificity — source order determines the winner.'
-                  : `Specificity ${scoreToString(parsed1.total)} vs ${scoreToString(parsed2.total)}`}
-              </p>
-            </div>
+        {/* ── Presets ───────────────────────────────────────────────── */}
+        <div className="p-5 rounded-xl bg-slate-800/30 border border-slate-700/30 space-y-3">
+          <h3 className="text-sm font-semibold text-slate-300 flex items-center gap-2">
+            <Zap className="w-4 h-4 text-amber-400" />
+            Presets — click to load
+          </h3>
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2">
+            {PRESETS.map((p) => (
+              <div key={p.label} className="space-y-1">
+                <div className="text-[11px] text-slate-500 truncate">{p.label}</div>
+                <div className="flex gap-1">
+                  <button
+                    onClick={() => applyPresetLeft(p.selector)}
+                    className="flex-1 px-2 py-1.5 rounded text-xs font-mono bg-brand-500/10 border border-brand-500/20 text-brand-400 hover:bg-brand-500/20 transition-colors truncate"
+                    title={`Load "${p.selector}" as Selector A`}
+                  >
+                    {p.selector}
+                  </button>
+                  <button
+                    onClick={() => applyPresetRight(p.selector)}
+                    className="flex-1 px-2 py-1.5 rounded text-xs font-mono bg-purple-500/10 border border-purple-500/20 text-purple-400 hover:bg-purple-500/20 transition-colors truncate"
+                    title={`Load "${p.selector}" as Selector B`}
+                  >
+                    {p.selector}
+                  </button>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
-      )}
 
-      {/* Specificity reference */}
-      <div className="mt-10 rounded-xl border border-slate-700/50 bg-surface-light overflow-hidden">
-        <div className="px-5 py-4 border-b border-slate-700/50 flex items-center gap-2">
-          <Info className="w-4 h-4 text-brand-400" />
-          <h3 className="text-sm font-semibold text-slate-200">Specificity Reference</h3>
-        </div>
-        <div className="p-5 space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <h4 className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">
-                The Hierarchy (highest to lowest)
-              </h4>
-              <ol className="space-y-1.5 text-sm text-slate-300 list-decimal list-inside">
-                <li>
-                  <span className="font-mono text-red-400">!important</span> — overrides everything (use sparingly)
-                </li>
-                <li>
-                  <span className="font-mono text-red-400">Inline styles</span> — <code className="px-1 py-0.5 rounded bg-slate-700/50 text-xs">(a,0,0,0)</code>
-                </li>
-                <li>
-                  <span className="font-mono text-amber-400">#id</span> — ID selectors count toward column <strong>b</strong>
-                </li>
-                <li>
-                  <span className="font-mono text-brand-400">.class</span>, <span className="font-mono text-purple-400">[attr]</span>, <span className="font-mono text-cyan-400">:pseudo-class</span> — column <strong>c</strong>
-                </li>
-                <li>
-                  <span className="font-mono text-green-400">element</span>, <span className="font-mono text-green-400">::pseudo-element</span> — column <strong>d</strong>
-                </li>
-              </ol>
-            </div>
-            <div>
-              <h4 className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">
-                Special Rules
-              </h4>
-              <ul className="space-y-2 text-sm text-slate-400">
-                <li className="flex items-start gap-2">
-                  <Star className="w-3.5 h-3.5 text-slate-500 mt-0.5 flex-shrink-0" />
-                  <span><code className="px-1 py-0.5 rounded bg-slate-700/50 text-xs text-slate-300">:where()</code> always contributes <strong>0</strong> specificity — useful for establishing a low-specificity base</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <Star className="w-3.5 h-3.5 text-slate-500 mt-0.5 flex-shrink-0" />
-                  <span><code className="px-1 py-0.5 rounded bg-slate-700/50 text-xs text-slate-300">:is()</code> and <code className="px-1 py-0.5 rounded bg-slate-700/50 text-xs text-slate-300">:not()</code> take the specificity of their <strong>most specific</strong> argument</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <Star className="w-3.5 h-3.5 text-slate-500 mt-0.5 flex-shrink-0" />
-                  <span><code className="px-1 py-0.5 rounded bg-slate-700/50 text-xs text-slate-300">:has()</code> specificity = its most specific argument (like :is())</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <AlertTriangle className="w-3.5 h-3.5 text-amber-500 mt-0.5 flex-shrink-0" />
-                  <span>Combinators (<code className="px-1 py-0.5 rounded bg-slate-700/50 text-xs">&gt;</code>, <code className="px-1 py-0.5 rounded bg-slate-700/50 text-xs">+</code>, <code className="px-1 py-0.5 rounded bg-slate-700/50 text-xs">~</code>, <code className="px-1 py-0.5 rounded bg-slate-700/50 text-xs">&nbsp;</code>) and universal <code className="px-1 py-0.5 rounded bg-slate-700/50 text-xs">*</code> contribute <strong>0</strong></span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <Star className="w-3.5 h-3.5 text-slate-500 mt-0.5 flex-shrink-0" />
-                  <span>Specificity is per-selector — a selector list like <code className="px-1 py-0.5 rounded bg-slate-700/50 text-xs">a, .b, #c</code> has three independent specificities</span>
-                </li>
-              </ul>
-            </div>
-          </div>
-
-          <div>
-            <h4 className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">
-              Score Format
-            </h4>
-            <p className="text-sm text-slate-400">
-              Specificity is written as <span className="font-mono text-white">(a, b, c, d)</span> where:
-              <span className="ml-2 text-red-400">a</span> = inline,
-              <span className="ml-2 text-amber-400">b</span> = IDs,
-              <span className="ml-2 text-brand-400">c</span> = classes/attrs/pseudo-classes,
-              <span className="ml-2 text-green-400">d</span> = elements/pseudo-elements.
-              Compare left-to-right: a higher number in the leftmost column wins.
-            </p>
+        {/* ── Reference / Rules ──────────────────────────────────────── */}
+        <div className="p-5 rounded-xl bg-slate-800/30 border border-slate-700/30 space-y-3">
+          <h3 className="text-sm font-semibold text-slate-300 flex items-center gap-2">
+            <Info className="w-4 h-4 text-brand-400" />
+            How Specificity Works
+          </h3>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+            <RuleCard
+              icon={<Gauge className="w-4 h-4 text-amber-400" />}
+              title="Calculated as (a, b, c)"
+              description={
+                <>
+                  <strong className="text-amber-400">a:</strong> Count of ID selectors<br />
+                  <strong className="text-cyan-400">b:</strong> Count of class, attribute, and pseudo-class selectors<br />
+                  <strong className="text-emerald-400">c:</strong> Count of element type and pseudo-element selectors
+                </>
+              }
+            />
+            <RuleCard
+              icon={<AlertTriangle className="w-4 h-4 text-amber-400" />}
+              title="Special Cases"
+              description={
+                <>
+                  <strong>:where()</strong> always contributes 0 specificity.<br />
+                  <strong>:is()</strong> and <strong>:not()</strong> take the specificity of their <em>most specific</em> argument.
+                </>
+              }
+            />
+            <RuleCard
+              icon={<CheckCircle2 className="w-4 h-4 text-emerald-400" />}
+              title="Important Notes"
+              description={
+                <>
+                  Universal selector (<code className="text-slate-400">*</code>) and combinators add 0 specificity.<br />
+                  <code className="text-slate-400">!important</code> overrides everything regardless of specificity.
+                </>
+              }
+            />
           </div>
         </div>
       </div>
@@ -444,101 +600,67 @@ export default function CSSSpecificityCalculatorPage() {
   );
 }
 
-// ── Selector Panel Sub-component ────────────────────────────────────────────
+// ── Sub-components ─────────────────────────────────────────────────────────
 
-function SelectorPanel({
-  label,
-  value,
-  onChange,
-  parsed,
-  showInline,
+function SpecificityRow({ label, value, color }: { label: string; value: number; color: string }) {
+  const max = 15;
+  const pct = Math.min((value / max) * 100, 100);
+  return (
+    <div className="flex items-center gap-3">
+      <span className="text-xs text-slate-400 w-48 shrink-0">{label}</span>
+      <div className="flex-1 h-2.5 rounded-full bg-slate-700 overflow-hidden">
+        <div
+          className={`h-full rounded-full ${color} transition-all duration-300`}
+          style={{ width: `${pct}%` }}
+        />
+      </div>
+      <span className="text-sm font-mono font-bold text-slate-200 w-6 text-right">{value}</span>
+    </div>
+  );
+}
+
+function TokenBadge({ token }: { token: TokenInfo }) {
+  if (token.type === 'combinator' || token.type === 'universal') {
+    return (
+      <span
+        className={`inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-mono border ${typeBg(token.type)} ${typeColor(token.type)}`}
+        title={`${typeLabel(token.type)} — contributes 0 specificity`}
+      >
+        {token.token === ' ' ? '␣' : token.token}
+        <span className="text-[10px] text-slate-500">(0,0,0)</span>
+      </span>
+    );
+  }
+
+  return (
+    <span
+      className={`inline-flex items-center gap-1.5 px-2 py-1 rounded text-xs font-mono border ${typeBg(token.type)} ${typeColor(token.type)}`}
+      title={`${typeLabel(token.type)} → (${token.weight.ids},${token.weight.classes},${token.weight.elements})`}
+    >
+      {token.token.length > 30 ? token.token.slice(0, 28) + '…' : token.token}
+      <span className="text-[10px] opacity-70">
+        ({token.weight.ids},{token.weight.classes},{token.weight.elements})
+      </span>
+    </span>
+  );
+}
+
+function RuleCard({
+  icon,
+  title,
+  description,
 }: {
-  label: string;
-  value: string;
-  onChange: (v: string) => void;
-  parsed: ParsedSelector;
-  showInline: boolean;
+  icon: React.ReactNode;
+  title: string;
+  description: React.ReactNode;
 }) {
   return (
-    <div className="p-5 rounded-xl border-2 border-slate-700/50 bg-surface-light">
-      <div className="flex items-center gap-2 mb-3">
-        <Layers className="w-4 h-4 text-brand-400" />
-        <span className="text-xs uppercase tracking-wider font-semibold text-slate-400">
-          {label}
-        </span>
+    <div className="p-4 rounded-lg bg-slate-900/50 border border-slate-700/30 space-y-2">
+      <div className="flex items-center gap-2">
+        {icon}
+        <span className="font-semibold text-slate-200">{title}</span>
       </div>
-
-      {/* Input */}
-      <input
-        type="text"
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        placeholder="e.g. #main .card:hover, style=color:red"
-        className="w-full bg-slate-800 border border-slate-600 rounded-lg px-4 py-3 font-mono text-sm text-white placeholder-slate-500 outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 mb-4"
-        spellCheck={false}
-        autoComplete="off"
-      />
-
-      {/* Score display */}
-      <div className="mb-3">
-        <div className="flex items-center gap-3">
-          <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
-            Score
-          </span>
-          <div className="flex items-center gap-1.5 font-mono text-lg font-bold">
-            <span className="text-slate-500">(</span>
-            <span className={columnColor('a', parsed.total.a)}>{parsed.total.a}</span>
-            <span className="text-slate-600">,</span>
-            <span className={columnColor('b', parsed.total.b)}>{parsed.total.b}</span>
-            <span className="text-slate-600">,</span>
-            <span className={columnColor('c', parsed.total.c)}>{parsed.total.c}</span>
-            <span className="text-slate-600">,</span>
-            <span className={columnColor('d', parsed.total.d)}>{parsed.total.d}</span>
-            <span className="text-slate-500">)</span>
-          </div>
-          {parsed.important && (
-            <span className="px-2 py-0.5 rounded text-xs font-bold bg-red-500/20 text-red-300 border border-red-500/30">
-              !important
-            </span>
-          )}
-          {parsed.inline && (
-            <span className="px-2 py-0.5 rounded text-xs font-bold bg-red-500/20 text-red-300 border border-red-500/30">
-              inline
-            </span>
-          )}
-        </div>
-        <p className="text-xs text-slate-500 mt-1">{explainScore(parsed.total)}</p>
-      </div>
-
-      {/* Parts breakdown */}
-      {parsed.parts.length > 0 && (
-        <div>
-          <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2 block">
-            Selector Breakdown
-          </span>
-          <div className="flex flex-wrap gap-1.5">
-            {parsed.parts.map((part, i) => {
-              const colors = PART_COLORS[part.type] || PART_COLORS.element;
-              return (
-                <div
-                  key={i}
-                  className={`group relative px-2.5 py-1 rounded-md text-xs font-mono cursor-default ${colors.bg} ${colors.text} border border-current/10 transition-colors`}
-                >
-                  <span className="truncate max-w-[150px] inline-block">{part.part}</span>
-                  {/* Tooltip on hover */}
-                  <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1 px-2 py-1 rounded bg-slate-900 text-[10px] text-slate-300 whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10 border border-slate-700">
-                    {PART_LABELS[part.type]} — {scoreToString(part.score)}
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      )}
-
-      {parsed.parts.length === 0 && value.trim() && (
-        <p className="text-xs text-slate-500 italic">No parseable selector parts found.</p>
-      )}
+      <div className="text-xs text-slate-400 leading-relaxed">{description}</div>
     </div>
   );
 }
