@@ -85,6 +85,7 @@ import {
   Music,
   GitGraph,
   ListOrdered,
+  Bell,
 } from 'lucide-react';
 
 export const metadata: Metadata = {
@@ -702,6 +703,13 @@ const featuredTools = [
     href: '/tools/browser-storage-explorer',
     icon: HardDrive,
     tags: ['Storage', 'localStorage', 'Debug'],
+  },
+  {
+    title: 'Notification API Playground',
+    description: 'Explore the browser Notification API — test permissions, send custom notifications with 8 presets, configure every option, and review your notification history. 100% client-side.',
+    href: '/tools/notification-playground',
+    icon: Bell,
+    tags: ['Browser API', 'Notification', 'Push'],
   },
   {
     title: 'Social Card Preview',

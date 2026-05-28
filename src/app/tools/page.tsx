@@ -85,6 +85,7 @@ import {
   GitGraph,
   Heading,
   Cpu,
+  Bell,
 } from 'lucide-react';
 
 export const metadata: Metadata = {
@@ -681,6 +682,13 @@ const allTools = [
     href: '/tools/browser-storage-explorer',
     icon: HardDrive,
     tags: ['Storage', 'localStorage', 'sessionStorage', 'Debug'],
+  },
+  {
+    title: 'Notification API Playground',
+    description: 'Explore the browser Notification API — test permissions, send custom notifications with 8 presets, configure every option, and review your notification history.',
+    href: '/tools/notification-playground',
+    icon: Bell,
+    tags: ['Browser API', 'Notification', 'Push'],
   },
   {
     title: 'Package.json Generator',
