@@ -1,0 +1,343 @@
+---
+title: "CSS field-sizing in 2026: Auto-Resizing Form Inputs Without JavaScript"
+date: "2026-05-28"
+excerpt: "The field-sizing: content CSS property lets text inputs and textareas auto-resize to fit their content — no JS, no hacks, no contenteditable divs. Learn every pattern with production-ready code and fallback strategies."
+tags: ["CSS", "field-sizing", "Forms", "UX", "Input", "Baseline 2026", "2026"]
+---
+
+## The Input Sizing Problem
+
+Since the dawn of the web, there's been an awkward mismatch: `<input>` and `<textarea>` elements have fixed sizes, but users type variable-length content. A credit card field is always 16 characters, but a title? A bio? A comment? Those vary wildly.
+
+The classic workarounds are all ugly:
+
+1. **Oversized inputs** — waste space and look sloppy
+2. **JavaScript resize listeners** — add complexity, break with `font-size` changes, and lag behind typing
+3. **`contenteditable` divs** — lose native form semantics, accessibility, and validation
+4. **The `input` event + `scrollWidth` hack** — brittle, font-dependent, and slow
+
+None of these are good. Enter `field-sizing: content`.
+
+## What `field-sizing` Does
+
+```css
+input[type="text"],
+textarea {
+  field-sizing: content;
+}
+```
+
+That's it. The input now grows and shrinks automatically to fit whatever the user types. The browser handles this natively — no JavaScript, no layout thrashing, no accessibility regressions.
+
+It works on: `<input type="text">`, `<input type="email">`, `<input type="url">`, `<input type="number">`, `<input type="search">`, `<input type="password">`, `<textarea>`, and `<select>` (experimental in some engines). Notably does **not** work on `type="date"`, `type="color"`, `type="range"`, or `type="file"` — those have widget-defined widths.
+
+## The Two Values
+
+```css
+/* Default behavior — size is determined by CSS/size attribute */
+field-sizing: fixed;
+
+/* Auto-grow and auto-shrink to fit content */
+field-sizing: content;
+```
+
+`fixed` is the default and preserves existing behavior. `content` enables the magic.
+
+## Production-Ready Patterns
+
+### Pattern 1: Auto-Growing Single-Line Inputs
+
+```css
+.token-input,
+.tag-input,
+.search-input {
+  field-sizing: content;
+  min-inline-size: 8ch;
+  max-inline-size: 100%;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid #d1d5db;
+  border-radius: 0.5rem;
+  font: inherit;
+}
+```
+
+The `min-inline-size` ensures tiny values don't collapse to nothing. The `max-inline-size` prevents the input from overflowing its container.
+
+### Pattern 2: Textareas That Grow to Fit
+
+```css
+textarea {
+  field-sizing: content;
+  min-block-size: 3lh;
+  max-block-size: 20lh;
+  resize: none; /* Let field-sizing handle it */
+  padding: 0.75rem;
+  border: 1px solid #d1d5db;
+  border-radius: 0.5rem;
+  font: inherit;
+  line-height: 1.5;
+}
+```
+
+The `min-block-size: 3lh` gives you a three-line minimum height using the `lh` unit. `max-block-size: 20lh` caps the growth at 20 lines. No more scrollbars inside 2-line textareas.
+
+### Pattern 3: Inline Editable Fields
+
+```css
+.editable-heading {
+  field-sizing: content;
+  min-inline-size: 4ch;
+  font-size: 2rem;
+  font-weight: 700;
+  border: none;
+  border-bottom: 2px dashed transparent;
+  background: transparent;
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.editable-heading:hover,
+.editable-heading:focus {
+  border-bottom-color: #3b82f6;
+}
+```
+
+Now you can have `<h1>`-sized inputs that grow to fit their content — perfect for document titles, form headers, or inline editing UIs.
+
+### Pattern 4: Comma-Separated Tag Inputs
+
+```css
+.tag-field {
+  field-sizing: content;
+  min-inline-size: 6ch;
+  padding: 0.375rem 0.625rem;
+  border: 1px solid #d1d5db;
+  border-radius: 1.5rem;
+  font-size: 0.875rem;
+}
+```
+
+As users type tags separated by commas, the input grows. When they delete tags, it shrinks. No JavaScript required.
+
+### Pattern 5: Auto-Sizing Search Bar
+
+```css
+.search-bar {
+  field-sizing: content;
+  min-inline-size: 12ch;
+  max-inline-size: 40ch;
+  padding: 0.625rem 1rem 0.625rem 2.5rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 2rem;
+  background: #f9fafb url('search-icon.svg') 0.875rem center no-repeat;
+  background-size: 1.25rem;
+  font-size: 0.9375rem;
+  transition: max-inline-size 0.2s ease;
+}
+
+.search-bar:focus {
+  max-inline-size: 60ch;
+  background-color: #ffffff;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+}
+```
+
+Combine `field-sizing` with a `:focus` transition to get an expanding search bar that also grows to fit your query — double the fluidity.
+
+## The Baseline Story
+
+As of May 2026, `field-sizing` is **Baseline 2026** — supported in all modern browsers:
+
+| Browser | Since | Status |
+|---------|-------|--------|
+| Chrome  | 123   | ✅ Supported |
+| Edge    | 123   | ✅ Supported |
+| Firefox | 128   | ✅ Supported |
+| Safari  | 17.4  | ✅ Supported |
+| Opera   | 109   | ✅ Supported |
+| Samsung Internet | 25 | ✅ Supported |
+
+This is rare — a genuinely useful form primitive that hit cross-browser support within a single year.
+
+## Graceful Degradation
+
+If you need to support older browsers, you can use `@supports`:
+
+```css
+input[type="text"],
+textarea {
+  /* Fallback: reasonable fixed size */
+  inline-size: 20ch;
+}
+
+@supports (field-sizing: content) {
+  input[type="text"],
+  textarea {
+    field-sizing: content;
+    inline-size: auto;
+    min-inline-size: 8ch;
+    max-inline-size: 100%;
+  }
+}
+```
+
+Older browsers get a fixed but reasonable width. Modern browsers get full auto-sizing. No polyfill needed.
+
+```js
+const supportsFieldSizing = CSS.supports('field-sizing', 'content');
+if (!supportsFieldSizing) {
+  // Optional: load a lightweight JS polyfill
+  import('./field-sizing-polyfill.js');
+}
+```
+
+## Performance Implications
+
+Because `field-sizing` is implemented in the browser's layout engine, it's dramatically faster than JavaScript-based solutions:
+
+| Approach | Operations per Resize | Layout Thrashing |
+|----------|----------------------|-------------------|
+| `field-sizing: content` | 0 JS operations | No |
+| `input` event + `scrollWidth` | Force layout + style write | Yes |
+| `contenteditable` div | Full re-render | Sometimes |
+| `ResizeObserver` polyfill | Observer callback + DOM write | Often |
+
+Every JavaScript-based solution forces at least one synchronous layout recalculation per keystroke. `field-sizing` avoids this entirely — the browser handles it as part of its normal layout pass.
+
+## Combining with Other Modern CSS
+
+`field-sizing` pairs beautifully with other recent CSS additions:
+
+```css
+.modern-input {
+  field-sizing: content;
+  min-inline-size: 10ch;
+
+  /* Smooth entry animations */
+  @starting-style {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 0.2s, transform 0.2s;
+
+  /* Container query for responsive context */
+  container-type: inline-size;
+}
+
+@container (inline-size < 20rem) {
+  .modern-input {
+    font-size: 0.875rem;
+    padding: 0.375rem 0.5rem;
+  }
+}
+```
+
+## Design System Integration
+
+If you're using a design system or component library, `field-sizing` slots in cleanly:
+
+```css
+/* Tailwind utility (once browser support is confirmed) */
+.input-auto {
+  field-sizing: content;
+  min-inline-size: 6ch;
+}
+
+/* Or as a Tailwind plugin */
+plugin(function({ addUtilities }) {
+  addUtilities({
+    '.field-sizing-content': {
+      'field-sizing': 'content',
+    },
+    '.field-sizing-fixed': {
+      'field-sizing': 'fixed',
+    },
+  });
+});
+```
+
+## When NOT to Use `field-sizing`
+
+Despite its power, there are cases where fixed sizing is better:
+
+1. **Layout grids** — inputs inside a CSS Grid with `grid-template-columns: 1fr` should stay fixed so the grid doesn't shift
+2. **Numeric fields** — credit card numbers, ZIP codes, phone numbers have known lengths
+3. **Forms with labels above** — inline-size changes can misalign stacked label-input pairs
+4. **Tightly spaced UIs** — growing inputs could overflow constrained spaces
+
+The rule of thumb: use `field-sizing: content` when the content length is unpredictable and the layout can accommodate growth. Use `fixed` when layout stability matters more than content-fit.
+
+## Accessibility Notes
+
+One of the best things about `field-sizing` is that it preserves **all** native accessibility:
+
+- ✅ Screen readers still announce the element as an input
+- ✅ `aria-label` and `aria-describedby` work normally
+- ✅ Tab order is unaffected
+- ✅ Form validation (`required`, `pattern`, `minlength`) still fires
+- ✅ Autofill and password managers work correctly
+
+Compare this to `contenteditable` divs, which break all of these unless you carefully re-implement each one with ARIA.
+
+## Real-World Example: Comment Form
+
+Here's a complete comment form using `field-sizing`:
+
+```html
+<form class="comment-form">
+  <div class="field-group">
+    <label for="name">Name</label>
+    <input id="name" type="text" class="auto-size" placeholder="Your name" required />
+  </div>
+  <div class="field-group">
+    <label for="email">Email</label>
+    <input id="email" type="email" class="auto-size" placeholder="you@example.com" />
+  </div>
+  <div class="field-group">
+    <label for="comment">Comment</label>
+    <textarea id="comment" class="auto-size" placeholder="Write your comment..." rows="3" required></textarea>
+  </div>
+  <button type="submit">Post Comment</button>
+</form>
+
+<style>
+  .auto-size {
+    field-sizing: content;
+    min-inline-size: 100%;
+    max-inline-size: 100%;
+    padding: 0.625rem 0.75rem;
+    border: 1px solid #d1d5db;
+    border-radius: 0.5rem;
+    font: inherit;
+    transition: border-color 0.15s;
+  }
+  .auto-size:focus {
+    border-color: #3b82f6;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+  }
+  textarea.auto-size {
+    min-block-size: 4lh;
+    max-block-size: 15lh;
+    resize: none;
+    line-height: 1.5;
+  }
+</style>
+```
+
+The text inputs grow as the user types their name, email, and comment. The textarea expands from 4 lines to up to 15 lines. No JavaScript. No layout bugs. Just clean, semantic HTML with modern CSS.
+
+## Summary
+
+`field-sizing: content` is one of those rare CSS features that's simultaneously simple to use, broadly supported, and genuinely improves the user experience. It eliminates a whole category of JavaScript hacks and makes forms feel more fluid and responsive.
+
+**Key takeaways:**
+- Add `field-sizing: content` to any text input or textarea whose content length is unpredictable
+- Always set `min-inline-size` (to prevent collapse) and `max-inline-size` (to prevent overflow)
+- Use `min-block-size` / `max-block-size` on textareas for height boundaries
+- Pair with `@supports` for graceful degradation
+- It's fully accessible — no ARIA gymnastics needed
+- It's Baseline 2026 — ship it today
