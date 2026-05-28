@@ -82,6 +82,7 @@ import {
   FileSpreadsheet,
   PanelRight,
   Package,
+  Music,
 } from 'lucide-react';
 
 export const metadata: Metadata = {
@@ -762,6 +763,13 @@ const featuredTools = [
     href: '/tools/css-popover-playground',
     icon: PanelRight,
     tags: ['CSS', 'Popover', 'Baseline 2026', 'Tooltip', 'Dialog'],
+  },
+  {
+    title: 'Web Audio Synthesizer',
+    description: 'Play a synthesizer in your browser — sine, square, sawtooth, and triangle waves with ADSR envelope, live waveform visualization, presets, and keyboard input.',
+    href: '/tools/audio-synthesizer',
+    icon: Music,
+    tags: ['Audio', 'Synthesizer', 'Web API', 'Music'],
   },
   {
     title: 'Docker Compose Builder',
