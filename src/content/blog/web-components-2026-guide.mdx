@@ -1,0 +1,839 @@
+---
+title: "Web Components in 2026 — Custom Elements, Shadow DOM, and the Framework-Agnostic Future"
+date: "2026-05-29"
+excerpt: "Web Components are having their moment. With Declarative Shadow DOM shipping everywhere, CSS Parts maturing, and every major framework supporting them natively, 2026 is the year framework-agnostic reusable UI goes mainstream. This guide covers Custom Elements, Shadow DOM, templates, slots, SSR, framework interop, and production patterns you can ship today."
+tags: ["Web Components", "Custom Elements", "Shadow DOM", "HTML Templates", "JavaScript", "CSS Parts", "Declarative Shadow DOM", "2026", "Architecture"]
+---
+
+## The 15-Year Overnight Success
+
+Web Components were first proposed in 2011. For over a decade, they were that technology everyone agreed *should* exist but nobody actually used — held back by missing SSR, awkward framework interop, and the chicken-and-egg problem of no ecosystem.
+
+In 2026, the landscape has fundamentally shifted. Here's what changed:
+
+1. **Declarative Shadow DOM** shipped in all browsers. SSR for Web Components is now a first-class citizen. No more FOUC, no more hydration mismatch, no more JavaScript required to see your component.
+
+2. **Every major framework** ships with Web Component support. React 19, Vue 4, Svelte 5, and Angular 19 all consume custom elements natively — including typed property and event bindings.
+
+3. **CSS `@layer` + CSS Parts** solved the theming problem. You can now build a component library once and style it for any design system without piercing the shadow boundary.
+
+4. **Import maps and native ES modules** are universal. No bundler, no build step, no npm — just `<script type="module">` and you're shipping Web Components.
+
+5. **Lit 4.0, Stencil 4, and FAST 3.0** provide mature, batteries-included authoring experiences with reactive state, SSR, and framework-level DX.
+
+Let's walk through every API, every pattern, and the production architectures that actually work in 2026.
+
+---
+
+## The Four Specifications
+
+Web Components aren't a single API. They're four browser standards that work together:
+
+| Spec | What It Does | Status (2026) |
+|------|-------------|---------------|
+| **Custom Elements** | Define your own HTML tags with lifecycle callbacks | Baseline, all browsers |
+| **Shadow DOM** | Encapsulated DOM + scoped CSS per component | Baseline, all browsers |
+| **HTML Templates** | Inert, reusable DOM fragments parsed once | Baseline, all browsers |
+| **Declarative Shadow DOM** | Shadow DOM in HTML without JavaScript | Baseline, all browsers (2025+) |
+
+You can use them independently. GitHub famously used Custom Elements without Shadow DOM for years. But together, they form the complete picture.
+
+---
+
+## Custom Elements: Defining Your Own HTML Tags
+
+The simplest possible custom element is three lines:
+
+```js
+class HelloWorld extends HTMLElement {
+  connectedCallback() {
+    this.textContent = 'Hello, World!';
+  }
+}
+customElements.define('hello-world', HelloWorld);
+```
+
+```html
+<hello-world></hello-world> <!-- Renders: Hello, World! -->
+```
+
+Custom element names **must** contain a hyphen. This ensures no collision with future built-in HTML elements. `<my-card>` is valid. `<mycard>` will throw `DOMException`.
+
+### Lifecycle Callbacks
+
+Custom elements come with four lifecycle hooks — no virtual DOM, no reconciliation, no diffing:
+
+```js
+class LifecycleDemo extends HTMLElement {
+  constructor() {
+    super(); // Must call super() first
+    // NO DOM manipulation here — the element isn't connected yet
+    // Use this for initial state setup only
+    this._internals = this.attachInternals?.(); // Form-associated (see below)
+  }
+
+  connectedCallback() {
+    // Element added to the DOM tree
+    // Safe to access attributes, children, styles
+    // Called each time the element is moved/reattached
+    console.log('Connected to the DOM');
+    this.render();
+  }
+
+  disconnectedCallback() {
+    // Element removed from the DOM
+    // Use for cleanup: remove event listeners, cancel requests, clear timers
+    console.log('Disconnected');
+  }
+
+  adoptedCallback() {
+    // Element moved to a new document (e.g., into an iframe)
+    // Rarely used, but critical for cross-document components
+    console.log('Adopted into new document');
+  }
+
+  attributeChangedCallback(name, oldValue, newValue) {
+    // Called when an observed attribute changes
+    // Only fires for attributes in the static observedAttributes array
+    if (oldValue === newValue) return;
+    console.log(`${name}: ${oldValue} → ${newValue}`);
+  }
+
+  static get observedAttributes() {
+    return ['title', 'disabled', 'variant'];
+  }
+}
+```
+
+**Critical rule**: `attributeChangedCallback` only fires for attributes listed in `observedAttributes`. If you forget to add one, your callback silently never runs.
+
+### Attributes vs. Properties
+
+This is where most developers stumble. Custom elements have two ways to receive data, and they're not automatically synced:
+
+```js
+class UserBadge extends HTMLElement {
+  get name() {
+    return this.getAttribute('name') || '';
+  }
+
+  set name(value) {
+    if (value) {
+      this.setAttribute('name', value);
+    } else {
+      this.removeAttribute('name');
+    }
+    this.render();
+  }
+
+  static get observedAttributes() {
+    return ['name', 'avatar', 'role'];
+  }
+
+  attributeChangedCallback(name, oldValue, newValue) {
+    console.log(`Attribute ${name} changed from ${oldValue} to ${newValue}`);
+    this.render();
+  }
+}
+
+// Attributes are strings, set in HTML
+// <user-badge name="Ada" avatar="/avatars/ada.png" role="admin"></user-badge>
+
+// Properties can be any type, set in JavaScript
+// document.querySelector('user-badge').name = 'Grace'; // Triggers attribute sync
+```
+
+**The golden rule**: reflect rich data (objects, arrays, booleans) as properties, not attributes. Use attributes for string configuration that belongs in your HTML markup. Always sync both directions if you expose the same concept.
+
+```js
+// Boolean attributes: presence means true, absence means false
+class ToggleButton extends HTMLElement {
+  get pressed() {
+    return this.hasAttribute('pressed');
+  }
+
+  set pressed(val) {
+    if (val) {
+      this.setAttribute('pressed', '');
+    } else {
+      this.removeAttribute('pressed');
+    }
+  }
+
+  static get observedAttributes() {
+    return ['pressed'];
+  }
+}
+```
+
+---
+
+## Shadow DOM: Scoped Styles, Encapsulated DOM
+
+Without Shadow DOM, your component's CSS leaks out and the page's CSS leaks in:
+
+```html
+<!-- Without Shadow DOM -->
+<style>
+  /* This styles EVERY .card on the page, not just your component */
+  .card { border: 1px solid red; }
+</style>
+<div class="card">Your Component</div>
+
+<article class="card">Page Content</article> <!-- Also gets the red border! -->
+```
+
+Shadow DOM creates a boundary. Styles inside don't leak out. Styles outside don't leak in.
+
+```js
+class StyledCard extends HTMLElement {
+  constructor() {
+    super();
+    const shadow = this.attachShadow({ mode: 'open' });
+
+    shadow.innerHTML = `
+      <style>
+        .card {
+          border: 1px solid var(--border-color, #e5e7eb);
+          border-radius: 8px;
+          padding: 16px;
+          background: var(--card-bg, white);
+        }
+        .card:hover {
+          box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+      </style>
+      <div class="card">
+        <slot name="header"></slot>
+        <slot></slot>
+        <slot name="footer"></slot>
+      </div>
+    `;
+  }
+}
+```
+
+```html
+<!-- Usage -->
+<styled-card>
+  <h2 slot="header">Card Title</h2>
+  <p>This content goes into the default slot.</p>
+  <button slot="footer">Action</button>
+</styled-card>
+
+<style>
+  /* This will NOT affect the shadow DOM internals */
+  .card { border-color: blue; } /* No effect inside the component */
+</style>
+```
+
+### Open vs. Closed Shadow DOM
+
+```js
+const openShadow = this.attachShadow({ mode: 'open' });
+const closedShadow = this.attachShadow({ mode: 'closed' });
+```
+
+| Feature | `mode: 'open'` | `mode: 'closed'` |
+|---------|---------------|-----------------|
+| Access from outside | `el.shadowRoot` | `null` (inaccessible) |
+| DevTools inspection | Full access | Inspectable but not scriptable |
+| Component debugging | Easy | Harder |
+| Use case | 99% of components | Security-sensitive elements (native `<video>` controls) |
+
+**Recommendation**: Always use `mode: 'open'` unless you have a genuine security boundary. Closed mode makes debugging and testing significantly harder without providing real security — browser extensions and DevTools can still access closed roots.
+
+### CSS Custom Properties Pierce Shadow Boundaries
+
+This is the primary theming mechanism:
+
+```css
+/* Styles in the light DOM / page */
+my-card {
+  --card-bg: #1e293b;
+  --card-border: #334155;
+  --card-radius: 12px;
+}
+```
+
+```css
+/* Inside the shadow DOM */
+:host {
+  background: var(--card-bg, white);
+  border: 1px solid var(--card-border, #e5e7eb);
+  border-radius: var(--card-radius, 8px);
+}
+```
+
+Custom properties flow **into** the shadow tree but never leak out. This is by design — it gives component authors control over what's themeable.
+
+---
+
+## Slots: Composing Content
+
+Slots are Web Components' composition model. They replace `props.children` — but work with any framework or no framework.
+
+```js
+class SplitPane extends HTMLElement {
+  constructor() {
+    super();
+    this.attachShadow({ mode: 'open' }).innerHTML = `
+      <style>
+        :host { display: flex; gap: 1px; }
+        ::slotted(*) { flex: 1 1 50%; min-width: 0; }
+        slot { display: block; }
+      </style>
+      <slot name="left"></slot>
+      <div style="width:1px;background:var(--divider,#ccc)"></div>
+      <slot name="right"></slot>
+    `;
+  }
+}
+
+customElements.define('split-pane', SplitPane);
+```
+
+```html
+<split-pane>
+  <div slot="left">
+    <h2>Editor</h2>
+    <textarea></textarea>
+  </div>
+  <div slot="right">
+    <h2>Preview</h2>
+    <output></output>
+  </div>
+</split-pane>
+```
+
+### Named vs. Default Slots
+
+```html
+<!-- Component template -->
+<div class="wrapper">
+  <slot name="icon"></slot>     <!-- Named slot: only elements with slot="icon" -->
+  <slot name="title"></slot>    <!-- Named slot: only elements with slot="title" -->
+  <slot></slot>                 <!-- Default slot: everything else -->
+</div>
+```
+
+An element with no `slot` attribute goes to the default (unnamed) slot. Multiple unnamed elements are appended in document order. Each named slot receives only its matching elements.
+
+### ::slotted() — Styling Slotted Content
+
+The `::slotted()` CSS pseudo-element styles content that has been projected into a slot — but only top-level children:
+
+```css
+/* In shadow DOM */
+::slotted(h2) {
+  color: var(--heading-color, inherit);
+  margin: 0;
+}
+
+::slotted(*) {
+  /* Only styles top-level slotted nodes, NOT their descendants */
+}
+
+/* Doesn't work: */
+::slotted(h2 span) { /* ❌ Compound selectors not supported */ }
+::slotted(.card .title) { /* ❌ Descendant selectors not supported */ }
+```
+
+This is an intentional limitation of the slotted API. For deep styling, use CSS Parts or custom properties.
+
+---
+
+## HTML Templates: Zero-Cost DOM Reuse
+
+`<template>` provides inert, preparsed DOM that costs nothing to clone:
+
+```html
+<template id="card-template">
+  <style>
+    .card {
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      padding: 16px;
+    }
+  </style>
+  <div class="card">
+    <h2 class="title"><slot name="title">Default Title</slot></h2>
+    <p class="body"><slot></slot></p>
+    <footer class="footer"><slot name="footer"></slot></footer>
+  </div>
+</template>
+```
+
+```js
+class TemplateCard extends HTMLElement {
+  constructor() {
+    super();
+    const template = document.getElementById('card-template');
+    const content = template.content.cloneNode(true); // Deep clone
+    this.attachShadow({ mode: 'open' }).appendChild(content);
+  }
+}
+```
+
+Key benefits of `<template>`:
+- Not rendered, not executed — the DOM inside is inert until cloned
+- Images don't load, scripts don't run, styles don't apply
+- `cloneNode(true)` creates a live DOM tree, not a string
+- Templates can be shared across many component instances
+- Zero runtime parsing cost — the browser does it once at parse time
+
+---
+
+## Declarative Shadow DOM: SSR Without JavaScript
+
+The biggest blocker to Web Component adoption was SSR. If your component uses imperative `attachShadow()`, server-rendered HTML shows nothing until JavaScript loads and hydrates.
+
+Declarative Shadow DOM solves this. You express the shadow tree directly in HTML:
+
+```html
+<my-card>
+  <template shadowrootmode="open">
+    <style>
+      :host { display: block; border: 1px solid #ccc; border-radius: 8px; padding: 16px; }
+      h2 { margin: 0 0 8px; color: var(--heading-color, #111); }
+    </style>
+    <h2><slot name="title">Card Title</slot></h2>
+    <p><slot>Content goes here</slot></p>
+  </template>
+  <span slot="title">Server-Rendered Title</span>
+  <span>Server-rendered body content — visible immediately, no JS needed!</span>
+</my-card>
+```
+
+The browser parses this and creates the shadow root **at parse time**, before any JavaScript executes. The component is visible and styled on first paint — no FOUC, no layout shift.
+
+### How to Use Declarative Shadow DOM
+
+**Server-side (any backend)**:
+```js
+// Express example
+function renderCard({ title, body }) {
+  return `
+    <my-card>
+      <template shadowrootmode="open">
+        <style>
+          :host { display: block; padding: 1rem; border: 1px solid var(--border, #ddd); }
+          ::slotted([slot="title"]) { font-size: 1.25rem; font-weight: 600; }
+        </style>
+        <slot name="title"></slot>
+        <slot></slot>
+      </template>
+      <h2 slot="title">${escapeHtml(title)}</h2>
+      <p>${escapeHtml(body)}</p>
+    </my-card>
+  `;
+}
+```
+
+**Client-side hydration**:
+```js
+class MyCard extends HTMLElement {
+  constructor() {
+    super();
+    // If the element was server-rendered with declarative shadow DOM,
+    // this.shadowRoot already exists — no need to call attachShadow()
+    const shadow = this.shadowRoot || this.attachShadow({ mode: 'open' });
+
+    // Add interactivity
+    this.addEventListener('click', () => {
+      console.log('Card clicked — interactivity added client-side');
+    });
+  }
+}
+```
+
+**Streaming SSR** — Declarative Shadow DOM enables streaming HTML: the browser renders the component as the HTML arrives, without waiting for a closing tag or JavaScript bundle. This is the killer feature for Core Web Vitals.
+
+---
+
+## CSS Parts: Theming Without Breaking Encapsulation
+
+CSS custom properties work for individual values. CSS Parts work for structured styling:
+
+```js
+// Inside a component's shadow DOM
+render() {
+  return `
+    <div part="container">
+      <header part="header">
+        <slot name="title"></slot>
+      </header>
+      <main part="body">
+        <slot></slot>
+      </main>
+      <footer part="footer">
+        <slot name="actions"></slot>
+      </footer>
+    </div>
+  `;
+}
+```
+
+```css
+/* Outside the component — styles applied via ::part() */
+my-card::part(container) {
+  border-radius: 16px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+my-card::part(header) {
+  font-size: 1.5rem;
+  padding: 1rem;
+  border-bottom: 1px solid rgba(255,255,255,0.2);
+}
+
+my-card::part(footer) {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+}
+```
+
+**Limitations of `::part()`**:
+- You cannot target children of a part (`::part(header) h2` doesn't work)
+- You cannot chain parts (`::part(header)::part(title)` doesn't work)
+- You cannot use pseudo-classes (`::part(button):hover` is restricted)
+
+**The workaround**: Export multiple parts at different granularity levels, or use custom properties for fine-grained control.
+
+---
+
+## Form-Associated Custom Elements
+
+One of the most powerful but underused features — your custom element can participate in HTML forms natively:
+
+```js
+class RatingInput extends HTMLElement {
+  static formAssociated = true;
+  #internals;
+  #value = 0;
+
+  constructor() {
+    super();
+    this.#internals = this.attachInternals();
+  }
+
+  get value() { return this.#value; }
+
+  set value(val) {
+    this.#value = Number(val);
+    this.#internals.setFormValue(String(this.#value));
+    this.#render();
+  }
+
+  get form() { return this.#internals.form; }
+  get name() { return this.getAttribute('name'); }
+  get validity() { return this.#internals.validity; }
+  get validationMessage() { return this.#internals.validationMessage; }
+  get willValidate() { return this.#internals.willValidate; }
+
+  checkValidity() { return this.#internals.checkValidity(); }
+  reportValidity() { return this.#internals.reportValidity(); }
+}
+```
+
+```html
+<form id="review-form">
+  <label>
+    Rating:
+    <rating-input name="rating" min="1" max="5"></rating-input>
+  </label>
+  <button type="submit">Submit</button>
+</form>
+
+<script>
+  const form = document.getElementById('review-form');
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const data = new FormData(form);
+    console.log(data.get('rating')); // "3" — participates in FormData!
+  });
+</script>
+```
+
+This works with `FormData`, constraint validation (`required`, `minlength`), `:valid`/`:invalid` CSS pseudo-classes, and `reportValidity()`. It's how native elements like `<input>` work — now available for your components.
+
+---
+
+## Framework Interop: React, Vue, Svelte, Angular
+
+### React 19+
+
+React 19 ships with full custom element support:
+
+```jsx
+// React 19 — works out of the box
+function App() {
+  return (
+    <my-card
+      ref={cardRef}
+      title="Hello from React"
+      onClick={() => console.log('clicked')}
+    >
+      <p>Children passed as slot content</p>
+    </my-card>
+  );
+}
+```
+
+React 19 maps JSX properties to custom element properties (not attributes) for camelCase props and handles event listeners with `addEventListener`. Boolean, number, and object properties are passed by reference, not serialized to strings.
+
+### Vue 4
+
+```vue
+<template>
+  <my-card
+    :title="dynamicTitle"
+    @card-action="handleAction"
+  >
+    <p>Slot content from Vue</p>
+    <template #footer>Named slot content</template>
+  </my-card>
+</template>
+```
+
+Vue automatically detects custom elements (hyphenated tag names) and bypasses its virtual DOM for them, passing properties and events natively.
+
+### Svelte 5
+
+```svelte
+<my-card
+  title={dynamicTitle}
+  on:card-action={handleAction}
+>
+  <p>Slot content from Svelte</p>
+</my-card>
+```
+
+Svelte treats custom elements as native DOM, with full property/event binding.
+
+### Vanilla JavaScript / Any Framework
+
+Web Components work everywhere because they're HTML. Any framework, any templating language, any static site generator — if it outputs HTML, it can use Web Components.
+
+---
+
+## Real-World Patterns
+
+### Pattern 1: Progressive Enhancement
+
+```html
+<!-- No JS: works as a normal image -->
+<img-loading src="/hero.jpg" alt="Hero image">
+  <img src="/hero.jpg" alt="Hero image" loading="lazy">
+</img-loading>
+
+<!-- JS loads: upgraded to intersection-observer lazy loading with blur-up -->
+```
+
+```js
+class ImgLoading extends HTMLElement {
+  connectedCallback() {
+    const img = this.querySelector('img');
+    if (!img) return;
+
+    const src = this.getAttribute('src');
+    const alt = this.getAttribute('alt') || img.alt;
+
+    // Replace fallback img with enhanced version
+    this.innerHTML = '';
+    const wrapper = document.createElement('div');
+    wrapper.innerHTML = `
+      <img
+        src="data:image/svg+xml,..."
+        alt="${alt}"
+        style="filter:blur(20px);transform:scale(1.1);transition:filter 0.3s,transform 0.3s"
+      >
+    `;
+    this.appendChild(wrapper);
+
+    const io = new IntersectionObserver(([entry]) => {
+      if (entry.isIntersecting) {
+        const realImg = new Image();
+        realImg.onload = () => {
+          wrapper.querySelector('img').src = src;
+          wrapper.querySelector('img').style.filter = 'blur(0)';
+          wrapper.querySelector('img').style.transform = 'scale(1)';
+        };
+        realImg.src = src;
+        io.disconnect();
+      }
+    });
+
+    io.observe(this);
+  }
+}
+```
+
+### Pattern 2: Composable Design System
+
+```html
+<ds-button variant="primary" size="large">
+  <ds-icon name="plus" slot="prefix"></ds-icon>
+  Add to Cart
+  <ds-badge count="3" slot="suffix"></ds-badge>
+</ds-button>
+```
+
+Each component is independent, framework-agnostic, and themable via CSS Parts and custom properties. You can use this button in a React app, a Vue dashboard, and a legacy jQuery page — same `<ds-button>`, same behavior.
+
+### Pattern 3: Island Architecture
+
+```html
+<!-- Static HTML page, no JS bundle -->
+<main>
+  <h1>Blog Post</h1>
+  <article>
+    <p>Static content rendered at build time...</p>
+  </article>
+
+  <!-- Interactive island — only this component loads JS -->
+  <live-comments
+    data-post-id="abc123"
+    data-api="/api/comments"
+  >
+    <template shadowrootmode="open">
+      <p>Loading comments...</p>
+    </template>
+  </live-comments>
+</main>
+
+<script type="module">
+  import './live-comments.js'; // Only this component loads JS
+</script>
+```
+
+### Pattern 4: Micro-Frontends
+
+```html
+<!-- Team A owns this component -->
+<team-a-cart
+  data-items='[{"id":"1","name":"Widget","price":9.99}]'
+  data-theme="dark"
+></team-a-cart>
+
+<!-- Team B owns this component — different repo, different deploy -->
+<team-b-recommendations
+  data-user-id="user_abc"
+></team-b-recommendations>
+```
+
+Web Components are the only native micro-frontend primitive. Teams can deploy independently, use different frameworks (or no framework), and compose via HTML.
+
+---
+
+## Adoption & Ecosystem (2026)
+
+### Who's Using Web Components in Production
+
+| Company | Usage |
+|---------|-------|
+| **GitHub** | Custom Elements for interactive UI since 2018 (Catalyst library) |
+| **Salesforce** | Lightning Web Components — the entire platform UI |
+| **Adobe** | Spectrum Web Components — design system used across all products |
+| **SAP** | UI5 Web Components — enterprise design system |
+| **Microsoft** | FAST components powering Fluent Design System, Edge browser UI |
+| **Google** | Material Web Components, YouTube, Google Earth, Photos |
+| **Reddit** | New Reddit frontend built with Web Components |
+| **ING Bank** | Lion Web Components — open-source design system |
+
+### Ecosystem Libraries (2026)
+
+- **Lit 4.0** — Reactive base class with SSR, signals integration, zero-dependency
+- **Stencil 4** — Compile-time Web Components, React-style DX
+- **FAST 3.0** — Microsoft's component library + design tokens system
+- **Shoelace** — 70+ open-source components, framework-agnostic
+- **Enhance** — SSR-first Web Components with progressive enhancement
+- **Rocket** — Static site generator built on Web Components
+
+---
+
+## Performance Considerations
+
+### Memory
+
+Each shadow root is a `DocumentFragment` with its own style sheets and DOM tree. For hundreds of instances, prefer:
+- CSS custom properties over inline styles
+- Shared `<template>` elements instead of constructing DOM per instance
+- `::part()` sparingly — each part creates an additional CSS scope
+
+### Parser-blocking
+
+Declarative Shadow DOM is parsed inline and doesn't block the outer parser. However, deeply nested shadow trees can affect parse time. For very deep trees (10+ nesting levels), consider flattening the component hierarchy.
+
+### Lazy Registration
+
+```js
+// Don't register everything upfront
+// Instead, register when the element first appears in the DOM
+
+const observer = new MutationObserver((mutations) => {
+  for (const { addedNodes } of mutations) {
+    for (const node of addedNodes) {
+      if (node.tagName === 'MY-LAZY-COMPONENT' && !customElements.get('my-lazy-component')) {
+        import('./my-lazy-component.js').then((mod) => {
+          customElements.define('my-lazy-component', mod.default);
+        });
+        observer.disconnect(); // Registered — stop observing
+      }
+    }
+  }
+});
+
+observer.observe(document.body, { childList: true, subtree: true });
+```
+
+---
+
+## Common Pitfalls
+
+1. **Forgetting `super()`** in constructor → `Uncaught ReferenceError`
+2. **Mutating DOM in `constructor`** → `Uncaught DOMException` (element not connected yet)
+3. **Missing `observedAttributes`** → `attributeChangedCallback` silently never fires
+4. **String-only attributes** → passing `{ foo: 'bar' }` as an attribute serializes to `[object Object]`
+5. **Over-relying on Shadow DOM** → not every component needs encapsulation
+6. **Ignoring accessibility** → Shadow DOM doesn't hide elements from screen readers; use ARIA properly
+7. **Forgetting to clean up** → event listeners and observers in `connectedCallback` must be removed in `disconnectedCallback`
+8. **Styling the host from inside** → use `:host` and `:host(.variant)`, not a wrapper div styled from inside
+
+---
+
+## When to Use Web Components vs. Framework Components
+
+| Criterion | Web Components | Framework Components |
+|-----------|---------------|---------------------|
+| Framework independence | ✅ Must work everywhere | ❌ Tied to one framework |
+| Design system / component library | ✅ Ship once, use anywhere | ❌ Need separate packages |
+| SSR requirements | ✅ Declarative Shadow DOM | ✅ Framework SSR |
+| Team autonomy | ✅ Independent deploys | ⚠️ Shared framework version |
+| Bundle size constraints | ✅ Near-zero overhead | ❌ Framework runtime |
+| Complex state management | ⚠️ Roll your own | ✅ Framework primitives |
+| Rapid prototyping | ⚠️ More boilerplate | ✅ Framework tooling |
+
+---
+
+## The Bottom Line
+
+Web Components in 2026 are not a replacement for React or Vue. They're the right answer to a different question: **how do you build UI that outlasts any framework?**
+
+For design systems, component libraries, and cross-team UI — where the consumer might be any framework (or none) — Web Components are the only native answer. For application-specific UI with complex state management, your framework of choice is still the right tool.
+
+The key insight: you can mix both. Use Web Components for your shared primitives. Use your framework for application logic. They compose naturally — because at the end of the day, they're all just HTML.
+
+```html
+<!-- 2026: The year it all just works -->
+<design-system-theme color-scheme="dark">
+  <react-dashboard>
+    <ds-card>
+      <vue-analytics-chart slot="widget"></vue-analytics-chart>
+    </ds-card>
+    <ds-data-table source="/api/users"></ds-data-table>
+  </react-dashboard>
+</design-system-theme>
+```
