@@ -74,6 +74,7 @@ import {
   MousePointer2,
   Folders,
   AlignJustify,
+  ListOrdered,
   Package,
   Share2,
   Variable,
@@ -785,6 +786,13 @@ const allTools = [
     href: '/tools/css-at-property',
     icon: Cpu,
     tags: ['CSS', '@property', 'Custom Properties', 'Animation'],
+  },
+  {
+    title: 'CSS @counter-style Playground',
+    description: 'Define custom list counters visually — star ratings, circled numbers, roman numerals, emoji bullets. 8 presets, live <ol> preview, generated CSS — 100% client-side.',
+    href: '/tools/css-counter-style-playground',
+    icon: ListOrdered,
+    tags: ['CSS', '@counter-style', 'Lists', 'Typography'],
   },
   {
     title: 'HTTP Headers Reference',

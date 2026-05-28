@@ -84,6 +84,7 @@ import {
   Package,
   Music,
   GitGraph,
+  ListOrdered,
 } from 'lucide-react';
 
 export const metadata: Metadata = {
@@ -806,6 +807,13 @@ const featuredTools = [
     href: '/tools/mermaid-editor',
     icon: GitGraph,
     tags: ['Mermaid', 'Diagram', 'Flowchart'],
+  },
+  {
+    title: 'CSS @counter-style Playground',
+    description: 'Define custom list counters visually — star ratings, roman numerals, emoji bullets. 8 presets, live ol preview, instant CSS copy. Zero dependencies.',
+    href: '/tools/css-counter-style-playground',
+    icon: ListOrdered,
+    tags: ['CSS', '@counter-style', 'Lists'],
   },
 ];
 const sampleBlogPosts = [
