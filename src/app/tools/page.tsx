@@ -11,6 +11,7 @@ import {
   Hash,
   Layers,
   Minimize2,
+  Maximize2,
   ArrowUpDown,
   PaintBucket,
   Clock,
@@ -444,6 +445,13 @@ const allTools = [
     href: '/tools/image-compressor',
     icon: Image,
     tags: ['Image', 'Compressor', 'WebP', 'PNG', 'JPEG'],
+  },
+  {
+    title: 'Image Resizer',
+    description: 'Resize images to exact dimensions, scale by percentage, or apply social media presets. Instagram, Twitter, YouTube, favicon sizes — instant download, 100% client-side.',
+    href: '/tools/image-resizer',
+    icon: Maximize2,
+    tags: ['Image', 'Resizer', 'Social Media', 'Dimensions'],
   },
   {
     title: 'Currency Converter',
