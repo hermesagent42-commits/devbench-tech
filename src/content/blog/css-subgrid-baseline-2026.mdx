@@ -1,0 +1,376 @@
+---
+title: "CSS Subgrid Is Baseline in 2026 — Finally, Grid Children Can Inherit Their Parent's Tracks"
+date: "2026-05-29"
+excerpt: "Subgrid was the missing piece of CSS Grid — the ability for a nested grid item to align its tracks with the parent grid. After years of waiting, subgrid is now Baseline across all major browsers. From card grids with equal-height footers to complex form layouts, learn every pattern with production-ready code."
+tags: ["CSS", "Subgrid", "CSS Grid", "Baseline 2026", "Layout", "Responsive Design", "Web Platform"]
+---
+
+## The Missing Piece of CSS Grid
+
+CSS Grid, introduced in 2017, was the first layout system purpose-built for two-dimensional layouts. It could do things that took hundreds of lines of float-and-clear hacks in five lines. But it had one glaring hole: **grid children couldn't inherit their parent's track sizes**.
+
+For seven years, `display: subgrid` existed as a spec but wasn't implemented everywhere. Chrome shipped experimental support behind a flag in 2021. Firefox shipped it fully in 2019. Safari finally landed it in 2024. As of May 2026, subgrid is **Baseline** — supported in every major browser.
+
+This changes everything about how we compose layouts.
+
+## The Problem: What Subgrid Solves
+
+Imagine a card grid. Three columns. Each card has a header, body, and footer. You want the footer to align across all cards — regardless of how much content each one has:
+
+```
+┌──────────┐ ┌──────────────┐ ┌──────────┐
+│ Header 1 │ │ Header 2     │ │ Header 3 │
+│          │ │              │ │          │
+│ Short    │ │ A longer     │ │ Medium   │
+│ text     │ │ description  │ │ length   │
+│          │ │ that wraps   │ │ text     │
+│ Footer──►│ │ Footer──────►│ │ Footer──►│
+└──────────┘ └──────────────┘ └──────────┘
+```
+
+Before subgrid, you had exactly **zero** good solutions. `flexbox` with `align-items: stretch` only works within a single row — it can't align across rows. Setting `height: 100%` on the card body only works if the cards are in the same grid row and have equal height, which breaks when content varies.
+
+The only real solution was JavaScript: measure every card, find the tallest footer position, and set heights accordingly. Slow, fragile, and a maintenance burden.
+
+Subgrid fixes this with three lines of CSS:
+
+```css
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.5rem;
+}
+
+.card {
+  display: grid;
+  grid-template-rows: auto 1fr auto; /* header, body, footer */
+  grid-row: span 1;
+  /* THIS IS THE MAGIC: */
+  grid-template-columns: subgrid;
+}
+```
+
+Every card now shares the parent grid's column tracks. The `1fr` in the body row stretches equally within each card — but critically, the footers all land at the same position because every card is locked to the same grid rows.
+
+No JavaScript. No `height: 100%` hacks. No fragile flexbox workarounds. The browser handles it natively.
+
+## How Subgrid Works
+
+Subgrid comes in two flavors: **column subgrid** and **row subgrid** (or both).
+
+### Column Subgrid: `grid-template-columns: subgrid`
+
+The child grid inherits the parent's column tracks. Every child in the same parent row aligns their columns perfectly.
+
+```css
+.parent {
+  display: grid;
+  grid-template-columns: 200px 1fr 150px;
+}
+
+.child {
+  display: grid;
+  grid-template-columns: subgrid; /* inherits 200px | 1fr | 150px */
+}
+```
+
+The child's grid items slot into exactly the same column tracks as the parent. If the parent has `gap: 1rem`, that gap is also inherited.
+
+### Row Subgrid: `grid-template-rows: subgrid`
+
+The child inherits the parent's row tracks. This is perfect for forms where each label-input pair needs to align vertically across multiple sections.
+
+```css
+.parent-form {
+  display: grid;
+  grid-template-columns: 120px 1fr;
+  grid-template-rows: auto auto auto;
+}
+
+.fieldset {
+  display: grid;
+  grid-template-columns: subgrid;
+  grid-column: 1 / -1; /* span full width */
+  /* grid-template-rows: subgrid would also work here */
+}
+```
+
+### Full Subgrid: Both Axes
+
+```css
+.nested-grid {
+  display: grid;
+  grid-template-columns: subgrid;
+  grid-template-rows: subgrid;
+  /* This child is now a transparent window into the parent grid */
+}
+```
+
+## Pattern 1: Card Grid with Aligned Footers
+
+This is the canonical use case. Let's build it completely:
+
+```css
+/* The parent defines the column structure */
+.features {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 2rem;
+  padding: 2rem;
+}
+
+.feature-card {
+  display: grid;
+  grid-template-rows: auto 1fr auto; /* header auto, body fills, footer auto */
+  grid-template-columns: subgrid;    /* inherit parent columns */
+  background: var(--card-bg);
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.feature-card__body {
+  /* 1fr row — stretches to fill available space, pushing footer to bottom */
+}
+
+.feature-card__footer {
+  /* Aligned with every other card's footer, regardless of body content */
+  padding-top: 1rem;
+  border-top: 1px solid var(--border-color);
+}
+```
+
+```html
+<section class="features">
+  <div class="feature-card">
+    <h3>Instant Sync</h3>
+    <p class="feature-card__body">Changes sync across all your devices in real-time. No refresh needed.</p>
+    <div class="feature-card__footer">
+      <a href="/sync">Learn more →</a>
+    </div>
+  </div>
+  
+  <div class="feature-card">
+    <h3>End-to-End Encryption</h3>
+    <p class="feature-card__body">
+      Your data is encrypted before it leaves your device. Not even we can read it. 
+      Military-grade AES-256 encryption with zero-knowledge architecture ensures 
+      complete privacy.
+    </p>
+    <div class="feature-card__footer">
+      <a href="/security">Learn more →</a>
+    </div>
+  </div>
+  
+  <div class="feature-card">
+    <h3>Smart Search</h3>
+    <p class="feature-card__body">Find anything instantly with full-text search.</p>
+    <div class="feature-card__footer">
+      <a href="/search">Learn more →</a>
+    </div>
+  </div>
+</section>
+```
+
+The result: all three "Learn more" links align perfectly at the bottom, regardless of body text length. The grid handles the height distribution automatically.
+
+## Pattern 2: Form Layout with Aligned Labels
+
+Forms are one of the hardest things to get pixel-perfect across multiple sections. Subgrid makes it trivial:
+
+```css
+form {
+  display: grid;
+  grid-template-columns: 140px 1fr;
+  gap: 0.75rem 1.5rem;
+  max-width: 600px;
+}
+
+fieldset {
+  display: grid;
+  grid-template-columns: subgrid;
+  grid-column: 1 / -1; /* span both columns */
+  gap: 0.75rem 1.5rem;
+  border: none;
+  padding: 0;
+}
+```
+
+```html
+<form>
+  <fieldset>
+    <legend>Account</legend>
+    <label for="email">Email</label>
+    <input id="email" type="email" />
+    
+    <label for="password">Password</label>
+    <input id="password" type="password" />
+  </fieldset>
+  
+  <fieldset>
+    <legend>Profile</legend>
+    <label for="name">Full Name</label>
+    <input id="name" type="text" />
+    
+    <label for="bio">Bio</label>
+    <textarea id="bio" rows="3"></textarea>
+  </fieldset>
+</form>
+```
+
+Every label is exactly 140px wide. Every input aligns vertically. Add a third fieldset — the alignment holds. No `width: 140px` on labels, no flexbox hacks. The parent grid defines the column sizes once, and every nested fieldset inherits them.
+
+## Pattern 3: Table-Like Data Display Without `<table>`
+
+Sometimes you need a grid-based data display where rows might wrap into cards on small screens but behave like a table on large screens. Subgrid lets you switch between table and card layouts with the same markup:
+
+```css
+.data-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 80px;
+  gap: 1px;
+  background: var(--border-color); /* gap lines */
+}
+
+.data-row {
+  display: grid;
+  grid-template-columns: subgrid;
+  grid-column: 1 / -1; /* span all columns */
+  background: var(--bg-color);
+  padding: 0.75rem 1rem;
+}
+
+.data-header {
+  font-weight: 600;
+  background: var(--bg-secondary);
+}
+
+/* On small screens, each row becomes a card */
+@media (max-width: 600px) {
+  .data-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+  
+  .data-row {
+    grid-template-columns: 1fr 1fr; /* label-value pairs */
+  }
+  
+  .data-header {
+    display: none; /* hide header row on mobile */
+  }
+}
+```
+
+The same markup, two completely different layouts — table on desktop, cards on mobile. Zero duplicate DOM.
+
+## Pattern 4: Masonry-Style Image Gallery
+
+While CSS Grid alone can't do true masonry (items flowing into the shortest column), subgrid gets you closer than ever. Combine with `grid-auto-rows` for a near-masonry effect:
+
+```css
+.gallery {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  grid-auto-rows: 10px; /* small rows for fine-grained placement */
+  gap: 1rem;
+}
+
+.gallery-item {
+  display: grid;
+  grid-template-rows: subgrid;
+  grid-row: span 20; /* each item spans 20 rows by default */
+}
+
+.gallery-item--tall {
+  grid-row: span 30; /* taller items span more rows */
+}
+
+.gallery-item--short {
+  grid-row: span 15;
+}
+```
+
+The `grid-auto-rows: 10px` creates a dense grid where items can span variable heights. Combined with `subgrid` on rows, images align at row boundaries without layout shifts. It's not true masonry (which requires knowing heights before layout), but it's close enough for most use cases and works without JavaScript.
+
+## Pattern 5: Pricing Table with Feature Alignment
+
+Pricing tables have rows of features where every column needs to align. Subgrid handles this perfectly:
+
+```css
+.pricing {
+  display: grid;
+  grid-template-columns: minmax(200px, 1fr) repeat(3, minmax(200px, 1fr));
+  gap: 1px;
+  background: var(--border-color);
+}
+
+.pricing > * {
+  background: var(--bg);
+  padding: 1rem 1.5rem;
+  display: grid;
+  grid-template-columns: subgrid;
+  grid-column: 1 / -1;
+}
+
+/* Feature label in column 1, checkmarks aligned in columns 2-4 */
+```
+
+Now every feature row shares the exact same column widths. The "Free / Pro / Enterprise" headers, the feature checkmarks, and the price call-to-action buttons all align perfectly — with pure CSS.
+
+## Browser Support & Progressive Enhancement
+
+Subgrid is Baseline as of May 2026:
+
+| Browser | Version | Date |
+|---------|---------|------|
+| Chrome | 117 | Sep 2023 |
+| Firefox | 71 | Dec 2019 |
+| Safari | 16.0 | Sep 2022 |
+| Edge | 117 | Sep 2023 |
+
+For older browsers, provide a fallback with `@supports`:
+
+```css
+.card {
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  /* Fallback: equal-width columns without alignment */
+  grid-template-columns: 1fr;
+}
+
+@supports (grid-template-columns: subgrid) {
+  .card {
+    grid-template-columns: subgrid;
+  }
+}
+```
+
+In browsers without subgrid support, cards still look reasonable — just without the aligned-footers magic. With support, you get the perfect layout. This is progressive enhancement at its best.
+
+## Performance Considerations
+
+Subgrid is a layout algorithm, not a JavaScript library. It incurs zero runtime cost beyond CSS Grid's existing layout pass. There's no JavaScript to parse, no ResizeObserver callbacks, no layout thrashing.
+
+The browser's layout engine handles subgrid natively in the same pass as the parent grid. The performance difference between a JavaScript-based footer-alignment solution and native subgrid can be measured in orders of magnitude — especially on pages with dozens or hundreds of cards.
+
+## When NOT to Use Subgrid
+
+Subgrid is not always the right tool:
+
+1. **Simple single-card layouts**: If you only have one card, there's nothing to align.
+2. **Independent child grids**: If the child's columns don't need to match the parent's, use a regular grid.
+3. **Very deep nesting**: Each subgrid layer is another layout pass. Nesting subgrid 5+ levels deep may impact performance on low-end devices.
+
+## The Bigger Picture
+
+Subgrid completes CSS Grid. For seven years, we had `grid-template-columns` and `grid-template-rows` for defining tracks, `grid-column` and `grid-row` for placing items, and `gap` for spacing. But the one thing we couldn't do — inherit tracks across nesting boundaries — is now solved.
+
+Combined with container queries, `:has()`, cascade layers, and native nesting, CSS Grid with subgrid represents the most powerful layout system the web has ever had. No framework required. No JavaScript dependency. Just the platform.
+
+## Resources
+
+- [MDN: Subgrid](https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_grid_layout/Subgrid)
+- [WebKit Blog: CSS Subgrid](https://webkit.org/blog/13973/css-subgrid/)
+- [CSS Grid Level 2 Specification](https://www.w3.org/TR/css-grid-2/)
+- [Can I Use: Subgrid](https://caniuse.com/css-subgrid)
