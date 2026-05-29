@@ -837,6 +837,13 @@ const allTools = [
     icon: FileText,
     tags: ['Env', 'Variables', 'Validator', 'DevOps'],
   },
+  {
+    title: 'CSS :nth-child() Calculator',
+    description: 'Visually test and build :nth-child() selectors. Adjust the formula an+b, change item count, see exactly which items match in real time. Supports :nth-last-child, :nth-of-type, and :nth-last-of-type.',
+    href: '/tools/nth-child-calculator',
+    icon: Hash,
+    tags: ['CSS', ':nth-child()', 'Selectors', 'Calculator'],
+  },
 ];
 
 export default function ToolsPage() {
