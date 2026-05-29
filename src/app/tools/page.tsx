@@ -809,6 +809,27 @@ const allTools = [
     icon: Heading,
     tags: ['HTTP', 'Headers', 'Reference', 'Security', 'CORS'],
   },
+  {
+    title: 'PWA Manifest Generator',
+    description: 'Build a web app manifest.json visually — name, icons, theme colors, display mode, screenshots, shortcuts, and more. Instant JSON output for installable PWAs.',
+    href: '/tools/pwa-manifest-generator',
+    icon: Monitor,
+    tags: ['PWA', 'Manifest', 'Mobile'],
+  },
+  {
+    title: 'CSS accent-color Playground',
+    description: 'Style native form controls with one CSS property — checkboxes, radio buttons, range sliders, progress bars, and selects. Live preview, color presets, instant CSS output.',
+    href: '/tools/css-accent-color-playground',
+    icon: Palette,
+    tags: ['CSS', 'accent-color', 'Forms', 'Design'],
+  },
+  {
+    title: '.env File Parser & Validator',
+    description: 'Parse, validate, and inspect .env files — detect syntax errors, expand $VAR references, view resolved vs raw values, and export clean environment files.',
+    href: '/tools/env-file-validator',
+    icon: FileText,
+    tags: ['Env', 'Variables', 'Validator', 'DevOps'],
+  },
 ];
 
 export default function ToolsPage() {

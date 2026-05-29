@@ -1,0 +1,246 @@
+---
+title: "Build PWAs Faster: The Complete Guide to Manifest.json"
+date: "2026-05-29"
+excerpt: "Every Progressive Web App starts with a manifest.json — learn every field, best practices for icons, screenshots, shortcuts, and how to make your app installable across all platforms."
+tags: "PWA, Manifest, Mobile, Installable"
+---
+
+The `manifest.json` file is the single source of truth for how your web app appears when installed on a user's device. It controls the app name, icon, theme color, display mode, and dozens of other details that transform a website into a native-like experience.
+
+Without it, there's no "Add to Home Screen" prompt, no splash screen, and no standalone window — just a browser tab.
+
+## The Minimum Viable Manifest
+
+A valid manifest needs only a few fields:
+
+```json
+{
+  "name": "My App",
+  "short_name": "App",
+  "start_url": "/",
+  "display": "standalone",
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
+```
+
+Link it from every page with a single `<link>` tag in your `<head>`:
+
+```html
+<link rel="manifest" href="/manifest.json" />
+```
+
+## Required vs. Recommended Fields
+
+### Required by Chrome for Install Prompt
+
+Chrome's installability criteria (the "beforeinstallprompt" event requires):
+
+1. A valid `manifest.json` linked from the page
+2. At least a **192x192** and **512x512** icon
+3. `display` set to `standalone`, `fullscreen`, or `minimal-ui` (but not `browser`)
+4. The site served over HTTPS
+5. A registered service worker with a `fetch` event handler
+
+### Recommended for Quality
+
+Beyond the minimum, these fields significantly improve the user experience:
+
+```json
+{
+  "description": "A brief description of what your app does",
+  "theme_color": "#1a1a2e",
+  "background_color": "#0f0f1a",
+  "orientation": "portrait-primary",
+  "scope": "/app/",
+  "lang": "en",
+  "categories": ["productivity", "utilities"],
+  "screenshots": [
+    {
+      "src": "/screenshot-1.png",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "label": "Home screen with dashboard"
+    }
+  ]
+}
+```
+
+## Display Modes Explained
+
+The `display` field controls the browser chrome around your app:
+
+| Mode | Browser Chrome | Status Bar | Best For |
+|------|---------------|------------|----------|
+| `standalone` | None (own window) | Yes | Most apps — looks native |
+| `fullscreen` | None at all | No | Games, immersive experiences |
+| `minimal-ui` | Back/forward/reload | Yes | Content-focused apps |
+| `browser` | Full browser chrome | Yes | Standard web page |
+
+**Recommendation:** Use `standalone` for most apps. It gives you a native-looking window with a status bar but no URL bar or browser buttons.
+
+## Icons: The Complete Story
+
+Icons are the make-or-break for a good PWA. Here's the recommended set:
+
+```json
+"icons": [
+  { "src": "/icon-48.png",  "sizes": "48x48",   "type": "image/png" },
+  { "src": "/icon-72.png",  "sizes": "72x72",   "type": "image/png" },
+  { "src": "/icon-96.png",  "sizes": "96x96",   "type": "image/png" },
+  { "src": "/icon-144.png", "sizes": "144x144", "type": "image/png" },
+  { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png" },
+  { "src": "/icon-256.png", "sizes": "256x256", "type": "image/png" },
+  { "src": "/icon-384.png", "sizes": "384x384", "type": "image/png" },
+  { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png" }
+]
+```
+
+**Why so many sizes?** Different platforms use different sizes:
+
+- **Android** — Uses 192x192 for the home screen, 512x512 for the splash screen
+- **iOS (Safari)** — Uses the `apple-touch-icon` link tag (not manifest icons), typically 180x180
+- **Windows** — Uses 256x256 or larger for tiles
+- **ChromeOS** — Uses 512x512
+
+**Pro tip:** Provide a maskable icon with a safe zone (padding) so Android can adapt it to any shape:
+
+```json
+{
+  "src": "/icon-maskable.png",
+  "sizes": "512x512",
+  "type": "image/png",
+  "purpose": "maskable"
+}
+```
+
+Maskable icons should have at least 40% padding (safe zone of 60% inner area). Use a tool like [Maskable.app](https://maskable.app) to test your icon.
+
+## Theme & Background Colors
+
+These two colors control the startup experience:
+
+- **`theme_color`** — The color of the status bar / toolbar in the standalone window
+- **`background_color`** — The color shown while the app loads (before any CSS)
+
+```json
+{
+  "theme_color": "#1a1a2e",
+  "background_color": "#0f0f1a"
+}
+```
+
+**Best practice:** Set `background_color` to the same value as your page's `<body>` background. This prevents a flash of white during app load. Set `theme_color` to your primary brand color for a cohesive native feel.
+
+## Screenshots: The Store Listing
+
+Screenshots appear in the app install dialog on Android and in app stores if you submit your PWA. Chrome requires at least one screenshot for the "richer install UI":
+
+```json
+"screenshots": [
+  {
+    "src": "/screenshot-wide.png",
+    "sizes": "1280x720",
+    "type": "image/png",
+    "label": "Dashboard view with analytics"
+  },
+  {
+    "src": "/screenshot-mobile.png",
+    "sizes": "750x1334",
+    "type": "image/png",
+    "label": "Mobile view with navigation"
+  }
+]
+```
+
+**Requirements:** Screenshots must be at least 320x320 and at most 3840x3840. Chrome recommends landscape (wider than tall) screenshots for the best presentation.
+
+## App Shortcuts
+
+Shortcuts appear when the user long-presses or right-clicks your app icon. They provide quick access to common tasks:
+
+```json
+"shortcuts": [
+  {
+    "name": "New Document",
+    "short_name": "New",
+    "description": "Create a blank document",
+    "url": "/new"
+  },
+  {
+    "name": "View Recent",
+    "short_name": "Recent",
+    "description": "Browse recently edited files",
+    "url": "/recent"
+  }
+]
+```
+
+**Limits:** Chrome supports up to 10 shortcuts. Each must have at minimum a `name` and `url`.
+
+## Categories
+
+The `categories` field helps app stores and the OS understand what your app does:
+
+```json
+"categories": ["productivity", "utilities", "education"]
+```
+
+Choose from the [W3C's list of known categories](https://www.w3.org/TR/webappmanifest/#categories-member): books, business, education, entertainment, finance, fitness, food, games, health, kids, lifestyle, music, navigation, news, photo, productivity, shopping, social, sports, travel, utilities, weather.
+
+## Testing Your Manifest
+
+1. **Chrome DevTools** → Application tab → Manifest panel. Shows all parsed fields and any errors.
+2. **Lighthouse** — Run an audit; it validates your manifest, icons, and installability.
+3. **Web App Manifest Validator** — Command line: `npx web-app-manifest-validator manifest.json`
+4. **DevBench PWA Manifest Generator** — [Build and preview manifest.json visually](/tools/pwa-manifest-generator)
+
+## Common Mistakes
+
+### 1. Missing 192x192 or 512x512 icon
+
+Chrome requires both. Without them, the install prompt won't fire. Check that your `sizes` field exactly matches the actual image dimensions.
+
+### 2. `display: "browser"` (or missing `display`)
+
+This prevents the app from opening in standalone mode. Use `standalone`, `fullscreen`, or `minimal-ui`.
+
+### 3. Start URL outside of scope
+
+The `start_url` must be within the `scope`. If `scope` is `/app/`, the `start_url` cannot be `/`.
+
+### 4. No service worker
+
+A service worker with at minimum a `fetch` event listener is required for Chrome's install prompt. Even an empty one works:
+
+```js
+self.addEventListener('fetch', () => {});
+```
+
+### 5. Non-HTTPS
+
+PWAs require HTTPS. The only exception is `localhost` for development.
+
+## Going Beyond
+
+Once your manifest is solid, the next steps for a complete PWA are:
+
+1. **Service Worker** — Cache your app shell for offline access
+2. **Web App Install Banner** — Customize the install experience
+3. **Push Notifications** — Engage users with timely updates
+4. **Background Sync** — Handle offline writes that sync when online
+5. **File Handling** — Register as a file handler for your app's document types
+
+The manifest.json is just the beginning — but it's the foundation everything else builds on. Get it right, and your PWA will install on Android, ChromeOS, and desktop Chrome with a polished, native-like experience.
+
+Use our [PWA Manifest Generator](/tools/pwa-manifest-generator) to build yours visually in seconds.

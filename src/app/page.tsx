@@ -824,6 +824,27 @@ const featuredTools = [
     tags: ['Docker', 'Compose', 'DevOps', 'YAML'],
   },
   {
+    title: 'PWA Manifest Generator',
+    description: 'Build a web app manifest.json visually — name, icons, theme colors, display mode, screenshots, shortcuts, and more. Instant JSON output for installable PWAs.',
+    href: '/tools/pwa-manifest-generator',
+    icon: Monitor,
+    tags: ['PWA', 'Manifest', 'Mobile', 'Installable'],
+  },
+  {
+    title: 'CSS accent-color Playground',
+    description: 'Style native form controls with one CSS property — checkboxes, radio buttons, range sliders, progress bars, and selects. Live preview, color presets, instant CSS output.',
+    href: '/tools/css-accent-color-playground',
+    icon: Palette,
+    tags: ['CSS', 'accent-color', 'Forms', 'Design'],
+  },
+  {
+    title: '.env File Validator',
+    description: 'Parse, validate, and inspect .env files — detect syntax errors, expand $VAR references, view resolved vs raw values, and export clean environment files.',
+    href: '/tools/env-file-validator',
+    icon: FileText,
+    tags: ['Env', 'Variables', 'Validator', 'DevOps'],
+  },
+  {
     title: 'Unit Converter',
     description: 'Convert between hundreds of units across 10 categories — length, mass, temperature, area, volume, speed, time, digital storage, pressure, and energy. Live conversion, instant results.',
     href: '/tools/unit-converter',
@@ -860,6 +881,20 @@ const featuredTools = [
   },
 ];
 const sampleBlogPosts = [
+  {
+    title: 'Build PWAs Faster: The Complete Guide to Manifest.json',
+    date: '2026-05-29',
+    excerpt: 'Every Progressive Web App starts with a manifest.json — learn every field, best practices for icons, screenshots, shortcuts, and how to make your app installable across all platforms.',
+    slug: 'pwa-manifest-json-complete-guide',
+    tags: ['PWA', 'Manifest', 'Mobile', 'Installable'],
+  },
+  {
+    title: 'CSS accent-color: Style Native Form Controls in One Line',
+    date: '2026-05-29',
+    excerpt: 'The accent-color CSS property lets you theme checkboxes, radio buttons, range sliders, and progress bars with a single declaration. Complete guide with browser support, design system patterns, and accessibility considerations.',
+    slug: 'css-accent-color-guide',
+    tags: ['CSS', 'accent-color', 'Forms', 'Design'],
+  },
   {
     title: 'CSS light-dark() in 2026: One Function, Complete Theming',
     date: '2026-05-28',

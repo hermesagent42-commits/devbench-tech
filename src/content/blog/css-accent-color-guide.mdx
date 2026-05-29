@@ -1,0 +1,123 @@
+---
+title: "CSS accent-color: Style Native Form Controls in One Line"
+date: "2026-05-29"
+excerpt: "The accent-color CSS property lets you theme checkboxes, radio buttons, range sliders, and progress bars with a single declaration. Complete guide with browser support, design system patterns, and accessibility considerations."
+tags: "CSS, accent-color, Forms, Design"
+---
+
+The `accent-color` CSS property is one of those rare gems: it does exactly one thing, does it well, and works across all modern browsers. With a single line of CSS, you can theme the native form controls that browsers have stubbornly refused to let us style for decades — checkboxes, radio buttons, range sliders, and progress bars.
+
+## What accent-color Controls
+
+The property affects these native form elements:
+
+- `<input type="checkbox">` — the checked background and border
+- `<input type="radio">` — the selected indicator fill
+- `<input type="range">` — the filled track portion and thumb
+- `<progress>` — the filled bar portion
+- `<select>` — the focus ring (in some browsers)
+
+```css
+:root {
+  accent-color: #0077b6;
+}
+```
+
+That's it. One line. Every native form control on your page now uses your brand color instead of the browser's default blue.
+
+## Browser Support (Baseline 2022)
+
+`accent-color` has been Baseline since 2022, with support in:
+
+- **Chromium 93+** (Chrome, Edge, Opera, Brave, Arc)
+- **Firefox 92+**
+- **Safari 15.4+** (desktop and iOS)
+
+That's over 95% of global browser usage. You can safely use it today without a fallback — browsers that don't support it simply render the default OS accent color, which is still perfectly usable.
+
+## Real-World Patterns
+
+### Per-Element Targeting
+
+You can also scope accent-color to specific form elements:
+
+```css
+/* Brand color for all controls */
+:root {
+  accent-color: #7b2ff7;
+}
+
+/* Different color for range sliders */
+input[type="range"] {
+  accent-color: #06d6a0;
+}
+
+/* Error state — red checkbox for failed validation */
+input[type="checkbox"].error {
+  accent-color: #e63946;
+}
+```
+
+### Design System Integration
+
+If you're using CSS custom properties for your design tokens, accent-color slots in naturally:
+
+```css
+:root {
+  --color-accent: #0077b6;
+  accent-color: var(--color-accent);
+}
+
+/* Dark mode override */
+[data-theme="dark"] {
+  --color-accent: #0ea5e9;
+}
+```
+
+### Platform-Specific Accent
+
+Want to match your brand on the web but let native apps use the system accent? Use the `auto` value on the platform-specific version:
+
+```css
+/* Web: brand accent */
+.accent-brand {
+  accent-color: #f77f00;
+}
+
+/* Native wrapper: system accent */
+@media (display-mode: standalone) {
+  .accent-brand {
+    accent-color: auto;
+  }
+}
+```
+
+## Accessibility Considerations
+
+`accent-color` helps accessibility rather than hurting it, because:
+
+1. **Contrast is maintained** — Browsers automatically adjust the checkmark/indicator color (white or black) based on the accent color's contrast against the background.
+2. **Default sizing preserved** — The native controls maintain their OS-level sizing, which respects the user's accessibility settings for larger touch targets.
+3. **High contrast mode** — In Windows High Contrast Mode, `accent-color` is respected as long as the color meets contrast requirements.
+
+However, always test your accent color choices with a contrast checker. A dark purple accent (#7b2ff7) on a white background produces a white checkmark — perfectly readable. A light yellow accent (#fde047) on white will produce a dark checkmark, which is also fine.
+
+## What accent-color Does NOT Do
+
+It's important to understand the limits:
+
+- It does **not** style `border-color`, `background-color`, or `font-size` of form controls
+- It does **not** replace `appearance: none` custom checkbox techniques — it only changes the accent, not the shape
+- It does **not** work on `<input type="text">`, `<textarea>`, `<button>`, or `<select>` options
+
+If you need fully custom-styled checkboxes (round instead of square, animated checkmarks, etc.), you'll still need the `appearance: none` technique with custom backgrounds and pseudo-elements.
+
+## Why This Matters
+
+For years, web developers have been writing 50+ lines of CSS to style a checkbox — hiding the native control, drawing a custom box, positioning a custom checkmark with CSS transforms, handling `:checked` states, managing focus rings. All of that just to make a checkbox match a brand color.
+
+`accent-color` eliminates that overhead for the 90% of use cases where you just want your form controls to match your design system. Native controls are faster, more accessible, and respect the user's OS-level preferences. Use `accent-color` to make them match your brand, and reserve custom checkbox techniques for the rare case where you genuinely need a different shape or animation.
+
+## Try It Live
+
+Head over to our [CSS accent-color Playground](/tools/css-accent-color-playground) to experiment with 12 color presets, see live previews across all five form control types, and copy the CSS instantly.
