@@ -902,6 +902,13 @@ const featuredTools = [
     icon: Egg,
     tags: ['CSS', 'shape-outside', 'Float', 'Layout'],
   },
+  {
+    title: 'CSS Logical Properties Playground',
+    description: 'Build writing-mode-aware layouts with flow-relative CSS — margin-inline, padding-block, border-inline-start, and 28 more. Toggle writing modes and directions, see the physical mapping in real time, and copy production-ready CSS.',
+    href: '/tools/css-logical-properties',
+    icon: ArrowLeftRight,
+    tags: ['CSS', 'Logical Properties', 'i18n', 'Writing Mode', 'RTL'],
+  },
 ];
 const sampleBlogPosts = [
   {
