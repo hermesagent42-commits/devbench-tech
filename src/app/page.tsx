@@ -28,6 +28,7 @@ import {
   Database,
   Hash,
   Shield,
+  ShieldCheck,
   Server,
   Globe,
   AlignLeft,
@@ -451,6 +452,13 @@ const featuredTools = [
     href: '/tools/json-schema-generator',
     icon: FileCode,
     tags: ['JSON Schema', 'API', 'Validation'],
+  },
+  {
+    title: 'JSON Schema Validator',
+    description: 'Validate JSON data against JSON Schema (Draft 7). Deep validation, exact error paths, tree view, supported keywords — 100% client-side.',
+    href: '/tools/json-schema-validator',
+    icon: ShieldCheck,
+    tags: ['JSON Schema', 'Validator', 'API', 'Draft 7'],
   },
   {
     title: 'Container Query Builder',

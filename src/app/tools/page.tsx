@@ -432,6 +432,13 @@ const allTools = [
     tags: ['JSON Schema', 'API', 'Validation', 'Code Generation'],
   },
   {
+    title: 'JSON Schema Validator',
+    description: 'Validate JSON data against JSON Schema (Draft 7) — deep validation of nested structures, format validation, error tree view, all composition keywords. 100% client-side.',
+    href: '/tools/json-schema-validator',
+    icon: ShieldCheck,
+    tags: ['JSON Schema', 'Validator', 'API', 'Draft 7'],
+  },
+  {
     title: 'Image Compressor',
     description: 'Compress and resize images client-side — JPEG, WebP, PNG. Drag-and-drop, quality slider, size comparison, presets for web/social/thumbnails, instant download.',
     href: '/tools/image-compressor',
