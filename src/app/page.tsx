@@ -406,6 +406,13 @@ const featuredTools = [
     tags: ['Base64', 'Image', 'Converter'],
   },
   {
+    title: 'Image to ASCII Art',
+    description: 'Convert any image to ASCII art — upload, drag-and-drop, or paste. Adjust resolution, choose character sets, color block mode, and export to text or colored HTML.',
+    href: '/tools/image-to-ascii',
+    icon: Image,
+    tags: ['ASCII', 'Image', 'Art', 'Converter'],
+  },
+  {
     title: 'Line Sorter',
     description: 'Sort, deduplicate, shuffle, and reverse lines of text. Natural sort handles file1, file2, file10 correctly — all client-side.',
     href: '/tools/line-sorter',
