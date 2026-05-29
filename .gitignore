@@ -43,3 +43,6 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 .netlify/
+
+# embedded git repo
+devbench-tech/
