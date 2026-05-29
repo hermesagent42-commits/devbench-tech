@@ -1,0 +1,299 @@
+---
+title: "CSS color-mix(): The Complete Practical Guide"
+date: "2026-05-29"
+excerpt: "Master CSS color-mix() for dynamic theming, color manipulation, and design systems. From basic syntax to advanced patterns with real-world examples — no preprocessors needed."
+tags: "CSS, color-mix, color, design, theming, 2026, guide"
+---
+
+# CSS `color-mix()`: The Complete Practical Guide
+
+CSS `color-mix()` landed as **Baseline in April 2024** and is now supported in every modern browser. It lets you mix two colors directly in CSS — no Sass, no PostCSS, no JavaScript. If you're building design systems, dark mode, or component libraries, this function will fundamentally change how you work with color.
+
+## The Basics
+
+The syntax is straightforward:
+
+```css
+color-mix(in <color-space>, <color-1>, <color-2>)
+```
+
+The simplest possible usage — mix red and blue equally in sRGB:
+
+```css
+background: color-mix(in srgb, red, blue);
+/* Result: rgb(128, 0, 128) — a perfect purple */
+```
+
+By default, each color contributes 50%. You can control the proportions with percentages:
+
+```css
+/* 70% red, 30% blue */
+background: color-mix(in srgb, red 70%, blue 30%);
+
+/* Only need to specify one — the other fills to 100% */
+background: color-mix(in srgb, red 80%, blue);
+```
+
+If percentages don't sum to 100%, both are scaled proportionally:
+
+```css
+/* 25% / 50% → scaled to 33.3% / 66.7% */
+background: color-mix(in srgb, red 25%, blue 50%);
+```
+
+## Color Spaces Matter
+
+The `in <color-space>` part is where `color-mix()` gets powerful. Different color spaces produce **different intermediate colors**:
+
+### sRGB (default, but not the best)
+
+```css
+/* sRGB mixing — can produce muddy midpoints */
+background: color-mix(in srgb, #ff0000, #0000ff);
+```
+
+sRGB is the web's native space but its gamma curve creates non-uniform mixing. Midpoints between complementary colors often look desaturated and dull.
+
+### OKLCH — The Perceptual Powerhouse
+
+```css
+/* OKLCH — perceptually uniform, vibrant midpoints */
+background: color-mix(in oklch, #ff0000, #0000ff);
+```
+
+OKLCH produces **smoother, more natural blends** because it's perceptually uniform. Equal steps in OKLCH look like equal visual changes to the human eye. This is the recommended space for most use cases.
+
+### Other Color Spaces
+
+- **`in hsl`** — works like HSL color pickers, good for saturation/lightness tweaking
+- **`in oklab`** — similar to OKLCH, perceptually uniform
+- **`in lch`** — cylindrical OKLab, useful for hue-based mixing
+- **`in display-p3`** — wide-gamut mixing for HDR displays
+- **`in xyz-d65`** — the reference space, rarely needed directly
+
+```css
+/* HSL mixing — keeps saturation alive in the middle */
+background: color-mix(in hsl, #ff0000, #0000ff);
+
+/* LCH mixing — preserves perceptual lightness */
+background: color-mix(in lch, #ff0000, #0000ff);
+
+/* Wide-gamut mixing for P3 displays */
+background: color-mix(in display-p3, #ff0000, #0000ff);
+```
+
+Here's the difference visually: mixing red and blue in sRGB gives you a dark purplish-gray. In OKLCH, you get a vibrant purple that maintains perceptual brightness through the blend.
+
+## Transparent Colors and Alpha
+
+`color-mix()` handles transparency gracefully:
+
+```css
+/* Mix a color with transparent → effectively applies opacity */
+background: color-mix(in srgb, #3b82f6 80%, transparent);
+/* Same as: background: rgb(59 130 246 / 0.8) */
+
+/* Mix two semi-transparent colors */
+background: color-mix(in srgb, rgb(255 0 0 / 0.5), rgb(0 0 255 / 0.5));
+```
+
+This is especially useful for creating **alpha variants** of design tokens:
+
+```css
+:root {
+  --color-primary: #3b82f6;
+  --color-primary-80: color-mix(in srgb, var(--color-primary) 80%, transparent);
+  --color-primary-60: color-mix(in srgb, var(--color-primary) 60%, transparent);
+  --color-primary-40: color-mix(in srgb, var(--color-primary) 40%, transparent);
+  --color-primary-20: color-mix(in srgb, var(--color-primary) 20%, transparent);
+}
+```
+
+## Real-World Patterns
+
+### Pattern 1: Design System Color Scales
+
+Instead of hand-picking 10 shades of blue, derive them from one base color:
+
+```css
+:root {
+  --blue: #3b82f6;
+
+  /* Tints (mix with white) */
+  --blue-50:  color-mix(in oklch, var(--blue) 10%, white);
+  --blue-100: color-mix(in oklch, var(--blue) 25%, white);
+  --blue-200: color-mix(in oklch, var(--blue) 50%, white);
+  --blue-300: color-mix(in oklch, var(--blue) 70%, white);
+
+  /* Base */
+  --blue-500: var(--blue);
+
+  /* Shades (mix with black) */
+  --blue-700: color-mix(in oklch, var(--blue) 70%, black);
+  --blue-800: color-mix(in oklch, var(--blue) 50%, black);
+  --blue-900: color-mix(in oklch, var(--blue) 25%, black);
+}
+```
+
+Change `--blue` and the entire scale updates. This is dramatically less maintenance than managing 10 separate hex values.
+
+### Pattern 2: Automatic Dark Mode
+
+Derive dark mode colors from light mode automatically:
+
+```css
+:root {
+  --surface: #ffffff;
+  --text: #0f172a;
+}
+
+[data-theme="dark"] {
+  --surface: color-mix(in oklch, var(--surface), black 85%);
+  --text: color-mix(in oklch, var(--text), white 90%);
+}
+```
+
+For component-level dark variants:
+
+```css
+.card {
+  background: var(--surface);
+  color: var(--text);
+}
+
+.card--elevated {
+  /* Lighten in light mode, darken in dark mode — same rule works! */
+  background: color-mix(in oklch, var(--surface) 95%, var(--text));
+}
+```
+
+### Pattern 3: Accessible Contrast on Any Background
+
+Dynamically compute text colors that pass WCAG contrast:
+
+```css
+.badge {
+  --badge-bg: var(--user-color, #3b82f6);
+  background: var(--badge-bg);
+
+  /* Text is either white or black based on background luminance */
+  color: color-mix(in oklch, var(--badge-bg) 15%, white);
+}
+```
+
+For labels and chips where you want the text to be a darker shade of the background:
+
+```css
+.chip {
+  background: color-mix(in oklch, var(--chip-color) 15%, transparent);
+  color: color-mix(in oklch, var(--chip-color) 60%, black);
+  border: 1px solid color-mix(in oklch, var(--chip-color) 30%, transparent);
+}
+```
+
+### Pattern 4: Hover and Active States
+
+Replace hardcoded hover colors with proportional mixing:
+
+```css
+.btn {
+  background: var(--btn-bg, #3b82f6);
+
+  &:hover {
+    /* Darken on hover — works for any color */
+    background: color-mix(in oklch, var(--btn-bg) 85%, black);
+  }
+
+  &:active {
+    background: color-mix(in oklch, var(--btn-bg) 75%, black);
+  }
+
+  &:disabled {
+    background: color-mix(in oklch, var(--btn-bg) 40%, transparent);
+  }
+}
+```
+
+### Pattern 5: Gradient Stop Colors
+
+Calculate gradient midpoints dynamically:
+
+```css
+.hero-gradient {
+  --from: #6366f1;
+  --to: #ec4899;
+  --mid: color-mix(in oklch, var(--from), var(--to));
+
+  background: linear-gradient(135deg, var(--from), var(--mid), var(--to));
+}
+```
+
+### Pattern 6: Theming with CSS Custom Properties
+
+Build a complete theming system:
+
+```css
+:root {
+  --hue: 220;
+  --chroma: 0.12;
+  --lightness: 55%;
+
+  --color-primary: oklch(var(--lightness) var(--chroma) var(--hue));
+  --color-primary-hover: color-mix(in oklch, var(--color-primary) 85%, black);
+  --color-primary-light: color-mix(in oklch, var(--color-primary) 15%, transparent);
+  --color-primary-text: color-mix(in oklch, var(--color-primary) 30%, white);
+}
+
+[data-theme="green"] {
+  --hue: 160;
+  --chroma: 0.14;
+}
+
+[data-theme="rose"] {
+  --hue: 340;
+  --chroma: 0.16;
+}
+```
+
+One `data-theme` attribute changes the entire palette.
+
+## Performance Considerations
+
+`color-mix()` is computed at **used-value time**, meaning the browser evaluates it once per element per frame — similar to `calc()`. For static values, there's essentially zero runtime cost. For values that change (e.g., via `:hover` or custom property changes), recomputation is negligible.
+
+**Prefer `color-mix()` over JavaScript color manipulation.** Computing colors in JS requires reading computed styles, doing math, and writing back — triggering layout thrashing. CSS `color-mix()` avoids all of that.
+
+## Browser Support
+
+As of May 2026, `color-mix()` is **Baseline: Widely Available**:
+
+- Chrome/Edge 111+
+- Firefox 113+
+- Safari 16.2+
+- All major mobile browsers
+
+No polyfill needed. It's safe to ship to production.
+
+## When NOT to Use color-mix()
+
+**Predefined design tokens.** If your design system already defines every shade, `color-mix()` adds unnecessary complexity.
+
+**Complex multi-stop gradients.** For 3+ color blends, use gradient syntax directly.
+
+**Critical brand colors.** Automatically derived colors may not match brand guidelines exactly. Always test against brand standards.
+
+**Color space precision.** sRGB mixing can produce unexpected desaturated midpoints. Always use OKLCH for perceptual consistency unless you have a specific reason to use another space.
+
+## Try It Yourself
+
+We built a [Color Mix Playground](/tools/color-mix-playground/) on DevBench where you can experiment with different color spaces, proportions, and see live results. Open it alongside this guide to build intuition for how each color space behaves.
+
+## Key Takeaways
+
+1. **Use OKLCH by default** — it produces the most natural, perceptually uniform blends
+2. **Derive, don't hand-pick** — compute shades, tints, and states from base colors
+3. **Combine with custom properties** for zero-JS dynamic theming
+4. **Works everywhere** — Baseline since early 2024, no polyfills needed
+5. **Prefer over JS color math** — CSS-side computation avoids layout thrashing
+
+`color-mix()` joins CSS nesting, `:has()`, container queries, and cascade layers as part of the modern CSS renaissance. It eliminates an entire class of preprocessor dependencies and JavaScript color utilities. Start using it today.
