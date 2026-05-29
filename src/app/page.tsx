@@ -87,6 +87,7 @@ import {
   GitGraph,
   ListOrdered,
   Bell,
+  Egg,
 } from 'lucide-react';
 
 export const metadata: Metadata = {
@@ -886,6 +887,13 @@ const featuredTools = [
     href: '/tools/clip-path-generator',
     icon: Scissors,
     tags: ['CSS', 'Clip-Path', 'Shapes', 'Design'],
+  },
+  {
+    title: 'CSS shape-outside Playground',
+    description: 'Wrap text around circles, ellipses, polygons, and custom SVG paths — magazine-style layouts with live preview. 8 presets, instant CSS copy.',
+    href: '/tools/css-shape-outside-playground',
+    icon: Egg,
+    tags: ['CSS', 'shape-outside', 'Float', 'Layout'],
   },
 ];
 const sampleBlogPosts = [
