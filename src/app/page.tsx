@@ -977,6 +977,13 @@ const featuredTools = [
     icon: Paintbrush,
     tags: ['CSS', 'Highlight API', 'Baseline 2026', 'Browser API'],
   },
+  {
+    title: 'Password Generator',
+    description: 'Generate strong, cryptographically random passwords with full control — length, character sets, strength meter, and batch generation. 100% client-side.',
+    href: '/tools/password-generator',
+    icon: Key,
+    tags: ['Password', 'Generator', 'Security', 'Entropy'],
+  },
 ];
 const sampleBlogPosts = [
   {

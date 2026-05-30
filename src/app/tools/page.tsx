@@ -913,6 +913,13 @@ const allTools = [
     icon: Paintbrush,
     tags: ['CSS', 'Highlight API', 'Baseline 2026', 'Browser API'],
   },
+  {
+    title: 'Password Generator',
+    description: 'Generate strong, cryptographically random passwords — crypto.getRandomValues() entropy. Full control over length (4–128), character sets (lower, upper, numbers, symbols), ambiguous character exclusion. Strength meter with entropy bits and crack-time estimates, batch generation, show/hide toggle, copy individual or all, and recent history.',
+    href: '/tools/password-generator',
+    icon: Key,
+    tags: ['Password', 'Generator', 'Security', 'Entropy'],
+  },
 ];
 
 export default function ToolsPage() {
