@@ -13,6 +13,7 @@ import {
   Layers,
   Move,
   Minimize2,
+  Maximize2,
   PaintBucket,
   Palette,
   Clock,
@@ -761,6 +762,13 @@ const featuredTools = [
     href: '/tools/intersection-observer-playground',
     icon: Eye,
     tags: ['Browser API', 'Intersection Observer', 'Performance'],
+  },
+  {
+    title: 'ResizeObserver Playground',
+    description: 'Observe element resizes in real-time — drag to resize, watch ResizeObserver fire, inspect contentRect, borderBoxSize, contentBoxSize, and devicePixelContentBoxSize. 4 presets, event log — pure client-side.',
+    href: '/tools/resize-observer-playground',
+    icon: Maximize2,
+    tags: ['Browser API', 'ResizeObserver', 'Resize', 'Debug'],
   },
   {
     title: 'Geolocation API Playground',
