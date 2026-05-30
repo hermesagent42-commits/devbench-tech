@@ -711,6 +711,13 @@ const allTools = [
     tags: ['CSS', 'Overflow', 'Scroll', 'Text', 'Layout'],
   },
   {
+    title: 'CSS Offset Path Playground',
+    description: 'Visually build motion paths — animate elements along circles, ellipses, sine waves, hearts, stars, and custom SVG paths. Live preview, offset-distance slider, offset-rotate control, and instant CSS output.',
+    href: '/tools/css-offset-path-playground',
+    icon: TrendingUp,
+    tags: ['CSS', 'offset-path', 'Motion', 'Animation', 'SVG'],
+  },
+  {
     title: 'Browser Storage Explorer',
     description: 'Inspect, edit, import, and export localStorage & sessionStorage. Type detection, search, quota usage bar — the DevTools storage panel, supercharged.',
     href: '/tools/browser-storage-explorer',

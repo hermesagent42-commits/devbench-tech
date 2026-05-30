@@ -467,6 +467,13 @@ const featuredTools = [
     tags: ['CSS', 'Keyframes', 'Animation', 'Builder'],
   },
   {
+    title: 'CSS Offset Path Playground',
+    description: 'Animate elements along circles, waves, hearts, stars & custom SVG paths. offset-path + offset-rotate visual editor — pure CSS motion.',
+    href: '/tools/css-offset-path-playground',
+    icon: TrendingUp,
+    tags: ['CSS', 'Motion', 'Path', 'Animation'],
+  },
+  {
     title: 'CSS Unit Converter',
     description: 'Convert between px, rem, em, vw, vh, and 20+ CSS units. Configurable font size and viewport, presets, instant copy.',
     href: '/tools/css-unit-converter',
