@@ -14,6 +14,7 @@ import {
   Maximize2,
   ArrowUpDown,
   PaintBucket,
+  Paintbrush,
   Clock,
   Droplets,
   FileCode,
@@ -890,6 +891,27 @@ const allTools = [
     href: '/tools/css-multicol-playground',
     icon: Columns,
     tags: ['CSS', 'Multi-Column', 'Layout', 'columns'],
+  },
+  {
+    title: 'Git Command Explorer',
+    description: 'Browse, search, and copy 45+ essential Git commands — from setup to advanced recovery. Filter by category and difficulty, 100% client-side.',
+    href: '/tools/git-command-explorer',
+    icon: GitBranch,
+    tags: ['Git', 'Commands', 'Reference', 'DevOps'],
+  },
+  {
+    title: 'CSS @starting-style Playground',
+    description: 'Design entry animations from display:none with the @starting-style at-rule — 6 presets (dialog, tooltip, drawer, card, notification, slide-in), live preview, and generated CSS + JS.',
+    href: '/tools/css-starting-style-playground',
+    icon: Sparkles,
+    tags: ['CSS', '@starting-style', 'Animation', 'Baseline 2026'],
+  },
+  {
+    title: 'CSS Highlight API Playground',
+    description: 'Style arbitrary text ranges with ::highlight() pseudo-elements — no DOM mutation, no reflow. Multiple highlight groups, search-based auto-highlighting, live preview, CSS + JS code generation.',
+    href: '/tools/css-highlight-api-playground',
+    icon: Paintbrush,
+    tags: ['CSS', 'Highlight API', 'Baseline 2026', 'Browser API'],
   },
 ];
 

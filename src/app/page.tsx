@@ -92,6 +92,7 @@ import {
   ListOrdered,
   Bell,
   Egg,
+  Sparkles,
 } from 'lucide-react';
 
 export const metadata: Metadata = {
@@ -936,7 +937,7 @@ const featuredTools = [
   },
   {
     title: 'CSS Logical Properties Playground',
-    description: 'Build writing-mode-aware layouts with flow-relative CSS — margin-inline, padding-block, border-inline-start, and 28 more. Toggle writing modes and directions, see the physical mapping in real time, and copy production-ready CSS.',
+    description: 'Build writing-mode-aware layouts with flow-relative CSS — margin-inline, padding-block, border-inline-start, and 28 more. Toggle writing modes and directions, see the physical mapping in real time.',
     href: '/tools/css-logical-properties',
     icon: ArrowLeftRight,
     tags: ['CSS', 'Logical Properties', 'i18n', 'Writing Mode', 'RTL'],
@@ -950,10 +951,31 @@ const featuredTools = [
   },
   {
     title: 'CSS Multi-Column Playground',
-    description: 'Visually build multi-column layouts — newspaper, magazine, dictionary. column-count, column-width, column-gap, column-rule, column-span, column-fill — live preview, 6 presets, instant CSS + Tailwind copy.',
+    description: 'Visually build multi-column layouts — newspaper, magazine, dictionary. column-count, column-width, column-gap, column-rule, column-span, column-fill.',
     href: '/tools/css-multicol-playground',
     icon: ColumnsIcon,
     tags: ['CSS', 'Multi-Column', 'Layout', 'columns'],
+  },
+  {
+    title: 'Git Command Explorer',
+    description: 'Browse, search, and copy 45+ essential Git commands — from setup to advanced recovery. Works offline, beginner-friendly, with examples for every command.',
+    href: '/tools/git-command-explorer',
+    icon: GitBranch,
+    tags: ['Git', 'Commands', 'Reference', 'DevOps'],
+  },
+  {
+    title: 'CSS @starting-style Playground',
+    description: 'Design entry animations from display:none with the new @starting-style at-rule. 6 presets, live preview, and generated CSS — Baseline 2026 across all browsers.',
+    href: '/tools/css-starting-style-playground',
+    icon: Sparkles,
+    tags: ['CSS', '@starting-style', 'Animation', 'Baseline 2026'],
+  },
+  {
+    title: 'CSS Highlight API Playground',
+    description: 'Style arbitrary text ranges with ::highlight() — no DOM mutation needed. 8 colors, auto search highlighting, and generated CSS + JS code.',
+    href: '/tools/css-highlight-api-playground',
+    icon: Paintbrush,
+    tags: ['CSS', 'Highlight API', 'Baseline 2026', 'Browser API'],
   },
 ];
 const sampleBlogPosts = [

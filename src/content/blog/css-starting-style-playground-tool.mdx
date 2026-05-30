@@ -1,0 +1,67 @@
+---
+title: "New Tool: CSS @starting-style Playground — Animate from display:none Without JavaScript"
+date: "2026-05-30"
+excerpt: "Our new interactive playground lets you design entry animations using the CSS @starting-style at-rule — 6 presets, live preview, and generated CSS. No more JS hacks for dialog transitions."
+tags: ["CSS", "@starting-style", "DevBench", "Tool", "Animation", "2026"]
+---
+
+## The Problem: You Can't Animate display
+
+For decades, one CSS limitation has frustrated every frontend developer: you can't transition from `display: none`. Want a dialog to fade in when it opens? You need JavaScript. Want a tooltip to slide in smoothly? JavaScript. The browser simply has no "before" state to transition from when an element enters the DOM.
+
+## The Solution: @starting-style
+
+CSS `@starting-style` (Baseline 2026) gives you that missing starting point. It defines what an element looks like in its very first frame — before any transitions apply:
+
+```css
+.dialog {
+  opacity: 1;
+  transform: scale(1);
+  transition: opacity 0.3s, transform 0.3s, display 0.3s allow-discrete;
+}
+
+@starting-style {
+  .dialog {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+}
+```
+
+When `.dialog` appears (via popover API, `dialog.showModal()`, or removing `display: none`), it starts invisible and slightly scaled down, then smoothly transitions to its final state. That's it — no JavaScript, no libraries, no `requestAnimationFrame()` hacks.
+
+## Our New Playground
+
+We built an interactive playground so you can experiment without writing code:
+
+- **6 Presets** — Dialog, Tooltip, Drawer, Card, Notification, Slide-in
+- **5 Animation Properties** — Opacity, Scale, TranslateY, TranslateX, Rotate
+- **Duration & Easing Controls** — 8 easing functions, duration 0.05s–1.5s
+- **Custom Labels & Styles** — Override the element text and inline CSS
+- **Live Preview** — See the animation play with a single click
+- **Generated CSS** — Copy ready-to-use `@starting-style` + `transition` code
+
+Try it at [CSS @starting-style Playground](/tools/css-starting-style-playground).
+
+## Browser Support
+
+`@starting-style` is now Baseline across Chrome 117+, Safari 17.5+, and Firefox 129+. For browsers that don't support it, the element still appears — just without the entry animation. It's a perfect progressive enhancement.
+
+## Pair With transition-behavior
+
+To get the full effect, you'll want `transition-behavior: allow-discrete` on the `display` property. This tells the browser to apply `display` changes at the animation boundary instead of skipping them entirely:
+
+```css
+transition: opacity 0.2s, transform 0.2s, display 0.2s allow-discrete;
+```
+
+For exit animations, reverse the pattern — transition to `opacity: 0` and then set `display: none` at the end of the transition.
+
+## What's Next
+
+We're also launching **two more tools** today:
+
+- **Git Command Explorer** — Browse, search, and copy 45+ Git commands with examples
+- **CSS Highlight API Playground** — Style text ranges with `::highlight()` — no DOM mutation
+
+Check them out on the [tools page](/tools)!

@@ -1,0 +1,61 @@
+---
+title: "2 New Dev Tools: Git Command Explorer & CSS Highlight API Playground"
+date: "2026-05-30"
+excerpt: "Two new free tools on DevBench: a searchable Git command reference with 45+ commands, and a CSS Custom Highlight API playground for zero-DOM-mutation text highlighting."
+tags: ["Git", "CSS", "DevBench", "Tools", "Highlight API", "2026"]
+---
+
+## Git Command Explorer
+
+Ever found yourself googling "git undo last commit" or "git delete remote branch" for the hundredth time? Our new Git Command Explorer puts 45+ essential Git commands at your fingertips — no internet required once the page loads.
+
+### Features
+
+- **45+ Commands** across 6 categories: Setup, Staging, Branching, Remote, History, Undoing
+- **Search** by command name or description
+- **Filter** by category and difficulty level (Beginner / Intermediate / Advanced)
+- **Copy with one click** — each command has a dedicated copy button
+- **Examples** for every command showing real-world usage
+- **Quick Workflows** section with common patterns like starting a feature, rebasing, and undoing commits
+- **Level badges** so beginners know what's safe and advanced users find power tools
+
+### Covered Commands (Partial List)
+
+Config, init, clone, add, commit, push, pull, fetch, merge, rebase, cherry-pick, stash, reset, revert, bisect, reflog, blame, tag, log, diff, checkout, switch, branch, remote, clean, restore, rm, amend, squash, force-push, and more.
+
+[Try Git Command Explorer →](/tools/git-command-explorer)
+
+## CSS Custom Highlight API Playground
+
+The CSS Custom Highlight API (`::highlight()`) lets you style arbitrary text ranges — without touching the DOM. It's now Baseline 2026 across Chrome, Safari, and Firefox.
+
+### Why It Matters
+
+Traditional text highlighting means wrapping text in `<span>` elements — mutating the DOM, triggering reflows, and potentially breaking event listeners. The Highlight API paints highlights on top of existing content. No DOM changes, no layout shifts, no issues with Shadow DOM.
+
+### Playground Features
+
+- **Multiple highlight groups** — different colors for different purposes (search results, grammar errors, etc.)
+- **Auto and manual modes** — auto-highlight all occurrences of a search term, or specify exact character ranges
+- **8 preset colors** with matching text colors and underline decorations
+- **Adjustable underline thickness** for each group
+- **Live preview** using the real CSS Custom Highlight API
+- **Generated CSS + JavaScript** — copy both the `::highlight()` styles and the `CSS.highlights.set()` code
+
+### Use Cases
+
+- **Search-in-page highlighting** — highlight all search matches across the page
+- **Grammar / spell check underlines** — red squigglies without DOM mutations
+- **Collaborative editing** — show other users' cursors and selections
+- **Code editor diagnostics** — error/warning highlights in code view
+- **Rich text annotations** — comments, highlights, bookmarks
+
+[Try CSS Highlight API Playground →](/tools/css-highlight-api-playground)
+
+## All Three New Tools Today
+
+1. [CSS @starting-style Playground](/tools/css-starting-style-playground) — Animate from display:none
+2. [Git Command Explorer](/tools/git-command-explorer) — 45+ Git commands at your fingertips
+3. [CSS Highlight API Playground](/tools/css-highlight-api-playground) — Zero-DOM-mutation text highlighting
+
+All 100% client-side, free, no signup required. Check them out on the [tools page](/tools).
