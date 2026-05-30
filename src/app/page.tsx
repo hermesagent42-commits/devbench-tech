@@ -292,6 +292,13 @@ const featuredTools = [
     tags: ['JSON', 'CSV', 'Converter'],
   },
   {
+    title: 'Random Data Generator',
+    description: 'Generate realistic fake data for testing — names, emails, addresses, credit cards, and more. Export JSON/CSV.',
+    href: '/tools/random-data-generator',
+    icon: Database,
+    tags: ['Data', 'Generator', 'Testing', 'Mock'],
+  },
+  {
     title: 'JSON ↔ XML Converter',
     description: 'Convert JSON to XML and XML to JSON bidirectionally. Full XML attribute support (@attributes), CDATA sections, nested objects, arrays — 100% client-side.',
     href: '/tools/json-xml-converter',

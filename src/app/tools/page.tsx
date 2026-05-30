@@ -920,6 +920,13 @@ const allTools = [
     icon: Key,
     tags: ['Password', 'Generator', 'Security', 'Entropy'],
   },
+  {
+    title: 'Random Data Generator',
+    description: 'Generate realistic fake data for testing — names, emails, phone numbers, addresses, companies, credit cards, UUIDs, and more. Select fields, set row count, export as JSON or CSV. 100% client-side.',
+    href: '/tools/random-data-generator',
+    icon: Database,
+    tags: ['Data', 'Generator', 'Testing', 'Mock', 'CSV', 'JSON'],
+  },
 ];
 
 export default function ToolsPage() {
