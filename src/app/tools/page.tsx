@@ -89,6 +89,7 @@ import {
   Cpu,
   Bell,
   Film,
+  Columns,
 } from 'lucide-react';
 
 export const metadata: Metadata = {
@@ -874,6 +875,13 @@ const allTools = [
     href: '/tools/css-specificity-calculator',
     icon: Layers,
     tags: ['CSS', 'Specificity', 'Selector', 'Calculator'],
+  },
+  {
+    title: 'CSS Multi-Column Playground',
+    description: 'Visually build multi-column layouts — newspaper, magazine, dictionary. column-count, column-width, column-gap, column-rule, column-span, column-fill — live preview, 6 presets, instant CSS + Tailwind copy.',
+    href: '/tools/css-multicol-playground',
+    icon: Columns,
+    tags: ['CSS', 'Multi-Column', 'Layout', 'columns'],
   },
 ];
 

@@ -66,6 +66,7 @@ import {
   FlaskConical,
   Table2,
   Boxes,
+  Columns as ColumnsIcon,
   Keyboard,
   GripHorizontal,
   Monitor,
@@ -946,6 +947,13 @@ const featuredTools = [
     href: '/tools/css-specificity-calculator',
     icon: Layers,
     tags: ['CSS', 'Specificity', 'Selectors', 'Calculator'],
+  },
+  {
+    title: 'CSS Multi-Column Playground',
+    description: 'Visually build multi-column layouts — newspaper, magazine, dictionary. column-count, column-width, column-gap, column-rule, column-span, column-fill — live preview, 6 presets, instant CSS + Tailwind copy.',
+    href: '/tools/css-multicol-playground',
+    icon: ColumnsIcon,
+    tags: ['CSS', 'Multi-Column', 'Layout', 'columns'],
   },
 ];
 const sampleBlogPosts = [
