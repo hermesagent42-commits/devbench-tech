@@ -924,6 +924,13 @@ const featuredTools = [
     icon: ArrowLeftRight,
     tags: ['CSS', 'Logical Properties', 'i18n', 'Writing Mode', 'RTL'],
   },
+  {
+    title: 'CSS Specificity Calculator',
+    description: 'Instantly calculate CSS selector specificity — ID/class/element breakdown, visual score bars, comparison mode to see which rule wins, and a quick-reference table.',
+    href: '/tools/css-specificity-calculator',
+    icon: Layers,
+    tags: ['CSS', 'Specificity', 'Selectors', 'Calculator'],
+  },
 ];
 const sampleBlogPosts = [
   {

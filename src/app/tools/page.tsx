@@ -860,6 +860,13 @@ const allTools = [
     icon: Film,
     tags: ['CSS', 'Keyframes', 'Animation', 'Builder'],
   },
+  {
+    title: 'CSS Specificity Calculator',
+    description: 'Calculate and visualize CSS selector specificity — parse any selector, see the ID/class/element breakdown, compare two selectors head-to-head, and learn which rule wins. Reference table and 17 presets included.',
+    href: '/tools/css-specificity-calculator',
+    icon: Layers,
+    tags: ['CSS', 'Specificity', 'Selector', 'Calculator'],
+  },
 ];
 
 export default function ToolsPage() {
