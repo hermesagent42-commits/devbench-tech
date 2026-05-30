@@ -1013,6 +1013,13 @@ const featuredTools = [
     icon: Key,
     tags: ['Password', 'Generator', 'Security', 'Entropy'],
   },
+  {
+    title: 'Pomodoro Timer',
+    description: 'Stay focused with timed work sessions and breaks. Circular progress, sound alerts, browser notifications, session history, and streak tracking — 100% client-side.',
+    href: '/tools/pomodoro-timer',
+    icon: Timer,
+    tags: ['Productivity', 'Timer', 'Pomodoro', 'Focus'],
+  },
 ];
 const sampleBlogPosts = [
   {
