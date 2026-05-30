@@ -58,6 +58,7 @@ import {
   TreePine,
   ScrollText,
   PenTool,
+  Pencil,
   Calendar,
   FlaskConical,
   Table2,
@@ -537,6 +538,13 @@ const allTools = [
     href: '/tools/svg-previewer',
     icon: PenTool,
     tags: ['SVG', 'Preview', 'Optimizer', 'Minifier'],
+  },
+  {
+    title: 'SVG Path Builder',
+    description: 'Visually build and edit SVG path data with a live canvas. Drag anchor points, apply 10 shape templates, customize stroke/fill, and export production-ready SVG — 100% client-side.',
+    href: '/tools/svg-path-builder',
+    icon: Pencil,
+    tags: ['SVG', 'Path', 'Vector', 'Builder'],
   },
   {
     title: 'Date Calculator',

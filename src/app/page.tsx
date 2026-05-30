@@ -58,6 +58,7 @@ import {
   ScrollText,
   Film,
   PenTool,
+  Pencil,
   Calendar,
   Search,
   Code2,
@@ -560,6 +561,13 @@ const featuredTools = [
     href: '/tools/svg-previewer',
     icon: PenTool,
     tags: ['SVG', 'Preview', 'Optimizer'],
+  },
+  {
+    title: 'SVG Path Builder',
+    description: 'Visually build and edit SVG path data with a live canvas. Drag anchor points, apply 10 shape templates, customize stroke/fill, and export production-ready SVG — 100% client-side.',
+    href: '/tools/svg-path-builder',
+    icon: Pencil,
+    tags: ['SVG', 'Path', 'Vector', 'Builder'],
   },
   {
     title: 'Date Calculator',
