@@ -927,6 +927,13 @@ const allTools = [
     icon: Database,
     tags: ['Data', 'Generator', 'Testing', 'Mock', 'CSV', 'JSON'],
   },
+  {
+    title: 'JavaScript Array Methods',
+    description: 'Interactive reference for 40+ JavaScript array methods with signatures, examples, and output. Search and filter by category (Creation, Access, Transform, Reorder, Flatten, Join, Iteration). Pure vs mutating badges. 100% client-side.',
+    href: '/tools/js-array-methods',
+    icon: Braces,
+    tags: ['JavaScript', 'Array', 'Methods', 'Reference', 'ES2023', 'ES2024'],
+  },
 ];
 
 export default function ToolsPage() {
