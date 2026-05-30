@@ -624,6 +624,13 @@ const featuredTools = [
     tags: ['Semver', 'Version', 'npm'],
   },
   {
+    title: 'CSS Scrollbar Generator',
+    description: 'Design custom scrollbars visually — thumb, track, borders, and radius. WebKit + Firefox output, 8 presets, live scroll preview.',
+    href: '/tools/css-scrollbar-generator',
+    icon: GripHorizontal,
+    tags: ['CSS', 'Scrollbar', 'Design', 'Styling'],
+  },
+  {
     title: 'CSS Scroll Snap Playground',
     description: 'Visually build scroll-snap layouts — carousels, galleries, onboarding slides. Snap-type, alignment, padding, 4 presets, live preview.',
     href: '/tools/css-scroll-snap-playground',

@@ -1,730 +1,814 @@
 'use client';
 
-import { useState, useCallback, useMemo } from 'react';
+import { useState, useCallback, useMemo, useRef } from 'react';
 import { ToolLayout } from '@/components/ToolLayout';
-import { Copy, RefreshCw, Download, Palette, Layers, Settings } from 'lucide-react';
+import { Copy, RotateCcw, Eye, ChevronUp, ChevronDown, Palette, Ruler, Sparkles } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 // ── Types ──────────────────────────────────────────────────────────────────
 
 interface ScrollbarConfig {
   width: number;
-  trackColor: string;
-  trackBorderRadius: number;
-  trackBorder: string;
   thumbColor: string;
-  thumbColorHover: string;
-  thumbBorderRadius: number;
-  thumbBorder: string;
-  cornerColor: string;
+  thumbHoverColor: string;
+  thumbRadius: number;
+  thumbBorder: number;
+  thumbBorderColor: string;
+  trackColor: string;
+  trackRadius: number;
+  trackBorder: number;
+  trackBorderColor: string;
+  cornerBg: string;
   firefoxWidth: 'auto' | 'thin' | 'none';
-  firefoxTrackColor: string;
   firefoxThumbColor: string;
+  firefoxTrackColor: string;
 }
 
 interface Preset {
   name: string;
-  description: string;
   config: ScrollbarConfig;
 }
 
-// ── Presets ────────────────────────────────────────────────────────────────
+// ── Constants ──────────────────────────────────────────────────────────────
 
 const PRESETS: Preset[] = [
   {
     name: 'Minimal',
-    description: 'Clean, invisible scrollbar',
     config: {
       width: 6,
+      thumbColor: '#cbd5e1',
+      thumbHoverColor: '#94a3b8',
+      thumbRadius: 3,
+      thumbBorder: 0,
+      thumbBorderColor: 'transparent',
       trackColor: 'transparent',
-      trackBorderRadius: 0,
-      trackBorder: 'none',
-      thumbColor: 'rgba(0,0,0,0.2)',
-      thumbColorHover: 'rgba(0,0,0,0.4)',
-      thumbBorderRadius: 3,
-      thumbBorder: 'none',
-      cornerColor: 'transparent',
+      trackRadius: 3,
+      trackBorder: 0,
+      trackBorderColor: 'transparent',
+      cornerBg: 'transparent',
       firefoxWidth: 'thin',
+      firefoxThumbColor: '#cbd5e1',
       firefoxTrackColor: 'transparent',
-      firefoxThumbColor: 'rgba(0,0,0,0.2)',
     },
   },
   {
     name: 'macOS',
-    description: 'macOS-style rounded light scrollbar',
     config: {
       width: 8,
+      thumbColor: '#c1c1c1',
+      thumbHoverColor: '#a8a8a8',
+      thumbRadius: 4,
+      thumbBorder: 2,
+      thumbBorderColor: 'transparent',
       trackColor: 'transparent',
-      trackBorderRadius: 4,
-      trackBorder: 'none',
-      thumbColor: 'rgba(128,128,128,0.35)',
-      thumbColorHover: 'rgba(128,128,128,0.55)',
-      thumbBorderRadius: 4,
-      thumbBorder: 'none',
-      cornerColor: 'transparent',
+      trackRadius: 4,
+      trackBorder: 0,
+      trackBorderColor: 'transparent',
+      cornerBg: 'transparent',
       firefoxWidth: 'thin',
+      firefoxThumbColor: '#c1c1c1',
       firefoxTrackColor: 'transparent',
-      firefoxThumbColor: 'rgba(128,128,128,0.35)',
     },
   },
   {
-    name: 'Dark Neon',
-    description: 'Cyberpunk-inspired neon purple',
-    config: {
-      width: 10,
-      trackColor: '#1a1030',
-      trackBorderRadius: 5,
-      trackBorder: 'none',
-      thumbColor: '#a855f7',
-      thumbColorHover: '#c084fc',
-      thumbBorderRadius: 5,
-      thumbBorder: 'none',
-      cornerColor: '#1a1030',
-      firefoxWidth: 'thin',
-      firefoxTrackColor: '#1a1030',
-      firefoxThumbColor: '#a855f7',
-    },
-  },
-  {
-    name: 'GitHub Dark',
-    description: "Matches GitHub's dark mode scrollbars",
-    config: {
-      width: 10,
-      trackColor: '#0d1117',
-      trackBorderRadius: 0,
-      trackBorder: '1px solid #30363d',
-      thumbColor: '#484f58',
-      thumbColorHover: '#6e7681',
-      thumbBorderRadius: 5,
-      thumbBorder: 'none',
-      cornerColor: '#0d1117',
-      firefoxWidth: 'thin',
-      firefoxTrackColor: '#0d1117',
-      firefoxThumbColor: '#484f58',
-    },
-  },
-  {
-    name: 'Glassmorphism',
-    description: 'Semi-transparent glass effect',
+    name: 'Glass',
     config: {
       width: 12,
-      trackColor: 'rgba(255,255,255,0.05)',
-      trackBorderRadius: 6,
-      trackBorder: '1px solid rgba(255,255,255,0.1)',
-      thumbColor: 'rgba(255,255,255,0.2)',
-      thumbColorHover: 'rgba(255,255,255,0.35)',
-      thumbBorderRadius: 6,
-      thumbBorder: '1px solid rgba(255,255,255,0.25)',
-      cornerColor: 'transparent',
+      thumbColor: 'rgba(255, 255, 255, 0.35)',
+      thumbHoverColor: 'rgba(255, 255, 255, 0.55)',
+      thumbRadius: 6,
+      thumbBorder: 2,
+      thumbBorderColor: 'rgba(255, 255, 255, 0.15)',
+      trackColor: 'rgba(255, 255, 255, 0.08)',
+      trackRadius: 6,
+      trackBorder: 0,
+      trackBorderColor: 'transparent',
+      cornerBg: 'transparent',
       firefoxWidth: 'thin',
-      firefoxTrackColor: 'rgba(255,255,255,0.05)',
-      firefoxThumbColor: 'rgba(255,255,255,0.2)',
+      firefoxThumbColor: 'rgba(255, 255, 255, 0.35)',
+      firefoxTrackColor: 'rgba(255, 255, 255, 0.08)',
     },
   },
   {
-    name: 'Retro Scroll',
-    description: 'Classic 3D beveled scrollbar (IE vibes)',
-    config: {
-      width: 16,
-      trackColor: '#c0c0c0',
-      trackBorderRadius: 0,
-      trackBorder: '2px solid',
-      thumbColor: '#e0e0e0',
-      thumbColorHover: '#ffffff',
-      thumbBorderRadius: 0,
-      thumbBorder: '2px outset #ffffff',
-      cornerColor: '#c0c0c0',
-      firefoxWidth: 'auto',
-      firefoxTrackColor: '#c0c0c0',
-      firefoxThumbColor: '#e0e0e0',
-    },
-  },
-  {
-    name: 'Gradient Accent',
-    description: 'Animated gradient thumb with dark track',
+    name: 'Neon Purple',
     config: {
       width: 10,
-      trackColor: '#111827',
-      trackBorderRadius: 5,
-      trackBorder: 'none',
-      thumbColor: 'linear-gradient(180deg, #f43f5e, #a855f7)',
-      thumbColorHover: 'linear-gradient(180deg, #fb7185, #c084fc)',
-      thumbBorderRadius: 5,
-      thumbBorder: 'none',
-      cornerColor: '#111827',
-      firefoxWidth: 'thin',
-      firefoxTrackColor: '#111827',
-      firefoxThumbColor: '#a855f7',
+      thumbColor: '#a78bfa',
+      thumbHoverColor: '#c4b5fd',
+      thumbRadius: 5,
+      thumbBorder: 0,
+      thumbBorderColor: 'transparent',
+      trackColor: '#1e1b4b',
+      trackRadius: 5,
+      trackBorder: 0,
+      trackBorderColor: 'transparent',
+      cornerBg: '#1e1b4b',
+      firefoxWidth: 'auto',
+      firefoxThumbColor: '#a78bfa',
+      firefoxTrackColor: '#1e1b4b',
     },
   },
   {
-    name: 'Outline Thumb',
-    description: 'Track-colored thumb with a contrasting border',
+    name: 'Dark Elegant',
     config: {
       width: 14,
-      trackColor: '#1e293b',
-      trackBorderRadius: 7,
-      trackBorder: 'none',
+      thumbColor: '#4b5563',
+      thumbHoverColor: '#6b7280',
+      thumbRadius: 7,
+      thumbBorder: 2,
+      thumbBorderColor: '#374151',
+      trackColor: '#1f2937',
+      trackRadius: 7,
+      trackBorder: 1,
+      trackBorderColor: '#374151',
+      cornerBg: '#1f2937',
+      firefoxWidth: 'auto',
+      firefoxThumbColor: '#4b5563',
+      firefoxTrackColor: '#1f2937',
+    },
+  },
+  {
+    name: 'Retro Terminal',
+    config: {
+      width: 16,
+      thumbColor: '#22c55e',
+      thumbHoverColor: '#4ade80',
+      thumbRadius: 0,
+      thumbBorder: 2,
+      thumbBorderColor: '#166534',
+      trackColor: '#052e16',
+      trackRadius: 0,
+      trackBorder: 1,
+      trackBorderColor: '#166534',
+      cornerBg: '#052e16',
+      firefoxWidth: 'auto',
+      firefoxThumbColor: '#22c55e',
+      firefoxTrackColor: '#052e16',
+    },
+  },
+  {
+    name: 'Invisible',
+    config: {
+      width: 8,
       thumbColor: 'transparent',
-      thumbColorHover: 'rgba(255,255,255,0.1)',
-      thumbBorderRadius: 7,
-      thumbBorder: '2px solid rgba(255,255,255,0.4)',
-      cornerColor: '#1e293b',
+      thumbHoverColor: 'rgba(0, 0, 0, 0.2)',
+      thumbRadius: 4,
+      thumbBorder: 0,
+      thumbBorderColor: 'transparent',
+      trackColor: 'transparent',
+      trackRadius: 4,
+      trackBorder: 0,
+      trackBorderColor: 'transparent',
+      cornerBg: 'transparent',
       firefoxWidth: 'thin',
-      firefoxTrackColor: '#1e293b',
-      firefoxThumbColor: 'rgba(255,255,255,0.4)',
+      firefoxThumbColor: 'transparent',
+      firefoxTrackColor: 'transparent',
+    },
+  },
+  {
+    name: 'Vibrant Gradient',
+    config: {
+      width: 12,
+      thumbColor: 'linear-gradient(180deg, #f43f5e, #8b5cf6)',
+      thumbHoverColor: 'linear-gradient(180deg, #fb7185, #a78bfa)',
+      thumbRadius: 6,
+      thumbBorder: 0,
+      thumbBorderColor: 'transparent',
+      trackColor: '#18181b',
+      trackRadius: 6,
+      trackBorder: 0,
+      trackBorderColor: 'transparent',
+      cornerBg: '#18181b',
+      firefoxWidth: 'auto',
+      firefoxThumbColor: '#8b5cf6',
+      firefoxTrackColor: '#18181b',
     },
   },
 ];
 
-const DEFAULT_CONFIG: ScrollbarConfig = {
-  width: 10,
-  trackColor: '#1e293b',
-  trackBorderRadius: 5,
-  trackBorder: 'none',
-  thumbColor: '#475569',
-  thumbColorHover: '#64748b',
-  thumbBorderRadius: 5,
-  thumbBorder: 'none',
-  cornerColor: '#1e293b',
-  firefoxWidth: 'thin',
-  firefoxTrackColor: '#1e293b',
-  firefoxThumbColor: '#475569',
-};
+const PREVIEW_CONTENT = [
+  '// CSS Scrollbar Generator — DevBench',
+  '// Customize every aspect of the scrollbar.',
+  '',
+  'const hello = (name: string) => {',
+  '  console.log(`👋 Hello, ${name}!`);',
+  '};',
+  '',
+  'interface Config {',
+  '  theme: "light" | "dark";',
+  '  scrollbar: "custom" | "default";',
+  '  animations: boolean;',
+  '}',
+  '',
+  'const app: Config = {',
+  '  theme: "dark",',
+  '  scrollbar: "custom",',
+  '  animations: true,',
+  '};',
+  '',
+  'function generateCSS(config: ScrollbarConfig) {',
+  '  return `',
+  '    ::-webkit-scrollbar {',
+  '      width: ${config.width}px;',
+  '    }',
+  '    ::-webkit-scrollbar-thumb {',
+  '      background: ${config.thumbColor};',
+  '      border-radius: ${config.thumbRadius}px;',
+  '    }',
+  '  `;',
+  '}',
+  '',
+  'export { hello, app, generateCSS };',
+  '// Scroll down to see the scrollbar in action ↓',
+  '',
+  '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━',
+  '',
+  'Lorem ipsum dolor sit amet, consectetur',
+  'adipiscing elit. Sed do eiusmod tempor',
+  'incididunt ut labore et dolore magna aliqua.',
+  '',
+  'Ut enim ad minim veniam, quis nostrud',
+  'exercitation ullamco laboris nisi ut',
+  'aliquip ex ea commodo consequat.',
+  '',
+  'Duis aute irure dolor in reprehenderit',
+  'in voluptate velit esse cillum dolore eu',
+  'fugiat nulla pariatur. Excepteur sint',
+  'occaecat cupidatat non proident.',
+  '',
+  'Sed ut perspiciatis unde omnis iste natus',
+  'error sit voluptatem accusantium doloremque',
+  'laudantium, totam rem aperiam.',
+  '',
+  'Nemo enim ipsam voluptatem quia voluptas',
+  'sit aspernatur aut odit aut fugit, sed quia',
+  'consequuntur magni dolores eos.',
+  '',
+  'At vero eos et accusamus et iusto odio',
+  'dignissimos ducimus qui blanditiis',
+  'praesentium voluptatum deleniti.',
+  '',
+  'Et harum quidem rerum facilis est et',
+  'expedita distinctio. Nam libero tempore,',
+  'cum soluta nobis est eligendi optio.',
+  '',
+  'Temporibus autem quibusdam et aut officiis',
+  'debitis aut rerum necessitatibus saepe',
+  'eveniet ut et voluptates repudiandae.',
+  '',
+  'Itaque earum rerum hic tenetur a sapiente',
+  'delectus, ut aut reiciendis voluptatibus',
+  'maiores alias consequatur aut perferendis.',
+  '',
+  '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━',
+  '',
+  '✨ That is all! Your custom scrollbar',
+  'should be visible on the right side.',
+  'Copy the CSS to use it in your project.',
+];
 
-// ── CSS generation ─────────────────────────────────────────────────────────
+// ── CSS Generator ──────────────────────────────────────────────────────────
 
-function generateCSS(config: ScrollbarConfig): string {
+function generateCSS(config: ScrollbarConfig): { webkit: string; firefox: string; full: string } {
   const lines: string[] = [];
 
-  // WebKit scrollbar
-  lines.push('/* ===== WebKit (Chrome, Edge, Safari, Opera) ===== */');
-  lines.push('');
+  // WebKit
+  lines.push('/* WebKit (Chrome, Edge, Safari, Opera) */');
+
   lines.push('::-webkit-scrollbar {');
-  lines.push('  width: ' + config.width + 'px;');
+  lines.push(`  width: ${config.width}px;`);
+  lines.push(`  height: ${config.width}px;`);
   lines.push('}');
+
   lines.push('');
   lines.push('::-webkit-scrollbar-track {');
-  if (config.trackColor !== 'transparent') {
-    lines.push('  background: ' + config.trackColor + ';');
+  if (config.trackColor.includes('gradient')) {
+    lines.push(`  background: ${config.trackColor};`);
+  } else {
+    lines.push(`  background-color: ${config.trackColor};`);
   }
-  lines.push('  border-radius: ' + config.trackBorderRadius + 'px;');
-  if (config.trackBorder !== 'none') {
-    lines.push('  border: ' + config.trackBorder + ';');
+  lines.push(`  border-radius: ${config.trackRadius}px;`);
+  if (config.trackBorder > 0) {
+    lines.push(`  border: ${config.trackBorder}px solid ${config.trackBorderColor};`);
   }
   lines.push('}');
+
   lines.push('');
   lines.push('::-webkit-scrollbar-thumb {');
-  lines.push('  background: ' + config.thumbColor + ';');
-  lines.push('  border-radius: ' + config.thumbBorderRadius + 'px;');
-  if (config.thumbBorder !== 'none') {
-    lines.push('  border: ' + config.thumbBorder + ';');
+  if (config.thumbColor.includes('gradient')) {
+    lines.push(`  background: ${config.thumbColor};`);
+  } else {
+    lines.push(`  background-color: ${config.thumbColor};`);
+  }
+  lines.push(`  border-radius: ${config.thumbRadius}px;`);
+  if (config.thumbBorder > 0) {
+    lines.push(`  border: ${config.thumbBorder}px solid ${config.thumbBorderColor};`);
   }
   lines.push('}');
+
   lines.push('');
   lines.push('::-webkit-scrollbar-thumb:hover {');
-  lines.push('  background: ' + config.thumbColorHover + ';');
-  lines.push('}');
-  lines.push('');
-  if (config.cornerColor !== 'transparent') {
-    lines.push('::-webkit-scrollbar-corner {');
-    lines.push('  background: ' + config.cornerColor + ';');
-    lines.push('}');
-    lines.push('');
+  if (config.thumbHoverColor.includes('gradient')) {
+    lines.push(`  background: ${config.thumbHoverColor};`);
+  } else {
+    lines.push(`  background-color: ${config.thumbHoverColor};`);
   }
+  lines.push('}');
+
+  lines.push('');
+  lines.push('::-webkit-scrollbar-corner {');
+  lines.push(`  background-color: ${config.cornerBg};`);
+  lines.push('}');
+
+  const webkit = lines.join('\n');
 
   // Firefox
-  lines.push('/* ===== Firefox ===== */');
-  lines.push('');
-  lines.push('html {');
-  if (config.firefoxWidth === 'none') {
-    lines.push('  scrollbar-width: none;');
-  } else {
-    lines.push('  scrollbar-width: ' + config.firefoxWidth + ';');
-    lines.push('  scrollbar-color: ' + config.firefoxThumbColor + ' ' + config.firefoxTrackColor + ';');
-  }
-  lines.push('}');
+  const firefoxLines: string[] = [];
+  firefoxLines.push('/* Firefox */');
+  firefoxLines.push('* {');
+  firefoxLines.push(`  scrollbar-width: ${config.firefoxWidth};`);
+  firefoxLines.push(`  scrollbar-color: ${config.firefoxThumbColor} ${config.firefoxTrackColor};`);
+  firefoxLines.push('}');
+  const firefox = firefoxLines.join('\n');
 
-  return lines.join('\n');
+  const full = [webkit, '', firefox].join('\n');
+
+  return { webkit, firefox, full };
 }
 
 // ── Component ──────────────────────────────────────────────────────────────
 
 export default function CssScrollbarGeneratorPage() {
-  const [config, setConfig] = useState<ScrollbarConfig>(DEFAULT_CONFIG);
-  const [showAdvanced, setShowAdvanced] = useState(false);
+  const [config, setConfig] = useState<ScrollbarConfig>(PRESETS[0].config);
+  const [activeSection, setActiveSection] = useState<'webkit' | 'firefox' | 'full'>('full');
+  const [previewTheme, setPreviewTheme] = useState<'light' | 'dark'>('dark');
+  const previewRef = useRef<HTMLDivElement>(null);
 
-  const cssOutput = useMemo(() => generateCSS(config), [config]);
+  const css = useMemo(() => generateCSS(config), [config]);
 
-  const copyCSS = useCallback(() => {
-    navigator.clipboard.writeText(cssOutput).then(
-      () => toast.success('CSS copied to clipboard!'),
-      () => toast.error('Failed to copy')
-    );
-  }, [cssOutput]);
-
-  const resetToDefault = useCallback(() => {
-    setConfig(DEFAULT_CONFIG);
-  }, []);
+  const set = useCallback(
+    <K extends keyof ScrollbarConfig>(key: K, value: ScrollbarConfig[K]) => {
+      setConfig((prev) => ({ ...prev, [key]: value }));
+    },
+    [],
+  );
 
   const applyPreset = useCallback((preset: Preset) => {
-    setConfig(preset.config);
-    toast.success('Applied "' + preset.name + '" preset');
+    setConfig({ ...preset.config });
+    toast.success(`Applied "${preset.name}" preset`);
   }, []);
 
-  const updateConfig = useCallback(<K extends keyof ScrollbarConfig>(
-    key: K,
-    value: ScrollbarConfig[K]
-  ) => {
-    setConfig(prev => ({ ...prev, [key]: value }));
+  const reset = useCallback(() => {
+    setConfig({ ...PRESETS[0].config });
+    toast.success('Reset to default');
   }, []);
 
-  // Sample text for the scrollable preview
-  const sampleText = useMemo(() => {
-    const items: string[] = [];
-    for (let i = 1; i <= 25; i++) {
-      items.push('Line ' + i + ' — This is sample content to demonstrate the custom scrollbar. Adjust the controls on the left and see the results here in real time.');
-    }
-    return items.join('\n');
-  }, []);
+  const copyCSS = useCallback(
+    (section: 'webkit' | 'firefox' | 'full') => {
+      const content = section === 'webkit' ? css.webkit : section === 'firefox' ? css.firefox : css.full;
+      navigator.clipboard.writeText(content).then(
+        () => toast.success('CSS copied to clipboard!'),
+        () => toast.error('Failed to copy'),
+      );
+    },
+    [css],
+  );
 
-  // Build inline style for the preview scrollable container
+  // Build the preview scrollbar style
   const previewStyle = useMemo(() => {
-    const style: Record<string, string> = {};
-    if (config.firefoxWidth === 'none') {
-      style.scrollbarWidth = 'none';
-    } else {
-      style.scrollbarWidth = config.firefoxWidth;
-      style.scrollbarColor = config.firefoxThumbColor + ' ' + config.firefoxTrackColor;
-    }
-    return style;
-  }, [config.firefoxWidth, config.firefoxThumbColor, config.firefoxTrackColor]);
+    const { width, thumbColor, thumbHoverColor, thumbRadius, thumbBorder, thumbBorderColor, trackColor, trackRadius, trackBorder, trackBorderColor, cornerBg } = config;
+
+    const getBg = (c: string) => (c.includes('gradient') ? c : c);
+
+    return `
+      .scrollbar-preview::-webkit-scrollbar { width: ${width}px; height: ${width}px; }
+      .scrollbar-preview::-webkit-scrollbar-track { background: ${getBg(trackColor)}; border-radius: ${trackRadius}px; ${trackBorder > 0 ? `border: ${trackBorder}px solid ${trackBorderColor};` : ''} }
+      .scrollbar-preview::-webkit-scrollbar-thumb { background: ${getBg(thumbColor)}; border-radius: ${thumbRadius}px; ${thumbBorder > 0 ? `border: ${thumbBorder}px solid ${thumbBorderColor};` : ''} }
+      .scrollbar-preview::-webkit-scrollbar-thumb:hover { background: ${getBg(thumbHoverColor)}; }
+      .scrollbar-preview::-webkit-scrollbar-corner { background-color: ${cornerBg}; }
+    `;
+  }, [config]);
+
+  const inputClass = 'w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent transition';
+  const labelClass = 'block text-xs font-medium text-gray-400 mb-1.5';
+  const sliderClass = 'w-full accent-violet-500 h-2 cursor-pointer';
+  const buttonClass = 'px-3 py-1.5 text-xs font-medium rounded-lg border transition-colors';
+  const activeButtonClass = 'bg-violet-600 text-white border-violet-500';
+  const inactiveButtonClass = 'bg-gray-800 text-gray-300 border-gray-700 hover:border-gray-600 hover:bg-gray-750';
+  const presetButtonClass = 'px-3 py-2 text-xs font-medium rounded-lg bg-gray-800/80 border border-gray-700 text-gray-300 hover:border-violet-500 hover:text-violet-300 transition-all';
 
   return (
     <ToolLayout
       title="CSS Scrollbar Generator"
-      description="Design custom scrollbars visually — tweak tracks, thumbs, colors, and borders. Supports WebKit (Chrome, Edge, Safari) and Firefox. Copy production-ready CSS instantly."
+      description="Design custom scrollbars visually — every ::-webkit-scrollbar property, Firefox support, and live preview."
     >
-      {/* Presets */}
-      <div className="mb-8">
-        <h3 className="text-sm font-semibold text-slate-400 uppercase tracking-wider mb-3 flex items-center gap-2">
-          <Palette className="w-4 h-4" />
-          Preset Themes
-        </h3>
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2">
-          {PRESETS.map(preset => (
-            <button
-              key={preset.name}
-              onClick={() => applyPreset(preset)}
-              className="card-interactive text-left p-3 rounded-lg"
-              title={preset.description}
-            >
-              <div className="text-white text-sm font-medium">{preset.name}</div>
-              <div className="text-slate-500 text-xs mt-0.5">{preset.description}</div>
-            </button>
-          ))}
-        </div>
-      </div>
+      <style>{previewStyle}</style>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        {/* Controls */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* ── Left: Controls ─────────────────────────────────────────── */}
         <div className="space-y-6">
-          {/* Width */}
-          <div className="card">
-            <h3 className="text-sm font-semibold text-white mb-3 flex items-center gap-2">
-              <Layers className="w-4 h-4 text-brand-400" />
-              Scrollbar Width
-            </h3>
-            <div className="flex items-center gap-4">
-              <input
-                type="range"
-                min={4}
-                max={24}
-                value={config.width}
-                onChange={e => updateConfig('width', Number(e.target.value))}
-                className="flex-1 accent-brand-400"
-              />
-              <span className="font-mono text-sm text-white w-10 text-right">{config.width}px</span>
+          {/* Presets */}
+          <div>
+            <div className="flex items-center gap-2 mb-3">
+              <Sparkles className="w-4 h-4 text-amber-400" />
+              <h3 className="text-sm font-semibold text-gray-200">Presets</h3>
             </div>
-            <div className="flex gap-1.5 mt-2">
-              {[4, 6, 8, 10, 12, 16, 20, 24].map(w => (
+            <div className="flex flex-wrap gap-2">
+              {PRESETS.map((p) => (
                 <button
-                  key={w}
-                  onClick={() => updateConfig('width', w)}
-                  className={(config.width === w
-                    ? 'bg-brand-400/20 text-brand-400 border border-brand-400/30'
-                    : 'bg-slate-800 text-slate-500 border border-slate-700/50 hover:text-slate-300'
-                  ) + ' px-2 py-0.5 rounded text-xs font-mono transition-colors'}
+                  key={p.name}
+                  onClick={() => applyPreset(p)}
+                  className={presetButtonClass}
                 >
-                  {w}
+                  {p.name}
                 </button>
               ))}
             </div>
           </div>
 
-          {/* Track */}
-          <div className="card">
-            <h3 className="text-sm font-semibold text-white mb-3 flex items-center gap-2">
-              <div
-                className="w-3 h-3 rounded-sm"
-                style={{
-                  background: config.trackColor.startsWith('#') || config.trackColor.startsWith('rgba')
-                    ? config.trackColor : '#1e293b',
-                  border: '1px solid #334155'
-                }}
-              />
-              Track
-            </h3>
-            <div className="space-y-3">
-              <div>
-                <label className="text-xs text-slate-400 block mb-1">Background Color</label>
-                <div className="flex items-center gap-2">
-                  <input
-                    type="color"
-                    value={config.trackColor.startsWith('#') ? config.trackColor : '#1e293b'}
-                    onChange={e => updateConfig('trackColor', e.target.value)}
-                    className="w-9 h-9 rounded cursor-pointer border-0 bg-transparent"
-                  />
-                  <input
-                    type="text"
-                    value={config.trackColor}
-                    onChange={e => updateConfig('trackColor', e.target.value)}
-                    className="input-field flex-1 font-mono text-sm"
-                    placeholder="e.g. #1e293b, transparent"
-                  />
-                </div>
-                <div className="flex gap-1.5 mt-1.5 flex-wrap">
-                  {['transparent', '#0f172a', '#1e293b', '#334155', 'rgba(0,0,0,0.1)'].map(c => (
-                    <button
-                      key={c}
-                      onClick={() => updateConfig('trackColor', c)}
-                      className={(config.trackColor === c
-                        ? 'bg-brand-400/20 text-brand-400 border border-brand-400/30'
-                        : 'bg-slate-800 text-slate-500 border border-slate-700/50 hover:text-slate-300'
-                      ) + ' px-2 py-0.5 rounded text-xs font-mono transition-colors'}
-                    >
-                      {c.length > 16 ? c.slice(0, 14) + '…' : c}
-                    </button>
-                  ))}
-                </div>
+          {/* Scrollbar Width */}
+          <div>
+            <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center gap-2">
+                <Ruler className="w-4 h-4 text-gray-400" />
+                <h3 className="text-sm font-semibold text-gray-200">Scrollbar Width</h3>
               </div>
-              <div>
-                <label className="text-xs text-slate-400 block mb-1">Border Radius</label>
-                <div className="flex items-center gap-2">
-                  <input
-                    type="range"
-                    min={0}
-                    max={20}
-                    value={config.trackBorderRadius}
-                    onChange={e => updateConfig('trackBorderRadius', Number(e.target.value))}
-                    className="flex-1 accent-brand-400"
-                  />
-                  <span className="font-mono text-sm text-white w-8 text-right">{config.trackBorderRadius}</span>
-                </div>
-              </div>
+              <span className="text-sm font-mono text-violet-400">{config.width}px</span>
+            </div>
+            <input
+              type="range"
+              min={4}
+              max={30}
+              step={1}
+              value={config.width}
+              onChange={(e) => set('width', Number(e.target.value))}
+              className={sliderClass}
+            />
+            <div className="flex justify-between text-xs text-gray-600 mt-1">
+              <span>4px</span>
+              <span>30px</span>
             </div>
           </div>
 
-          {/* Thumb */}
-          <div className="card">
-            <h3 className="text-sm font-semibold text-white mb-3 flex items-center gap-2">
-              <div
-                className="w-3 h-3 rounded-sm"
-                style={{
-                  background: (config.thumbColor.startsWith('#') || config.thumbColor.startsWith('rgba'))
-                    ? config.thumbColor : '#475569',
-                  border: '1px solid #94a3b8'
-                }}
-              />
-              Thumb (Handle)
-            </h3>
-            <div className="space-y-3">
+          {/* Thumb Color */}
+          <div>
+            <div className="flex items-center gap-2 mb-2">
+              <Palette className="w-4 h-4 text-gray-400" />
+              <h3 className="text-sm font-semibold text-gray-200">Thumb</h3>
+            </div>
+            <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="text-xs text-slate-400 block mb-1">Background Color</label>
-                <div className="flex items-center gap-2">
+                <label className={labelClass}>Color</label>
+                <div className="flex gap-2">
                   <input
                     type="color"
-                    value={config.thumbColor.startsWith('#') ? config.thumbColor : '#475569'}
-                    onChange={e => updateConfig('thumbColor', e.target.value)}
-                    className="w-9 h-9 rounded cursor-pointer border-0 bg-transparent"
+                    value={config.thumbColor.startsWith('#') || config.thumbColor.startsWith('rgb') ? config.thumbColor : '#a78bfa'}
+                    onChange={(e) => set('thumbColor', e.target.value)}
+                    className="w-10 h-10 rounded-lg border border-gray-700 cursor-pointer bg-transparent"
                   />
                   <input
                     type="text"
                     value={config.thumbColor}
-                    onChange={e => updateConfig('thumbColor', e.target.value)}
-                    className="input-field flex-1 font-mono text-sm"
-                    placeholder="e.g. #475569"
+                    onChange={(e) => set('thumbColor', e.target.value)}
+                    placeholder="#cbd5e1 or rgba(...)"
+                    className={inputClass}
                   />
-                </div>
-                <div className="flex gap-1.5 mt-1.5 flex-wrap">
-                  {['transparent', '#475569', '#94a3b8', '#38bdf8', '#a855f7'].map(c => (
-                    <button
-                      key={c}
-                      onClick={() => updateConfig('thumbColor', c)}
-                      className={(config.thumbColor === c
-                        ? 'bg-brand-400/20 text-brand-400 border border-brand-400/30'
-                        : 'bg-slate-800 text-slate-500 border border-slate-700/50 hover:text-slate-300'
-                      ) + ' px-2 py-0.5 rounded text-xs font-mono transition-colors'}
-                    >
-                      {c.length > 16 ? c.slice(0, 14) + '…' : c}
-                    </button>
-                  ))}
                 </div>
               </div>
               <div>
-                <label className="text-xs text-slate-400 block mb-1">Hover Color</label>
-                <div className="flex items-center gap-2">
+                <label className={labelClass}>Hover Color</label>
+                <div className="flex gap-2">
                   <input
                     type="color"
-                    value={config.thumbColorHover.startsWith('#') ? config.thumbColorHover : '#64748b'}
-                    onChange={e => updateConfig('thumbColorHover', e.target.value)}
-                    className="w-9 h-9 rounded cursor-pointer border-0 bg-transparent"
+                    value={config.thumbHoverColor.startsWith('#') || config.thumbHoverColor.startsWith('rgb') ? config.thumbHoverColor : '#94a3b8'}
+                    onChange={(e) => set('thumbHoverColor', e.target.value)}
+                    className="w-10 h-10 rounded-lg border border-gray-700 cursor-pointer bg-transparent"
                   />
                   <input
                     type="text"
-                    value={config.thumbColorHover}
-                    onChange={e => updateConfig('thumbColorHover', e.target.value)}
-                    className="input-field flex-1 font-mono text-sm"
-                    placeholder="e.g. #64748b"
+                    value={config.thumbHoverColor}
+                    onChange={(e) => set('thumbHoverColor', e.target.value)}
+                    placeholder="#94a3b8"
+                    className={inputClass}
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Thumb Radius & Border */}
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-xs font-medium text-gray-400">Border Radius</span>
+                <span className="text-xs font-mono text-violet-400">{config.thumbRadius}px</span>
+              </div>
+              <input
+                type="range"
+                min={0}
+                max={20}
+                step={1}
+                value={config.thumbRadius}
+                onChange={(e) => set('thumbRadius', Number(e.target.value))}
+                className={sliderClass}
+              />
+            </div>
+            <div>
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-xs font-medium text-gray-400">Border Width</span>
+                <span className="text-xs font-mono text-violet-400">{config.thumbBorder}px</span>
+              </div>
+              <input
+                type="range"
+                min={0}
+                max={6}
+                step={1}
+                value={config.thumbBorder}
+                onChange={(e) => set('thumbBorder', Number(e.target.value))}
+                className={sliderClass}
+              />
+            </div>
+          </div>
+
+          {config.thumbBorder > 0 && (
+            <div>
+              <label className={labelClass}>Thumb Border Color</label>
+              <div className="flex gap-2">
+                <input
+                  type="color"
+                  value={config.thumbBorderColor.startsWith('#') ? config.thumbBorderColor : '#000000'}
+                  onChange={(e) => set('thumbBorderColor', e.target.value)}
+                  className="w-10 h-10 rounded-lg border border-gray-700 cursor-pointer bg-transparent"
+                />
+                <input
+                  type="text"
+                  value={config.thumbBorderColor}
+                  onChange={(e) => set('thumbBorderColor', e.target.value)}
+                  className={inputClass}
+                />
+              </div>
+            </div>
+          )}
+
+          {/* Track */}
+          <div>
+            <div className="flex items-center gap-2 mb-3">
+              <Palette className="w-4 h-4 text-gray-400" />
+              <h3 className="text-sm font-semibold text-gray-200">Track</h3>
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className={labelClass}>Track Color</label>
+                <div className="flex gap-2">
+                  <input
+                    type="color"
+                    value={config.trackColor.startsWith('#') || config.trackColor.startsWith('rgb') ? config.trackColor : '#1f2937'}
+                    onChange={(e) => set('trackColor', e.target.value)}
+                    className="w-10 h-10 rounded-lg border border-gray-700 cursor-pointer bg-transparent"
+                  />
+                  <input
+                    type="text"
+                    value={config.trackColor}
+                    onChange={(e) => set('trackColor', e.target.value)}
+                    placeholder="transparent or #1f2937"
+                    className={inputClass}
                   />
                 </div>
               </div>
               <div>
-                <label className="text-xs text-slate-400 block mb-1">Border Radius</label>
+                <label className={labelClass}>Track Radius</label>
                 <div className="flex items-center gap-2">
                   <input
                     type="range"
                     min={0}
                     max={20}
-                    value={config.thumbBorderRadius}
-                    onChange={e => updateConfig('thumbBorderRadius', Number(e.target.value))}
-                    className="flex-1 accent-brand-400"
+                    step={1}
+                    value={config.trackRadius}
+                    onChange={(e) => set('trackRadius', Number(e.target.value))}
+                    className={`${sliderClass} flex-1`}
                   />
-                  <span className="font-mono text-sm text-white w-8 text-right">{config.thumbBorderRadius}</span>
+                  <span className="text-xs font-mono text-violet-400 w-8">{config.trackRadius}px</span>
+                </div>
+              </div>
+            </div>
+            <div className="mt-3 grid grid-cols-3 gap-3">
+              <div>
+                <label className={labelClass}>Track Border</label>
+                <input
+                  type="range"
+                  min={0}
+                  max={4}
+                  step={1}
+                  value={config.trackBorder}
+                  onChange={(e) => set('trackBorder', Number(e.target.value))}
+                  className={sliderClass}
+                />
+              </div>
+              {config.trackBorder > 0 && (
+                <div>
+                  <label className={labelClass}>Border Color</label>
+                  <div className="flex gap-1">
+                    <input
+                      type="color"
+                      value={config.trackBorderColor.startsWith('#') ? config.trackBorderColor : '#374151'}
+                      onChange={(e) => set('trackBorderColor', e.target.value)}
+                      className="w-8 h-8 rounded border border-gray-700 cursor-pointer bg-transparent"
+                    />
+                    <input
+                      type="text"
+                      value={config.trackBorderColor}
+                      onChange={(e) => set('trackBorderColor', e.target.value)}
+                      className={`${inputClass} flex-1`}
+                    />
+                  </div>
+                </div>
+              )}
+              <div>
+                <label className={labelClass}>Corner BG</label>
+                <div className="flex gap-1">
+                  <input
+                    type="color"
+                    value={config.cornerBg.startsWith('#') || config.cornerBg.startsWith('rgb') ? config.cornerBg : '#1f2937'}
+                    onChange={(e) => set('cornerBg', e.target.value)}
+                    className="w-8 h-8 rounded border border-gray-700 cursor-pointer bg-transparent"
+                  />
+                  <input
+                    type="text"
+                    value={config.cornerBg}
+                    onChange={(e) => set('cornerBg', e.target.value)}
+                    className={`${inputClass} flex-1`}
+                  />
                 </div>
               </div>
             </div>
           </div>
 
-          {/* Advanced: Corner, Firefox, Borders */}
+          {/* Firefox */}
           <div>
-            <button
-              onClick={() => setShowAdvanced(!showAdvanced)}
-              className={(showAdvanced
-                ? 'bg-brand-400/10 border border-brand-400/20 text-brand-300'
-                : 'bg-slate-800/50 border border-slate-700/50 text-slate-400 hover:text-slate-200'
-              ) + ' w-full text-left text-sm font-semibold flex items-center gap-2 px-4 py-3 rounded-lg transition-colors'}
-            >
-              <Settings className="w-4 h-4" />
-              Advanced Options
-              <span className="ml-auto text-xs text-slate-500">{showAdvanced ? '\u25B2' : '\u25BC'}</span>
-            </button>
-
-            {showAdvanced && (
-              <div className="card mt-3 space-y-4">
-                {/* Corner */}
-                <div>
-                  <label className="text-xs text-slate-400 block mb-1">Corner Background</label>
-                  <div className="flex items-center gap-2">
-                    <input
-                      type="text"
-                      value={config.cornerColor}
-                      onChange={e => updateConfig('cornerColor', e.target.value)}
-                      className="input-field flex-1 font-mono text-sm"
-                      placeholder="e.g. #1e293b"
-                    />
-                  </div>
-                </div>
-
-                {/* Track Border */}
-                <div>
-                  <label className="text-xs text-slate-400 block mb-1">Track Border</label>
-                  <input
-                    type="text"
-                    value={config.trackBorder}
-                    onChange={e => updateConfig('trackBorder', e.target.value)}
-                    className="input-field w-full font-mono text-sm"
-                    placeholder="e.g. 1px solid #30363d, or none"
-                  />
-                </div>
-
-                {/* Thumb Border */}
-                <div>
-                  <label className="text-xs text-slate-400 block mb-1">Thumb Border</label>
-                  <input
-                    type="text"
-                    value={config.thumbBorder}
-                    onChange={e => updateConfig('thumbBorder', e.target.value)}
-                    className="input-field w-full font-mono text-sm"
-                    placeholder="e.g. 2px solid #fff, or none"
-                  />
-                </div>
-
-                {/* Firefox */}
-                <div className="pt-2 border-t border-slate-700/50">
-                  <h4 className="text-xs font-semibold text-orange-400 uppercase tracking-wider mb-2">Firefox (scrollbar-width / scrollbar-color)</h4>
-                  <div className="space-y-2">
-                    <div>
-                      <label className="text-xs text-slate-400 block mb-1">Width</label>
-                      <div className="flex gap-2">
-                        {(['auto', 'thin', 'none'] as const).map(w => (
-                          <button
-                            key={w}
-                            onClick={() => updateConfig('firefoxWidth', w)}
-                            className={(config.firefoxWidth === w
-                              ? 'bg-brand-400/20 text-brand-400 border border-brand-400/30'
-                              : 'bg-slate-800 text-slate-500 border border-slate-700/50 hover:text-slate-300'
-                            ) + ' px-3 py-1 rounded text-xs transition-colors'}
-                          >
-                            {w}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                    <div>
-                      <label className="text-xs text-slate-400 block mb-1">Track Color</label>
-                      <input
-                        type="text"
-                        value={config.firefoxTrackColor}
-                        onChange={e => updateConfig('firefoxTrackColor', e.target.value)}
-                        className="input-field w-full font-mono text-sm"
-                      />
-                    </div>
-                    <div>
-                      <label className="text-xs text-slate-400 block mb-1">Thumb Color</label>
-                      <input
-                        type="text"
-                        value={config.firefoxThumbColor}
-                        onChange={e => updateConfig('firefoxThumbColor', e.target.value)}
-                        className="input-field w-full font-mono text-sm"
-                      />
-                    </div>
-                  </div>
+            <div className="flex items-center gap-2 mb-3">
+              <Eye className="w-4 h-4 text-orange-400" />
+              <h3 className="text-sm font-semibold text-gray-200">Firefox</h3>
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className={labelClass}>Scrollbar Width</label>
+                <div className="flex gap-2">
+                  {(['auto', 'thin', 'none'] as const).map((w) => (
+                    <button
+                      key={w}
+                      onClick={() => set('firefoxWidth', w)}
+                      className={`${buttonClass} ${config.firefoxWidth === w ? activeButtonClass : inactiveButtonClass} capitalize`}
+                    >
+                      {w}
+                    </button>
+                  ))}
                 </div>
               </div>
-            )}
+              <div>
+                <label className={labelClass}>Thumb Color</label>
+                <div className="flex gap-2">
+                  <input
+                    type="color"
+                    value={config.firefoxThumbColor.startsWith('#') || config.firefoxThumbColor.startsWith('rgb') ? config.firefoxThumbColor : '#cbd5e1'}
+                    onChange={(e) => set('firefoxThumbColor', e.target.value)}
+                    className="w-10 h-10 rounded-lg border border-gray-700 cursor-pointer bg-transparent"
+                  />
+                  <input
+                    type="text"
+                    value={config.firefoxThumbColor}
+                    onChange={(e) => set('firefoxThumbColor', e.target.value)}
+                    className={inputClass}
+                  />
+                </div>
+              </div>
+            </div>
+            <div className="mt-2">
+              <label className={labelClass}>Track Color</label>
+              <div className="flex gap-2">
+                <input
+                  type="color"
+                  value={config.firefoxTrackColor.startsWith('#') || config.firefoxTrackColor.startsWith('rgb') ? config.firefoxTrackColor : 'transparent'}
+                  onChange={(e) => set('firefoxTrackColor', e.target.value)}
+                  className="w-10 h-10 rounded-lg border border-gray-700 cursor-pointer bg-transparent"
+                />
+                <input
+                  type="text"
+                  value={config.firefoxTrackColor}
+                  onChange={(e) => set('firefoxTrackColor', e.target.value)}
+                  className={inputClass}
+                />
+              </div>
+            </div>
           </div>
 
           {/* Reset */}
           <button
-            onClick={resetToDefault}
-            className="btn-secondary flex items-center gap-2 text-sm"
+            onClick={reset}
+            className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-400 bg-gray-800 border border-gray-700 rounded-lg hover:border-gray-600 hover:text-gray-200 transition-colors"
           >
-            <RefreshCw className="w-4 h-4" />
+            <RotateCcw className="w-4 h-4" />
             Reset to Default
           </button>
         </div>
 
-        {/* Preview + CSS Output */}
+        {/* ── Right: Preview + CSS ────────────────────────────────────── */}
         <div className="space-y-6">
-          {/* Live Preview */}
-          <div className="card">
-            <h3 className="text-sm font-semibold text-white mb-3">Live Preview</h3>
-            <p className="text-xs text-slate-500 mb-3">
-              Scroll the box below to see your custom scrollbar. Hover the thumb for the hover state.
-            </p>
+          {/* Preview */}
+          <div>
+            <h3 className="text-sm font-semibold text-gray-200 mb-3 flex items-center gap-2">
+              <Eye className="w-4 h-4 text-emerald-400" />
+              Live Preview
+            </h3>
             <div
-              style={{
-                height: '280px',
-                overflowY: 'auto',
-                background: config.trackColor,
-                borderRadius: config.trackBorderRadius + 'px',
-                border: config.trackBorder !== 'none' ? config.trackBorder : undefined,
-                padding: '16px',
-                ...previewStyle,
-              }}
+              ref={previewRef}
+              className={`scrollbar-preview rounded-xl border border-gray-700 overflow-auto transition-all ${previewTheme === 'dark' ? 'bg-gray-900' : 'bg-gray-100'}`}
+              style={{ height: 400 }}
             >
-              {/* WebKit scrollbar styles via dynamic style tag */}
-              <style>{`
-                .preview-scrollbar::-webkit-scrollbar {
-                  width: ${config.width}px;
-                }
-                .preview-scrollbar::-webkit-scrollbar-track {
-                  background: ${config.trackColor};
-                  border-radius: ${config.trackBorderRadius}px;
-                  ${config.trackBorder !== 'none' ? 'border: ' + config.trackBorder + ';' : ''}
-                }
-                .preview-scrollbar::-webkit-scrollbar-thumb {
-                  background: ${config.thumbColor};
-                  border-radius: ${config.thumbBorderRadius}px;
-                  ${config.thumbBorder !== 'none' ? 'border: ' + config.thumbBorder + ';' : ''}
-                }
-                .preview-scrollbar::-webkit-scrollbar-thumb:hover {
-                  background: ${config.thumbColorHover};
-                }
-                .preview-scrollbar::-webkit-scrollbar-corner {
-                  background: ${config.cornerColor};
-                }
-              `}</style>
-              <div
-                className="preview-scrollbar"
-                style={{
-                  color: '#e2e8f0',
-                  fontFamily: 'monospace',
-                  fontSize: '13px',
-                  lineHeight: '1.8',
-                  whiteSpace: 'pre-wrap',
-                  height: '100%',
-                  overflowY: 'auto',
-                  scrollbarWidth: config.firefoxWidth === 'none' ? 'none' : config.firefoxWidth,
-                  scrollbarColor: config.firefoxWidth !== 'none' ? config.firefoxThumbColor + ' ' + config.firefoxTrackColor : undefined,
-                }}
-              >
-                {sampleText}
+              <div className="p-5 space-y-1">
+                {PREVIEW_CONTENT.map((line, i) => (
+                  <div
+                    key={i}
+                    className={`font-mono text-sm leading-relaxed whitespace-pre ${
+                      line.startsWith('//') || line.startsWith('/*')
+                        ? previewTheme === 'dark'
+                          ? 'text-gray-500 italic'
+                          : 'text-gray-400 italic'
+                        : line.startsWith('const') || line.startsWith('function') || line.startsWith('interface') || line.startsWith('export')
+                        ? previewTheme === 'dark'
+                          ? 'text-violet-400'
+                          : 'text-violet-600'
+                        : line.startsWith('  ') && line.includes(':')
+                        ? previewTheme === 'dark'
+                          ? 'text-emerald-400'
+                          : 'text-emerald-600'
+                        : line.startsWith('━')
+                        ? previewTheme === 'dark'
+                          ? 'text-gray-600'
+                          : 'text-gray-300'
+                        : line.startsWith('✨')
+                        ? 'text-amber-400 font-medium'
+                        : line === ''
+                        ? ''
+                        : previewTheme === 'dark'
+                        ? 'text-gray-300'
+                        : 'text-gray-700'
+                    }`}
+                  >
+                    {line || '\u00A0'}
+                  </div>
+                ))}
               </div>
             </div>
-            <p className="mt-2 text-xs text-slate-500">
-              <strong>Note:</strong> The preview renders with direct CSS injection. Hover the scrollbar thumb to see the hover state take effect.
-            </p>
+            <div className="flex items-center justify-between mt-2">
+              <div className="flex gap-2">
+                <button
+                  onClick={() => setPreviewTheme('dark')}
+                  className={`${buttonClass} ${previewTheme === 'dark' ? activeButtonClass : inactiveButtonClass}`}
+                >
+                  Dark
+                </button>
+                <button
+                  onClick={() => setPreviewTheme('light')}
+                  className={`${buttonClass} ${previewTheme === 'light' ? activeButtonClass : inactiveButtonClass}`}
+                >
+                  Light
+                </button>
+              </div>
+              <span className="text-xs text-gray-500 flex items-center gap-1">
+                <ChevronDown className="w-3 h-3" /> Scroll to test
+              </span>
+            </div>
           </div>
 
           {/* CSS Output */}
-          <div className="card">
+          <div>
             <div className="flex items-center justify-between mb-3">
-              <h3 className="text-sm font-semibold text-white flex items-center gap-2">
-                <Settings className="w-4 h-4 text-brand-400" />
-                Generated CSS
-              </h3>
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={copyCSS}
-                  className="btn-secondary flex items-center gap-1.5 text-xs py-1.5 px-3"
-                >
-                  <Copy className="w-3.5 h-3.5" />
-                  Copy CSS
-                </button>
-                <button
-                  onClick={() => {
-                    const blob = new Blob([cssOutput], { type: 'text/css' });
-                    const url = URL.createObjectURL(blob);
-                    const a = document.createElement('a');
-                    a.href = url;
-                    a.download = 'custom-scrollbar.css';
-                    a.click();
-                    URL.revokeObjectURL(url);
-                    toast.success('Downloaded custom-scrollbar.css');
-                  }}
-                  className="btn-secondary flex items-center gap-1.5 text-xs py-1.5 px-3"
-                >
-                  <Download className="w-3.5 h-3.5" />
-                  Download
-                </button>
+              <h3 className="text-sm font-semibold text-gray-200">Generated CSS</h3>
+              <div className="flex gap-1">
+                {(['webkit', 'firefox', 'full'] as const).map((section) => (
+                  <button
+                    key={section}
+                    onClick={() => setActiveSection(section)}
+                    className={`${buttonClass} ${activeSection === section ? activeButtonClass : inactiveButtonClass}`}
+                  >
+                    {section === 'webkit' ? 'WebKit' : section === 'firefox' ? 'Firefox' : 'Both'}
+                  </button>
+                ))}
               </div>
             </div>
-            <pre className="bg-slate-950 rounded-lg p-4 overflow-x-auto text-xs font-mono text-slate-300 leading-relaxed border border-slate-700/50 max-h-96 overflow-y-auto">
-              <code>{cssOutput}</code>
-            </pre>
+            <div className="relative group">
+              <pre className="bg-gray-950 rounded-xl p-5 text-sm font-mono text-gray-300 overflow-x-auto border border-gray-800 leading-relaxed whitespace-pre">
+{activeSection === 'webkit' ? css.webkit : activeSection === 'firefox' ? css.firefox : css.full}
+              </pre>
+              <button
+                onClick={() => copyCSS(activeSection)}
+                className="absolute top-3 right-3 p-2 bg-gray-800 border border-gray-700 rounded-lg text-gray-400 hover:text-white hover:border-gray-500 opacity-0 group-hover:opacity-100 transition-opacity"
+                title="Copy CSS"
+              >
+                <Copy className="w-4 h-4" />
+              </button>
+            </div>
           </div>
-        </div>
-      </div>
-
-      {/* Info footer */}
-      <div className="mt-10 p-4 rounded-lg bg-slate-800/30 border border-slate-700/30">
-        <h3 className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Browser Support</h3>
-        <div className="text-xs text-slate-500 space-y-1">
-          <p><strong>WebKit (Chrome, Edge, Safari, Opera)</strong> — Full support via <code className="text-brand-400 bg-brand-400/10 px-1 rounded">::-webkit-scrollbar</code> pseudo-elements. Works in all modern browsers.</p>
-          <p><strong>Firefox</strong> — Limited support via <code className="text-brand-400 bg-brand-400/10 px-1 rounded">scrollbar-width</code> and <code className="text-brand-400 bg-brand-400/10 px-1 rounded">scrollbar-color</code> properties. Cannot set individual border-radius or hover states in Firefox.</p>
-          <p><strong>Future</strong> — The CSS Working Group is developing the <code className="text-brand-400 bg-brand-400/10 px-1 rounded">scrollbar-color</code> and <code className="text-brand-400 bg-brand-400/10 px-1 rounded">scrollbar-width</code> standards for cross-browser support. Check <a href="https://caniuse.com" className="text-brand-400 underline" target="_blank" rel="noopener">caniuse.com</a> for latest support.</p>
         </div>
       </div>
     </ToolLayout>
