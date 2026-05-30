@@ -1014,11 +1014,11 @@ const featuredTools = [
     tags: ['Password', 'Generator', 'Security', 'Entropy'],
   },
   {
-    title: 'Pomodoro Timer',
-    description: 'Stay focused with timed work sessions and breaks. Circular progress, sound alerts, browser notifications, session history, and streak tracking — 100% client-side.',
-    href: '/tools/pomodoro-timer',
-    icon: Timer,
-    tags: ['Productivity', 'Timer', 'Pomodoro', 'Focus'],
+    title: 'Chmod Calculator',
+    description: 'Toggle read/write/execute permissions on a 3×3 grid and get the octal chmod command instantly. 10 presets (755, 644, 1777), special bits (setuid, setgid, sticky), and a built-in reference guide.',
+    href: '/tools/chmod-calculator',
+    icon: Shield,
+    tags: ['Chmod', 'Permissions', 'Linux', 'Unix'],
   },
 ];
 const sampleBlogPosts = [
