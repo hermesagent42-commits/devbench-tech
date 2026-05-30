@@ -87,6 +87,7 @@ import {
   Heading,
   Cpu,
   Bell,
+  Film,
 } from 'lucide-react';
 
 export const metadata: Metadata = {
@@ -851,6 +852,13 @@ const allTools = [
     href: '/tools/nth-child-calculator',
     icon: Hash,
     tags: ['CSS', ':nth-child()', 'Selectors', 'Calculator'],
+  },
+  {
+    title: 'CSS Keyframes Builder',
+    description: 'Visually design CSS @keyframes animations — add stops, tweak properties, and get production-ready CSS with live preview.',
+    href: '/tools/css-keyframes-builder',
+    icon: Film,
+    tags: ['CSS', 'Keyframes', 'Animation', 'Builder'],
   },
 ];
 

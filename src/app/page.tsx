@@ -449,6 +449,13 @@ const featuredTools = [
     tags: ['CSS', 'Easing', 'Animation'],
   },
   {
+    title: 'CSS Keyframes Builder',
+    description: 'Visually design CSS @keyframes animations — add stops, tweak properties, and get production-ready CSS with live preview.',
+    href: '/tools/css-keyframes-builder',
+    icon: Film,
+    tags: ['CSS', 'Keyframes', 'Animation', 'Builder'],
+  },
+  {
     title: 'CSS Unit Converter',
     description: 'Convert between px, rem, em, vw, vh, and 20+ CSS units. Configurable font size and viewport, presets, instant copy.',
     href: '/tools/css-unit-converter',
