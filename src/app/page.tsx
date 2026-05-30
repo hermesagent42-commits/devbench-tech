@@ -93,6 +93,7 @@ import {
   Bell,
   Egg,
   Sparkles,
+  Timer,
 } from 'lucide-react';
 
 export const metadata: Metadata = {
@@ -472,6 +473,13 @@ const featuredTools = [
     href: '/tools/css-offset-path-playground',
     icon: TrendingUp,
     tags: ['CSS', 'Motion', 'Path', 'Animation'],
+  },
+  {
+    title: 'CSS Transition Builder',
+    description: 'Build production-ready CSS transitions visually — multiple properties, duration, cubic-bezier and steps timing, delay. Live preview, instant CSS copy.',
+    href: '/tools/css-transition-builder',
+    icon: Timer,
+    tags: ['CSS', 'Transition', 'Animation', 'Builder'],
   },
   {
     title: 'CSS Unit Converter',
