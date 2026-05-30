@@ -90,6 +90,7 @@ import {
   Bell,
   Film,
   Columns,
+  Repeat,
 } from 'lucide-react';
 
 export const metadata: Metadata = {
@@ -630,6 +631,13 @@ const allTools = [
     href: '/tools/javascript-playground',
     icon: Play,
     tags: ['JavaScript', 'Playground', 'REPL', 'Run'],
+  },
+  {
+    title: 'Event Loop Visualizer',
+    description: 'Step through the JavaScript event loop — see call stack, microtask queue, macrotask queue, and Web APIs in action. 5 interactive scenarios with auto-play to understand async execution order.',
+    href: '/tools/event-loop-visualizer',
+    icon: Repeat,
+    tags: ['JavaScript', 'Event Loop', 'Async', 'Education'],
   },
   {
     title: 'HTML to Markdown',
