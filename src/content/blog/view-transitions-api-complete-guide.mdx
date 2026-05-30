@@ -1,0 +1,538 @@
+---
+title: "View Transitions API in 2026: Smooth Native Page Transitions — Zero JavaScript Required"
+date: "2026-05-30"
+excerpt: "The View Transitions API just reached full cross-browser Baseline. Smooth, hardware-accelerated page transitions between multi-page navigations, DOM state changes, and shared-element morphs — all with CSS, no JavaScript animation libraries. Complete guide with same-document, cross-document, and advanced customization patterns."
+tags: ["css", "view-transitions", "web-platform", "baseline", "mpa", "spa", "animation", "tutorial"]
+---
+
+For 30 years, the web has had a glaring UX deficiency: **hard page cuts**.
+
+Click a link in a multi-page app (the majority of the web) and the screen flashes white for 200-800ms before the next page paints. Single-page apps solved this with JavaScript routing and animation libraries like Framer Motion, GSAP, or `react-transition-group` — at the cost of bundle size, complexity, and accessibility regressions.
+
+The View Transitions API solves this natively. The browser captures snapshots of the old and new DOM states, cross-fades between them, and handles the entire transition on the compositor thread — **hardware-accelerated, jank-free, zero JavaScript**.
+
+As of mid-2026, it's **Baseline across all browsers**: Chrome 111+, Safari 18.2+, Firefox 144+, Edge 111+, Opera 97+, and Samsung Internet 23+. Firefox was the last holdout and shipped it in April 2026. If you target modern browsers, you can use it today.
+
+Let's build real transitions.
+
+---
+
+## How View Transitions Work Under the Hood
+
+The browser takes a **snapshot** of the page at two moments — the "old" state and the "new" state — and plays a cross-fade animation between them. This happens on the compositor thread, so the main thread stays free for JavaScript and layout work.
+
+```
+Old DOM Snapshot ──[ cross-fade ]──> New DOM Snapshot
+     ↑                                  ↑
+  before swap                      after swap
+```
+
+There are two modes:
+
+1. **Same-document transitions** — Animate DOM changes within a single page (SPA). Triggered via `document.startViewTransition()`.
+2. **Cross-document transitions** — Animate full page navigations between different URLs (MPA). Triggered with a single CSS at-rule: `@view-transition`.
+
+---
+
+## Same-Document Transitions: SPA State Changes
+
+The classic use case: you have a list of items, the user clicks one, and the content area updates. With View Transitions, the old content *cross-fades* into the new content — no jarring replacement.
+
+```js
+function navigateToDetail(id) {
+  // Wrap your DOM update in startViewTransition()
+  document.startViewTransition(() => {
+    // This callback runs synchronously — update the DOM here
+    document.getElementById('content').innerHTML = renderDetail(id);
+  });
+}
+```
+
+That's it. The browser:
+1. Captures a snapshot of the current `#content`
+2. Runs your callback to update the DOM
+3. Captures a snapshot of the new `#content`
+4. Cross-fades between them over ~300ms (configurable)
+
+**No animation library. No CSS keyframes to write. Just one function call.**
+
+Here it is in React:
+
+```jsx
+function ProductDetail({ productId }) {
+  const navigate = (id) => {
+    if (document.startViewTransition) {
+      document.startViewTransition(() => setActiveId(id));
+    } else {
+      setActiveId(id); // fallback
+    }
+  };
+  // ...
+}
+```
+
+And in vanilla JS with `fetch`:
+
+```js
+async function loadPage(url) {
+  const res = await fetch(url);
+  const html = await res.text();
+
+  document.startViewTransition(() => {
+    document.getElementById('app').innerHTML = html;
+  });
+}
+```
+
+---
+
+## Cross-Document Transitions: MPA Navigation
+
+This is the bigger deal. **MPA cross-document transitions require zero JavaScript.** You add one line of CSS to both pages, and the browser handles everything.
+
+Add this to your global CSS:
+
+```css
+@view-transition {
+  navigation: auto;
+}
+```
+
+Now every same-origin navigation (clicking a link to a page on your site) gets a smooth cross-fade. No JS. No SPA framework. No build step.
+
+The `@view-transition` at-rule has two values:
+- `navigation: auto` — enable transitions for all same-origin navigations
+- `navigation: none` — disable transitions (the default)
+
+You can scope it:
+
+```css
+/* Only transition between blog pages */
+@view-transition {
+  navigation: auto;
+}
+
+/* But NOT on the search page (too heavy) */
+.search-page {
+  view-transition-name: none;
+}
+```
+
+This is what makes View Transitions a **web platform feature, not a JavaScript feature**. It works with:
+- Plain HTML files served by any backend
+- Static site generators (Next.js export, Astro, Hugo, 11ty)
+- Server-rendered frameworks with traditional anchor tags
+- Any `<a href="...">` click on the same origin
+
+---
+
+## Named View Transitions: Shared-Element Morphing
+
+The default cross-fade is nice. But the real power is **named view transitions** — morphing a specific element from the old page into the new page.
+
+Give an element a `view-transition-name`:
+
+```css
+/* On the list page */
+.product-card-42 {
+  view-transition-name: product-42;
+}
+
+/* On the detail page */
+.product-hero {
+  view-transition-name: product-42;
+}
+```
+
+The browser sees the same `view-transition-name` on both pages and **morphs** the element — animating position, size, and shape — while the rest of the page cross-fades normally.
+
+This is the "shared element transition" pattern that Material Design made famous. No JavaScript tweening. No layout math. The browser handles it natively.
+
+```html
+<!-- List page -->
+<a href="/product/42" class="product-card" style="view-transition-name: product-42">
+  <img src="thumb-42.jpg" alt="Widget" />
+  <h3>Widget Pro</h3>
+</a>
+
+<!-- Detail page -->
+<div class="product-hero" style="view-transition-name: product-42">
+  <img src="hero-42.jpg" alt="Widget" />
+</div>
+```
+
+> **Critical rule**: A `view-transition-name` must be unique on the page at any given moment. If two elements share the same name during a transition, the transition aborts with a warning. Use unique names like `product-${id}` or `card-${index}`.
+
+---
+
+## Customizing the Transition Animation
+
+The default cross-fade is 300ms with an `ease` timing function. You can customize it via the `::view-transition` pseudo-element tree:
+
+```css
+/* Customize the root cross-fade */
+::view-transition-old(root) {
+  animation: fade-out 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+::view-transition-new(root) {
+  animation: fade-in 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes fade-out {
+  to { opacity: 0; }
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+}
+```
+
+The full pseudo-element tree:
+
+```
+::view-transition
+├── ::view-transition-group(root)
+│   ├── ::view-transition-image-pair(root)
+│   │   ├── ::view-transition-old(root)
+│   │   └── ::view-transition-new(root)
+```
+
+For named transitions, replace `root` with the name:
+
+```css
+::view-transition-old(product-42) {
+  animation: slide-out 0.4s ease;
+}
+
+::view-transition-new(product-42) {
+  animation: slide-in 0.4s ease;
+}
+
+@keyframes slide-out {
+  to {
+    transform: translateX(-30px);
+    opacity: 0;
+  }
+}
+
+@keyframes slide-in {
+  from {
+    transform: translateX(30px);
+    opacity: 0;
+  }
+}
+```
+
+### Directional Navigation
+
+This is where View Transitions shines. Detect navigation direction and animate accordingly:
+
+```css
+/* Forward navigation: slide left */
+html:active-view-transition-type(forward) ::view-transition-old(root) {
+  animation: slide-to-left 0.3s ease both;
+}
+html:active-view-transition-type(forward) ::view-transition-new(root) {
+  animation: slide-from-right 0.3s ease both;
+}
+
+/* Back navigation: slide right */
+html:active-view-transition-type(back) ::view-transition-old(root) {
+  animation: slide-to-right 0.3s ease both;
+}
+html:active-view-transition-type(back) ::view-transition-new(root) {
+  animation: slide-from-left 0.3s ease both;
+}
+
+@keyframes slide-to-left {
+  to { transform: translateX(-100%); }
+}
+@keyframes slide-to-right {
+  to { transform: translateX(100%); }
+}
+@keyframes slide-from-right {
+  from { transform: translateX(100%); }
+}
+@keyframes slide-from-left {
+  from { transform: translateX(-100%); }
+}
+```
+
+Set the transition type in JavaScript when navigating:
+
+```js
+// Forward navigation
+document.startViewTransition({
+  update: () => navigateForward(),
+  types: ['forward']
+});
+
+// For cross-document, set via the pageswap event
+window.addEventListener('pageswap', (e) => {
+  if (e.viewTransition) {
+    const direction = getNavigationDirection();
+    e.viewTransition.types.add(direction);
+  }
+});
+```
+
+---
+
+## Practical Patterns
+
+### Pattern 1: List to Detail with Image Morph
+
+The most impactful MPA pattern. Product listings, blog post cards, photo galleries — anything where a thumbnail expands into a hero.
+
+```css
+/* Both pages need this */
+@view-transition {
+  navigation: auto;
+}
+
+/* List page — each card */
+.product-card {
+  view-transition-name: product-card;
+  contain: layout;
+}
+
+/* Detail page — the hero */
+.product-hero-image {
+  view-transition-name: product-card;
+  contain: layout;
+}
+```
+
+The `contain: layout` is important — it tells the browser to treat this element as an isolated layout root, preventing the snapshot from capturing layout shifts in ancestor elements.
+
+### Pattern 2: Stack Navigator (Push/Pop)
+
+For apps with a drill-down flow (Settings > Account > Security), animate pages like a stack:
+
+```css
+@view-transition {
+  navigation: auto;
+}
+
+/* Push: new page slides in from right */
+::view-transition-new(root) {
+  animation: slide-in-right 0.3s ease both;
+}
+::view-transition-old(root) {
+  animation: slide-out-left 0.3s ease both;
+}
+```
+
+When the user clicks "Back," the browser automatically reverses the animation — the old page slides in from the left. No code needed.
+
+### Pattern 3: Filtering with View Transitions
+
+Animate a product grid when filters change:
+
+```js
+function applyFilter(category) {
+  document.startViewTransition(() => {
+    // Re-render the grid with filtered results
+    renderProducts(filterByCategory(category));
+  });
+}
+```
+
+Each product card could have a `view-transition-name`, so cards that exist in both old and new grids morph to their new positions rather than fading out and back in. This is the "layout animation" pattern that used to require FLIP technique calculations.
+
+### Pattern 4: Dark Mode Toggle
+
+The simplest SPA transition:
+
+```js
+function toggleDarkMode() {
+  document.startViewTransition(() => {
+    document.documentElement.classList.toggle('dark');
+  });
+}
+```
+
+Gives a smooth cross-fade between light and dark themes. Add this CSS for a radial reveal effect:
+
+```css
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+
+.dark::view-transition-old(root) {
+  z-index: 1;
+}
+.dark::view-transition-new(root) {
+  z-index: 9999;
+}
+
+::view-transition-new(root) {
+  animation: reveal 0.5s ease;
+}
+
+@keyframes reveal {
+  from {
+    clip-path: circle(0% at 100% 0%);
+  }
+  to {
+    clip-path: circle(150% at 100% 0%);
+  }
+}
+```
+
+---
+
+## Performance and Best Practices
+
+### The `contain` Property
+
+Every element with `view-transition-name` should have `contain: layout` (or `contain: paint` at minimum). This isolates the element from layout changes in ancestors, ensuring clean snapshots.
+
+```css
+.card {
+  view-transition-name: card;
+  contain: layout;      /* isolate from ancestor layout shifts */
+}
+```
+
+### Snapshot Size
+
+The browser captures the element as a bitmap. Large snapshots (full-width hero images) are fine — the compositor handles them. But avoid naming dozens of elements on a page; each name creates a separate snapshot and animation group. Stick to 2-5 named elements per transition.
+
+### Accessibility: `prefers-reduced-motion`
+
+Always respect the user's motion preference:
+
+```css
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation: none;
+  }
+
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation-duration: 0s !important;
+  }
+}
+```
+
+This disables all view transition animations when the user has requested reduced motion.
+
+### Skip Heavy Pages
+
+Don't enable cross-document transitions on pages with heavy initial paint (large data tables, WebGL canvases, maps). Use `view-transition-name: none` on those pages or scope `@view-transition` to specific routes:
+
+```css
+/* Enable only on article pages */
+.article-page {
+  view-transition-name: article-content;
+}
+
+/* Disable globally, enable selectively */
+@view-transition {
+  navigation: auto;
+}
+
+.search-results-page {
+  view-transition-name: none;
+}
+```
+
+### The `pageswap` and `pagereveal` Events
+
+For cross-document transitions, these new events let you run code before/after the browser captures snapshots:
+
+```js
+// On the OLD page, before the snapshot
+window.addEventListener('pageswap', (e) => {
+  if (e.viewTransition) {
+    // Save scroll position, close menus, etc.
+    sessionStorage.setItem('scrollPos', window.scrollY);
+    closeAllPopovers();
+  }
+});
+
+// On the NEW page, after the snapshot
+window.addEventListener('pagereveal', (e) => {
+  if (e.viewTransition) {
+    // Restore scroll position, animate entrance
+    const scrollPos = sessionStorage.getItem('scrollPos');
+    if (scrollPos) window.scrollTo(0, parseInt(scrollPos));
+  }
+});
+```
+
+---
+
+## Browser Support & Progressive Enhancement
+
+Browser support as of May 2026:
+
+| Browser | Same-Document | Cross-Document |
+|---------|:---:|:---:|
+| Chrome 111+ | ✅ | ✅ |
+| Safari 18.2+ | ✅ | ✅ |
+| Firefox 144+ | ✅ | ✅ |
+| Edge 111+ | ✅ | ✅ |
+| Opera 97+ | ✅ | ✅ |
+| Samsung Internet 23+ | ✅ | ✅ |
+
+**Global coverage: ~94% of users.** Cross-document transitions work in all modern browsers. Firefox was the last to ship (April 2026).
+
+### Feature Detection
+
+```js
+// Same-document
+const supportsSPA = 'startViewTransition' in document;
+
+// Cross-document (CSS-only, no JS detection needed — browsers ignore unknown at-rules)
+```
+
+For same-document transitions, always wrap in a feature check:
+
+```js
+function navigate(url) {
+  if (document.startViewTransition) {
+    document.startViewTransition(() => updateDOM(url));
+  } else {
+    updateDOM(url); // fallback: instant update
+  }
+}
+```
+
+For cross-document: browsers that don't support `@view-transition` simply ignore it. No polyfill needed. No JS required. This is the beauty of CSS at-rules as progressive enhancement.
+
+---
+
+## The Big Picture: What This Replaces
+
+| What You Used Before | What You Use Now |
+|---|---|
+| Framer Motion `AnimatePresence` | `document.startViewTransition()` |
+| GSAP FLIP animations | `view-transition-name` + CSS |
+| `react-transition-group` | `@view-transition { navigation: auto }` |
+| `getBoundingClientRect()` math | Browser handles it natively |
+| Manual z-index stacking | Pseudo-element tree |
+| 20KB+ animation libraries | 0 bytes |
+
+The View Transitions API doesn't replace every animation need — complex sequenced animations, physics-based motion, and scroll-driven effects still benefit from libraries. But for the 90% case — page transitions, list-to-detail, toast notifications, modal enter/exit — the browser now does it better, faster, and with less code.
+
+---
+
+## Try It Now
+
+- **[View Transitions Playground on DevBench](/tools/view-transitions-playground)** — Experiment with same-document transitions, named groups, and timing customization in your browser
+- **[CSS @starting-style Guide](/blog/css-starting-style-2026)** — The companion feature for entry animations from `display: none`
+- **[MDN: View Transitions API](https://developer.mozilla.org/en-US/docs/Web/API/View_Transition_API)** — Complete API reference
+- **[Chrome for Developers: View Transitions](https://developer.chrome.com/docs/web-platform/view-transitions/)** — Google's official guide with demos
+
+The web just got a native animation engine for the most common UX pattern. No libraries, no framework lock-in, no bundle bloat. Just `<a href="...">` clicks that feel like a native app.
+
+---
+
+*Published May 30, 2026. Updated for Firefox 144+ cross-document support.*
