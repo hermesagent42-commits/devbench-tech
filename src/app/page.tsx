@@ -726,6 +726,13 @@ const featuredTools = [
     tags: ['CSS', '@layer', 'Cascade'],
   },
   {
+    title: 'JSON → TypeScript',
+    description: 'Convert JSON to TypeScript interfaces or type aliases — nested types, array element inference, key casing control, optional fields, and exports. 100% client-side.',
+    href: '/tools/json-to-typescript',
+    icon: FileCode,
+    tags: ['JSON', 'TypeScript', 'Types', 'Converter'],
+  },
+  {
     title: 'JSON → GraphQL Schema',
     description: 'Convert JSON data to GraphQL SDL type definitions — nested objects become named types, array element inference, Query/Mutation scaffolding. 100% client-side.',
     href: '/tools/json-to-graphql',
