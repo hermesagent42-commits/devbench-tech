@@ -4,6 +4,7 @@ import { ArrowRight } from 'lucide-react';
 import { Hero } from '@/components/Hero';
 import { ToolCard } from '@/components/ToolCard';
 import { BlogCard } from '@/components/BlogCard';
+import { JsonLd } from '@/components/JsonLd';
 import {
   Braces,
   Binary,
@@ -1064,6 +1065,37 @@ const sampleBlogPosts = [
 export default function HomePage() {
   return (
     <>
+      <JsonLd
+        data={{
+          '@context': 'https://schema.org',
+          '@type': 'SoftwareApplication',
+          name: 'DevBench',
+          applicationCategory: 'DeveloperApplication',
+          operatingSystem: 'Web',
+          url: 'https://devbench-roan.vercel.app',
+          description:
+            '150+ free developer tools — JSON formatter, Base64 encoder/decoder, UUID generator, regex tester, CSS playgrounds, and more. All client-side, no data leaves your browser.',
+          offers: {
+            '@type': 'Offer',
+            price: '0',
+            priceCurrency: 'USD',
+          },
+        }}
+      />
+      <JsonLd
+        data={{
+          '@context': 'https://schema.org',
+          '@type': 'BreadcrumbList',
+          itemListElement: [
+            {
+              '@type': 'ListItem',
+              position: 1,
+              name: 'Home',
+              item: 'https://devbench-roan.vercel.app',
+            },
+          ],
+        }}
+      />
       <Hero />
 
       {/* Featured Tools */}

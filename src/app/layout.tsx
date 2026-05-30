@@ -3,6 +3,7 @@ import './globals.css';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 import { Analytics } from '@/components/Analytics';
+import { JsonLd } from '@/components/JsonLd';
 import { Toaster } from 'react-hot-toast';
 
 export const metadata: Metadata = {
@@ -42,6 +43,21 @@ export default function RootLayout({
   return (
     <html lang="en" className="dark">
       <body className="flex flex-col min-h-screen">
+        <JsonLd
+          data={{
+            '@context': 'https://schema.org',
+            '@type': 'WebSite',
+            name: 'DevBench',
+            url: 'https://devbench-roan.vercel.app',
+            description:
+              'Free developer tools for everyday use: JSON formatter, Base64 encoder/decoder, UUID generator, regex tester, benchmarks, and more.',
+            potentialAction: {
+              '@type': 'SearchAction',
+              target: 'https://devbench-roan.vercel.app/tools?q={search_term_string}',
+              'query-input': 'required name=search_term_string',
+            },
+          }}
+        />
         <Header />
         <main className="flex-1">{children}</main>
         <Footer />

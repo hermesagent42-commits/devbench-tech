@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { ArrowLeft, Calendar, Tag } from 'lucide-react';
 import fs from 'fs';
 import path from 'path';
+import { JsonLd } from '@/components/JsonLd';
 
 interface Props {
   params: { slug: string };
@@ -173,6 +174,49 @@ export default function BlogPostPage({ params }: Props) {
 
   return (
     <article className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
+      <JsonLd
+        data={{
+          '@context': 'https://schema.org',
+          '@type': 'Article',
+          headline: data.title || 'Untitled',
+          description: data.excerpt || '',
+          datePublished: data.date || '',
+          author: {
+            '@type': 'Organization',
+            name: 'DevBench',
+          },
+          publisher: {
+            '@type': 'Organization',
+            name: 'DevBench',
+            url: 'https://devbench-roan.vercel.app',
+          },
+        }}
+      />
+      <JsonLd
+        data={{
+          '@context': 'https://schema.org',
+          '@type': 'BreadcrumbList',
+          itemListElement: [
+            {
+              '@type': 'ListItem',
+              position: 1,
+              name: 'Home',
+              item: 'https://devbench-roan.vercel.app',
+            },
+            {
+              '@type': 'ListItem',
+              position: 2,
+              name: 'Blog',
+              item: 'https://devbench-roan.vercel.app/blog',
+            },
+            {
+              '@type': 'ListItem',
+              position: 3,
+              name: data.title || 'Post',
+            },
+          ],
+        }}
+      />
       {/* Back link */}
       <Link
         href="/blog"
