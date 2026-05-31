@@ -203,7 +203,7 @@ export default function SvgOptimizerPage() {
           <li><strong className="text-slate-300">Aggressive preset:</strong> Maximum compression. Shortens IDs (references are auto-updated), rounds decimals, removes empty groups and unused defs.</li>
           <li><strong className="text-slate-300">Decimal rounding:</strong> Values like 12.584729 become 12.58 — huge file size savings.</li>
           <li><strong className="text-slate-300">Live preview:</strong> Toggle to verify the SVG still renders correctly after optimization.</li>
-          <li><strong className="text-slate-300">ID shortening:</strong> Auto-updates all url(#...), href="#...", and xlink:href="#..." references.</li>
+          <li><strong className="text-slate-300">ID shortening:</strong> Auto-updates all <code>url(#...)</code>, <code>href=&quot;#...&quot;</code>, and <code>xlink:href=&quot;#...&quot;</code> references.</li>
           <li><strong className="text-slate-300">Privacy:</strong> Everything runs in your browser. Your SVGs never leave your machine.</li>
         </ul>
       </div>
