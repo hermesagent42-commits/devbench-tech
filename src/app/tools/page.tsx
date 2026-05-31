@@ -94,6 +94,7 @@ import {
   Columns,
   Repeat,
   RefreshCw,
+  Slash,
 } from 'lucide-react';
 
 export const metadata: Metadata = {
@@ -284,6 +285,13 @@ const allTools = [
     href: '/tools/url-encoder',
     icon: Link,
     tags: ['URL', 'Encoder', 'Decoder'],
+  },
+  {
+    title: 'Slug Generator',
+    description: 'Convert text to clean, URL-friendly slugs. Customize separator, case, max length and strip special characters — with history and one-click copy.',
+    href: '/tools/slug-generator',
+    icon: Slash,
+    tags: ['Slug', 'URL', 'SEO', 'Text'],
   },
   {
     title: 'Lorem Ipsum Generator',
