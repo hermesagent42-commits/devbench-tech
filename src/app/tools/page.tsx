@@ -93,6 +93,7 @@ import {
   Film,
   Columns,
   Repeat,
+  RefreshCw,
 } from 'lucide-react';
 
 export const metadata: Metadata = {
@@ -458,6 +459,13 @@ const allTools = [
     href: '/tools/image-resizer',
     icon: Maximize2,
     tags: ['Image', 'Resizer', 'Social Media', 'Dimensions'],
+  },
+  {
+    title: 'Image Format Converter',
+    description: 'Convert images between JPEG, PNG, WebP, AVIF, and BMP — all client-side. Convert to multiple formats at once, quality slider, transparency handling, size comparison.',
+    href: '/tools/image-format-converter',
+    icon: RefreshCw,
+    tags: ['Image', 'Converter', 'WebP', 'AVIF', 'PNG', 'JPEG'],
   },
   {
     title: 'Currency Converter',
