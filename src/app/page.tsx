@@ -1063,6 +1063,13 @@ const featuredTools = [
     icon: ShieldCheck,
     tags: ['GDPR', 'CCPA', 'Cookie', 'Banner', 'Privacy'],
   },
+  {
+    title: 'JSON → Zod Schema',
+    description: 'Convert JSON data into type-safe Zod validation schemas. Nested objects, arrays, enums, optional fields, z.coerce mode, and z.infer type export — 100% client-side.',
+    href: '/tools/json-to-zod',
+    icon: ShieldCheck,
+    tags: ['JSON', 'Zod', 'Schema', 'Validation', 'TypeScript'],
+  },
 ];
 const sampleBlogPosts = [
   {
