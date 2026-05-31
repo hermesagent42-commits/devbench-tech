@@ -412,6 +412,13 @@ const featuredTools = [
     tags: ['HTML', 'Entities', 'Encoder'],
   },
   {
+    title: 'Image Color Extractor',
+    description: 'Extract dominant color palettes from any image using k-means clustering. Export to CSS, Tailwind, or JSON — WCAG contrast checks included.',
+    href: '/tools/image-color-extractor',
+    icon: Palette,
+    tags: ['Image', 'Color', 'Palette', 'Extractor'],
+  },
+  {
     title: 'Image to Base64',
     description: 'Convert images to Base64 strings and back. Drag-and-drop, paste from clipboard, decode Base64 to image — 100% client-side.',
     href: '/tools/image-base64',
