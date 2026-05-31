@@ -1,0 +1,655 @@
+---
+title: "JavaScript Proxy & Reflect in 2026 — Metaprogramming That Actually Ships"
+date: "2026-05-31"
+excerpt: "Proxy and Reflect aren't just for framework authors. Build reactive state, validation layers, API mocking, and debug tooling with the metaprogramming APIs that React, Vue, and MobX rely on — explained with production patterns you can use today."
+tags: ["JavaScript", "Proxy", "Reflect", "Metaprogramming", "Reactive", "2026"]
+---
+
+## The API Nobody Uses — And Why That's a Mistake
+
+Ask a room of JavaScript developers if they've ever used `Proxy`. Most will say no. Ask them if they've used Vue's reactivity system, immer's immutability, or any ORM that traces property access — they'll say yes. And those are all built on Proxy.
+
+Proxy is a trap — literally. It intercepts fundamental operations (property access, assignment, function invocation, etc.) and lets you redefine them. Combined with Reflect, which provides the default behaviors you're overriding, you get metaprogramming that's safe, predictable, and remarkably powerful.
+
+This post covers every Proxy trap, the Reflect counterpart for each, and production patterns you can ship today — no framework required.
+
+## Why Proxy Exists (and Why Object.defineProperty Wasn't Enough)
+
+Before Proxy, metaprogramming in JavaScript meant `Object.defineProperty`. It could intercept `get` and `set` on known properties — but that was it. You couldn't intercept property deletion, `in` checks, or function calls. And you had to know the property names upfront.
+
+Proxy fixes all of that:
+
+```js
+// Object.defineProperty — you must know the key ahead of time
+const obj = {};
+Object.defineProperty(obj, 'name', {
+  get() { console.log('getting name'); return this._name; },
+  set(v) { console.log('setting name'); this._name = v; }
+});
+
+// Proxy — catches ANY property access, even ones you didn't anticipate
+const proxy = new Proxy({}, {
+  get(target, prop) {
+    console.log(`getting ${String(prop)}`);
+    return target[prop];
+  },
+  set(target, prop, value) {
+    console.log(`setting ${String(prop)} to ${value}`);
+    target[prop] = value;
+    return true;
+  }
+});
+
+proxy.name = 'Ada';     // setting name to Ada
+proxy.age = 200;          // setting age to 200 — no predefined property needed
+proxy.randomNewProp;      // getting randomNewProp — works with any key
+```
+
+## The Complete Trap Catalog — All 13 Proxy Handlers
+
+Proxy gives you 13 traps. Each maps to a fundamental language operation. Here's every single one, when it fires, and the Reflect method you use to delegate to default behavior.
+
+### 1. `get(target, prop, receiver)` — Property Access
+
+Fires on `proxy.prop`, `proxy[prop]`, and `Reflect.get(proxy, prop)`.
+
+```js
+const handler = {
+  get(target, prop, receiver) {
+    if (prop === 'secret') return '🔒 access denied';
+    return Reflect.get(target, prop, receiver);
+  }
+};
+```
+
+### 2. `set(target, prop, value, receiver)` — Property Assignment
+
+Fires on `proxy.prop = val`, `proxy[prop] = val`, and `Reflect.set(proxy, prop, val)`. Must return `true` on success or throw in strict mode.
+
+```js
+const handler = {
+  set(target, prop, value, receiver) {
+    if (typeof value !== 'number') {
+      throw new TypeError(`${String(prop)} must be a number`);
+    }
+    return Reflect.set(target, prop, value, receiver);
+  }
+};
+```
+
+### 3. `has(target, prop)` — The `in` Operator
+
+Fires on `prop in proxy` and `Reflect.has(proxy, prop)`.
+
+```js
+const handler = {
+  has(target, prop) {
+    if (prop === 'password') return false;
+    return Reflect.has(target, prop);
+  }
+};
+
+const user = new Proxy({ name: 'Ada', password: 'secret' }, handler);
+console.log('name' in user);     // true
+console.log('password' in user); // false — hidden from enumeration
+```
+
+### 4. `deleteProperty(target, prop)` — The `delete` Operator
+
+Fires on `delete proxy.prop` and `Reflect.deleteProperty(proxy, prop)`.
+
+```js
+const handler = {
+  deleteProperty(target, prop) {
+    if (prop === 'id') {
+      throw new Error('Cannot delete primary key');
+    }
+    return Reflect.deleteProperty(target, prop);
+  }
+};
+```
+
+### 5. `ownKeys(target)` — Object.keys, for...in, Object.getOwnPropertyNames
+
+Fires on `Object.keys(proxy)`, `Object.getOwnPropertyNames(proxy)`, `Object.getOwnPropertySymbols(proxy)`, `Reflect.ownKeys(proxy)`, and `for...in`.
+
+```js
+const handler = {
+  ownKeys(target) {
+    // Hide all _prefixed keys from enumeration
+    return Reflect.ownKeys(target).filter(k => !String(k).startsWith('_'));
+  }
+};
+```
+
+### 6. `getOwnPropertyDescriptor(target, prop)` — Object.getOwnPropertyDescriptor
+
+Fires on `Object.getOwnPropertyDescriptor(proxy, prop)` and `Reflect.getOwnPropertyDescriptor(proxy, prop)`.
+
+### 7. `defineProperty(target, prop, descriptor)` — Object.defineProperty
+
+Fires on `Object.defineProperty(proxy, prop, descriptor)` and `Reflect.defineProperty(proxy, prop, descriptor)`. Must return boolean.
+
+### 8. `preventExtensions(target)` — Object.preventExtensions
+
+Fires on `Object.preventExtensions(proxy)` and `Reflect.preventExtensions(proxy)`. Must return boolean.
+
+### 9. `getPrototypeOf(target)` — Object.getPrototypeOf
+
+Fires on `Object.getPrototypeOf(proxy)`, `Reflect.getPrototypeOf(proxy)`, `__proto__`, and `instanceof`.
+
+### 10. `setPrototypeOf(target, proto)` — Object.setPrototypeOf
+
+Fires on `Object.setPrototypeOf(proxy, proto)` and `Reflect.setPrototypeOf(proxy, proto)`. Must return boolean.
+
+### 11. `isExtensible(target)` — Object.isExtensible
+
+Fires on `Object.isExtensible(proxy)` and `Reflect.isExtensible(proxy)`.
+
+### 12. `apply(target, thisArg, argumentsList)` — Function Calls
+
+Only for proxied functions. Fires on `proxy()`, `proxy.call()`, `proxy.apply()`, and `Reflect.apply(proxy, thisArg, args)`.
+
+```js
+const logCalls = fn => new Proxy(fn, {
+  apply(target, thisArg, args) {
+    console.log(`${target.name}(${args.join(', ')})`);
+    return Reflect.apply(target, thisArg, args);
+  }
+});
+
+const add = logCalls((a, b) => a + b);
+add(3, 4); // logs: "add(3, 4)" → returns 7
+```
+
+### 13. `construct(target, argumentsList, newTarget)` — The `new` Operator
+
+Only for proxied constructors. Fires on `new proxy(...args)` and `Reflect.construct(proxy, args)`.
+
+```js
+const singleton = Class => {
+  let instance;
+  return new Proxy(Class, {
+    construct(target, args) {
+      if (!instance) instance = Reflect.construct(target, args);
+      return instance;
+    }
+  });
+};
+```
+
+## Why Reflect Matters — Don't Skip This
+
+Every Proxy trap has a corresponding `Reflect` method. But why not just use `target[prop]` inside a trap?
+
+Because `Reflect` handles the receiver correctly. This matters for prototype chains and getters:
+
+```js
+const parent = {
+  get name() { return this._name; }
+};
+
+const child = Object.create(parent);
+child._name = 'Ada';
+
+const proxy = new Proxy(child, {
+  get(target, prop, receiver) {
+    // receiver is the proxy itself, so `this` in the getter points to the proxy
+    return Reflect.get(target, prop, receiver);
+  }
+});
+
+proxy.name; // 'Ada' — works because Reflect passes the receiver
+```
+
+Without `Reflect.get(target, prop, receiver)`, the getter's `this` would be `child` instead of the proxy, breaking any proxy-level interception.
+
+**Rule: always use `Reflect[method]` inside traps unless you have an explicit reason not to.**
+
+## Pattern 1: Reactive State — Build Your Own Vue-Style Reactivity
+
+This is the classic Proxy use case. Track which properties are accessed, and re-run effects when they change:
+
+```js
+function reactive(obj, onChange) {
+  return new Proxy(obj, {
+    get(target, prop, receiver) {
+      // Track this property access
+      track(prop);
+      const value = Reflect.get(target, prop, receiver);
+      // Deep reactivity for nested objects
+      if (value && typeof value === 'object') {
+        return reactive(value, onChange);
+      }
+      return value;
+    },
+    set(target, prop, value, receiver) {
+      const old = target[prop];
+      const result = Reflect.set(target, prop, value, receiver);
+      if (old !== value) onChange(prop, value, old);
+      return result;
+    },
+    deleteProperty(target, prop) {
+      if (prop in target) {
+        const old = target[prop];
+        const result = Reflect.deleteProperty(target, prop);
+        onChange(prop, undefined, old);
+        return result;
+      }
+      return true;
+    }
+  });
+}
+
+// Usage
+const state = reactive({ count: 0, user: { name: 'Ada' } }, (key, val, old) => {
+  console.log(`${key}: ${old} → ${val}`);
+});
+
+state.count++;           // "count: 0 → 1"
+state.user.name = 'Grace'; // "name: Ada → Grace" — nested reactivity!
+```
+
+Deep reactivity is achieved by wrapping nested objects in their own `reactive()` call. Each level fires its own change events.
+
+## Pattern 2: Validation Layer — Type-Safe Objects Without TypeScript
+
+Proxy can enforce runtime invariants that even TypeScript can't catch at compile time:
+
+```js
+function schema(config) {
+  return new Proxy({}, {
+    set(target, prop, value) {
+      const rule = config[prop];
+      if (!rule) throw new Error(`Unknown property: ${String(prop)}`);
+      if (typeof value !== rule.type) {
+        throw new TypeError(`${String(prop)} must be ${rule.type}, got ${typeof value}`);
+      }
+      if (rule.validate && !rule.validate(value)) {
+        throw new RangeError(`${String(prop)} validation failed: ${rule.message}`);
+      }
+      return Reflect.set(target, prop, value);
+    },
+    get(target, prop, receiver) {
+      if (!(prop in target) && config[prop]?.default !== undefined) {
+        return config[prop].default;
+      }
+      return Reflect.get(target, prop, receiver);
+    }
+  });
+}
+
+const user = schema({
+  name:  { type: 'string', default: 'Anonymous' },
+  age:   { type: 'number', validate: v => v >= 0 && v <= 150, message: '0-150' },
+  email: { type: 'string', validate: v => v.includes('@'), message: 'must contain @' },
+});
+
+user.name = 'Ada';       // ✅
+user.age = 200;           // ❌ RangeError: age validation failed: 0-150
+user.email = 'invalid';   // ❌ RangeError: email validation failed: must contain @
+console.log(user.name);   // 'Ada' — default applied
+```
+
+This pattern is especially powerful for API response validation, form state, and configuration objects where TypeScript types are erased at runtime.
+
+## Pattern 3: Auto-Memoizing Function Calls
+
+Wrap any function to automatically cache results based on arguments:
+
+```js
+function memoize(fn) {
+  const cache = new Map();
+  return new Proxy(fn, {
+    apply(target, thisArg, args) {
+      const key = JSON.stringify(args);
+      if (cache.has(key)) {
+        console.log('cache hit:', key);
+        return cache.get(key);
+      }
+      console.log('cache miss:', key);
+      const result = Reflect.apply(target, thisArg, args);
+      cache.set(key, result);
+      return result;
+    }
+  });
+}
+
+const fib = memoize(function fib(n) {
+  if (n < 2) return n;
+  return fib(n - 1) + fib(n - 2);
+});
+
+fib(40); // cache miss for 40, then 39, 38... — but hits for all recursive calls
+```
+
+Because the proxy intercepts recursive calls through the memoized reference, the entire computation is cached. `fib(40)` goes from 2+ billion function calls to about 40.
+
+## Pattern 4: Safe Default Objects — No More `Cannot read property of undefined`
+
+The "null-safe" or "ruby-style" accessor pattern:
+
+```js
+function safe(obj) {
+  return new Proxy(obj, {
+    get(target, prop, receiver) {
+      if (prop === '$$raw') return target; // escape hatch
+      const value = Reflect.get(target, prop, receiver);
+      if (value === undefined || value === null) {
+        return safe({});
+      }
+      if (typeof value === 'object') {
+        return safe(value);
+      }
+      return value;
+    }
+  });
+}
+
+const data = safe({ user: { name: 'Ada' } });
+
+data.user.name;              // 'Ada'
+data.user.address.city;      // safe({}) — no error!
+data.user.address.city.$$raw; // undefined — get the real value
+String(data.user.settings.theme); // '{}' — stringifies safely
+```
+
+This eliminates defensive `if (x && x.y && x.y.z)` chains. Access any depth freely and check `$$raw` at the end, or treat the safe wrapper as a falsy value.
+
+## Pattern 5: API Mocking Layer — Intercept Any Object
+
+Wrap your real API client with a Proxy to mock endpoints during development and testing:
+
+```js
+function mockAPI(realApi, mocks = {}) {
+  return new Proxy(realApi, {
+    get(target, prop, receiver) {
+      if (prop in mocks) return mocks[prop];
+      const value = Reflect.get(target, prop, receiver);
+      // Wrap nested API modules too
+      if (typeof value === 'object' && value !== null) {
+        return mockAPI(value, mocks[prop] || {});
+      }
+      return value;
+    }
+  });
+}
+
+const api = mockAPI(
+  { users: { get(id) { return fetch(`/users/${id}`).then(r => r.json()); } } },
+  { users: { get: (id) => Promise.resolve({ id, name: 'Mock User' }) } }
+);
+
+api.users.get(42).then(u => console.log(u)); // { id: 42, name: 'Mock User' }
+```
+
+Mock entire API surfaces without changing a single import in your application code.
+
+## Pattern 6: Observable Arrays
+
+Arrays have their own set of mutating methods (`push`, `pop`, `splice`, etc.). Proxy handles them naturally:
+
+```js
+function observableArray(arr, onChange) {
+  return new Proxy(arr, {
+    set(target, prop, value, receiver) {
+      const old = target[prop];
+      const result = Reflect.set(target, prop, value, receiver);
+      onChange('set', String(prop), old, value);
+      return result;
+    },
+    deleteProperty(target, prop) {
+      const old = target[prop];
+      const result = Reflect.deleteProperty(target, prop);
+      onChange('delete', String(prop), old);
+      return result;
+    },
+    get(target, prop, receiver) {
+      const value = Reflect.get(target, prop, receiver);
+      // Wrap mutating methods to trigger additional notifications
+      if (typeof value === 'function' && ['push','pop','shift','unshift','splice','sort','reverse'].includes(String(prop))) {
+        return function (...args) {
+          const before = [...target];
+          const result = value.apply(target, args);
+          onChange('mutate', String(prop), before, [...target]);
+          return result;
+        };
+      }
+      return value;
+    }
+  });
+}
+
+const items = observableArray(['a', 'b'], (type, detail, before, after) => {
+  console.log(`${type}: ${detail}`, { before, after });
+});
+
+items.push('c');  // mutate: push — logs full state diff
+items[0] = 'z';   // set: 0 — logs property change
+```
+
+## Pattern 7: Query Builder with Lazy Evaluation
+
+Proxy enables fluent, chainable query builders that only execute when you actually need results:
+
+```js
+function createQuery(table) {
+  const clauses = [];
+  const chain = new Proxy(() => {}, {
+    get(_, prop) {
+      if (prop === 'build') {
+        return () => [`SELECT * FROM ${table}`, ...clauses].join(' ');
+      }
+      if (prop === 'execute') {
+        return () => {
+          const sql = [`SELECT * FROM ${table}`, ...clauses].join(' ');
+          console.log('Executing:', sql);
+          return fetch(`/api/query`, { method: 'POST', body: JSON.stringify({ sql }) });
+        };
+      }
+      return (...args) => {
+        clauses.push(String(prop).toUpperCase() + ' ' + args.join(' '));
+        return chain;
+      };
+    }
+  });
+  return chain;
+}
+
+const users = createQuery('users').where('age > 18').orderBy('name').limit(10);
+console.log(users.build());
+// SELECT * FROM users WHERE age > 18 ORDER BY name LIMIT 10
+```
+
+## Pattern 8: Negative Array Indexes — Python-Style Access
+
+```js
+function pyArray(arr) {
+  return new Proxy(arr, {
+    get(target, prop, receiver) {
+      const index = Number(prop);
+      if (!isNaN(index) && index < 0) {
+        return Reflect.get(target, target.length + index, receiver);
+      }
+      return Reflect.get(target, prop, receiver);
+    }
+  });
+}
+
+const arr = pyArray(['a', 'b', 'c', 'd']);
+arr[-1]; // 'd' — last element
+arr[-2]; // 'c' — second-to-last
+arr[-5]; // undefined — out of bounds
+```
+
+## Performance: What Does Proxy Actually Cost?
+
+Proxy operations are slower than direct property access — there's a real cost to the indirection. But the question is: does it matter?
+
+| Operation | Relative cost | Real-world impact |
+|-----------|--------------|-------------------|
+| Property read (no Proxy) | 1x | Baseline |
+| Property read (Proxy get trap) | ~8-12x | Still nanoseconds |
+| Property write (no Proxy) | 1x | Baseline |
+| Property write (Proxy set trap) | ~8-15x | Still nanoseconds |
+| Function call (no Proxy) | 1x | Baseline |
+| Function call (Proxy apply trap) | ~4-6x | Still microseconds |
+
+A Proxy intercept adds ~100-500ns per operation. At 100,000 operations per frame (60fps), that's ~10-50ms — noticeable but rarely relevant outside hot loops. Vue 3 uses Proxy for its entire reactivity system and is among the fastest frameworks.
+
+**The rule:** use Proxy for application-level state, validation, debugging, and API layers. Avoid Proxy in inner loops, WebGL render loops, or code processing millions of entries.
+
+For the rare hot path, escape to raw objects:
+
+```js
+const state = reactive({ items: [] });
+// Fast processing — access the raw array directly
+const rawItems = state.items.$$raw || state.items;
+rawItems.sort();
+```
+
+## Debugging Proxy: Common Gotchas
+
+### 1. `JSON.stringify` breaks on Proxy
+
+```js
+JSON.stringify(new Proxy({}, {})); // Error: cannot serialize Proxy
+// Fix: add a toJSON trap or unwrap before serializing
+```
+
+### 2. `console.log` shows Proxy internals, not the target
+
+```js
+console.log(new Proxy({a: 1}, {})); // Proxy {a: 1} — but inspectable in DevTools
+// Fix: log the raw target
+```
+
+### 3. `typeof` can deceive
+
+```js
+const fn = new Proxy(() => {}, {});
+typeof fn; // 'function' — correct, but sometimes surprising
+const obj = new Proxy({}, {});
+typeof obj; // 'object' — correct
+```
+
+### 4. Identity comparison fails
+
+```js
+const obj = {};
+const proxy = new Proxy(obj, {});
+proxy === obj; // false — they're different references
+```
+
+### 5. `this` binding in methods
+
+When you intercept a method call, `this` inside the method is the proxy, not the target — unless you use `Reflect` with the receiver. This is why the receiver parameter matters.
+
+## A Real Production Utility — Logging Decorator
+
+Here's a production-ready logging decorator that traces every operation on any object:
+
+```js
+function createLogger(obj, name = 'Object') {
+  return new Proxy(obj, {
+    get(target, prop, receiver) {
+      const value = Reflect.get(target, prop, receiver);
+      console.debug(`[${name}] GET ${String(prop)}`);
+      if (typeof value === 'function') {
+        return new Proxy(value, {
+          apply(fnTarget, thisArg, args) {
+            console.debug(`[${name}] CALL ${String(prop)}(${args.map(String).join(', ')})`);
+            const start = performance.now();
+            const result = Reflect.apply(fnTarget, thisArg, args);
+            console.debug(`[${name}] ${String(prop)} → ${performance.now() - start}ms`);
+            return result;
+          }
+        });
+      }
+      if (value && typeof value === 'object') {
+        return createLogger(value, `${name}.${String(prop)}`);
+      }
+      return value;
+    },
+    set(target, prop, value, receiver) {
+      console.debug(`[${name}] SET ${String(prop)} = ${JSON.stringify(value)}`);
+      return Reflect.set(target, prop, value, receiver);
+    },
+    deleteProperty(target, prop) {
+      console.debug(`[${name}] DELETE ${String(prop)}`);
+      return Reflect.deleteProperty(target, prop);
+    }
+  });
+}
+
+// Use in development to trace any object's interactions
+const db = createLogger(realDatabase, 'DB');
+db.users.findById(42); // logs: [DB] GET users → [DB.users] CALL findById(42) → 2.3ms
+```
+
+## Putting It All Together — A Feature Flag System
+
+Proxy + Reflect combine perfectly for production patterns. Here's a feature flag system that's type-safe, reactive, and debuggable:
+
+```js
+function featureFlags(flags, onChange) {
+  return new Proxy(flags, {
+    get(target, prop, receiver) {
+      const value = Reflect.get(target, prop, receiver);
+      // Auto-log access in development
+      if (process.env.NODE_ENV === 'development') {
+        console.debug(`[FeatureFlag] read ${String(prop)} = ${value}`);
+      }
+      return value;
+    },
+    set(target, prop, value, receiver) {
+      const old = target[prop];
+      if (typeof value !== 'boolean') {
+        throw new TypeError(`Feature flag ${String(prop)} must be boolean`);
+      }
+      const result = Reflect.set(target, prop, value, receiver);
+      if (old !== value) onChange(String(prop), value, old);
+      return result;
+    },
+    deleteProperty() {
+      return false; // flags can't be deleted
+    },
+    has(target, prop) {
+      // Unknown flags always return false
+      return prop in target ? target[prop] : false;
+    }
+  });
+}
+
+const flags = featureFlags(
+  { darkMode: true, betaDashboard: false, newCheckout: true },
+  (flag, newVal, oldVal) => {
+    console.log(`Flag ${flag}: ${oldVal} → ${newVal}`);
+    // Trigger analytics, re-render, etc.
+  }
+);
+
+if (flags.darkMode) { /* render dark theme */ }
+flags.newCheckout = false;  // triggers onChange
+flags.nonexistent;          // false — safe unknown flag access
+```
+
+## When NOT to Use Proxy
+
+Proxy is powerful but not always the right tool:
+
+- **Performance-critical hot paths**: If you're processing millions of data points in a loop, skip Proxy. Unwrap to raw objects for the fast path.
+- **Simple property defaults**: For a one-time default, just use `||` or `??`. Proxy is overkill for `opts.timeout || 3000`.
+- **Cross-realm objects**: Proxies don't work well across iframe boundaries or VM contexts. The identity check fails.
+- **Serialization**: You can't `JSON.stringify`, `structuredClone`, or `postMessage` a Proxy directly. You must unwrap first.
+- **DevTools inspection**: Proxies show as Proxy objects in the console, not their target. Debugging can be slightly more involved.
+
+## The Bottom Line
+
+Proxy and Reflect are not esoteric — they're the foundation of modern JavaScript frameworks. Vue 3, MobX, Immer, and countless ORMs use them daily. Understanding these APIs means understanding the tools you already use.
+
+The 13 traps cover every fundamental language operation. Reflect provides the safe default behavior you delegate to. Together, they let you build reactive state, validation layers, query builders, debug tooling, and production patterns that are impossible with any other JavaScript feature.
+
+In 2026, Proxy has been stable since ES2015 (over a decade) and ships in every browser, Node.js, Deno, and Bun. There has never been a better time to add it to your toolkit.
+
+Stop thinking of Proxy as "framework internals." It's your internals too.
