@@ -1,0 +1,1057 @@
+<!DOCTYPE html><html lang="en" class="dark"><head><meta charSet="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/><link rel="stylesheet" href="/devbench-tech/_next/static/css/c877e59dbcb00f11.css" data-precedence="next"/><link rel="preload" as="script" fetchPriority="low" href="/devbench-tech/_next/static/chunks/webpack-b521a83317325026.js"/><script src="/devbench-tech/_next/static/chunks/fd9d1056-04e0aa683dc3c41f.js" async=""></script><script src="/devbench-tech/_next/static/chunks/2117-8374a93ea77a2be4.js" async=""></script><script src="/devbench-tech/_next/static/chunks/main-app-aaec773b36366bc0.js" async=""></script><script src="/devbench-tech/_next/static/chunks/2972-4aaa15d119eeb022.js" async=""></script><script src="/devbench-tech/_next/static/chunks/app/blog/%5Bslug%5D/page-a411190e7012c687.js" async=""></script><script src="/devbench-tech/_next/static/chunks/44530001-4ecf7a22b5b24163.js" async=""></script><script src="/devbench-tech/_next/static/chunks/8375-c77b8de36f6696fb.js" async=""></script><script src="/devbench-tech/_next/static/chunks/6829-f51803445ddf1872.js" async=""></script><script src="/devbench-tech/_next/static/chunks/app/layout-488e5c40aa6ffa72.js" async=""></script><title>Web Components in 2026 — Custom Elements, Shadow DOM, and the Framework-Agnostic Future | DevBench</title><meta name="description" content="Web Components are having their moment. With Declarative Shadow DOM shipping everywhere, CSS Parts maturing, and every major framework supporting them natively, 2026 is the year framework-agnostic reusable UI goes mainstream. This guide covers Custom Elements, Shadow DOM, templates, slots, SSR, framework interop, and production patterns you can ship today."/><meta name="author" content="DevBench"/><meta name="keywords" content="developer tools,JSON formatter,Base64,UUID generator,regex tester,benchmarks,dev tools"/><meta property="og:title" content="DevBench — Developer Tools &amp; Calculators"/><meta property="og:description" content="Free developer tools for everyday use."/><meta property="og:site_name" content="DevBench"/><meta property="og:locale" content="en_US"/><meta property="og:type" content="website"/><meta name="twitter:card" content="summary"/><meta name="twitter:title" content="DevBench — Developer Tools &amp; Calculators"/><meta name="twitter:description" content="Free developer tools for everyday use."/><link rel="icon" href="/favicon.svg"/><script src="/devbench-tech/_next/static/chunks/polyfills-42372ed130431b0a.js" noModule=""></script></head><body class="flex flex-col min-h-screen"><script type="application/ld+json">{"@context":"https://schema.org","@type":"WebSite","name":"DevBench","url":"https://devbench-roan.vercel.app","description":"Free developer tools for everyday use: JSON formatter, Base64 encoder/decoder, UUID generator, regex tester, benchmarks, and more.","potentialAction":{"@type":"SearchAction","target":"https://devbench-roan.vercel.app/tools?q={search_term_string}","query-input":"required name=search_term_string"}}</script><header class="sticky top-0 z-50 transition-all duration-300 bg-surface border-b border-transparent"><div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8"><div class="flex items-center justify-between h-16"><a class="flex items-center gap-2.5 group" href="/devbench-tech/"><div class="w-8 h-8 bg-brand-500 rounded-lg flex items-center justify-center group-hover:bg-brand-400 transition-colors"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-terminal w-4 h-4 text-white"><polyline points="4 17 10 11 4 5"></polyline><line x1="12" x2="20" y1="19" y2="19"></line></svg></div><span class="text-xl font-bold text-white tracking-tight">Dev<span class="gradient-text">Bench</span></span></a><nav class="hidden md:flex items-center gap-1"><a class="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 text-slate-400 hover:text-slate-200 hover:bg-surface-lighter" href="/devbench-tech/tools/"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-wrench w-4 h-4"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path></svg>Tools</a><a class="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 text-slate-400 hover:text-slate-200 hover:bg-surface-lighter" href="/devbench-tech/benchmarks/"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-bar-chart3 w-4 h-4"><path d="M3 3v18h18"></path><path d="M18 17V9"></path><path d="M13 17V5"></path><path d="M8 17v-3"></path></svg>Benchmarks</a><a class="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 bg-brand-500/10 text-brand-400" href="/devbench-tech/blog/"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-book-open w-4 h-4"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg>Blog</a><a class="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 text-slate-400 hover:text-slate-200 hover:bg-surface-lighter" href="/devbench-tech/about/"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-info w-4 h-4"><circle cx="12" cy="12" r="10"></circle><path d="M12 16v-4"></path><path d="M12 8h.01"></path></svg>About</a></nav><button class="md:hidden p-2 rounded-lg text-slate-400 hover:text-white hover:bg-surface-lighter transition-colors" aria-label="Toggle menu"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-menu w-5 h-5"><line x1="4" x2="20" y1="12" y2="12"></line><line x1="4" x2="20" y1="6" y2="6"></line><line x1="4" x2="20" y1="18" y2="18"></line></svg></button></div></div></header><main class="flex-1"><article class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-20"><script type="application/ld+json">{"@context":"https://schema.org","@type":"Article","headline":"Web Components in 2026 — Custom Elements, Shadow DOM, and the Framework-Agnostic Future","description":"Web Components are having their moment. With Declarative Shadow DOM shipping everywhere, CSS Parts maturing, and every major framework supporting them natively, 2026 is the year framework-agnostic reusable UI goes mainstream. This guide covers Custom Elements, Shadow DOM, templates, slots, SSR, framework interop, and production patterns you can ship today.","datePublished":"2026-05-29","author":{"@type":"Organization","name":"DevBench"},"publisher":{"@type":"Organization","name":"DevBench","url":"https://devbench-roan.vercel.app"}}</script><script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://devbench-roan.vercel.app"},{"@type":"ListItem","position":2,"name":"Blog","item":"https://devbench-roan.vercel.app/blog"},{"@type":"ListItem","position":3,"name":"Web Components in 2026 — Custom Elements, Shadow DOM, and the Framework-Agnostic Future"}]}</script><a class="inline-flex items-center gap-1.5 text-slate-400 hover:text-brand-400 text-sm transition-colors mb-8" href="/devbench-tech/blog/"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-arrow-left w-4 h-4"><path d="m12 19-7-7 7-7"></path><path d="M19 12H5"></path></svg>Back to Blog</a><header class="mb-10"><h1 class="text-3xl sm:text-4xl font-bold text-white leading-tight mb-4">Web Components in 2026 — Custom Elements, Shadow DOM, and the Framework-Agnostic Future</h1><div class="flex flex-wrap items-center gap-4 text-sm text-slate-400"><span class="flex items-center gap-1.5"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-calendar w-4 h-4"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"></rect><line x1="16" x2="16" y1="2" y2="6"></line><line x1="8" x2="8" y1="2" y2="6"></line><line x1="3" x2="21" y1="10" y2="10"></line></svg>2026-05-29</span><div class="flex flex-wrap gap-1.5"><span class="badge-secondary flex items-center gap-1"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-tag w-3 h-3"><path d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"></path><path d="M7 7h.01"></path></svg>[&quot;Web Components&quot;</span><span class="badge-secondary flex items-center gap-1"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-tag w-3 h-3"><path d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"></path><path d="M7 7h.01"></path></svg>&quot;Custom Elements&quot;</span><span class="badge-secondary flex items-center gap-1"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-tag w-3 h-3"><path d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"></path><path d="M7 7h.01"></path></svg>&quot;Shadow DOM&quot;</span><span class="badge-secondary flex items-center gap-1"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-tag w-3 h-3"><path d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"></path><path d="M7 7h.01"></path></svg>&quot;HTML Templates&quot;</span><span class="badge-secondary flex items-center gap-1"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-tag w-3 h-3"><path d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"></path><path d="M7 7h.01"></path></svg>&quot;JavaScript&quot;</span><span class="badge-secondary flex items-center gap-1"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-tag w-3 h-3"><path d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"></path><path d="M7 7h.01"></path></svg>&quot;CSS Parts&quot;</span><span class="badge-secondary flex items-center gap-1"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-tag w-3 h-3"><path d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"></path><path d="M7 7h.01"></path></svg>&quot;Declarative Shadow DOM&quot;</span><span class="badge-secondary flex items-center gap-1"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-tag w-3 h-3"><path d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"></path><path d="M7 7h.01"></path></svg>&quot;2026&quot;</span><span class="badge-secondary flex items-center gap-1"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-tag w-3 h-3"><path d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"></path><path d="M7 7h.01"></path></svg>&quot;Architecture&quot;]</span></div></div></header><div class="blog-content prose-p:text-slate-300 prose-p:leading-relaxed prose-p:mb-4">
+<h2 class="post-h2">The 15-Year Overnight Success</h2>
+
+<p class="post-p">
+Web Components were first proposed in 2011. For over a decade, they were that technology everyone agreed <em>should</em> exist but nobody actually used — held back by missing SSR, awkward framework interop, and the chicken-and-egg problem of no ecosystem.
+</p>
+
+<p class="post-p">
+In 2026, the landscape has fundamentally shifted. Here's what changed:
+</p>
+
+<ul class="post-ul"><li class="post-li"><strong>Declarative Shadow DOM</strong> shipped in all browsers. SSR for Web Components is now a first-class citizen. No more FOUC, no more hydration mismatch, no more JavaScript required to see your component.</li>
+</ul>
+<ul class="post-ul"><li class="post-li"><strong>Every major framework</strong> ships with Web Component support. React 19, Vue 4, Svelte 5, and Angular 19 all consume custom elements natively — including typed property and event bindings.</li>
+</ul>
+<ul class="post-ul"><li class="post-li"><strong>CSS <code class="inline-code">@layer</code> + CSS Parts</strong> solved the theming problem. You can now build a component library once and style it for any design system without piercing the shadow boundary.</li>
+</ul>
+<ul class="post-ul"><li class="post-li"><strong>Import maps and native ES modules</strong> are universal. No bundler, no build step, no npm — just <code class="inline-code">&lt;script type="module"&gt;</code> and you're shipping Web Components.</li>
+</ul>
+<ul class="post-ul"><li class="post-li"><strong>Lit 4.0, Stencil 4, and FAST 3.0</strong> provide mature, batteries-included authoring experiences with reactive state, SSR, and framework-level DX.</li>
+</ul>
+<p class="post-p">
+Let's walk through every API, every pattern, and the production architectures that actually work in 2026.
+</p>
+
+<hr class="post-hr" />
+
+<h2 class="post-h2">The Four Specifications</h2>
+
+<p class="post-p">
+Web Components aren't a single API. They're four browser standards that work together:
+</p>
+
+<p class="post-p">
+| Spec | What It Does | Status (2026) |
+|------|-------------|---------------|
+| <strong>Custom Elements</strong> | Define your own HTML tags with lifecycle callbacks | Baseline, all browsers |
+| <strong>Shadow DOM</strong> | Encapsulated DOM + scoped CSS per component | Baseline, all browsers |
+| <strong>HTML Templates</strong> | Inert, reusable DOM fragments parsed once | Baseline, all browsers |
+| <strong>Declarative Shadow DOM</strong> | Shadow DOM in HTML without JavaScript | Baseline, all browsers (2025+) |
+</p>
+
+<p class="post-p">
+You can use them independently. GitHub famously used Custom Elements without Shadow DOM for years. But together, they form the complete picture.
+</p>
+
+<hr class="post-hr" />
+
+<h2 class="post-h2">Custom Elements: Defining Your Own HTML Tags</h2>
+
+<p class="post-p">
+The simplest possible custom element is three lines:
+</p>
+
+<pre class="code-block"><code class="language-js">class HelloWorld extends HTMLElement {
+<p class="post-p">
+connectedCallback() {
+this.textContent = 'Hello, World!';
+}
+}
+customElements.define('hello-world', HelloWorld);
+</code></pre>
+</p>
+
+<pre class="code-block"><code class="language-html">&amp;lt;hello-world&amp;gt;&amp;lt;/hello-world&amp;gt; &amp;lt;!-- Renders: Hello, World! --&amp;gt;
+<p class="post-p">
+</code></pre>
+</p>
+
+<p class="post-p">
+Custom element names <strong>must</strong> contain a hyphen. This ensures no collision with future built-in HTML elements. <code class="inline-code">&lt;my-card&gt;</code> is valid. <code class="inline-code">&lt;mycard&gt;</code> will throw <code class="inline-code">DOMException</code>.
+</p>
+
+<h3 class="post-h3">Lifecycle Callbacks</h3>
+
+<p class="post-p">
+Custom elements come with four lifecycle hooks — no virtual DOM, no reconciliation, no diffing:
+</p>
+
+<pre class="code-block"><code class="language-js">class LifecycleDemo extends HTMLElement {
+<p class="post-p">
+constructor() {
+super(); // Must call super() first
+// NO DOM manipulation here — the element isn't connected yet
+// Use this for initial state setup only
+this._internals = this.attachInternals?.(); // Form-associated (see below)
+}
+</p>
+
+<p class="post-p">
+connectedCallback() {
+// Element added to the DOM tree
+// Safe to access attributes, children, styles
+// Called each time the element is moved/reattached
+console.log('Connected to the DOM');
+this.render();
+}
+</p>
+
+<p class="post-p">
+disconnectedCallback() {
+// Element removed from the DOM
+// Use for cleanup: remove event listeners, cancel requests, clear timers
+console.log('Disconnected');
+}
+</p>
+
+<p class="post-p">
+adoptedCallback() {
+// Element moved to a new document (e.g., into an iframe)
+// Rarely used, but critical for cross-document components
+console.log('Adopted into new document');
+}
+</p>
+
+<p class="post-p">
+attributeChangedCallback(name, oldValue, newValue) {
+// Called when an observed attribute changes
+// Only fires for attributes in the static observedAttributes array
+if (oldValue === newValue) return;
+console.log(<code class="inline-code">${name}: ${oldValue} → ${newValue}</code>);
+}
+</p>
+
+<p class="post-p">
+static get observedAttributes() {
+return ['title', 'disabled', 'variant'];
+}
+}
+</code></pre>
+</p>
+
+<p class="post-p">
+<strong>Critical rule</strong>: <code class="inline-code">attributeChangedCallback</code> only fires for attributes listed in <code class="inline-code">observedAttributes</code>. If you forget to add one, your callback silently never runs.
+</p>
+
+<h3 class="post-h3">Attributes vs. Properties</h3>
+
+<p class="post-p">
+This is where most developers stumble. Custom elements have two ways to receive data, and they're not automatically synced:
+</p>
+
+<pre class="code-block"><code class="language-js">class UserBadge extends HTMLElement {
+<p class="post-p">
+get name() {
+return this.getAttribute('name') || '';
+}
+</p>
+
+<p class="post-p">
+set name(value) {
+if (value) {
+this.setAttribute('name', value);
+} else {
+this.removeAttribute('name');
+}
+this.render();
+}
+</p>
+
+<p class="post-p">
+static get observedAttributes() {
+return ['name', 'avatar', 'role'];
+}
+</p>
+
+<p class="post-p">
+attributeChangedCallback(name, oldValue, newValue) {
+console.log(<code class="inline-code">Attribute ${name} changed from ${oldValue} to ${newValue}</code>);
+this.render();
+}
+}
+</p>
+
+<p class="post-p">
+// Attributes are strings, set in HTML
+// &amp;lt;user-badge name="Ada" avatar="/avatars/ada.png" role="admin"&amp;gt;&amp;lt;/user-badge&amp;gt;
+</p>
+
+<p class="post-p">
+// Properties can be any type, set in JavaScript
+// document.querySelector('user-badge').name = 'Grace'; // Triggers attribute sync
+</code></pre>
+</p>
+
+<p class="post-p">
+<strong>The golden rule</strong>: reflect rich data (objects, arrays, booleans) as properties, not attributes. Use attributes for string configuration that belongs in your HTML markup. Always sync both directions if you expose the same concept.
+</p>
+
+<pre class="code-block"><code class="language-js">// Boolean attributes: presence means true, absence means false
+<p class="post-p">
+class ToggleButton extends HTMLElement {
+get pressed() {
+return this.hasAttribute('pressed');
+}
+</p>
+
+<p class="post-p">
+set pressed(val) {
+if (val) {
+this.setAttribute('pressed', '');
+} else {
+this.removeAttribute('pressed');
+}
+}
+</p>
+
+<p class="post-p">
+static get observedAttributes() {
+return ['pressed'];
+}
+}
+</code></pre>
+</p>
+
+<hr class="post-hr" />
+
+<h2 class="post-h2">Shadow DOM: Scoped Styles, Encapsulated DOM</h2>
+
+<p class="post-p">
+Without Shadow DOM, your component's CSS leaks out and the page's CSS leaks in:
+</p>
+
+<pre class="code-block"><code class="language-html">&amp;lt;!-- Without Shadow DOM --&amp;gt;
+<p class="post-p">
+&amp;lt;style&amp;gt;
+/<em> This styles EVERY .card on the page, not just your component </em>/
+.card { border: 1px solid red; }
+&amp;lt;/style&amp;gt;
+&amp;lt;div class="card"&amp;gt;Your Component&amp;lt;/div&amp;gt;
+</p>
+
+<p class="post-p">
+&amp;lt;article class="card"&amp;gt;Page Content&amp;lt;/article&amp;gt; &amp;lt;!-- Also gets the red border! --&amp;gt;
+</code></pre>
+</p>
+
+<p class="post-p">
+Shadow DOM creates a boundary. Styles inside don't leak out. Styles outside don't leak in.
+</p>
+
+<pre class="code-block"><code class="language-js">class StyledCard extends HTMLElement {
+<p class="post-p">
+constructor() {
+super();
+const shadow = this.attachShadow({ mode: 'open' });
+</p>
+
+<p class="post-p">
+shadow.innerHTML = <code class="inline-code">
+&amp;lt;style&amp;gt;
+.card {
+border: 1px solid var(--border-color, #e5e7eb);
+border-radius: 8px;
+padding: 16px;
+background: var(--card-bg, white);
+}
+.card:hover {
+box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+&amp;lt;/style&amp;gt;
+&amp;lt;div class="card"&amp;gt;
+&amp;lt;slot name="header"&amp;gt;&amp;lt;/slot&amp;gt;
+&amp;lt;slot&amp;gt;&amp;lt;/slot&amp;gt;
+&amp;lt;slot name="footer"&amp;gt;&amp;lt;/slot&amp;gt;
+&amp;lt;/div&amp;gt;
+</code>;
+}
+}
+</code></pre>
+</p>
+
+<pre class="code-block"><code class="language-html">&amp;lt;!-- Usage --&amp;gt;
+<p class="post-p">
+&amp;lt;styled-card&amp;gt;
+&amp;lt;h2 slot="header"&amp;gt;Card Title&amp;lt;/h2&amp;gt;
+&amp;lt;p&amp;gt;This content goes into the default slot.&amp;lt;/p&amp;gt;
+&amp;lt;button slot="footer"&amp;gt;Action&amp;lt;/button&amp;gt;
+&amp;lt;/styled-card&amp;gt;
+</p>
+
+<p class="post-p">
+&amp;lt;style&amp;gt;
+/<em> This will NOT affect the shadow DOM internals </em>/
+.card { border-color: blue; } /<em> No effect inside the component </em>/
+&amp;lt;/style&amp;gt;
+</code></pre>
+</p>
+
+<h3 class="post-h3">Open vs. Closed Shadow DOM</h3>
+
+<pre class="code-block"><code class="language-js">const openShadow = this.attachShadow({ mode: 'open' });
+<p class="post-p">
+const closedShadow = this.attachShadow({ mode: 'closed' });
+</code></pre>
+</p>
+
+<p class="post-p">
+| Feature | <code class="inline-code">mode: 'open'</code> | <code class="inline-code">mode: 'closed'</code> |
+|---------|---------------|-----------------|
+| Access from outside | <code class="inline-code">el.shadowRoot</code> | <code class="inline-code">null</code> (inaccessible) |
+| DevTools inspection | Full access | Inspectable but not scriptable |
+| Component debugging | Easy | Harder |
+| Use case | 99% of components | Security-sensitive elements (native <code class="inline-code">&lt;video&gt;</code> controls) |
+</p>
+
+<p class="post-p">
+<strong>Recommendation</strong>: Always use <code class="inline-code">mode: 'open'</code> unless you have a genuine security boundary. Closed mode makes debugging and testing significantly harder without providing real security — browser extensions and DevTools can still access closed roots.
+</p>
+
+<h3 class="post-h3">CSS Custom Properties Pierce Shadow Boundaries</h3>
+
+<p class="post-p">
+This is the primary theming mechanism:
+</p>
+
+<pre class="code-block"><code class="language-css">/<em> Styles in the light DOM / page </em>/
+<p class="post-p">
+my-card {
+--card-bg: #1e293b;
+--card-border: #334155;
+--card-radius: 12px;
+}
+</code></pre>
+</p>
+
+<pre class="code-block"><code class="language-css">/<em> Inside the shadow DOM </em>/
+<p class="post-p">
+:host {
+background: var(--card-bg, white);
+border: 1px solid var(--card-border, #e5e7eb);
+border-radius: var(--card-radius, 8px);
+}
+</code></pre>
+</p>
+
+<p class="post-p">
+Custom properties flow <strong>into</strong> the shadow tree but never leak out. This is by design — it gives component authors control over what's themeable.
+</p>
+
+<hr class="post-hr" />
+
+<h2 class="post-h2">Slots: Composing Content</h2>
+
+<p class="post-p">
+Slots are Web Components' composition model. They replace <code class="inline-code">props.children</code> — but work with any framework or no framework.
+</p>
+
+<pre class="code-block"><code class="language-js">class SplitPane extends HTMLElement {
+<p class="post-p">
+constructor() {
+super();
+this.attachShadow({ mode: 'open' }).innerHTML = <code class="inline-code">
+&amp;lt;style&amp;gt;
+:host { display: flex; gap: 1px; }
+::slotted(*) { flex: 1 1 50%; min-width: 0; }
+slot { display: block; }
+&amp;lt;/style&amp;gt;
+&amp;lt;slot name="left"&amp;gt;&amp;lt;/slot&amp;gt;
+&amp;lt;div style="width:1px;background:var(--divider,#ccc)"&amp;gt;&amp;lt;/div&amp;gt;
+&amp;lt;slot name="right"&amp;gt;&amp;lt;/slot&amp;gt;
+</code>;
+}
+}
+</p>
+
+<p class="post-p">
+customElements.define('split-pane', SplitPane);
+</code></pre>
+</p>
+
+<pre class="code-block"><code class="language-html">&amp;lt;split-pane&amp;gt;
+<p class="post-p">
+&amp;lt;div slot="left"&amp;gt;
+&amp;lt;h2&amp;gt;Editor&amp;lt;/h2&amp;gt;
+&amp;lt;textarea&amp;gt;&amp;lt;/textarea&amp;gt;
+&amp;lt;/div&amp;gt;
+&amp;lt;div slot="right"&amp;gt;
+&amp;lt;h2&amp;gt;Preview&amp;lt;/h2&amp;gt;
+&amp;lt;output&amp;gt;&amp;lt;/output&amp;gt;
+&amp;lt;/div&amp;gt;
+&amp;lt;/split-pane&amp;gt;
+</code></pre>
+</p>
+
+<h3 class="post-h3">Named vs. Default Slots</h3>
+
+<pre class="code-block"><code class="language-html">&amp;lt;!-- Component template --&amp;gt;
+<p class="post-p">
+&amp;lt;div class="wrapper"&amp;gt;
+&amp;lt;slot name="icon"&amp;gt;&amp;lt;/slot&amp;gt;     &amp;lt;!-- Named slot: only elements with slot="icon" --&amp;gt;
+&amp;lt;slot name="title"&amp;gt;&amp;lt;/slot&amp;gt;    &amp;lt;!-- Named slot: only elements with slot="title" --&amp;gt;
+&amp;lt;slot&amp;gt;&amp;lt;/slot&amp;gt;                 &amp;lt;!-- Default slot: everything else --&amp;gt;
+&amp;lt;/div&amp;gt;
+</code></pre>
+</p>
+
+<p class="post-p">
+An element with no <code class="inline-code">slot</code> attribute goes to the default (unnamed) slot. Multiple unnamed elements are appended in document order. Each named slot receives only its matching elements.
+</p>
+
+<h3 class="post-h3">::slotted() — Styling Slotted Content</h3>
+
+<p class="post-p">
+The <code class="inline-code">::slotted()</code> CSS pseudo-element styles content that has been projected into a slot — but only top-level children:
+</p>
+
+<pre class="code-block"><code class="language-css">/<em> In shadow DOM </em>/
+<p class="post-p">
+::slotted(h2) {
+color: var(--heading-color, inherit);
+margin: 0;
+}
+</p>
+
+<p class="post-p">
+::slotted(*) {
+/<em> Only styles top-level slotted nodes, NOT their descendants </em>/
+}
+</p>
+
+<p class="post-p">
+/<em> Doesn't work: </em>/
+::slotted(h2 span) { /<em> ❌ Compound selectors not supported </em>/ }
+::slotted(.card .title) { /<em> ❌ Descendant selectors not supported </em>/ }
+</code></pre>
+</p>
+
+<p class="post-p">
+This is an intentional limitation of the slotted API. For deep styling, use CSS Parts or custom properties.
+</p>
+
+<hr class="post-hr" />
+
+<h2 class="post-h2">HTML Templates: Zero-Cost DOM Reuse</h2>
+
+<p class="post-p">
+<code class="inline-code">&lt;template&gt;</code> provides inert, preparsed DOM that costs nothing to clone:
+</p>
+
+<pre class="code-block"><code class="language-html">&amp;lt;template id="card-template"&amp;gt;
+<p class="post-p">
+&amp;lt;style&amp;gt;
+.card {
+border: 1px solid #e5e7eb;
+border-radius: 8px;
+padding: 16px;
+}
+&amp;lt;/style&amp;gt;
+&amp;lt;div class="card"&amp;gt;
+&amp;lt;h2 class="title"&amp;gt;&amp;lt;slot name="title"&amp;gt;Default Title&amp;lt;/slot&amp;gt;&amp;lt;/h2&amp;gt;
+&amp;lt;p class="body"&amp;gt;&amp;lt;slot&amp;gt;&amp;lt;/slot&amp;gt;&amp;lt;/p&amp;gt;
+&amp;lt;footer class="footer"&amp;gt;&amp;lt;slot name="footer"&amp;gt;&amp;lt;/slot&amp;gt;&amp;lt;/footer&amp;gt;
+&amp;lt;/div&amp;gt;
+&amp;lt;/template&amp;gt;
+</code></pre>
+</p>
+
+<pre class="code-block"><code class="language-js">class TemplateCard extends HTMLElement {
+<p class="post-p">
+constructor() {
+super();
+const template = document.getElementById('card-template');
+const content = template.content.cloneNode(true); // Deep clone
+this.attachShadow({ mode: 'open' }).appendChild(content);
+}
+}
+</code></pre>
+</p>
+
+<p class="post-p">
+Key benefits of <code class="inline-code">&lt;template&gt;</code>:
+</p>
+<ul class="post-ul"><li class="post-li">Not rendered, not executed — the DOM inside is inert until cloned</li>
+<li class="post-li">Images don't load, scripts don't run, styles don't apply</li>
+<li class="post-li"><code class="inline-code">cloneNode(true)</code> creates a live DOM tree, not a string</li>
+<li class="post-li">Templates can be shared across many component instances</li>
+<li class="post-li">Zero runtime parsing cost — the browser does it once at parse time</li>
+</ul>
+<hr class="post-hr" />
+
+<h2 class="post-h2">Declarative Shadow DOM: SSR Without JavaScript</h2>
+
+<p class="post-p">
+The biggest blocker to Web Component adoption was SSR. If your component uses imperative <code class="inline-code">attachShadow()</code>, server-rendered HTML shows nothing until JavaScript loads and hydrates.
+</p>
+
+<p class="post-p">
+Declarative Shadow DOM solves this. You express the shadow tree directly in HTML:
+</p>
+
+<pre class="code-block"><code class="language-html">&amp;lt;my-card&amp;gt;
+<p class="post-p">
+&amp;lt;template shadowrootmode="open"&amp;gt;
+&amp;lt;style&amp;gt;
+:host { display: block; border: 1px solid #ccc; border-radius: 8px; padding: 16px; }
+h2 { margin: 0 0 8px; color: var(--heading-color, #111); }
+&amp;lt;/style&amp;gt;
+&amp;lt;h2&amp;gt;&amp;lt;slot name="title"&amp;gt;Card Title&amp;lt;/slot&amp;gt;&amp;lt;/h2&amp;gt;
+&amp;lt;p&amp;gt;&amp;lt;slot&amp;gt;Content goes here&amp;lt;/slot&amp;gt;&amp;lt;/p&amp;gt;
+&amp;lt;/template&amp;gt;
+&amp;lt;span slot="title"&amp;gt;Server-Rendered Title&amp;lt;/span&amp;gt;
+&amp;lt;span&amp;gt;Server-rendered body content — visible immediately, no JS needed!&amp;lt;/span&amp;gt;
+&amp;lt;/my-card&amp;gt;
+</code></pre>
+</p>
+
+<p class="post-p">
+The browser parses this and creates the shadow root <strong>at parse time</strong>, before any JavaScript executes. The component is visible and styled on first paint — no FOUC, no layout shift.
+</p>
+
+<h3 class="post-h3">How to Use Declarative Shadow DOM</h3>
+
+<p class="post-p">
+<strong>Server-side (any backend)</strong>:
+</p>
+<pre class="code-block"><code class="language-js">// Express example
+<p class="post-p">
+function renderCard({ title, body }) {
+return <code class="inline-code">
+&amp;lt;my-card&amp;gt;
+&amp;lt;template shadowrootmode="open"&amp;gt;
+&amp;lt;style&amp;gt;
+:host { display: block; padding: 1rem; border: 1px solid var(--border, #ddd); }
+::slotted([slot="title"]) { font-size: 1.25rem; font-weight: 600; }
+&amp;lt;/style&amp;gt;
+&amp;lt;slot name="title"&amp;gt;&amp;lt;/slot&amp;gt;
+&amp;lt;slot&amp;gt;&amp;lt;/slot&amp;gt;
+&amp;lt;/template&amp;gt;
+&amp;lt;h2 slot="title"&amp;gt;${escapeHtml(title)}&amp;lt;/h2&amp;gt;
+&amp;lt;p&amp;gt;${escapeHtml(body)}&amp;lt;/p&amp;gt;
+&amp;lt;/my-card&amp;gt;
+</code>;
+}
+</code></pre>
+</p>
+
+<p class="post-p">
+<strong>Client-side hydration</strong>:
+</p>
+<pre class="code-block"><code class="language-js">class MyCard extends HTMLElement {
+<p class="post-p">
+constructor() {
+super();
+// If the element was server-rendered with declarative shadow DOM,
+// this.shadowRoot already exists — no need to call attachShadow()
+const shadow = this.shadowRoot || this.attachShadow({ mode: 'open' });
+</p>
+
+<p class="post-p">
+// Add interactivity
+this.addEventListener('click', () =&amp;gt; {
+console.log('Card clicked — interactivity added client-side');
+});
+}
+}
+</code></pre>
+</p>
+
+<p class="post-p">
+<strong>Streaming SSR</strong> — Declarative Shadow DOM enables streaming HTML: the browser renders the component as the HTML arrives, without waiting for a closing tag or JavaScript bundle. This is the killer feature for Core Web Vitals.
+</p>
+
+<hr class="post-hr" />
+
+<h2 class="post-h2">CSS Parts: Theming Without Breaking Encapsulation</h2>
+
+<p class="post-p">
+CSS custom properties work for individual values. CSS Parts work for structured styling:
+</p>
+
+<pre class="code-block"><code class="language-js">// Inside a component's shadow DOM
+<p class="post-p">
+render() {
+return <code class="inline-code">
+&amp;lt;div part="container"&amp;gt;
+&amp;lt;header part="header"&amp;gt;
+&amp;lt;slot name="title"&amp;gt;&amp;lt;/slot&amp;gt;
+&amp;lt;/header&amp;gt;
+&amp;lt;main part="body"&amp;gt;
+&amp;lt;slot&amp;gt;&amp;lt;/slot&amp;gt;
+&amp;lt;/main&amp;gt;
+&amp;lt;footer part="footer"&amp;gt;
+&amp;lt;slot name="actions"&amp;gt;&amp;lt;/slot&amp;gt;
+&amp;lt;/footer&amp;gt;
+&amp;lt;/div&amp;gt;
+</code>;
+}
+</code></pre>
+</p>
+
+<pre class="code-block"><code class="language-css">/<em> Outside the component — styles applied via ::part() </em>/
+<p class="post-p">
+my-card::part(container) {
+border-radius: 16px;
+background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+</p>
+
+<p class="post-p">
+my-card::part(header) {
+font-size: 1.5rem;
+padding: 1rem;
+border-bottom: 1px solid rgba(255,255,255,0.2);
+}
+</p>
+
+<p class="post-p">
+my-card::part(footer) {
+display: flex;
+justify-content: flex-end;
+gap: 0.5rem;
+padding: 0.75rem 1rem;
+}
+</code></pre>
+</p>
+
+<p class="post-p">
+<strong>Limitations of <code class="inline-code">::part()</code></strong>:
+</p>
+<ul class="post-ul"><li class="post-li">You cannot target children of a part (<code class="inline-code">::part(header) h2</code> doesn't work)</li>
+<li class="post-li">You cannot chain parts (<code class="inline-code">::part(header)::part(title)</code> doesn't work)</li>
+<li class="post-li">You cannot use pseudo-classes (<code class="inline-code">::part(button):hover</code> is restricted)</li>
+</ul>
+<p class="post-p">
+<strong>The workaround</strong>: Export multiple parts at different granularity levels, or use custom properties for fine-grained control.
+</p>
+
+<hr class="post-hr" />
+
+<h2 class="post-h2">Form-Associated Custom Elements</h2>
+
+<p class="post-p">
+One of the most powerful but underused features — your custom element can participate in HTML forms natively:
+</p>
+
+<pre class="code-block"><code class="language-js">class RatingInput extends HTMLElement {
+<p class="post-p">
+static formAssociated = true;
+#internals;
+#value = 0;
+</p>
+
+<p class="post-p">
+constructor() {
+super();
+this.#internals = this.attachInternals();
+}
+</p>
+
+<p class="post-p">
+get value() { return this.#value; }
+</p>
+
+<p class="post-p">
+set value(val) {
+this.#value = Number(val);
+this.#internals.setFormValue(String(this.#value));
+this.#render();
+}
+</p>
+
+<p class="post-p">
+get form() { return this.#internals.form; }
+get name() { return this.getAttribute('name'); }
+get validity() { return this.#internals.validity; }
+get validationMessage() { return this.#internals.validationMessage; }
+get willValidate() { return this.#internals.willValidate; }
+</p>
+
+<p class="post-p">
+checkValidity() { return this.#internals.checkValidity(); }
+reportValidity() { return this.#internals.reportValidity(); }
+}
+</code></pre>
+</p>
+
+<pre class="code-block"><code class="language-html">&amp;lt;form id="review-form"&amp;gt;
+<p class="post-p">
+&amp;lt;label&amp;gt;
+Rating:
+&amp;lt;rating-input name="rating" min="1" max="5"&amp;gt;&amp;lt;/rating-input&amp;gt;
+&amp;lt;/label&amp;gt;
+&amp;lt;button type="submit"&amp;gt;Submit&amp;lt;/button&amp;gt;
+&amp;lt;/form&amp;gt;
+</p>
+
+<p class="post-p">
+&amp;lt;script&amp;gt;
+const form = document.getElementById('review-form');
+form.addEventListener('submit', (e) =&amp;gt; {
+e.preventDefault();
+const data = new FormData(form);
+console.log(data.get('rating')); // "3" — participates in FormData!
+});
+&amp;lt;/script&amp;gt;
+</code></pre>
+</p>
+
+<p class="post-p">
+This works with <code class="inline-code">FormData</code>, constraint validation (<code class="inline-code">required</code>, <code class="inline-code">minlength</code>), <code class="inline-code">:valid</code>/<code class="inline-code">:invalid</code> CSS pseudo-classes, and <code class="inline-code">reportValidity()</code>. It's how native elements like <code class="inline-code">&lt;input&gt;</code> work — now available for your components.
+</p>
+
+<hr class="post-hr" />
+
+<h2 class="post-h2">Framework Interop: React, Vue, Svelte, Angular</h2>
+
+<h3 class="post-h3">React 19+</h3>
+
+<p class="post-p">
+React 19 ships with full custom element support:
+</p>
+
+<pre class="code-block"><code class="language-jsx">// React 19 — works out of the box
+<p class="post-p">
+function App() {
+return (
+&amp;lt;my-card
+ref={cardRef}
+title="Hello from React"
+onClick={() =&amp;gt; console.log('clicked')}
+&amp;gt;
+&amp;lt;p&amp;gt;Children passed as slot content&amp;lt;/p&amp;gt;
+&amp;lt;/my-card&amp;gt;
+);
+}
+</code></pre>
+</p>
+
+<p class="post-p">
+React 19 maps JSX properties to custom element properties (not attributes) for camelCase props and handles event listeners with <code class="inline-code">addEventListener</code>. Boolean, number, and object properties are passed by reference, not serialized to strings.
+</p>
+
+<h3 class="post-h3">Vue 4</h3>
+
+<pre class="code-block"><code class="language-vue">&amp;lt;template&amp;gt;
+<p class="post-p">
+&amp;lt;my-card
+:title="dynamicTitle"
+@card-action="handleAction"
+&amp;gt;
+&amp;lt;p&amp;gt;Slot content from Vue&amp;lt;/p&amp;gt;
+&amp;lt;template #footer&amp;gt;Named slot content&amp;lt;/template&amp;gt;
+&amp;lt;/my-card&amp;gt;
+&amp;lt;/template&amp;gt;
+</code></pre>
+</p>
+
+<p class="post-p">
+Vue automatically detects custom elements (hyphenated tag names) and bypasses its virtual DOM for them, passing properties and events natively.
+</p>
+
+<h3 class="post-h3">Svelte 5</h3>
+
+<pre class="code-block"><code class="language-svelte">&amp;lt;my-card
+<p class="post-p">
+title={dynamicTitle}
+on:card-action={handleAction}
+&amp;gt;
+&amp;lt;p&amp;gt;Slot content from Svelte&amp;lt;/p&amp;gt;
+&amp;lt;/my-card&amp;gt;
+</code></pre>
+</p>
+
+<p class="post-p">
+Svelte treats custom elements as native DOM, with full property/event binding.
+</p>
+
+<h3 class="post-h3">Vanilla JavaScript / Any Framework</h3>
+
+<p class="post-p">
+Web Components work everywhere because they're HTML. Any framework, any templating language, any static site generator — if it outputs HTML, it can use Web Components.
+</p>
+
+<hr class="post-hr" />
+
+<h2 class="post-h2">Real-World Patterns</h2>
+
+<h3 class="post-h3">Pattern 1: Progressive Enhancement</h3>
+
+<pre class="code-block"><code class="language-html">&amp;lt;!-- No JS: works as a normal image --&amp;gt;
+<p class="post-p">
+&amp;lt;img-loading src="/hero.jpg" alt="Hero image"&amp;gt;
+&amp;lt;img src="/hero.jpg" alt="Hero image" loading="lazy"&amp;gt;
+&amp;lt;/img-loading&amp;gt;
+</p>
+
+<p class="post-p">
+&amp;lt;!-- JS loads: upgraded to intersection-observer lazy loading with blur-up --&amp;gt;
+</code></pre>
+</p>
+
+<pre class="code-block"><code class="language-js">class ImgLoading extends HTMLElement {
+<p class="post-p">
+connectedCallback() {
+const img = this.querySelector('img');
+if (!img) return;
+</p>
+
+<p class="post-p">
+const src = this.getAttribute('src');
+const alt = this.getAttribute('alt') || img.alt;
+</p>
+
+<p class="post-p">
+// Replace fallback img with enhanced version
+this.innerHTML = '';
+const wrapper = document.createElement('div');
+wrapper.innerHTML = <code class="inline-code">
+&amp;lt;img
+src="data:image/svg+xml,..."
+alt="${alt}"
+style="filter:blur(20px);transform:scale(1.1);transition:filter 0.3s,transform 0.3s"
+&amp;gt;
+</code>;
+this.appendChild(wrapper);
+</p>
+
+<p class="post-p">
+const io = new IntersectionObserver(([entry]) =&amp;gt; {
+if (entry.isIntersecting) {
+const realImg = new Image();
+realImg.onload = () =&amp;gt; {
+wrapper.querySelector('img').src = src;
+wrapper.querySelector('img').style.filter = 'blur(0)';
+wrapper.querySelector('img').style.transform = 'scale(1)';
+};
+realImg.src = src;
+io.disconnect();
+}
+});
+</p>
+
+<p class="post-p">
+io.observe(this);
+}
+}
+</code></pre>
+</p>
+
+<h3 class="post-h3">Pattern 2: Composable Design System</h3>
+
+<pre class="code-block"><code class="language-html">&amp;lt;ds-button variant="primary" size="large"&amp;gt;
+<p class="post-p">
+&amp;lt;ds-icon name="plus" slot="prefix"&amp;gt;&amp;lt;/ds-icon&amp;gt;
+Add to Cart
+&amp;lt;ds-badge count="3" slot="suffix"&amp;gt;&amp;lt;/ds-badge&amp;gt;
+&amp;lt;/ds-button&amp;gt;
+</code></pre>
+</p>
+
+<p class="post-p">
+Each component is independent, framework-agnostic, and themable via CSS Parts and custom properties. You can use this button in a React app, a Vue dashboard, and a legacy jQuery page — same <code class="inline-code">&lt;ds-button&gt;</code>, same behavior.
+</p>
+
+<h3 class="post-h3">Pattern 3: Island Architecture</h3>
+
+<pre class="code-block"><code class="language-html">&amp;lt;!-- Static HTML page, no JS bundle --&amp;gt;
+<p class="post-p">
+&amp;lt;main&amp;gt;
+&amp;lt;h1&amp;gt;Blog Post&amp;lt;/h1&amp;gt;
+&amp;lt;article&amp;gt;
+&amp;lt;p&amp;gt;Static content rendered at build time...&amp;lt;/p&amp;gt;
+&amp;lt;/article&amp;gt;
+</p>
+
+<p class="post-p">
+&amp;lt;!-- Interactive island — only this component loads JS --&amp;gt;
+&amp;lt;live-comments
+data-post-id="abc123"
+data-api="/api/comments"
+&amp;gt;
+&amp;lt;template shadowrootmode="open"&amp;gt;
+&amp;lt;p&amp;gt;Loading comments...&amp;lt;/p&amp;gt;
+&amp;lt;/template&amp;gt;
+&amp;lt;/live-comments&amp;gt;
+&amp;lt;/main&amp;gt;
+</p>
+
+<p class="post-p">
+&amp;lt;script type="module"&amp;gt;
+import './live-comments.js'; // Only this component loads JS
+&amp;lt;/script&amp;gt;
+</code></pre>
+</p>
+
+<h3 class="post-h3">Pattern 4: Micro-Frontends</h3>
+
+<pre class="code-block"><code class="language-html">&amp;lt;!-- Team A owns this component --&amp;gt;
+<p class="post-p">
+&amp;lt;team-a-cart
+data-items='[{"id":"1","name":"Widget","price":9.99}]'
+data-theme="dark"
+&amp;gt;&amp;lt;/team-a-cart&amp;gt;
+</p>
+
+<p class="post-p">
+&amp;lt;!-- Team B owns this component — different repo, different deploy --&amp;gt;
+&amp;lt;team-b-recommendations
+data-user-id="user_abc"
+&amp;gt;&amp;lt;/team-b-recommendations&amp;gt;
+</code></pre>
+</p>
+
+<p class="post-p">
+Web Components are the only native micro-frontend primitive. Teams can deploy independently, use different frameworks (or no framework), and compose via HTML.
+</p>
+
+<hr class="post-hr" />
+
+<h2 class="post-h2">Adoption &amp; Ecosystem (2026)</h2>
+
+<h3 class="post-h3">Who's Using Web Components in Production</h3>
+
+<p class="post-p">
+| Company | Usage |
+|---------|-------|
+| <strong>GitHub</strong> | Custom Elements for interactive UI since 2018 (Catalyst library) |
+| <strong>Salesforce</strong> | Lightning Web Components — the entire platform UI |
+| <strong>Adobe</strong> | Spectrum Web Components — design system used across all products |
+| <strong>SAP</strong> | UI5 Web Components — enterprise design system |
+| <strong>Microsoft</strong> | FAST components powering Fluent Design System, Edge browser UI |
+| <strong>Google</strong> | Material Web Components, YouTube, Google Earth, Photos |
+| <strong>Reddit</strong> | New Reddit frontend built with Web Components |
+| <strong>ING Bank</strong> | Lion Web Components — open-source design system |
+</p>
+
+<h3 class="post-h3">Ecosystem Libraries (2026)</h3>
+
+<ul class="post-ul"><li class="post-li"><strong>Lit 4.0</strong> — Reactive base class with SSR, signals integration, zero-dependency</li>
+<li class="post-li"><strong>Stencil 4</strong> — Compile-time Web Components, React-style DX</li>
+<li class="post-li"><strong>FAST 3.0</strong> — Microsoft's component library + design tokens system</li>
+<li class="post-li"><strong>Shoelace</strong> — 70+ open-source components, framework-agnostic</li>
+<li class="post-li"><strong>Enhance</strong> — SSR-first Web Components with progressive enhancement</li>
+<li class="post-li"><strong>Rocket</strong> — Static site generator built on Web Components</li>
+</ul>
+<hr class="post-hr" />
+
+<h2 class="post-h2">Performance Considerations</h2>
+
+<h3 class="post-h3">Memory</h3>
+
+<p class="post-p">
+Each shadow root is a <code class="inline-code">DocumentFragment</code> with its own style sheets and DOM tree. For hundreds of instances, prefer:
+</p>
+<ul class="post-ul"><li class="post-li">CSS custom properties over inline styles</li>
+<li class="post-li">Shared <code class="inline-code">&lt;template&gt;</code> elements instead of constructing DOM per instance</li>
+<li class="post-li"><code class="inline-code">::part()</code> sparingly — each part creates an additional CSS scope</li>
+</ul>
+<h3 class="post-h3">Parser-blocking</h3>
+
+<p class="post-p">
+Declarative Shadow DOM is parsed inline and doesn't block the outer parser. However, deeply nested shadow trees can affect parse time. For very deep trees (10+ nesting levels), consider flattening the component hierarchy.
+</p>
+
+<h3 class="post-h3">Lazy Registration</h3>
+
+<pre class="code-block"><code class="language-js">// Don't register everything upfront
+<p class="post-p">
+// Instead, register when the element first appears in the DOM
+</p>
+
+<p class="post-p">
+const observer = new MutationObserver((mutations) =&amp;gt; {
+for (const { addedNodes } of mutations) {
+for (const node of addedNodes) {
+if (node.tagName === 'MY-LAZY-COMPONENT' &amp;amp;&amp;amp; !customElements.get('my-lazy-component')) {
+import('./my-lazy-component.js').then((mod) =&amp;gt; {
+customElements.define('my-lazy-component', mod.default);
+});
+observer.disconnect(); // Registered — stop observing
+}
+}
+}
+});
+</p>
+
+<p class="post-p">
+observer.observe(document.body, { childList: true, subtree: true });
+</code></pre>
+</p>
+
+<hr class="post-hr" />
+
+<h2 class="post-h2">Common Pitfalls</h2>
+
+<ul class="post-ul"><li class="post-li"><strong>Forgetting <code class="inline-code">super()</code></strong> in constructor → <code class="inline-code">Uncaught ReferenceError</code></li>
+<li class="post-li"><strong>Mutating DOM in <code class="inline-code">constructor</code></strong> → <code class="inline-code">Uncaught DOMException</code> (element not connected yet)</li>
+<li class="post-li"><strong>Missing <code class="inline-code">observedAttributes</code></strong> → <code class="inline-code">attributeChangedCallback</code> silently never fires</li>
+<li class="post-li"><strong>String-only attributes</strong> → passing <code class="inline-code">{ foo: 'bar' }</code> as an attribute serializes to <code class="inline-code">[object Object]</code></li>
+<li class="post-li"><strong>Over-relying on Shadow DOM</strong> → not every component needs encapsulation</li>
+<li class="post-li"><strong>Ignoring accessibility</strong> → Shadow DOM doesn't hide elements from screen readers; use ARIA properly</li>
+<li class="post-li"><strong>Forgetting to clean up</strong> → event listeners and observers in <code class="inline-code">connectedCallback</code> must be removed in <code class="inline-code">disconnectedCallback</code></li>
+<li class="post-li"><strong>Styling the host from inside</strong> → use <code class="inline-code">:host</code> and <code class="inline-code">:host(.variant)</code>, not a wrapper div styled from inside</li>
+</ul>
+<hr class="post-hr" />
+
+<h2 class="post-h2">When to Use Web Components vs. Framework Components</h2>
+
+<p class="post-p">
+| Criterion | Web Components | Framework Components |
+|-----------|---------------|---------------------|
+| Framework independence | ✅ Must work everywhere | ❌ Tied to one framework |
+| Design system / component library | ✅ Ship once, use anywhere | ❌ Need separate packages |
+| SSR requirements | ✅ Declarative Shadow DOM | ✅ Framework SSR |
+| Team autonomy | ✅ Independent deploys | ⚠️ Shared framework version |
+| Bundle size constraints | ✅ Near-zero overhead | ❌ Framework runtime |
+| Complex state management | ⚠️ Roll your own | ✅ Framework primitives |
+| Rapid prototyping | ⚠️ More boilerplate | ✅ Framework tooling |
+</p>
+
+<hr class="post-hr" />
+
+<h2 class="post-h2">The Bottom Line</h2>
+
+<p class="post-p">
+Web Components in 2026 are not a replacement for React or Vue. They're the right answer to a different question: <strong>how do you build UI that outlasts any framework?</strong>
+</p>
+
+<p class="post-p">
+For design systems, component libraries, and cross-team UI — where the consumer might be any framework (or none) — Web Components are the only native answer. For application-specific UI with complex state management, your framework of choice is still the right tool.
+</p>
+
+<p class="post-p">
+The key insight: you can mix both. Use Web Components for your shared primitives. Use your framework for application logic. They compose naturally — because at the end of the day, they're all just HTML.
+</p>
+
+<pre class="code-block"><code class="language-html">&amp;lt;!-- 2026: The year it all just works --&amp;gt;
+<p class="post-p">
+&amp;lt;design-system-theme color-scheme="dark"&amp;gt;
+&amp;lt;react-dashboard&amp;gt;
+&amp;lt;ds-card&amp;gt;
+&amp;lt;vue-analytics-chart slot="widget"&amp;gt;&amp;lt;/vue-analytics-chart&amp;gt;
+&amp;lt;/ds-card&amp;gt;
+&amp;lt;ds-data-table source="/api/users"&amp;gt;&amp;lt;/ds-data-table&amp;gt;
+&amp;lt;/react-dashboard&amp;gt;
+&amp;lt;/design-system-theme&amp;gt;
+</code></pre>
+</p>
+</div><style>
+        .blog-content .post-h1 { font-size: 1.75rem; font-weight: 700; color: #ffffff; margin-top: 2rem; margin-bottom: 1rem; }
+        .blog-content .post-h2 { font-size: 1.5rem; font-weight: 600; color: #f1f5f9; margin-top: 1.75rem; margin-bottom: 0.75rem; padding-bottom: 0.5rem; border-bottom: 1px solid #334155; }
+        .blog-content .post-h3 { font-size: 1.25rem; font-weight: 600; color: #e2e8f0; margin-top: 1.5rem; margin-bottom: 0.5rem; }
+        .blog-content .post-h4 { font-size: 1.1rem; font-weight: 600; color: #e2e8f0; margin-top: 1.25rem; margin-bottom: 0.5rem; }
+        .blog-content .post-p { color: #cbd5e1; line-height: 1.75; margin-bottom: 1rem; }
+        .blog-content .code-block { background: #0f172a; border: 1px solid #334155; border-radius: 0.5rem; padding: 1rem; overflow-x: auto; margin: 1rem 0; font-family: 'JetBrains Mono', monospace; font-size: 0.875rem; color: #e2e8f0; }
+        .blog-content .inline-code { background: #1e293b; color: #38bdf8; padding: 0.15rem 0.4rem; border-radius: 0.25rem; font-family: 'JetBrains Mono', monospace; font-size: 0.875em; }
+        .blog-content .post-link { color: #38bdf8; text-decoration: underline; transition: color 0.2s; }
+        .blog-content .post-link:hover { color: #7dd3fc; }
+        .blog-content .post-ul { list-style: disc; padding-left: 1.5rem; margin: 0.75rem 0; color: #cbd5e1; }
+        .blog-content .post-li { margin-bottom: 0.25rem; line-height: 1.6; }
+        .blog-content .post-blockquote { border-left: 3px solid #0ea5e9; padding: 0.5rem 1rem; margin: 1rem 0; background: rgba(14, 165, 233, 0.05); border-radius: 0 0.5rem 0.5rem 0; }
+        .blog-content .post-blockquote p { color: #94a3b8; font-style: italic; }
+        .blog-content .post-hr { border: none; border-top: 1px solid #334155; margin: 2rem 0; }
+        .blog-content strong { color: #f1f5f9; font-weight: 600; }
+        .blog-content em { font-style: italic; }
+        </style></article></main><footer class="bg-surface-light border-t border-slate-700/50 mt-auto"><div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12"><div class="grid grid-cols-1 md:grid-cols-3 gap-8"><div><a class="flex items-center gap-2.5 mb-3" href="/devbench-tech/"><div class="w-7 h-7 bg-brand-500 rounded-lg flex items-center justify-center"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-terminal w-3.5 h-3.5 text-white"><polyline points="4 17 10 11 4 5"></polyline><line x1="12" x2="20" y1="19" y2="19"></line></svg></div><span class="text-lg font-bold text-white">Dev<span class="gradient-text">Bench</span></span></a><p class="text-slate-400 text-sm leading-relaxed">Free developer tools, benchmarks, and calculators. Built for developers, by developers.</p></div><div><h3 class="text-sm font-semibold text-slate-300 uppercase tracking-wider mb-4">Tools</h3><ul class="space-y-2"><li><a class="text-slate-400 hover:text-brand-400 text-sm transition-colors" href="/devbench-tech/tools/json-formatter/">JSON Formatter</a></li><li><a class="text-slate-400 hover:text-brand-400 text-sm transition-colors" href="/devbench-tech/tools/base64/">Base64 Encoder/Decoder</a></li><li><a class="text-slate-400 hover:text-brand-400 text-sm transition-colors" href="/devbench-tech/tools/uuid-generator/">UUID Generator</a></li><li><a class="text-slate-400 hover:text-brand-400 text-sm transition-colors" href="/devbench-tech/tools/regex-tester/">Regex Tester</a></li></ul></div><div><h3 class="text-sm font-semibold text-slate-300 uppercase tracking-wider mb-4">Resources</h3><ul class="space-y-2"><li><a class="text-slate-400 hover:text-brand-400 text-sm transition-colors" href="/devbench-tech/blog/">Blog</a></li><li><a class="text-slate-400 hover:text-brand-400 text-sm transition-colors" href="/devbench-tech/benchmarks/">Benchmarks</a></li><li><a class="text-slate-400 hover:text-brand-400 text-sm transition-colors" href="/devbench-tech/about/">About</a></li></ul></div></div><div class="mt-10 pt-6 border-t border-slate-700/50 flex flex-col sm:flex-row items-center justify-between gap-4"><p class="text-slate-500 text-sm flex items-center gap-1">Made with <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-heart w-3.5 h-3.5 text-red-500 fill-red-500"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"></path></svg> by the DevBench team © <!-- -->2026</p><a href="https://github.com" target="_blank" rel="noopener noreferrer" class="text-slate-500 hover:text-slate-300 transition-colors" aria-label="GitHub"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-github w-5 h-5"><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"></path><path d="M9 18c-4.51 2-5-2-7-2"></path></svg></a></div></div></footer><div data-rht-toaster="" style="position:fixed;z-index:9999;top:16px;left:16px;right:16px;bottom:16px;pointer-events:none"></div><script src="/devbench-tech/_next/static/chunks/webpack-b521a83317325026.js" async=""></script><script>(self.__next_f=self.__next_f||[]).push([0]);self.__next_f.push([2,null])</script><script>self.__next_f.push([1,"1:HL[\"/devbench-tech/_next/static/css/c877e59dbcb00f11.css\",\"style\"]\n"])</script><script>self.__next_f.push([1,"2:I[12846,[],\"\"]\n4:I[72972,[\"2972\",\"static/chunks/2972-4aaa15d119eeb022.js\",\"308\",\"static/chunks/app/blog/%5Bslug%5D/page-a411190e7012c687.js\"],\"\"]\n7:I[4707,[],\"\"]\n9:I[36423,[],\"\"]\na:I[39295,[\"9762\",\"static/chunks/44530001-4ecf7a22b5b24163.js\",\"2972\",\"static/chunks/2972-4aaa15d119eeb022.js\",\"8375\",\"static/chunks/8375-c77b8de36f6696fb.js\",\"6829\",\"static/chunks/6829-f51803445ddf1872.js\",\"3185\",\"static/chunks/app/layout-488e5c40aa6ffa72.js\"],\"Header\"]\nb:I[66506,[\"9762\",\"static/chunks/44530001-4ecf7a22b5b24163.js\",\"2972\",\"static/chunks/2972-4aaa15d119eeb022.js\",\"8375\",\"static/chunks/8375-c77b8de36f6696fb.js\",\"6829\",\"static/chunks/6829-f51803445ddf1872.js\",\"3185\",\"static/chunks/app/layout-488e5c40aa6ffa72.js\"],\"Analytics\"]\nc:I[69064,[\"9762\",\"static/chunks/44530001-4ecf7a22b5b24163.js\",\"2972\",\"static/chunks/2972-4aaa15d119eeb022.js\",\"8375\",\"static/chunks/8375-c77b8de36f6696fb.js\",\"6829\",\"static/chunks/6829-f51803445ddf1872.js\",\"3185\",\"static/chunks/app/layout-488e5c40aa6ffa72.js\"],\"Toaster\"]\ne:I[61060,[],\"\"]\n5:T8f4e,"])</script><script>self.__next_f.push([1,"\n\u003ch2 class=\"post-h2\"\u003eThe 15-Year Overnight Success\u003c/h2\u003e\n\n\u003cp class=\"post-p\"\u003e\nWeb Components were first proposed in 2011. For over a decade, they were that technology everyone agreed \u003cem\u003eshould\u003c/em\u003e exist but nobody actually used — held back by missing SSR, awkward framework interop, and the chicken-and-egg problem of no ecosystem.\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\nIn 2026, the landscape has fundamentally shifted. Here's what changed:\n\u003c/p\u003e\n\n\u003cul class=\"post-ul\"\u003e\u003cli class=\"post-li\"\u003e\u003cstrong\u003eDeclarative Shadow DOM\u003c/strong\u003e shipped in all browsers. SSR for Web Components is now a first-class citizen. No more FOUC, no more hydration mismatch, no more JavaScript required to see your component.\u003c/li\u003e\n\u003c/ul\u003e\n\u003cul class=\"post-ul\"\u003e\u003cli class=\"post-li\"\u003e\u003cstrong\u003eEvery major framework\u003c/strong\u003e ships with Web Component support. React 19, Vue 4, Svelte 5, and Angular 19 all consume custom elements natively — including typed property and event bindings.\u003c/li\u003e\n\u003c/ul\u003e\n\u003cul class=\"post-ul\"\u003e\u003cli class=\"post-li\"\u003e\u003cstrong\u003eCSS \u003ccode class=\"inline-code\"\u003e@layer\u003c/code\u003e + CSS Parts\u003c/strong\u003e solved the theming problem. You can now build a component library once and style it for any design system without piercing the shadow boundary.\u003c/li\u003e\n\u003c/ul\u003e\n\u003cul class=\"post-ul\"\u003e\u003cli class=\"post-li\"\u003e\u003cstrong\u003eImport maps and native ES modules\u003c/strong\u003e are universal. No bundler, no build step, no npm — just \u003ccode class=\"inline-code\"\u003e\u0026lt;script type=\"module\"\u0026gt;\u003c/code\u003e and you're shipping Web Components.\u003c/li\u003e\n\u003c/ul\u003e\n\u003cul class=\"post-ul\"\u003e\u003cli class=\"post-li\"\u003e\u003cstrong\u003eLit 4.0, Stencil 4, and FAST 3.0\u003c/strong\u003e provide mature, batteries-included authoring experiences with reactive state, SSR, and framework-level DX.\u003c/li\u003e\n\u003c/ul\u003e\n\u003cp class=\"post-p\"\u003e\nLet's walk through every API, every pattern, and the production architectures that actually work in 2026.\n\u003c/p\u003e\n\n\u003chr class=\"post-hr\" /\u003e\n\n\u003ch2 class=\"post-h2\"\u003eThe Four Specifications\u003c/h2\u003e\n\n\u003cp class=\"post-p\"\u003e\nWeb Components aren't a single API. They're four browser standards that work together:\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n| Spec | What It Does | Status (2026) |\n|------|-------------|---------------|\n| \u003cstrong\u003eCustom Elements\u003c/strong\u003e | Define your own HTML tags with lifecycle callbacks | Baseline, all browsers |\n| \u003cstrong\u003eShadow DOM\u003c/strong\u003e | Encapsulated DOM + scoped CSS per component | Baseline, all browsers |\n| \u003cstrong\u003eHTML Templates\u003c/strong\u003e | Inert, reusable DOM fragments parsed once | Baseline, all browsers |\n| \u003cstrong\u003eDeclarative Shadow DOM\u003c/strong\u003e | Shadow DOM in HTML without JavaScript | Baseline, all browsers (2025+) |\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\nYou can use them independently. GitHub famously used Custom Elements without Shadow DOM for years. But together, they form the complete picture.\n\u003c/p\u003e\n\n\u003chr class=\"post-hr\" /\u003e\n\n\u003ch2 class=\"post-h2\"\u003eCustom Elements: Defining Your Own HTML Tags\u003c/h2\u003e\n\n\u003cp class=\"post-p\"\u003e\nThe simplest possible custom element is three lines:\n\u003c/p\u003e\n\n\u003cpre class=\"code-block\"\u003e\u003ccode class=\"language-js\"\u003eclass HelloWorld extends HTMLElement {\n\u003cp class=\"post-p\"\u003e\nconnectedCallback() {\nthis.textContent = 'Hello, World!';\n}\n}\ncustomElements.define('hello-world', HelloWorld);\n\u003c/code\u003e\u003c/pre\u003e\n\u003c/p\u003e\n\n\u003cpre class=\"code-block\"\u003e\u003ccode class=\"language-html\"\u003e\u0026amp;lt;hello-world\u0026amp;gt;\u0026amp;lt;/hello-world\u0026amp;gt; \u0026amp;lt;!-- Renders: Hello, World! --\u0026amp;gt;\n\u003cp class=\"post-p\"\u003e\n\u003c/code\u003e\u003c/pre\u003e\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\nCustom element names \u003cstrong\u003emust\u003c/strong\u003e contain a hyphen. This ensures no collision with future built-in HTML elements. \u003ccode class=\"inline-code\"\u003e\u0026lt;my-card\u0026gt;\u003c/code\u003e is valid. \u003ccode class=\"inline-code\"\u003e\u0026lt;mycard\u0026gt;\u003c/code\u003e will throw \u003ccode class=\"inline-code\"\u003eDOMException\u003c/code\u003e.\n\u003c/p\u003e\n\n\u003ch3 class=\"post-h3\"\u003eLifecycle Callbacks\u003c/h3\u003e\n\n\u003cp class=\"post-p\"\u003e\nCustom elements come with four lifecycle hooks — no virtual DOM, no reconciliation, no diffing:\n\u003c/p\u003e\n\n\u003cpre class=\"code-block\"\u003e\u003ccode class=\"language-js\"\u003eclass LifecycleDemo extends HTMLElement {\n\u003cp class=\"post-p\"\u003e\nconstructor() {\nsuper(); // Must call super() first\n// NO DOM manipulation here — the element isn't connected yet\n// Use this for initial state setup only\nthis._internals = this.attachInternals?.(); // Form-associated (see below)\n}\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\nconnectedCallback() {\n// Element added to the DOM tree\n// Safe to access attributes, children, styles\n// Called each time the element is moved/reattached\nconsole.log('Connected to the DOM');\nthis.render();\n}\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\ndisconnectedCallback() {\n// Element removed from the DOM\n// Use for cleanup: remove event listeners, cancel requests, clear timers\nconsole.log('Disconnected');\n}\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\nadoptedCallback() {\n// Element moved to a new document (e.g., into an iframe)\n// Rarely used, but critical for cross-document components\nconsole.log('Adopted into new document');\n}\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\nattributeChangedCallback(name, oldValue, newValue) {\n// Called when an observed attribute changes\n// Only fires for attributes in the static observedAttributes array\nif (oldValue === newValue) return;\nconsole.log(\u003ccode class=\"inline-code\"\u003e${name}: ${oldValue} → ${newValue}\u003c/code\u003e);\n}\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\nstatic get observedAttributes() {\nreturn ['title', 'disabled', 'variant'];\n}\n}\n\u003c/code\u003e\u003c/pre\u003e\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n\u003cstrong\u003eCritical rule\u003c/strong\u003e: \u003ccode class=\"inline-code\"\u003eattributeChangedCallback\u003c/code\u003e only fires for attributes listed in \u003ccode class=\"inline-code\"\u003eobservedAttributes\u003c/code\u003e. If you forget to add one, your callback silently never runs.\n\u003c/p\u003e\n\n\u003ch3 class=\"post-h3\"\u003eAttributes vs. Properties\u003c/h3\u003e\n\n\u003cp class=\"post-p\"\u003e\nThis is where most developers stumble. Custom elements have two ways to receive data, and they're not automatically synced:\n\u003c/p\u003e\n\n\u003cpre class=\"code-block\"\u003e\u003ccode class=\"language-js\"\u003eclass UserBadge extends HTMLElement {\n\u003cp class=\"post-p\"\u003e\nget name() {\nreturn this.getAttribute('name') || '';\n}\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\nset name(value) {\nif (value) {\nthis.setAttribute('name', value);\n} else {\nthis.removeAttribute('name');\n}\nthis.render();\n}\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\nstatic get observedAttributes() {\nreturn ['name', 'avatar', 'role'];\n}\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\nattributeChangedCallback(name, oldValue, newValue) {\nconsole.log(\u003ccode class=\"inline-code\"\u003eAttribute ${name} changed from ${oldValue} to ${newValue}\u003c/code\u003e);\nthis.render();\n}\n}\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n// Attributes are strings, set in HTML\n// \u0026amp;lt;user-badge name=\"Ada\" avatar=\"/avatars/ada.png\" role=\"admin\"\u0026amp;gt;\u0026amp;lt;/user-badge\u0026amp;gt;\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n// Properties can be any type, set in JavaScript\n// document.querySelector('user-badge').name = 'Grace'; // Triggers attribute sync\n\u003c/code\u003e\u003c/pre\u003e\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n\u003cstrong\u003eThe golden rule\u003c/strong\u003e: reflect rich data (objects, arrays, booleans) as properties, not attributes. Use attributes for string configuration that belongs in your HTML markup. Always sync both directions if you expose the same concept.\n\u003c/p\u003e\n\n\u003cpre class=\"code-block\"\u003e\u003ccode class=\"language-js\"\u003e// Boolean attributes: presence means true, absence means false\n\u003cp class=\"post-p\"\u003e\nclass ToggleButton extends HTMLElement {\nget pressed() {\nreturn this.hasAttribute('pressed');\n}\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\nset pressed(val) {\nif (val) {\nthis.setAttribute('pressed', '');\n} else {\nthis.removeAttribute('pressed');\n}\n}\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\nstatic get observedAttributes() {\nreturn ['pressed'];\n}\n}\n\u003c/code\u003e\u003c/pre\u003e\n\u003c/p\u003e\n\n\u003chr class=\"post-hr\" /\u003e\n\n\u003ch2 class=\"post-h2\"\u003eShadow DOM: Scoped Styles, Encapsulated DOM\u003c/h2\u003e\n\n\u003cp class=\"post-p\"\u003e\nWithout Shadow DOM, your component's CSS leaks out and the page's CSS leaks in:\n\u003c/p\u003e\n\n\u003cpre class=\"code-block\"\u003e\u003ccode class=\"language-html\"\u003e\u0026amp;lt;!-- Without Shadow DOM --\u0026amp;gt;\n\u003cp class=\"post-p\"\u003e\n\u0026amp;lt;style\u0026amp;gt;\n/\u003cem\u003e This styles EVERY .card on the page, not just your component \u003c/em\u003e/\n.card { border: 1px solid red; }\n\u0026amp;lt;/style\u0026amp;gt;\n\u0026amp;lt;div class=\"card\"\u0026amp;gt;Your Component\u0026amp;lt;/div\u0026amp;gt;\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n\u0026amp;lt;article class=\"card\"\u0026amp;gt;Page Content\u0026amp;lt;/article\u0026amp;gt; \u0026amp;lt;!-- Also gets the red border! --\u0026amp;gt;\n\u003c/code\u003e\u003c/pre\u003e\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\nShadow DOM creates a boundary. Styles inside don't leak out. Styles outside don't leak in.\n\u003c/p\u003e\n\n\u003cpre class=\"code-block\"\u003e\u003ccode class=\"language-js\"\u003eclass StyledCard extends HTMLElement {\n\u003cp class=\"post-p\"\u003e\nconstructor() {\nsuper();\nconst shadow = this.attachShadow({ mode: 'open' });\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\nshadow.innerHTML = \u003ccode class=\"inline-code\"\u003e\n\u0026amp;lt;style\u0026amp;gt;\n.card {\nborder: 1px solid var(--border-color, #e5e7eb);\nborder-radius: 8px;\npadding: 16px;\nbackground: var(--card-bg, white);\n}\n.card:hover {\nbox-shadow: 0 4px 12px rgba(0,0,0,0.1);\n}\n\u0026amp;lt;/style\u0026amp;gt;\n\u0026amp;lt;div class=\"card\"\u0026amp;gt;\n\u0026amp;lt;slot name=\"header\"\u0026amp;gt;\u0026amp;lt;/slot\u0026amp;gt;\n\u0026amp;lt;slot\u0026amp;gt;\u0026amp;lt;/slot\u0026amp;gt;\n\u0026amp;lt;slot name=\"footer\"\u0026amp;gt;\u0026amp;lt;/slot\u0026amp;gt;\n\u0026amp;lt;/div\u0026amp;gt;\n\u003c/code\u003e;\n}\n}\n\u003c/code\u003e\u003c/pre\u003e\n\u003c/p\u003e\n\n\u003cpre class=\"code-block\"\u003e\u003ccode class=\"language-html\"\u003e\u0026amp;lt;!-- Usage --\u0026amp;gt;\n\u003cp class=\"post-p\"\u003e\n\u0026amp;lt;styled-card\u0026amp;gt;\n\u0026amp;lt;h2 slot=\"header\"\u0026amp;gt;Card Title\u0026amp;lt;/h2\u0026amp;gt;\n\u0026amp;lt;p\u0026amp;gt;This content goes into the default slot.\u0026amp;lt;/p\u0026amp;gt;\n\u0026amp;lt;button slot=\"footer\"\u0026amp;gt;Action\u0026amp;lt;/button\u0026amp;gt;\n\u0026amp;lt;/styled-card\u0026amp;gt;\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n\u0026amp;lt;style\u0026amp;gt;\n/\u003cem\u003e This will NOT affect the shadow DOM internals \u003c/em\u003e/\n.card { border-color: blue; } /\u003cem\u003e No effect inside the component \u003c/em\u003e/\n\u0026amp;lt;/style\u0026amp;gt;\n\u003c/code\u003e\u003c/pre\u003e\n\u003c/p\u003e\n\n\u003ch3 class=\"post-h3\"\u003eOpen vs. Closed Shadow DOM\u003c/h3\u003e\n\n\u003cpre class=\"code-block\"\u003e\u003ccode class=\"language-js\"\u003econst openShadow = this.attachShadow({ mode: 'open' });\n\u003cp class=\"post-p\"\u003e\nconst closedShadow = this.attachShadow({ mode: 'closed' });\n\u003c/code\u003e\u003c/pre\u003e\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n| Feature | \u003ccode class=\"inline-code\"\u003emode: 'open'\u003c/code\u003e | \u003ccode class=\"inline-code\"\u003emode: 'closed'\u003c/code\u003e |\n|---------|---------------|-----------------|\n| Access from outside | \u003ccode class=\"inline-code\"\u003eel.shadowRoot\u003c/code\u003e | \u003ccode class=\"inline-code\"\u003enull\u003c/code\u003e (inaccessible) |\n| DevTools inspection | Full access | Inspectable but not scriptable |\n| Component debugging | Easy | Harder |\n| Use case | 99% of components | Security-sensitive elements (native \u003ccode class=\"inline-code\"\u003e\u0026lt;video\u0026gt;\u003c/code\u003e controls) |\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n\u003cstrong\u003eRecommendation\u003c/strong\u003e: Always use \u003ccode class=\"inline-code\"\u003emode: 'open'\u003c/code\u003e unless you have a genuine security boundary. Closed mode makes debugging and testing significantly harder without providing real security — browser extensions and DevTools can still access closed roots.\n\u003c/p\u003e\n\n\u003ch3 class=\"post-h3\"\u003eCSS Custom Properties Pierce Shadow Boundaries\u003c/h3\u003e\n\n\u003cp class=\"post-p\"\u003e\nThis is the primary theming mechanism:\n\u003c/p\u003e\n\n\u003cpre class=\"code-block\"\u003e\u003ccode class=\"language-css\"\u003e/\u003cem\u003e Styles in the light DOM / page \u003c/em\u003e/\n\u003cp class=\"post-p\"\u003e\nmy-card {\n--card-bg: #1e293b;\n--card-border: #334155;\n--card-radius: 12px;\n}\n\u003c/code\u003e\u003c/pre\u003e\n\u003c/p\u003e\n\n\u003cpre class=\"code-block\"\u003e\u003ccode class=\"language-css\"\u003e/\u003cem\u003e Inside the shadow DOM \u003c/em\u003e/\n\u003cp class=\"post-p\"\u003e\n:host {\nbackground: var(--card-bg, white);\nborder: 1px solid var(--card-border, #e5e7eb);\nborder-radius: var(--card-radius, 8px);\n}\n\u003c/code\u003e\u003c/pre\u003e\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\nCustom properties flow \u003cstrong\u003einto\u003c/strong\u003e the shadow tree but never leak out. This is by design — it gives component authors control over what's themeable.\n\u003c/p\u003e\n\n\u003chr class=\"post-hr\" /\u003e\n\n\u003ch2 class=\"post-h2\"\u003eSlots: Composing Content\u003c/h2\u003e\n\n\u003cp class=\"post-p\"\u003e\nSlots are Web Components' composition model. They replace \u003ccode class=\"inline-code\"\u003eprops.children\u003c/code\u003e — but work with any framework or no framework.\n\u003c/p\u003e\n\n\u003cpre class=\"code-block\"\u003e\u003ccode class=\"language-js\"\u003eclass SplitPane extends HTMLElement {\n\u003cp class=\"post-p\"\u003e\nconstructor() {\nsuper();\nthis.attachShadow({ mode: 'open' }).innerHTML = \u003ccode class=\"inline-code\"\u003e\n\u0026amp;lt;style\u0026amp;gt;\n:host { display: flex; gap: 1px; }\n::slotted(*) { flex: 1 1 50%; min-width: 0; }\nslot { display: block; }\n\u0026amp;lt;/style\u0026amp;gt;\n\u0026amp;lt;slot name=\"left\"\u0026amp;gt;\u0026amp;lt;/slot\u0026amp;gt;\n\u0026amp;lt;div style=\"width:1px;background:var(--divider,#ccc)\"\u0026amp;gt;\u0026amp;lt;/div\u0026amp;gt;\n\u0026amp;lt;slot name=\"right\"\u0026amp;gt;\u0026amp;lt;/slot\u0026amp;gt;\n\u003c/code\u003e;\n}\n}\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\ncustomElements.define('split-pane', SplitPane);\n\u003c/code\u003e\u003c/pre\u003e\n\u003c/p\u003e\n\n\u003cpre class=\"code-block\"\u003e\u003ccode class=\"language-html\"\u003e\u0026amp;lt;split-pane\u0026amp;gt;\n\u003cp class=\"post-p\"\u003e\n\u0026amp;lt;div slot=\"left\"\u0026amp;gt;\n\u0026amp;lt;h2\u0026amp;gt;Editor\u0026amp;lt;/h2\u0026amp;gt;\n\u0026amp;lt;textarea\u0026amp;gt;\u0026amp;lt;/textarea\u0026amp;gt;\n\u0026amp;lt;/div\u0026amp;gt;\n\u0026amp;lt;div slot=\"right\"\u0026amp;gt;\n\u0026amp;lt;h2\u0026amp;gt;Preview\u0026amp;lt;/h2\u0026amp;gt;\n\u0026amp;lt;output\u0026amp;gt;\u0026amp;lt;/output\u0026amp;gt;\n\u0026amp;lt;/div\u0026amp;gt;\n\u0026amp;lt;/split-pane\u0026amp;gt;\n\u003c/code\u003e\u003c/pre\u003e\n\u003c/p\u003e\n\n\u003ch3 class=\"post-h3\"\u003eNamed vs. Default Slots\u003c/h3\u003e\n\n\u003cpre class=\"code-block\"\u003e\u003ccode class=\"language-html\"\u003e\u0026amp;lt;!-- Component template --\u0026amp;gt;\n\u003cp class=\"post-p\"\u003e\n\u0026amp;lt;div class=\"wrapper\"\u0026amp;gt;\n\u0026amp;lt;slot name=\"icon\"\u0026amp;gt;\u0026amp;lt;/slot\u0026amp;gt;     \u0026amp;lt;!-- Named slot: only elements with slot=\"icon\" --\u0026amp;gt;\n\u0026amp;lt;slot name=\"title\"\u0026amp;gt;\u0026amp;lt;/slot\u0026amp;gt;    \u0026amp;lt;!-- Named slot: only elements with slot=\"title\" --\u0026amp;gt;\n\u0026amp;lt;slot\u0026amp;gt;\u0026amp;lt;/slot\u0026amp;gt;                 \u0026amp;lt;!-- Default slot: everything else --\u0026amp;gt;\n\u0026amp;lt;/div\u0026amp;gt;\n\u003c/code\u003e\u003c/pre\u003e\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\nAn element with no \u003ccode class=\"inline-code\"\u003eslot\u003c/code\u003e attribute goes to the default (unnamed) slot. Multiple unnamed elements are appended in document order. Each named slot receives only its matching elements.\n\u003c/p\u003e\n\n\u003ch3 class=\"post-h3\"\u003e::slotted() — Styling Slotted Content\u003c/h3\u003e\n\n\u003cp class=\"post-p\"\u003e\nThe \u003ccode class=\"inline-code\"\u003e::slotted()\u003c/code\u003e CSS pseudo-element styles content that has been projected into a slot — but only top-level children:\n\u003c/p\u003e\n\n\u003cpre class=\"code-block\"\u003e\u003ccode class=\"language-css\"\u003e/\u003cem\u003e In shadow DOM \u003c/em\u003e/\n\u003cp class=\"post-p\"\u003e\n::slotted(h2) {\ncolor: var(--heading-color, inherit);\nmargin: 0;\n}\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n::slotted(*) {\n/\u003cem\u003e Only styles top-level slotted nodes, NOT their descendants \u003c/em\u003e/\n}\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n/\u003cem\u003e Doesn't work: \u003c/em\u003e/\n::slotted(h2 span) { /\u003cem\u003e ❌ Compound selectors not supported \u003c/em\u003e/ }\n::slotted(.card .title) { /\u003cem\u003e ❌ Descendant selectors not supported \u003c/em\u003e/ }\n\u003c/code\u003e\u003c/pre\u003e\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\nThis is an intentional limitation of the slotted API. For deep styling, use CSS Parts or custom properties.\n\u003c/p\u003e\n\n\u003chr class=\"post-hr\" /\u003e\n\n\u003ch2 class=\"post-h2\"\u003eHTML Templates: Zero-Cost DOM Reuse\u003c/h2\u003e\n\n\u003cp class=\"post-p\"\u003e\n\u003ccode class=\"inline-code\"\u003e\u0026lt;template\u0026gt;\u003c/code\u003e provides inert, preparsed DOM that costs nothing to clone:\n\u003c/p\u003e\n\n\u003cpre class=\"code-block\"\u003e\u003ccode class=\"language-html\"\u003e\u0026amp;lt;template id=\"card-template\"\u0026amp;gt;\n\u003cp class=\"post-p\"\u003e\n\u0026amp;lt;style\u0026amp;gt;\n.card {\nborder: 1px solid #e5e7eb;\nborder-radius: 8px;\npadding: 16px;\n}\n\u0026amp;lt;/style\u0026amp;gt;\n\u0026amp;lt;div class=\"card\"\u0026amp;gt;\n\u0026amp;lt;h2 class=\"title\"\u0026amp;gt;\u0026amp;lt;slot name=\"title\"\u0026amp;gt;Default Title\u0026amp;lt;/slot\u0026amp;gt;\u0026amp;lt;/h2\u0026amp;gt;\n\u0026amp;lt;p class=\"body\"\u0026amp;gt;\u0026amp;lt;slot\u0026amp;gt;\u0026amp;lt;/slot\u0026amp;gt;\u0026amp;lt;/p\u0026amp;gt;\n\u0026amp;lt;footer class=\"footer\"\u0026amp;gt;\u0026amp;lt;slot name=\"footer\"\u0026amp;gt;\u0026amp;lt;/slot\u0026amp;gt;\u0026amp;lt;/footer\u0026amp;gt;\n\u0026amp;lt;/div\u0026amp;gt;\n\u0026amp;lt;/template\u0026amp;gt;\n\u003c/code\u003e\u003c/pre\u003e\n\u003c/p\u003e\n\n\u003cpre class=\"code-block\"\u003e\u003ccode class=\"language-js\"\u003eclass TemplateCard extends HTMLElement {\n\u003cp class=\"post-p\"\u003e\nconstructor() {\nsuper();\nconst template = document.getElementById('card-template');\nconst content = template.content.cloneNode(true); // Deep clone\nthis.attachShadow({ mode: 'open' }).appendChild(content);\n}\n}\n\u003c/code\u003e\u003c/pre\u003e\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\nKey benefits of \u003ccode class=\"inline-code\"\u003e\u0026lt;template\u0026gt;\u003c/code\u003e:\n\u003c/p\u003e\n\u003cul class=\"post-ul\"\u003e\u003cli class=\"post-li\"\u003eNot rendered, not executed — the DOM inside is inert until cloned\u003c/li\u003e\n\u003cli class=\"post-li\"\u003eImages don't load, scripts don't run, styles don't apply\u003c/li\u003e\n\u003cli class=\"post-li\"\u003e\u003ccode class=\"inline-code\"\u003ecloneNode(true)\u003c/code\u003e creates a live DOM tree, not a string\u003c/li\u003e\n\u003cli class=\"post-li\"\u003eTemplates can be shared across many component instances\u003c/li\u003e\n\u003cli class=\"post-li\"\u003eZero runtime parsing cost — the browser does it once at parse time\u003c/li\u003e\n\u003c/ul\u003e\n\u003chr class=\"post-hr\" /\u003e\n\n\u003ch2 class=\"post-h2\"\u003eDeclarative Shadow DOM: SSR Without JavaScript\u003c/h2\u003e\n\n\u003cp class=\"post-p\"\u003e\nThe biggest blocker to Web Component adoption was SSR. If your component uses imperative \u003ccode class=\"inline-code\"\u003eattachShadow()\u003c/code\u003e, server-rendered HTML shows nothing until JavaScript loads and hydrates.\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\nDeclarative Shadow DOM solves this. You express the shadow tree directly in HTML:\n\u003c/p\u003e\n\n\u003cpre class=\"code-block\"\u003e\u003ccode class=\"language-html\"\u003e\u0026amp;lt;my-card\u0026amp;gt;\n\u003cp class=\"post-p\"\u003e\n\u0026amp;lt;template shadowrootmode=\"open\"\u0026amp;gt;\n\u0026amp;lt;style\u0026amp;gt;\n:host { display: block; border: 1px solid #ccc; border-radius: 8px; padding: 16px; }\nh2 { margin: 0 0 8px; color: var(--heading-color, #111); }\n\u0026amp;lt;/style\u0026amp;gt;\n\u0026amp;lt;h2\u0026amp;gt;\u0026amp;lt;slot name=\"title\"\u0026amp;gt;Card Title\u0026amp;lt;/slot\u0026amp;gt;\u0026amp;lt;/h2\u0026amp;gt;\n\u0026amp;lt;p\u0026amp;gt;\u0026amp;lt;slot\u0026amp;gt;Content goes here\u0026amp;lt;/slot\u0026amp;gt;\u0026amp;lt;/p\u0026amp;gt;\n\u0026amp;lt;/template\u0026amp;gt;\n\u0026amp;lt;span slot=\"title\"\u0026amp;gt;Server-Rendered Title\u0026amp;lt;/span\u0026amp;gt;\n\u0026amp;lt;span\u0026amp;gt;Server-rendered body content — visible immediately, no JS needed!\u0026amp;lt;/span\u0026amp;gt;\n\u0026amp;lt;/my-card\u0026amp;gt;\n\u003c/code\u003e\u003c/pre\u003e\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\nThe browser parses this and creates the shadow root \u003cstrong\u003eat parse time\u003c/strong\u003e, before any JavaScript executes. The component is visible and styled on first paint — no FOUC, no layout shift.\n\u003c/p\u003e\n\n\u003ch3 class=\"post-h3\"\u003eHow to Use Declarative Shadow DOM\u003c/h3\u003e\n\n\u003cp class=\"post-p\"\u003e\n\u003cstrong\u003eServer-side (any backend)\u003c/strong\u003e:\n\u003c/p\u003e\n\u003cpre class=\"code-block\"\u003e\u003ccode class=\"language-js\"\u003e// Express example\n\u003cp class=\"post-p\"\u003e\nfunction renderCard({ title, body }) {\nreturn \u003ccode class=\"inline-code\"\u003e\n\u0026amp;lt;my-card\u0026amp;gt;\n\u0026amp;lt;template shadowrootmode=\"open\"\u0026amp;gt;\n\u0026amp;lt;style\u0026amp;gt;\n:host { display: block; padding: 1rem; border: 1px solid var(--border, #ddd); }\n::slotted([slot=\"title\"]) { font-size: 1.25rem; font-weight: 600; }\n\u0026amp;lt;/style\u0026amp;gt;\n\u0026amp;lt;slot name=\"title\"\u0026amp;gt;\u0026amp;lt;/slot\u0026amp;gt;\n\u0026amp;lt;slot\u0026amp;gt;\u0026amp;lt;/slot\u0026amp;gt;\n\u0026amp;lt;/template\u0026amp;gt;\n\u0026amp;lt;h2 slot=\"title\"\u0026amp;gt;${escapeHtml(title)}\u0026amp;lt;/h2\u0026amp;gt;\n\u0026amp;lt;p\u0026amp;gt;${escapeHtml(body)}\u0026amp;lt;/p\u0026amp;gt;\n\u0026amp;lt;/my-card\u0026amp;gt;\n\u003c/code\u003e;\n}\n\u003c/code\u003e\u003c/pre\u003e\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n\u003cstrong\u003eClient-side hydration\u003c/strong\u003e:\n\u003c/p\u003e\n\u003cpre class=\"code-block\"\u003e\u003ccode class=\"language-js\"\u003eclass MyCard extends HTMLElement {\n\u003cp class=\"post-p\"\u003e\nconstructor() {\nsuper();\n// If the element was server-rendered with declarative shadow DOM,\n// this.shadowRoot already exists — no need to call attachShadow()\nconst shadow = this.shadowRoot || this.attachShadow({ mode: 'open' });\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n// Add interactivity\nthis.addEventListener('click', () =\u0026amp;gt; {\nconsole.log('Card clicked — interactivity added client-side');\n});\n}\n}\n\u003c/code\u003e\u003c/pre\u003e\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n\u003cstrong\u003eStreaming SSR\u003c/strong\u003e — Declarative Shadow DOM enables streaming HTML: the browser renders the component as the HTML arrives, without waiting for a closing tag or JavaScript bundle. This is the killer feature for Core Web Vitals.\n\u003c/p\u003e\n\n\u003chr class=\"post-hr\" /\u003e\n\n\u003ch2 class=\"post-h2\"\u003eCSS Parts: Theming Without Breaking Encapsulation\u003c/h2\u003e\n\n\u003cp class=\"post-p\"\u003e\nCSS custom properties work for individual values. CSS Parts work for structured styling:\n\u003c/p\u003e\n\n\u003cpre class=\"code-block\"\u003e\u003ccode class=\"language-js\"\u003e// Inside a component's shadow DOM\n\u003cp class=\"post-p\"\u003e\nrender() {\nreturn \u003ccode class=\"inline-code\"\u003e\n\u0026amp;lt;div part=\"container\"\u0026amp;gt;\n\u0026amp;lt;header part=\"header\"\u0026amp;gt;\n\u0026amp;lt;slot name=\"title\"\u0026amp;gt;\u0026amp;lt;/slot\u0026amp;gt;\n\u0026amp;lt;/header\u0026amp;gt;\n\u0026amp;lt;main part=\"body\"\u0026amp;gt;\n\u0026amp;lt;slot\u0026amp;gt;\u0026amp;lt;/slot\u0026amp;gt;\n\u0026amp;lt;/main\u0026amp;gt;\n\u0026amp;lt;footer part=\"footer\"\u0026amp;gt;\n\u0026amp;lt;slot name=\"actions\"\u0026amp;gt;\u0026amp;lt;/slot\u0026amp;gt;\n\u0026amp;lt;/footer\u0026amp;gt;\n\u0026amp;lt;/div\u0026amp;gt;\n\u003c/code\u003e;\n}\n\u003c/code\u003e\u003c/pre\u003e\n\u003c/p\u003e\n\n\u003cpre class=\"code-block\"\u003e\u003ccode class=\"language-css\"\u003e/\u003cem\u003e Outside the component — styles applied via ::part() \u003c/em\u003e/\n\u003cp class=\"post-p\"\u003e\nmy-card::part(container) {\nborder-radius: 16px;\nbackground: linear-gradient(135deg, #667eea 0%, #764ba2 100%);\n}\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\nmy-card::part(header) {\nfont-size: 1.5rem;\npadding: 1rem;\nborder-bottom: 1px solid rgba(255,255,255,0.2);\n}\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\nmy-card::part(footer) {\ndisplay: flex;\njustify-content: flex-end;\ngap: 0.5rem;\npadding: 0.75rem 1rem;\n}\n\u003c/code\u003e\u003c/pre\u003e\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n\u003cstrong\u003eLimitations of \u003ccode class=\"inline-code\"\u003e::part()\u003c/code\u003e\u003c/strong\u003e:\n\u003c/p\u003e\n\u003cul class=\"post-ul\"\u003e\u003cli class=\"post-li\"\u003eYou cannot target children of a part (\u003ccode class=\"inline-code\"\u003e::part(header) h2\u003c/code\u003e doesn't work)\u003c/li\u003e\n\u003cli class=\"post-li\"\u003eYou cannot chain parts (\u003ccode class=\"inline-code\"\u003e::part(header)::part(title)\u003c/code\u003e doesn't work)\u003c/li\u003e\n\u003cli class=\"post-li\"\u003eYou cannot use pseudo-classes (\u003ccode class=\"inline-code\"\u003e::part(button):hover\u003c/code\u003e is restricted)\u003c/li\u003e\n\u003c/ul\u003e\n\u003cp class=\"post-p\"\u003e\n\u003cstrong\u003eThe workaround\u003c/strong\u003e: Export multiple parts at different granularity levels, or use custom properties for fine-grained control.\n\u003c/p\u003e\n\n\u003chr class=\"post-hr\" /\u003e\n\n\u003ch2 class=\"post-h2\"\u003eForm-Associated Custom Elements\u003c/h2\u003e\n\n\u003cp class=\"post-p\"\u003e\nOne of the most powerful but underused features — your custom element can participate in HTML forms natively:\n\u003c/p\u003e\n\n\u003cpre class=\"code-block\"\u003e\u003ccode class=\"language-js\"\u003eclass RatingInput extends HTMLElement {\n\u003cp class=\"post-p\"\u003e\nstatic formAssociated = true;\n#internals;\n#value = 0;\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\nconstructor() {\nsuper();\nthis.#internals = this.attachInternals();\n}\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\nget value() { return this.#value; }\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\nset value(val) {\nthis.#value = Number(val);\nthis.#internals.setFormValue(String(this.#value));\nthis.#render();\n}\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\nget form() { return this.#internals.form; }\nget name() { return this.getAttribute('name'); }\nget validity() { return this.#internals.validity; }\nget validationMessage() { return this.#internals.validationMessage; }\nget willValidate() { return this.#internals.willValidate; }\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\ncheckValidity() { return this.#internals.checkValidity(); }\nreportValidity() { return this.#internals.reportValidity(); }\n}\n\u003c/code\u003e\u003c/pre\u003e\n\u003c/p\u003e\n\n\u003cpre class=\"code-block\"\u003e\u003ccode class=\"language-html\"\u003e\u0026amp;lt;form id=\"review-form\"\u0026amp;gt;\n\u003cp class=\"post-p\"\u003e\n\u0026amp;lt;label\u0026amp;gt;\nRating:\n\u0026amp;lt;rating-input name=\"rating\" min=\"1\" max=\"5\"\u0026amp;gt;\u0026amp;lt;/rating-input\u0026amp;gt;\n\u0026amp;lt;/label\u0026amp;gt;\n\u0026amp;lt;button type=\"submit\"\u0026amp;gt;Submit\u0026amp;lt;/button\u0026amp;gt;\n\u0026amp;lt;/form\u0026amp;gt;\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n\u0026amp;lt;script\u0026amp;gt;\nconst form = document.getElementById('review-form');\nform.addEventListener('submit', (e) =\u0026amp;gt; {\ne.preventDefault();\nconst data = new FormData(form);\nconsole.log(data.get('rating')); // \"3\" — participates in FormData!\n});\n\u0026amp;lt;/script\u0026amp;gt;\n\u003c/code\u003e\u003c/pre\u003e\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\nThis works with \u003ccode class=\"inline-code\"\u003eFormData\u003c/code\u003e, constraint validation (\u003ccode class=\"inline-code\"\u003erequired\u003c/code\u003e, \u003ccode class=\"inline-code\"\u003eminlength\u003c/code\u003e), \u003ccode class=\"inline-code\"\u003e:valid\u003c/code\u003e/\u003ccode class=\"inline-code\"\u003e:invalid\u003c/code\u003e CSS pseudo-classes, and \u003ccode class=\"inline-code\"\u003ereportValidity()\u003c/code\u003e. It's how native elements like \u003ccode class=\"inline-code\"\u003e\u0026lt;input\u0026gt;\u003c/code\u003e work — now available for your components.\n\u003c/p\u003e\n\n\u003chr class=\"post-hr\" /\u003e\n\n\u003ch2 class=\"post-h2\"\u003eFramework Interop: React, Vue, Svelte, Angular\u003c/h2\u003e\n\n\u003ch3 class=\"post-h3\"\u003eReact 19+\u003c/h3\u003e\n\n\u003cp class=\"post-p\"\u003e\nReact 19 ships with full custom element support:\n\u003c/p\u003e\n\n\u003cpre class=\"code-block\"\u003e\u003ccode class=\"language-jsx\"\u003e// React 19 — works out of the box\n\u003cp class=\"post-p\"\u003e\nfunction App() {\nreturn (\n\u0026amp;lt;my-card\nref={cardRef}\ntitle=\"Hello from React\"\nonClick={() =\u0026amp;gt; console.log('clicked')}\n\u0026amp;gt;\n\u0026amp;lt;p\u0026amp;gt;Children passed as slot content\u0026amp;lt;/p\u0026amp;gt;\n\u0026amp;lt;/my-card\u0026amp;gt;\n);\n}\n\u003c/code\u003e\u003c/pre\u003e\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\nReact 19 maps JSX properties to custom element properties (not attributes) for camelCase props and handles event listeners with \u003ccode class=\"inline-code\"\u003eaddEventListener\u003c/code\u003e. Boolean, number, and object properties are passed by reference, not serialized to strings.\n\u003c/p\u003e\n\n\u003ch3 class=\"post-h3\"\u003eVue 4\u003c/h3\u003e\n\n\u003cpre class=\"code-block\"\u003e\u003ccode class=\"language-vue\"\u003e\u0026amp;lt;template\u0026amp;gt;\n\u003cp class=\"post-p\"\u003e\n\u0026amp;lt;my-card\n:title=\"dynamicTitle\"\n@card-action=\"handleAction\"\n\u0026amp;gt;\n\u0026amp;lt;p\u0026amp;gt;Slot content from Vue\u0026amp;lt;/p\u0026amp;gt;\n\u0026amp;lt;template #footer\u0026amp;gt;Named slot content\u0026amp;lt;/template\u0026amp;gt;\n\u0026amp;lt;/my-card\u0026amp;gt;\n\u0026amp;lt;/template\u0026amp;gt;\n\u003c/code\u003e\u003c/pre\u003e\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\nVue automatically detects custom elements (hyphenated tag names) and bypasses its virtual DOM for them, passing properties and events natively.\n\u003c/p\u003e\n\n\u003ch3 class=\"post-h3\"\u003eSvelte 5\u003c/h3\u003e\n\n\u003cpre class=\"code-block\"\u003e\u003ccode class=\"language-svelte\"\u003e\u0026amp;lt;my-card\n\u003cp class=\"post-p\"\u003e\ntitle={dynamicTitle}\non:card-action={handleAction}\n\u0026amp;gt;\n\u0026amp;lt;p\u0026amp;gt;Slot content from Svelte\u0026amp;lt;/p\u0026amp;gt;\n\u0026amp;lt;/my-card\u0026amp;gt;\n\u003c/code\u003e\u003c/pre\u003e\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\nSvelte treats custom elements as native DOM, with full property/event binding.\n\u003c/p\u003e\n\n\u003ch3 class=\"post-h3\"\u003eVanilla JavaScript / Any Framework\u003c/h3\u003e\n\n\u003cp class=\"post-p\"\u003e\nWeb Components work everywhere because they're HTML. Any framework, any templating language, any static site generator — if it outputs HTML, it can use Web Components.\n\u003c/p\u003e\n\n\u003chr class=\"post-hr\" /\u003e\n\n\u003ch2 class=\"post-h2\"\u003eReal-World Patterns\u003c/h2\u003e\n\n\u003ch3 class=\"post-h3\"\u003ePattern 1: Progressive Enhancement\u003c/h3\u003e\n\n\u003cpre class=\"code-block\"\u003e\u003ccode class=\"language-html\"\u003e\u0026amp;lt;!-- No JS: works as a normal image --\u0026amp;gt;\n\u003cp class=\"post-p\"\u003e\n\u0026amp;lt;img-loading src=\"/hero.jpg\" alt=\"Hero image\"\u0026amp;gt;\n\u0026amp;lt;img src=\"/hero.jpg\" alt=\"Hero image\" loading=\"lazy\"\u0026amp;gt;\n\u0026amp;lt;/img-loading\u0026amp;gt;\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n\u0026amp;lt;!-- JS loads: upgraded to intersection-observer lazy loading with blur-up --\u0026amp;gt;\n\u003c/code\u003e\u003c/pre\u003e\n\u003c/p\u003e\n\n\u003cpre class=\"code-block\"\u003e\u003ccode class=\"language-js\"\u003eclass ImgLoading extends HTMLElement {\n\u003cp class=\"post-p\"\u003e\nconnectedCallback() {\nconst img = this.querySelector('img');\nif (!img) return;\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\nconst src = this.getAttribute('src');\nconst alt = this.getAttribute('alt') || img.alt;\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n// Replace fallback img with enhanced version\nthis.innerHTML = '';\nconst wrapper = document.createElement('div');\nwrapper.innerHTML = \u003ccode class=\"inline-code\"\u003e\n\u0026amp;lt;img\nsrc=\"data:image/svg+xml,...\"\nalt=\"${alt}\"\nstyle=\"filter:blur(20px);transform:scale(1.1);transition:filter 0.3s,transform 0.3s\"\n\u0026amp;gt;\n\u003c/code\u003e;\nthis.appendChild(wrapper);\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\nconst io = new IntersectionObserver(([entry]) =\u0026amp;gt; {\nif (entry.isIntersecting) {\nconst realImg = new Image();\nrealImg.onload = () =\u0026amp;gt; {\nwrapper.querySelector('img').src = src;\nwrapper.querySelector('img').style.filter = 'blur(0)';\nwrapper.querySelector('img').style.transform = 'scale(1)';\n};\nrealImg.src = src;\nio.disconnect();\n}\n});\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\nio.observe(this);\n}\n}\n\u003c/code\u003e\u003c/pre\u003e\n\u003c/p\u003e\n\n\u003ch3 class=\"post-h3\"\u003ePattern 2: Composable Design System\u003c/h3\u003e\n\n\u003cpre class=\"code-block\"\u003e\u003ccode class=\"language-html\"\u003e\u0026amp;lt;ds-button variant=\"primary\" size=\"large\"\u0026amp;gt;\n\u003cp class=\"post-p\"\u003e\n\u0026amp;lt;ds-icon name=\"plus\" slot=\"prefix\"\u0026amp;gt;\u0026amp;lt;/ds-icon\u0026amp;gt;\nAdd to Cart\n\u0026amp;lt;ds-badge count=\"3\" slot=\"suffix\"\u0026amp;gt;\u0026amp;lt;/ds-badge\u0026amp;gt;\n\u0026amp;lt;/ds-button\u0026amp;gt;\n\u003c/code\u003e\u003c/pre\u003e\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\nEach component is independent, framework-agnostic, and themable via CSS Parts and custom properties. You can use this button in a React app, a Vue dashboard, and a legacy jQuery page — same \u003ccode class=\"inline-code\"\u003e\u0026lt;ds-button\u0026gt;\u003c/code\u003e, same behavior.\n\u003c/p\u003e\n\n\u003ch3 class=\"post-h3\"\u003ePattern 3: Island Architecture\u003c/h3\u003e\n\n\u003cpre class=\"code-block\"\u003e\u003ccode class=\"language-html\"\u003e\u0026amp;lt;!-- Static HTML page, no JS bundle --\u0026amp;gt;\n\u003cp class=\"post-p\"\u003e\n\u0026amp;lt;main\u0026amp;gt;\n\u0026amp;lt;h1\u0026amp;gt;Blog Post\u0026amp;lt;/h1\u0026amp;gt;\n\u0026amp;lt;article\u0026amp;gt;\n\u0026amp;lt;p\u0026amp;gt;Static content rendered at build time...\u0026amp;lt;/p\u0026amp;gt;\n\u0026amp;lt;/article\u0026amp;gt;\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n\u0026amp;lt;!-- Interactive island — only this component loads JS --\u0026amp;gt;\n\u0026amp;lt;live-comments\ndata-post-id=\"abc123\"\ndata-api=\"/api/comments\"\n\u0026amp;gt;\n\u0026amp;lt;template shadowrootmode=\"open\"\u0026amp;gt;\n\u0026amp;lt;p\u0026amp;gt;Loading comments...\u0026amp;lt;/p\u0026amp;gt;\n\u0026amp;lt;/template\u0026amp;gt;\n\u0026amp;lt;/live-comments\u0026amp;gt;\n\u0026amp;lt;/main\u0026amp;gt;\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n\u0026amp;lt;script type=\"module\"\u0026amp;gt;\nimport './live-comments.js'; // Only this component loads JS\n\u0026amp;lt;/script\u0026amp;gt;\n\u003c/code\u003e\u003c/pre\u003e\n\u003c/p\u003e\n\n\u003ch3 class=\"post-h3\"\u003ePattern 4: Micro-Frontends\u003c/h3\u003e\n\n\u003cpre class=\"code-block\"\u003e\u003ccode class=\"language-html\"\u003e\u0026amp;lt;!-- Team A owns this component --\u0026amp;gt;\n\u003cp class=\"post-p\"\u003e\n\u0026amp;lt;team-a-cart\ndata-items='[{\"id\":\"1\",\"name\":\"Widget\",\"price\":9.99}]'\ndata-theme=\"dark\"\n\u0026amp;gt;\u0026amp;lt;/team-a-cart\u0026amp;gt;\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n\u0026amp;lt;!-- Team B owns this component — different repo, different deploy --\u0026amp;gt;\n\u0026amp;lt;team-b-recommendations\ndata-user-id=\"user_abc\"\n\u0026amp;gt;\u0026amp;lt;/team-b-recommendations\u0026amp;gt;\n\u003c/code\u003e\u003c/pre\u003e\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\nWeb Components are the only native micro-frontend primitive. Teams can deploy independently, use different frameworks (or no framework), and compose via HTML.\n\u003c/p\u003e\n\n\u003chr class=\"post-hr\" /\u003e\n\n\u003ch2 class=\"post-h2\"\u003eAdoption \u0026amp; Ecosystem (2026)\u003c/h2\u003e\n\n\u003ch3 class=\"post-h3\"\u003eWho's Using Web Components in Production\u003c/h3\u003e\n\n\u003cp class=\"post-p\"\u003e\n| Company | Usage |\n|---------|-------|\n| \u003cstrong\u003eGitHub\u003c/strong\u003e | Custom Elements for interactive UI since 2018 (Catalyst library) |\n| \u003cstrong\u003eSalesforce\u003c/strong\u003e | Lightning Web Components — the entire platform UI |\n| \u003cstrong\u003eAdobe\u003c/strong\u003e | Spectrum Web Components — design system used across all products |\n| \u003cstrong\u003eSAP\u003c/strong\u003e | UI5 Web Components — enterprise design system |\n| \u003cstrong\u003eMicrosoft\u003c/strong\u003e | FAST components powering Fluent Design System, Edge browser UI |\n| \u003cstrong\u003eGoogle\u003c/strong\u003e | Material Web Components, YouTube, Google Earth, Photos |\n| \u003cstrong\u003eReddit\u003c/strong\u003e | New Reddit frontend built with Web Components |\n| \u003cstrong\u003eING Bank\u003c/strong\u003e | Lion Web Components — open-source design system |\n\u003c/p\u003e\n\n\u003ch3 class=\"post-h3\"\u003eEcosystem Libraries (2026)\u003c/h3\u003e\n\n\u003cul class=\"post-ul\"\u003e\u003cli class=\"post-li\"\u003e\u003cstrong\u003eLit 4.0\u003c/strong\u003e — Reactive base class with SSR, signals integration, zero-dependency\u003c/li\u003e\n\u003cli class=\"post-li\"\u003e\u003cstrong\u003eStencil 4\u003c/strong\u003e — Compile-time Web Components, React-style DX\u003c/li\u003e\n\u003cli class=\"post-li\"\u003e\u003cstrong\u003eFAST 3.0\u003c/strong\u003e — Microsoft's component library + design tokens system\u003c/li\u003e\n\u003cli class=\"post-li\"\u003e\u003cstrong\u003eShoelace\u003c/strong\u003e — 70+ open-source components, framework-agnostic\u003c/li\u003e\n\u003cli class=\"post-li\"\u003e\u003cstrong\u003eEnhance\u003c/strong\u003e — SSR-first Web Components with progressive enhancement\u003c/li\u003e\n\u003cli class=\"post-li\"\u003e\u003cstrong\u003eRocket\u003c/strong\u003e — Static site generator built on Web Components\u003c/li\u003e\n\u003c/ul\u003e\n\u003chr class=\"post-hr\" /\u003e\n\n\u003ch2 class=\"post-h2\"\u003ePerformance Considerations\u003c/h2\u003e\n\n\u003ch3 class=\"post-h3\"\u003eMemory\u003c/h3\u003e\n\n\u003cp class=\"post-p\"\u003e\nEach shadow root is a \u003ccode class=\"inline-code\"\u003eDocumentFragment\u003c/code\u003e with its own style sheets and DOM tree. For hundreds of instances, prefer:\n\u003c/p\u003e\n\u003cul class=\"post-ul\"\u003e\u003cli class=\"post-li\"\u003eCSS custom properties over inline styles\u003c/li\u003e\n\u003cli class=\"post-li\"\u003eShared \u003ccode class=\"inline-code\"\u003e\u0026lt;template\u0026gt;\u003c/code\u003e elements instead of constructing DOM per instance\u003c/li\u003e\n\u003cli class=\"post-li\"\u003e\u003ccode class=\"inline-code\"\u003e::part()\u003c/code\u003e sparingly — each part creates an additional CSS scope\u003c/li\u003e\n\u003c/ul\u003e\n\u003ch3 class=\"post-h3\"\u003eParser-blocking\u003c/h3\u003e\n\n\u003cp class=\"post-p\"\u003e\nDeclarative Shadow DOM is parsed inline and doesn't block the outer parser. However, deeply nested shadow trees can affect parse time. For very deep trees (10+ nesting levels), consider flattening the component hierarchy.\n\u003c/p\u003e\n\n\u003ch3 class=\"post-h3\"\u003eLazy Registration\u003c/h3\u003e\n\n\u003cpre class=\"code-block\"\u003e\u003ccode class=\"language-js\"\u003e// Don't register everything upfront\n\u003cp class=\"post-p\"\u003e\n// Instead, register when the element first appears in the DOM\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\nconst observer = new MutationObserver((mutations) =\u0026amp;gt; {\nfor (const { addedNodes } of mutations) {\nfor (const node of addedNodes) {\nif (node.tagName === 'MY-LAZY-COMPONENT' \u0026amp;amp;\u0026amp;amp; !customElements.get('my-lazy-component')) {\nimport('./my-lazy-component.js').then((mod) =\u0026amp;gt; {\ncustomElements.define('my-lazy-component', mod.default);\n});\nobserver.disconnect(); // Registered — stop observing\n}\n}\n}\n});\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\nobserver.observe(document.body, { childList: true, subtree: true });\n\u003c/code\u003e\u003c/pre\u003e\n\u003c/p\u003e\n\n\u003chr class=\"post-hr\" /\u003e\n\n\u003ch2 class=\"post-h2\"\u003eCommon Pitfalls\u003c/h2\u003e\n\n\u003cul class=\"post-ul\"\u003e\u003cli class=\"post-li\"\u003e\u003cstrong\u003eForgetting \u003ccode class=\"inline-code\"\u003esuper()\u003c/code\u003e\u003c/strong\u003e in constructor → \u003ccode class=\"inline-code\"\u003eUncaught ReferenceError\u003c/code\u003e\u003c/li\u003e\n\u003cli class=\"post-li\"\u003e\u003cstrong\u003eMutating DOM in \u003ccode class=\"inline-code\"\u003econstructor\u003c/code\u003e\u003c/strong\u003e → \u003ccode class=\"inline-code\"\u003eUncaught DOMException\u003c/code\u003e (element not connected yet)\u003c/li\u003e\n\u003cli class=\"post-li\"\u003e\u003cstrong\u003eMissing \u003ccode class=\"inline-code\"\u003eobservedAttributes\u003c/code\u003e\u003c/strong\u003e → \u003ccode class=\"inline-code\"\u003eattributeChangedCallback\u003c/code\u003e silently never fires\u003c/li\u003e\n\u003cli class=\"post-li\"\u003e\u003cstrong\u003eString-only attributes\u003c/strong\u003e → passing \u003ccode class=\"inline-code\"\u003e{ foo: 'bar' }\u003c/code\u003e as an attribute serializes to \u003ccode class=\"inline-code\"\u003e[object Object]\u003c/code\u003e\u003c/li\u003e\n\u003cli class=\"post-li\"\u003e\u003cstrong\u003eOver-relying on Shadow DOM\u003c/strong\u003e → not every component needs encapsulation\u003c/li\u003e\n\u003cli class=\"post-li\"\u003e\u003cstrong\u003eIgnoring accessibility\u003c/strong\u003e → Shadow DOM doesn't hide elements from screen readers; use ARIA properly\u003c/li\u003e\n\u003cli class=\"post-li\"\u003e\u003cstrong\u003eForgetting to clean up\u003c/strong\u003e → event listeners and observers in \u003ccode class=\"inline-code\"\u003econnectedCallback\u003c/code\u003e must be removed in \u003ccode class=\"inline-code\"\u003edisconnectedCallback\u003c/code\u003e\u003c/li\u003e\n\u003cli class=\"post-li\"\u003e\u003cstrong\u003eStyling the host from inside\u003c/strong\u003e → use \u003ccode class=\"inline-code\"\u003e:host\u003c/code\u003e and \u003ccode class=\"inline-code\"\u003e:host(.variant)\u003c/code\u003e, not a wrapper div styled from inside\u003c/li\u003e\n\u003c/ul\u003e\n\u003chr class=\"post-hr\" /\u003e\n\n\u003ch2 class=\"post-h2\"\u003eWhen to Use Web Components vs. Framework Components\u003c/h2\u003e\n\n\u003cp class=\"post-p\"\u003e\n| Criterion | Web Components | Framework Components |\n|-----------|---------------|---------------------|\n| Framework independence | ✅ Must work everywhere | ❌ Tied to one framework |\n| Design system / component library | ✅ Ship once, use anywhere | ❌ Need separate packages |\n| SSR requirements | ✅ Declarative Shadow DOM | ✅ Framework SSR |\n| Team autonomy | ✅ Independent deploys | ⚠️ Shared framework version |\n| Bundle size constraints | ✅ Near-zero overhead | ❌ Framework runtime |\n| Complex state management | ⚠️ Roll your own | ✅ Framework primitives |\n| Rapid prototyping | ⚠️ More boilerplate | ✅ Framework tooling |\n\u003c/p\u003e\n\n\u003chr class=\"post-hr\" /\u003e\n\n\u003ch2 class=\"post-h2\"\u003eThe Bottom Line\u003c/h2\u003e\n\n\u003cp class=\"post-p\"\u003e\nWeb Components in 2026 are not a replacement for React or Vue. They're the right answer to a different question: \u003cstrong\u003ehow do you build UI that outlasts any framework?\u003c/strong\u003e\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\nFor design systems, component libraries, and cross-team UI — where the consumer might be any framework (or none) — Web Components are the only native answer. For application-specific UI with complex state management, your framework of choice is still the right tool.\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\nThe key insight: you can mix both. Use Web Components for your shared primitives. Use your framework for application logic. They compose naturally — because at the end of the day, they're all just HTML.\n\u003c/p\u003e\n\n\u003cpre class=\"code-block\"\u003e\u003ccode class=\"language-html\"\u003e\u0026amp;lt;!-- 2026: The year it all just works --\u0026amp;gt;\n\u003cp class=\"post-p\"\u003e\n\u0026amp;lt;design-system-theme color-scheme=\"dark\"\u0026amp;gt;\n\u0026amp;lt;react-dashboard\u0026amp;gt;\n\u0026amp;lt;ds-card\u0026amp;gt;\n\u0026amp;lt;vue-analytics-chart slot=\"widget\"\u0026amp;gt;\u0026amp;lt;/vue-analytics-chart\u0026amp;gt;\n\u0026amp;lt;/ds-card\u0026amp;gt;\n\u0026amp;lt;ds-data-table source=\"/api/users\"\u0026amp;gt;\u0026amp;lt;/ds-data-table\u0026amp;gt;\n\u0026amp;lt;/react-dashboard\u0026amp;gt;\n\u0026amp;lt;/design-system-theme\u0026amp;gt;\n\u003c/code\u003e\u003c/pre\u003e\n\u003c/p\u003e\n"])</script><script>self.__next_f.push([1,"6:T78f,\n        .blog-content .post-h1 { font-size: 1.75rem; font-weight: 700; color: #ffffff; margin-top: 2rem; margin-bottom: 1rem; }\n        .blog-content .post-h2 { font-size: 1.5rem; font-weight: 600; color: #f1f5f9; margin-top: 1.75rem; margin-bottom: 0.75rem; padding-bottom: 0.5rem; border-bottom: 1px solid #334155; }\n        .blog-content .post-h3 { font-size: 1.25rem; font-weight: 600; color: #e2e8f0; margin-top: 1.5rem; margin-bottom: 0.5rem; }\n        .blog-content .post-h4 { font-size: 1.1rem; font-weight: 600; color: #e2e8f0; margin-top: 1.25rem; margin-bottom: 0.5rem; }\n        .blog-content .post-p { color: #cbd5e1; line-height: 1.75; margin-bottom: 1rem; }\n        .blog-content .code-block { background: #0f172a; border: 1px solid #334155; border-radius: 0.5rem; padding: 1rem; overflow-x: auto; margin: 1rem 0; font-family: 'JetBrains Mono', monospace; font-size: 0.875rem; color: #e2e8f0; }\n        .blog-content .inline-code { background: #1e293b; color: #38bdf8; padding: 0.15rem 0.4rem; border-radius: 0.25rem; font-family: 'JetBrains Mono', monospace; font-size: 0.875em; }\n        .blog-content .post-link { color: #38bdf8; text-decoration: underline; transition: color 0.2s; }\n        .blog-content .post-link:hover { color: #7dd3fc; }\n        .blog-content .post-ul { list-style: disc; padding-left: 1.5rem; margin: 0.75rem 0; color: #cbd5e1; }\n        .blog-content .post-li { margin-bottom: 0.25rem; line-height: 1.6; }\n        .blog-content .post-blockquote { border-left: 3px solid #0ea5e9; padding: 0.5rem 1rem; margin: 1rem 0; background: rgba(14, 165, 233, 0.05); border-radius: 0 0.5rem 0.5rem 0; }\n        .blog-content .post-blockquote p { color: #94a3b8; font-style: italic; }\n        .blog-content .post-hr { border: none; border-top: 1px solid #334155; margin: 2rem 0; }\n        .blog-content strong { color: #f1f5f9; font-weight: 600; }\n        .blog-content em { font-style: italic; }\n        8:[\"slug\",\"web-components-2026-guide\",\"d\"]\nf:[]\n"])</script><script>self.__next_f.push([1,"0:[\"$\",\"$L2\",null,{\"buildId\":\"wLkx3_e9eF0HmBHirJWLm\",\"assetPrefix\":\"/devbench-tech\",\"urlParts\":[\"\",\"blog\",\"web-components-2026-guide\",\"\"],\"initialTree\":[\"\",{\"children\":[\"blog\",{\"children\":[[\"slug\",\"web-components-2026-guide\",\"d\"],{\"children\":[\"__PAGE__?{\\\"slug\\\":\\\"web-components-2026-guide\\\"}\",{}]}]}]},\"$undefined\",\"$undefined\",true],\"initialSeedData\":[\"\",{\"children\":[\"blog\",{\"children\":[[\"slug\",\"web-components-2026-guide\",\"d\"],{\"children\":[\"__PAGE__\",{},[[\"$L3\",[\"$\",\"article\",null,{\"className\":\"max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-20\",\"children\":[[\"$\",\"script\",null,{\"type\":\"application/ld+json\",\"dangerouslySetInnerHTML\":{\"__html\":\"{\\\"@context\\\":\\\"https://schema.org\\\",\\\"@type\\\":\\\"Article\\\",\\\"headline\\\":\\\"Web Components in 2026 — Custom Elements, Shadow DOM, and the Framework-Agnostic Future\\\",\\\"description\\\":\\\"Web Components are having their moment. With Declarative Shadow DOM shipping everywhere, CSS Parts maturing, and every major framework supporting them natively, 2026 is the year framework-agnostic reusable UI goes mainstream. This guide covers Custom Elements, Shadow DOM, templates, slots, SSR, framework interop, and production patterns you can ship today.\\\",\\\"datePublished\\\":\\\"2026-05-29\\\",\\\"author\\\":{\\\"@type\\\":\\\"Organization\\\",\\\"name\\\":\\\"DevBench\\\"},\\\"publisher\\\":{\\\"@type\\\":\\\"Organization\\\",\\\"name\\\":\\\"DevBench\\\",\\\"url\\\":\\\"https://devbench-roan.vercel.app\\\"}}\"}}],[\"$\",\"script\",null,{\"type\":\"application/ld+json\",\"dangerouslySetInnerHTML\":{\"__html\":\"{\\\"@context\\\":\\\"https://schema.org\\\",\\\"@type\\\":\\\"BreadcrumbList\\\",\\\"itemListElement\\\":[{\\\"@type\\\":\\\"ListItem\\\",\\\"position\\\":1,\\\"name\\\":\\\"Home\\\",\\\"item\\\":\\\"https://devbench-roan.vercel.app\\\"},{\\\"@type\\\":\\\"ListItem\\\",\\\"position\\\":2,\\\"name\\\":\\\"Blog\\\",\\\"item\\\":\\\"https://devbench-roan.vercel.app/blog\\\"},{\\\"@type\\\":\\\"ListItem\\\",\\\"position\\\":3,\\\"name\\\":\\\"Web Components in 2026 — Custom Elements, Shadow DOM, and the Framework-Agnostic Future\\\"}]}\"}}],[\"$\",\"$L4\",null,{\"href\":\"/blog\",\"className\":\"inline-flex items-center gap-1.5 text-slate-400 hover:text-brand-400 text-sm transition-colors mb-8\",\"children\":[[\"$\",\"svg\",null,{\"xmlns\":\"http://www.w3.org/2000/svg\",\"width\":24,\"height\":24,\"viewBox\":\"0 0 24 24\",\"fill\":\"none\",\"stroke\":\"currentColor\",\"strokeWidth\":2,\"strokeLinecap\":\"round\",\"strokeLinejoin\":\"round\",\"className\":\"lucide lucide-arrow-left w-4 h-4\",\"children\":[[\"$\",\"path\",\"1l729n\",{\"d\":\"m12 19-7-7 7-7\"}],[\"$\",\"path\",\"x3x0zl\",{\"d\":\"M19 12H5\"}],\"$undefined\"]}],\"Back to Blog\"]}],[\"$\",\"header\",null,{\"className\":\"mb-10\",\"children\":[[\"$\",\"h1\",null,{\"className\":\"text-3xl sm:text-4xl font-bold text-white leading-tight mb-4\",\"children\":\"Web Components in 2026 — Custom Elements, Shadow DOM, and the Framework-Agnostic Future\"}],[\"$\",\"div\",null,{\"className\":\"flex flex-wrap items-center gap-4 text-sm text-slate-400\",\"children\":[[\"$\",\"span\",null,{\"className\":\"flex items-center gap-1.5\",\"children\":[[\"$\",\"svg\",null,{\"xmlns\":\"http://www.w3.org/2000/svg\",\"width\":24,\"height\":24,\"viewBox\":\"0 0 24 24\",\"fill\":\"none\",\"stroke\":\"currentColor\",\"strokeWidth\":2,\"strokeLinecap\":\"round\",\"strokeLinejoin\":\"round\",\"className\":\"lucide lucide-calendar w-4 h-4\",\"children\":[[\"$\",\"rect\",\"eu3xkr\",{\"width\":\"18\",\"height\":\"18\",\"x\":\"3\",\"y\":\"4\",\"rx\":\"2\",\"ry\":\"2\"}],[\"$\",\"line\",\"m3sa8f\",{\"x1\":\"16\",\"x2\":\"16\",\"y1\":\"2\",\"y2\":\"6\"}],[\"$\",\"line\",\"18kwsl\",{\"x1\":\"8\",\"x2\":\"8\",\"y1\":\"2\",\"y2\":\"6\"}],[\"$\",\"line\",\"xt86sb\",{\"x1\":\"3\",\"x2\":\"21\",\"y1\":\"10\",\"y2\":\"10\"}],\"$undefined\"]}],\"2026-05-29\"]}],[\"$\",\"div\",null,{\"className\":\"flex flex-wrap gap-1.5\",\"children\":[[\"$\",\"span\",\"[\\\"Web Components\\\"\",{\"className\":\"badge-secondary flex items-center gap-1\",\"children\":[[\"$\",\"svg\",null,{\"xmlns\":\"http://www.w3.org/2000/svg\",\"width\":24,\"height\":24,\"viewBox\":\"0 0 24 24\",\"fill\":\"none\",\"stroke\":\"currentColor\",\"strokeWidth\":2,\"strokeLinecap\":\"round\",\"strokeLinejoin\":\"round\",\"className\":\"lucide lucide-tag w-3 h-3\",\"children\":[[\"$\",\"path\",\"14b2ls\",{\"d\":\"M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z\"}],[\"$\",\"path\",\"7u93v4\",{\"d\":\"M7 7h.01\"}],\"$undefined\"]}],\"[\\\"Web Components\\\"\"]}],[\"$\",\"span\",\"\\\"Custom Elements\\\"\",{\"className\":\"badge-secondary flex items-center gap-1\",\"children\":[[\"$\",\"svg\",null,{\"xmlns\":\"http://www.w3.org/2000/svg\",\"width\":24,\"height\":24,\"viewBox\":\"0 0 24 24\",\"fill\":\"none\",\"stroke\":\"currentColor\",\"strokeWidth\":2,\"strokeLinecap\":\"round\",\"strokeLinejoin\":\"round\",\"className\":\"lucide lucide-tag w-3 h-3\",\"children\":[[\"$\",\"path\",\"14b2ls\",{\"d\":\"M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z\"}],[\"$\",\"path\",\"7u93v4\",{\"d\":\"M7 7h.01\"}],\"$undefined\"]}],\"\\\"Custom Elements\\\"\"]}],[\"$\",\"span\",\"\\\"Shadow DOM\\\"\",{\"className\":\"badge-secondary flex items-center gap-1\",\"children\":[[\"$\",\"svg\",null,{\"xmlns\":\"http://www.w3.org/2000/svg\",\"width\":24,\"height\":24,\"viewBox\":\"0 0 24 24\",\"fill\":\"none\",\"stroke\":\"currentColor\",\"strokeWidth\":2,\"strokeLinecap\":\"round\",\"strokeLinejoin\":\"round\",\"className\":\"lucide lucide-tag w-3 h-3\",\"children\":[[\"$\",\"path\",\"14b2ls\",{\"d\":\"M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z\"}],[\"$\",\"path\",\"7u93v4\",{\"d\":\"M7 7h.01\"}],\"$undefined\"]}],\"\\\"Shadow DOM\\\"\"]}],[\"$\",\"span\",\"\\\"HTML Templates\\\"\",{\"className\":\"badge-secondary flex items-center gap-1\",\"children\":[[\"$\",\"svg\",null,{\"xmlns\":\"http://www.w3.org/2000/svg\",\"width\":24,\"height\":24,\"viewBox\":\"0 0 24 24\",\"fill\":\"none\",\"stroke\":\"currentColor\",\"strokeWidth\":2,\"strokeLinecap\":\"round\",\"strokeLinejoin\":\"round\",\"className\":\"lucide lucide-tag w-3 h-3\",\"children\":[[\"$\",\"path\",\"14b2ls\",{\"d\":\"M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z\"}],[\"$\",\"path\",\"7u93v4\",{\"d\":\"M7 7h.01\"}],\"$undefined\"]}],\"\\\"HTML Templates\\\"\"]}],[\"$\",\"span\",\"\\\"JavaScript\\\"\",{\"className\":\"badge-secondary flex items-center gap-1\",\"children\":[[\"$\",\"svg\",null,{\"xmlns\":\"http://www.w3.org/2000/svg\",\"width\":24,\"height\":24,\"viewBox\":\"0 0 24 24\",\"fill\":\"none\",\"stroke\":\"currentColor\",\"strokeWidth\":2,\"strokeLinecap\":\"round\",\"strokeLinejoin\":\"round\",\"className\":\"lucide lucide-tag w-3 h-3\",\"children\":[[\"$\",\"path\",\"14b2ls\",{\"d\":\"M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z\"}],[\"$\",\"path\",\"7u93v4\",{\"d\":\"M7 7h.01\"}],\"$undefined\"]}],\"\\\"JavaScript\\\"\"]}],[\"$\",\"span\",\"\\\"CSS Parts\\\"\",{\"className\":\"badge-secondary flex items-center gap-1\",\"children\":[[\"$\",\"svg\",null,{\"xmlns\":\"http://www.w3.org/2000/svg\",\"width\":24,\"height\":24,\"viewBox\":\"0 0 24 24\",\"fill\":\"none\",\"stroke\":\"currentColor\",\"strokeWidth\":2,\"strokeLinecap\":\"round\",\"strokeLinejoin\":\"round\",\"className\":\"lucide lucide-tag w-3 h-3\",\"children\":[[\"$\",\"path\",\"14b2ls\",{\"d\":\"M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z\"}],[\"$\",\"path\",\"7u93v4\",{\"d\":\"M7 7h.01\"}],\"$undefined\"]}],\"\\\"CSS Parts\\\"\"]}],[\"$\",\"span\",\"\\\"Declarative Shadow DOM\\\"\",{\"className\":\"badge-secondary flex items-center gap-1\",\"children\":[[\"$\",\"svg\",null,{\"xmlns\":\"http://www.w3.org/2000/svg\",\"width\":24,\"height\":24,\"viewBox\":\"0 0 24 24\",\"fill\":\"none\",\"stroke\":\"currentColor\",\"strokeWidth\":2,\"strokeLinecap\":\"round\",\"strokeLinejoin\":\"round\",\"className\":\"lucide lucide-tag w-3 h-3\",\"children\":[[\"$\",\"path\",\"14b2ls\",{\"d\":\"M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z\"}],[\"$\",\"path\",\"7u93v4\",{\"d\":\"M7 7h.01\"}],\"$undefined\"]}],\"\\\"Declarative Shadow DOM\\\"\"]}],[\"$\",\"span\",\"\\\"2026\\\"\",{\"className\":\"badge-secondary flex items-center gap-1\",\"children\":[[\"$\",\"svg\",null,{\"xmlns\":\"http://www.w3.org/2000/svg\",\"width\":24,\"height\":24,\"viewBox\":\"0 0 24 24\",\"fill\":\"none\",\"stroke\":\"currentColor\",\"strokeWidth\":2,\"strokeLinecap\":\"round\",\"strokeLinejoin\":\"round\",\"className\":\"lucide lucide-tag w-3 h-3\",\"children\":[[\"$\",\"path\",\"14b2ls\",{\"d\":\"M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z\"}],[\"$\",\"path\",\"7u93v4\",{\"d\":\"M7 7h.01\"}],\"$undefined\"]}],\"\\\"2026\\\"\"]}],[\"$\",\"span\",\"\\\"Architecture\\\"]\",{\"className\":\"badge-secondary flex items-center gap-1\",\"children\":[[\"$\",\"svg\",null,{\"xmlns\":\"http://www.w3.org/2000/svg\",\"width\":24,\"height\":24,\"viewBox\":\"0 0 24 24\",\"fill\":\"none\",\"stroke\":\"currentColor\",\"strokeWidth\":2,\"strokeLinecap\":\"round\",\"strokeLinejoin\":\"round\",\"className\":\"lucide lucide-tag w-3 h-3\",\"children\":[[\"$\",\"path\",\"14b2ls\",{\"d\":\"M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z\"}],[\"$\",\"path\",\"7u93v4\",{\"d\":\"M7 7h.01\"}],\"$undefined\"]}],\"\\\"Architecture\\\"]\"]}]]}]]}]]}],[\"$\",\"div\",null,{\"className\":\"blog-content prose-p:text-slate-300 prose-p:leading-relaxed prose-p:mb-4\",\"dangerouslySetInnerHTML\":{\"__html\":\"$5\"}}],[\"$\",\"style\",null,{\"dangerouslySetInnerHTML\":{\"__html\":\"$6\"}}]]}],null],null],null]},[null,[\"$\",\"$L7\",null,{\"parallelRouterKey\":\"children\",\"segmentPath\":[\"children\",\"blog\",\"children\",\"$8\",\"children\"],\"error\":\"$undefined\",\"errorStyles\":\"$undefined\",\"errorScripts\":\"$undefined\",\"template\":[\"$\",\"$L9\",null,{}],\"templateStyles\":\"$undefined\",\"templateScripts\":\"$undefined\",\"notFound\":\"$undefined\",\"notFoundStyles\":\"$undefined\"}]],null]},[null,[\"$\",\"$L7\",null,{\"parallelRouterKey\":\"children\",\"segmentPath\":[\"children\",\"blog\",\"children\"],\"error\":\"$undefined\",\"errorStyles\":\"$undefined\",\"errorScripts\":\"$undefined\",\"template\":[\"$\",\"$L9\",null,{}],\"templateStyles\":\"$undefined\",\"templateScripts\":\"$undefined\",\"notFound\":\"$undefined\",\"notFoundStyles\":\"$undefined\"}]],null]},[[[[\"$\",\"link\",\"0\",{\"rel\":\"stylesheet\",\"href\":\"/devbench-tech/_next/static/css/c877e59dbcb00f11.css\",\"precedence\":\"next\",\"crossOrigin\":\"$undefined\"}]],[\"$\",\"html\",null,{\"lang\":\"en\",\"className\":\"dark\",\"children\":[\"$\",\"body\",null,{\"className\":\"flex flex-col min-h-screen\",\"children\":[[\"$\",\"script\",null,{\"type\":\"application/ld+json\",\"dangerouslySetInnerHTML\":{\"__html\":\"{\\\"@context\\\":\\\"https://schema.org\\\",\\\"@type\\\":\\\"WebSite\\\",\\\"name\\\":\\\"DevBench\\\",\\\"url\\\":\\\"https://devbench-roan.vercel.app\\\",\\\"description\\\":\\\"Free developer tools for everyday use: JSON formatter, Base64 encoder/decoder, UUID generator, regex tester, benchmarks, and more.\\\",\\\"potentialAction\\\":{\\\"@type\\\":\\\"SearchAction\\\",\\\"target\\\":\\\"https://devbench-roan.vercel.app/tools?q={search_term_string}\\\",\\\"query-input\\\":\\\"required name=search_term_string\\\"}}\"}}],[\"$\",\"$La\",null,{}],[\"$\",\"main\",null,{\"className\":\"flex-1\",\"children\":[\"$\",\"$L7\",null,{\"parallelRouterKey\":\"children\",\"segmentPath\":[\"children\"],\"error\":\"$undefined\",\"errorStyles\":\"$undefined\",\"errorScripts\":\"$undefined\",\"template\":[\"$\",\"$L9\",null,{}],\"templateStyles\":\"$undefined\",\"templateScripts\":\"$undefined\",\"notFound\":[[\"$\",\"title\",null,{\"children\":\"404: This page could not be found.\"}],[\"$\",\"div\",null,{\"style\":{\"fontFamily\":\"system-ui,\\\"Segoe UI\\\",Roboto,Helvetica,Arial,sans-serif,\\\"Apple Color Emoji\\\",\\\"Segoe UI Emoji\\\"\",\"height\":\"100vh\",\"textAlign\":\"center\",\"display\":\"flex\",\"flexDirection\":\"column\",\"alignItems\":\"center\",\"justifyContent\":\"center\"},\"children\":[\"$\",\"div\",null,{\"children\":[[\"$\",\"style\",null,{\"dangerouslySetInnerHTML\":{\"__html\":\"body{color:#000;background:#fff;margin:0}.next-error-h1{border-right:1px solid rgba(0,0,0,.3)}@media (prefers-color-scheme:dark){body{color:#fff;background:#000}.next-error-h1{border-right:1px solid rgba(255,255,255,.3)}}\"}}],[\"$\",\"h1\",null,{\"className\":\"next-error-h1\",\"style\":{\"display\":\"inline-block\",\"margin\":\"0 20px 0 0\",\"padding\":\"0 23px 0 0\",\"fontSize\":24,\"fontWeight\":500,\"verticalAlign\":\"top\",\"lineHeight\":\"49px\"},\"children\":\"404\"}],[\"$\",\"div\",null,{\"style\":{\"display\":\"inline-block\"},\"children\":[\"$\",\"h2\",null,{\"style\":{\"fontSize\":14,\"fontWeight\":400,\"lineHeight\":\"49px\",\"margin\":0},\"children\":\"This page could not be found.\"}]}]]}]}]],\"notFoundStyles\":[]}]}],[\"$\",\"footer\",null,{\"className\":\"bg-surface-light border-t border-slate-700/50 mt-auto\",\"children\":[\"$\",\"div\",null,{\"className\":\"max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12\",\"children\":[[\"$\",\"div\",null,{\"className\":\"grid grid-cols-1 md:grid-cols-3 gap-8\",\"children\":[[\"$\",\"div\",null,{\"children\":[[\"$\",\"$L4\",null,{\"href\":\"/\",\"className\":\"flex items-center gap-2.5 mb-3\",\"children\":[[\"$\",\"div\",null,{\"className\":\"w-7 h-7 bg-brand-500 rounded-lg flex items-center justify-center\",\"children\":[\"$\",\"svg\",null,{\"xmlns\":\"http://www.w3.org/2000/svg\",\"width\":24,\"height\":24,\"viewBox\":\"0 0 24 24\",\"fill\":\"none\",\"stroke\":\"currentColor\",\"strokeWidth\":2,\"strokeLinecap\":\"round\",\"strokeLinejoin\":\"round\",\"className\":\"lucide lucide-terminal w-3.5 h-3.5 text-white\",\"children\":[[\"$\",\"polyline\",\"akl6gq\",{\"points\":\"4 17 10 11 4 5\"}],[\"$\",\"line\",\"q2wloq\",{\"x1\":\"12\",\"x2\":\"20\",\"y1\":\"19\",\"y2\":\"19\"}],\"$undefined\"]}]}],[\"$\",\"span\",null,{\"className\":\"text-lg font-bold text-white\",\"children\":[\"Dev\",[\"$\",\"span\",null,{\"className\":\"gradient-text\",\"children\":\"Bench\"}]]}]]}],[\"$\",\"p\",null,{\"className\":\"text-slate-400 text-sm leading-relaxed\",\"children\":\"Free developer tools, benchmarks, and calculators. Built for developers, by developers.\"}]]}],[\"$\",\"div\",null,{\"children\":[[\"$\",\"h3\",null,{\"className\":\"text-sm font-semibold text-slate-300 uppercase tracking-wider mb-4\",\"children\":\"Tools\"}],[\"$\",\"ul\",null,{\"className\":\"space-y-2\",\"children\":[[\"$\",\"li\",\"/tools/json-formatter\",{\"children\":[\"$\",\"$L4\",null,{\"href\":\"/tools/json-formatter\",\"className\":\"text-slate-400 hover:text-brand-400 text-sm transition-colors\",\"children\":\"JSON Formatter\"}]}],[\"$\",\"li\",\"/tools/base64\",{\"children\":[\"$\",\"$L4\",null,{\"href\":\"/tools/base64\",\"className\":\"text-slate-400 hover:text-brand-400 text-sm transition-colors\",\"children\":\"Base64 Encoder/Decoder\"}]}],[\"$\",\"li\",\"/tools/uuid-generator\",{\"children\":[\"$\",\"$L4\",null,{\"href\":\"/tools/uuid-generator\",\"className\":\"text-slate-400 hover:text-brand-400 text-sm transition-colors\",\"children\":\"UUID Generator\"}]}],[\"$\",\"li\",\"/tools/regex-tester\",{\"children\":[\"$\",\"$L4\",null,{\"href\":\"/tools/regex-tester\",\"className\":\"text-slate-400 hover:text-brand-400 text-sm transition-colors\",\"children\":\"Regex Tester\"}]}]]}]]}],[\"$\",\"div\",null,{\"children\":[[\"$\",\"h3\",null,{\"className\":\"text-sm font-semibold text-slate-300 uppercase tracking-wider mb-4\",\"children\":\"Resources\"}],[\"$\",\"ul\",null,{\"className\":\"space-y-2\",\"children\":[[\"$\",\"li\",\"/blog\",{\"children\":[\"$\",\"$L4\",null,{\"href\":\"/blog\",\"className\":\"text-slate-400 hover:text-brand-400 text-sm transition-colors\",\"children\":\"Blog\"}]}],[\"$\",\"li\",\"/benchmarks\",{\"children\":[\"$\",\"$L4\",null,{\"href\":\"/benchmarks\",\"className\":\"text-slate-400 hover:text-brand-400 text-sm transition-colors\",\"children\":\"Benchmarks\"}]}],[\"$\",\"li\",\"/about\",{\"children\":[\"$\",\"$L4\",null,{\"href\":\"/about\",\"className\":\"text-slate-400 hover:text-brand-400 text-sm transition-colors\",\"children\":\"About\"}]}]]}]]}]]}],[\"$\",\"div\",null,{\"className\":\"mt-10 pt-6 border-t border-slate-700/50 flex flex-col sm:flex-row items-center justify-between gap-4\",\"children\":[[\"$\",\"p\",null,{\"className\":\"text-slate-500 text-sm flex items-center gap-1\",\"children\":[\"Made with \",[\"$\",\"svg\",null,{\"xmlns\":\"http://www.w3.org/2000/svg\",\"width\":24,\"height\":24,\"viewBox\":\"0 0 24 24\",\"fill\":\"none\",\"stroke\":\"currentColor\",\"strokeWidth\":2,\"strokeLinecap\":\"round\",\"strokeLinejoin\":\"round\",\"className\":\"lucide lucide-heart w-3.5 h-3.5 text-red-500 fill-red-500\",\"children\":[[\"$\",\"path\",\"c3ymky\",{\"d\":\"M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z\"}],\"$undefined\"]}],\" by the DevBench team © \",2026]}],[\"$\",\"a\",null,{\"href\":\"https://github.com\",\"target\":\"_blank\",\"rel\":\"noopener noreferrer\",\"className\":\"text-slate-500 hover:text-slate-300 transition-colors\",\"aria-label\":\"GitHub\",\"children\":[\"$\",\"svg\",null,{\"xmlns\":\"http://www.w3.org/2000/svg\",\"width\":24,\"height\":24,\"viewBox\":\"0 0 24 24\",\"fill\":\"none\",\"stroke\":\"currentColor\",\"strokeWidth\":2,\"strokeLinecap\":\"round\",\"strokeLinejoin\":\"round\",\"className\":\"lucide lucide-github w-5 h-5\",\"children\":[[\"$\",\"path\",\"tonef\",{\"d\":\"M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4\"}],[\"$\",\"path\",\"9comsn\",{\"d\":\"M9 18c-4.51 2-5-2-7-2\"}],\"$undefined\"]}]}]]}]]}]}],[\"$\",\"$Lb\",null,{}],[\"$\",\"$Lc\",null,{\"position\":\"bottom-right\",\"toastOptions\":{\"style\":{\"background\":\"#1e293b\",\"color\":\"#e2e8f0\",\"border\":\"1px solid #334155\",\"fontSize\":\"14px\"}}}]]}]}]],null],null],\"couldBeIntercepted\":false,\"initialHead\":[null,\"$Ld\"],\"globalErrorComponent\":\"$e\",\"missingSlots\":\"$Wf\"}]\n"])</script><script>self.__next_f.push([1,"d:[[\"$\",\"meta\",\"0\",{\"name\":\"viewport\",\"content\":\"width=device-width, initial-scale=1\"}],[\"$\",\"meta\",\"1\",{\"charSet\":\"utf-8\"}],[\"$\",\"title\",\"2\",{\"children\":\"Web Components in 2026 — Custom Elements, Shadow DOM, and the Framework-Agnostic Future | DevBench\"}],[\"$\",\"meta\",\"3\",{\"name\":\"description\",\"content\":\"Web Components are having their moment. With Declarative Shadow DOM shipping everywhere, CSS Parts maturing, and every major framework supporting them natively, 2026 is the year framework-agnostic reusable UI goes mainstream. This guide covers Custom Elements, Shadow DOM, templates, slots, SSR, framework interop, and production patterns you can ship today.\"}],[\"$\",\"meta\",\"4\",{\"name\":\"author\",\"content\":\"DevBench\"}],[\"$\",\"meta\",\"5\",{\"name\":\"keywords\",\"content\":\"developer tools,JSON formatter,Base64,UUID generator,regex tester,benchmarks,dev tools\"}],[\"$\",\"meta\",\"6\",{\"property\":\"og:title\",\"content\":\"DevBench — Developer Tools \u0026 Calculators\"}],[\"$\",\"meta\",\"7\",{\"property\":\"og:description\",\"content\":\"Free developer tools for everyday use.\"}],[\"$\",\"meta\",\"8\",{\"property\":\"og:site_name\",\"content\":\"DevBench\"}],[\"$\",\"meta\",\"9\",{\"property\":\"og:locale\",\"content\":\"en_US\"}],[\"$\",\"meta\",\"10\",{\"property\":\"og:type\",\"content\":\"website\"}],[\"$\",\"meta\",\"11\",{\"name\":\"twitter:card\",\"content\":\"summary\"}],[\"$\",\"meta\",\"12\",{\"name\":\"twitter:title\",\"content\":\"DevBench — Developer Tools \u0026 Calculators\"}],[\"$\",\"meta\",\"13\",{\"name\":\"twitter:description\",\"content\":\"Free developer tools for everyday use.\"}],[\"$\",\"link\",\"14\",{\"rel\":\"icon\",\"href\":\"/favicon.svg\"}]]\n3:null\n"])</script></body></html>

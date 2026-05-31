@@ -1,0 +1,468 @@
+2:I[72972,["2972","static/chunks/2972-4aaa15d119eeb022.js","308","static/chunks/app/blog/%5Bslug%5D/page-a411190e7012c687.js"],""]
+5:I[4707,[],""]
+7:I[36423,[],""]
+8:I[39295,["9762","static/chunks/44530001-4ecf7a22b5b24163.js","2972","static/chunks/2972-4aaa15d119eeb022.js","8375","static/chunks/8375-c77b8de36f6696fb.js","6829","static/chunks/6829-f51803445ddf1872.js","3185","static/chunks/app/layout-488e5c40aa6ffa72.js"],"Header"]
+9:I[66506,["9762","static/chunks/44530001-4ecf7a22b5b24163.js","2972","static/chunks/2972-4aaa15d119eeb022.js","8375","static/chunks/8375-c77b8de36f6696fb.js","6829","static/chunks/6829-f51803445ddf1872.js","3185","static/chunks/app/layout-488e5c40aa6ffa72.js"],"Analytics"]
+a:I[69064,["9762","static/chunks/44530001-4ecf7a22b5b24163.js","2972","static/chunks/2972-4aaa15d119eeb022.js","8375","static/chunks/8375-c77b8de36f6696fb.js","6829","static/chunks/6829-f51803445ddf1872.js","3185","static/chunks/app/layout-488e5c40aa6ffa72.js"],"Toaster"]
+3:T36e5,
+<p class="post-p">
+The View Transitions API is one of the most transformative additions to the web platform in years. It lets you animate between two DOM states — or between two entirely different pages — with <strong>zero JavaScript</strong>.
+</p>
+
+<p class="post-p">
+As of May 2026, it's Baseline. Chrome 125+, Safari 26+, and Firefox 147+ all ship it. That means you can use it in production today.
+</p>
+
+<h2 class="post-h2">The One-Line Magic</h2>
+
+<p class="post-p">
+For multi-page applications (MPA), enabling page-level crossfades is literally one line:
+</p>
+
+<pre class="code-block"><code class="language-css">@view-transition {
+<p class="post-p">
+navigation: auto;
+}
+</code></pre>
+</p>
+
+<p class="post-p">
+Add that to your global stylesheet, and every same-origin page navigation gets a smooth crossfade. No JavaScript. No SPA framework. Just the browser handling it natively.
+</p>
+
+<h2 class="post-h2">How It Actually Works</h2>
+
+<p class="post-p">
+When a view transition triggers, the browser:
+</p>
+
+<ul class="post-ul"><li class="post-li"><strong>Captures</strong> a screenshot of the old page state</li>
+<li class="post-li"><strong>Renders</strong> the new page offscreen</li>
+<li class="post-li"><strong>Captures</strong> a screenshot of the new page state</li>
+<li class="post-li"><strong>Animates</strong> the old snapshot fading out while the new snapshot fades in using a <code class="inline-code">::view-transition-group</code> pseudo-element tree</li>
+</ul>
+<p class="post-p">
+You can see and manipulate these pseudo-elements:
+</p>
+
+<pre class="code-block"><code class="language-css">::view-transition-old(root) {
+<p class="post-p">
+animation: fade-out 0.3s ease-out;
+}
+</p>
+
+<p class="post-p">
+::view-transition-new(root) {
+animation: fade-in 0.5s ease-in;
+}
+</p>
+
+<p class="post-p">
+@keyframes fade-out {
+to { opacity: 0; }
+}
+</p>
+
+<p class="post-p">
+@keyframes fade-in {
+from { opacity: 0; }
+}
+</code></pre>
+</p>
+
+<h2 class="post-h2">Named Elements: The Real Power</h2>
+
+<p class="post-p">
+Crossfading the entire page is nice, but the magic happens with <strong>named transitions</strong>. By assigning <code class="inline-code">view-transition-name</code> to specific elements, the browser morphs them between pages:
+</p>
+
+<pre class="code-block"><code class="language-css">/<em> On both pages, the product image gets a unique name </em>/
+<p class="post-p">
+.product-hero-image {
+view-transition-name: hero-image;
+}
+</p>
+
+<p class="post-p">
+.product-title {
+view-transition-name: hero-title;
+}
+</code></pre>
+</p>
+
+<p class="post-p">
+When navigating from a product list to a detail page, the browser will:
+</p>
+
+<ul class="post-ul"><li class="post-li">Morph the thumbnail into the full-size image (same <code class="inline-code">view-transition-name</code>)</li>
+<li class="post-li">Animate the title text position from the card to the heading</li>
+<li class="post-li">Crossfade everything else</li>
+</ul>
+<p class="post-p">
+This creates an effect similar to what used to require complex JavaScript animation libraries — but now it's declarative CSS.
+</p>
+
+<h3 class="post-h3">The Critical Rule</h3>
+
+<p class="post-p">
+<code class="inline-code">view-transition-name</code> values <strong>must be unique per page</strong>. If two elements on the same page share a name, the transition breaks. A common pattern:
+</p>
+
+<pre class="code-block"><code class="language-css">.product-card:first-child .product-image {
+<p class="post-p">
+view-transition-name: hero-image;
+}
+</code></pre>
+</p>
+
+<p class="post-p">
+Only the first product card's image participates in the transition.
+</p>
+
+<h2 class="post-h2">SPA Transitions Without a Router</h2>
+
+<p class="post-p">
+If you're using a client-side framework, you don't need <code class="inline-code">@view-transition</code>. Instead, call <code class="inline-code">document.startViewTransition()</code>:
+</p>
+
+<pre class="code-block"><code class="language-javascript">function navigateToCart() {
+<p class="post-p">
+document.startViewTransition(() =&amp;gt; {
+// Update the DOM — React state change, innerHTML, whatever
+updateCartView();
+});
+}
+</code></pre>
+</p>
+
+<p class="post-p">
+The callback receives the old DOM state automatically. The browser captures a snapshot, runs your callback, captures the new state, and animates between them.
+</p>
+
+<h3 class="post-h3">Handling Async State</h3>
+
+<p class="post-p">
+For transitions that depend on async data:
+</p>
+
+<pre class="code-block"><code class="language-javascript">document.startViewTransition(async () =&amp;gt; {
+<p class="post-p">
+// Fetch data first
+const products = await fetch('/api/products').then(r =&amp;gt; r.json());
+</p>
+
+<p class="post-p">
+// Then update the DOM
+renderProducts(products);
+</p>
+
+<p class="post-p">
+// The transition snapshot is captured AFTER the promise resolves
+});
+</code></pre>
+</p>
+
+<p class="post-p">
+The transition doesn't start until your callback's promise resolves. This means no flash of loading state — the browser waits.
+</p>
+
+<h2 class="post-h2">Types of Transitions</h2>
+
+<p class="post-p">
+The API supports several animation types out of the box:
+</p>
+
+<p class="post-p">
+| Type | What it does | Example use case |
+|------|-------------|------------------|
+| <strong>Default crossfade</strong> | Old fades out, new fades in | Page navigation |
+| <strong>Morph</strong> | Element transforms between sizes/positions | Image gallery, product cards |
+| <strong>Slide</strong> | Element slides in from a direction | Navigation drawers |
+| <strong>Scale</strong> | Element scales up or down | Modal dialogs |
+| <strong>Custom</strong> | Full control via CSS animations | Anything you can imagine |
+</p>
+
+<h3 class="post-h3">Morph Example: Expanding Card</h3>
+
+<pre class="code-block"><code class="language-css">.card-image {
+<p class="post-p">
+view-transition-name: card-img;
+}
+</p>
+
+<p class="post-p">
+.card-title {
+view-transition-name: card-title;
+}
+</code></pre>
+</p>
+
+<p class="post-p">
+On the list page, <code class="inline-code">.card-image</code> is 200px; on the detail page, it's 600px. The browser interpolates between both sizes and positions — no manual calculation needed.
+</p>
+
+<h2 class="post-h2">Handling the "Old" State</h2>
+
+<p class="post-p">
+Sometimes you want the outgoing page to look different during the transition:
+</p>
+
+<pre class="code-block"><code class="language-css">/<em> While transitioning out, dim the old page </em>/
+<p class="post-p">
+html.transitioning-out {
+filter: brightness(0.8);
+}
+</code></pre>
+</p>
+
+<p class="post-p">
+You can detect transitions in JavaScript:
+</p>
+
+<pre class="code-block"><code class="language-javascript">document.addEventListener('pageswap', (e) =&amp;gt; {
+<p class="post-p">
+// About to navigate away — the old page still exists
+document.documentElement.classList.add('transitioning-out');
+});
+</p>
+
+<p class="post-p">
+document.addEventListener('pagereveal', (e) =&amp;gt; {
+// Arrived on the new page — transition is complete
+document.documentElement.classList.remove('transitioning-in');
+});
+</code></pre>
+</p>
+
+<h2 class="post-h2">Performance Considerations</h2>
+
+<p class="post-p">
+View Transitions are GPU-accelerated. The browser:
+</p>
+
+<ul class="post-ul"><li class="post-li">Renders snapshots as textures on the compositor thread</li>
+<li class="post-li">Animates them without touching the main thread</li>
+<li class="post-li">Discards snapshots when the transition completes</li>
+</ul>
+<p class="post-p">
+This means transitions stay smooth even under heavy JavaScript load. The trade-off is memory — each snapshot consumes GPU memory proportional to the element's pixel dimensions. Don't assign <code class="inline-code">view-transition-name</code> to massive elements or dozens of them simultaneously.
+</p>
+
+<h3 class="post-h3">Measuring Impact</h3>
+
+<pre class="code-block"><code class="language-javascript">const transition = document.startViewTransition(() =&amp;gt; updateDOM());
+
+<p class="post-p">
+await transition.ready; // Snapshot captured, animation about to start
+console.log('Transition is playing');
+</p>
+
+<p class="post-p">
+await transition.finished; // Animation complete, snapshots released
+console.log('Transition done, memory freed');
+</code></pre>
+</p>
+
+<h2 class="post-h2">Browser DevTools Support</h2>
+
+<p class="post-p">
+Chrome DevTools has excellent support:
+</p>
+
+<ul class="post-ul"><li class="post-li"><strong>Animations panel</strong>: View Transitions appear as animation groups you can scrub, pause, and inspect</li>
+<li class="post-li"><strong>Rendering tab</strong>: Toggle "Paint flashing" to see when snapshots are captured</li>
+<li class="post-li"><strong>Performance panel</strong>: View Transitions show as dedicated entries in the timeline</li>
+</ul>
+<h2 class="post-h2">Common Patterns</h2>
+
+<h3 class="post-h3">1. Navigation with Back-Button Polish</h3>
+
+<pre class="code-block"><code class="language-css">@view-transition {
+<p class="post-p">
+navigation: auto;
+}
+</p>
+
+<p class="post-p">
+/<em> Forward navigation: slide new content in from right </em>/
+::view-transition-new(root):only-child {
+animation: slide-in-right 0.3s ease-out;
+}
+</p>
+
+<p class="post-p">
+/<em> Back navigation: slide old content back </em>/
+@view-transition {
+navigation: auto;
+types: back;
+}
+</p>
+
+<p class="post-p">
+::view-transition-old(root):only-child {
+animation: slide-out-right 0.3s ease-in;
+}
+</code></pre>
+</p>
+
+<h3 class="post-h3">2. Dark Mode Toggle</h3>
+
+<pre class="code-block"><code class="language-javascript">function toggleDarkMode() {
+<p class="post-p">
+document.startViewTransition(() =&amp;gt; {
+document.documentElement.classList.toggle('dark');
+});
+}
+</code></pre>
+</p>
+
+<pre class="code-block"><code class="language-css">/<em> Customize the transition </em>/
+<p class="post-p">
+::view-transition-new(root) {
+animation: none;
+mix-blend-mode: normal;
+}
+</p>
+
+<p class="post-p">
+::view-transition-old(root) {
+animation: clip-circle-out 0.5s ease-in;
+}
+</p>
+
+<p class="post-p">
+@keyframes clip-circle-out {
+from { clip-path: circle(100%); }
+to { clip-path: circle(0% at 100% 0%); }
+}
+</code></pre>
+</p>
+
+<h3 class="post-h3">3. List Reordering</h3>
+
+<pre class="code-block"><code class="language-css">.list-item {
+<p class="post-p">
+view-transition-name: var(--item-name);
+}
+</code></pre>
+</p>
+
+<pre class="code-block"><code class="language-javascript">items.forEach((item, i) =&amp;gt; {
+<p class="post-p">
+item.style.setProperty('--item-name', <code class="inline-code">item-${item.id}</code>);
+});
+</p>
+
+<p class="post-p">
+document.startViewTransition(() =&amp;gt; {
+// Sort the list
+renderSortedItems();
+});
+</code></pre>
+</p>
+
+<p class="post-p">
+The browser animates each item from its old position to its new position automatically.
+</p>
+
+<h2 class="post-h2">Gotchas and Edge Cases</h2>
+
+<h3 class="post-h3">1. <code class="inline-code">view-transition-name</code> Must Be Unique</h3>
+
+<p class="post-p">
+If two elements share the same name on a page, the transition silently fails for that name. Use it sparingly — typically one element per logical entity.
+</p>
+
+<h3 class="post-h3">2. Fixed and Sticky Positioning</h3>
+
+<p class="post-p">
+Elements with <code class="inline-code">position: fixed</code> or <code class="inline-code">sticky</code> participate normally, but their snapshots are captured relative to the viewport, not the document flow.
+</p>
+
+<h3 class="post-h3">3. Cross-Origin Navigation</h3>
+
+<p class="post-p">
+<code class="inline-code">@view-transition { navigation: auto }</code> only works for same-origin navigations. For cross-origin links, the transition is skipped.
+</p>
+
+<h3 class="post-h3">4. The <code class="inline-code">only-child</code> Trick</h3>
+
+<p class="post-p">
+When navigating, sometimes only the "old" or "new" pseudo-element exists (e.g., a named element only on one page). Use <code class="inline-code">:only-child</code> to handle these cases:
+</p>
+
+<pre class="code-block"><code class="language-css">::view-transition-old(hero-image):only-child {
+<p class="post-p">
+animation: fade-out 0.2s ease-out;
+}
+</p>
+
+<p class="post-p">
+::view-transition-new(hero-image):only-child {
+animation: fade-in 0.3s ease-out;
+}
+</code></pre>
+</p>
+
+<h3 class="post-h3">5. Reduced Motion</h3>
+
+<p class="post-p">
+Always respect <code class="inline-code">prefers-reduced-motion</code>:
+</p>
+
+<pre class="code-block"><code class="language-css">@media (prefers-reduced-motion: reduce) {
+<p class="post-p">
+::view-transition-group(*) {
+animation-duration: 0.001s;
+}
+}
+</code></pre>
+</p>
+
+<h2 class="post-h2">When NOT to Use View Transitions</h2>
+
+<p class="post-p">
+View Transitions are not a replacement for all animations:
+</p>
+
+<ul class="post-ul"><li class="post-li"><strong>Continuous animations</strong> (spinners, progress bars): Use CSS animations or <code class="inline-code">requestAnimationFrame</code></li>
+<li class="post-li"><strong>Scroll-linked effects</strong>: Use Scroll-Driven Animations</li>
+<li class="post-li"><strong>Drag interactions</strong>: Use pointer events and direct DOM manipulation</li>
+<li class="post-li"><strong>Canvas/WebGL</strong>: View Transitions capture DOM snapshots, not canvas contents</li>
+</ul>
+<h2 class="post-h2">The Bottom Line</h2>
+
+<p class="post-p">
+View Transitions represent a fundamental shift: the browser is now an animation engine for page transitions. What used to take hundreds of lines of JavaScript and a framework-specific router can now be done with CSS.
+</p>
+
+<p class="post-p">
+Start with the one-liner (<code class="inline-code">@view-transition { navigation: auto }</code>) and progressively enhance from there. Your users get smoother navigation, and you get to delete code.
+</p>
+
+<hr class="post-hr" />
+
+<p class="post-p">
+<em>Want to experiment with CSS animations? Try our <a href="/tools/css-animation-builder" class="post-link" target="_blank" rel="noopener noreferrer">CSS Animation Builder</a> or <a href="/tools/css-easing-playground" class="post-link" target="_blank" rel="noopener noreferrer">CSS Easing Playground</a> to design custom transitions.</em>
+</p>
+4:T78f,
+        .blog-content .post-h1 { font-size: 1.75rem; font-weight: 700; color: #ffffff; margin-top: 2rem; margin-bottom: 1rem; }
+        .blog-content .post-h2 { font-size: 1.5rem; font-weight: 600; color: #f1f5f9; margin-top: 1.75rem; margin-bottom: 0.75rem; padding-bottom: 0.5rem; border-bottom: 1px solid #334155; }
+        .blog-content .post-h3 { font-size: 1.25rem; font-weight: 600; color: #e2e8f0; margin-top: 1.5rem; margin-bottom: 0.5rem; }
+        .blog-content .post-h4 { font-size: 1.1rem; font-weight: 600; color: #e2e8f0; margin-top: 1.25rem; margin-bottom: 0.5rem; }
+        .blog-content .post-p { color: #cbd5e1; line-height: 1.75; margin-bottom: 1rem; }
+        .blog-content .code-block { background: #0f172a; border: 1px solid #334155; border-radius: 0.5rem; padding: 1rem; overflow-x: auto; margin: 1rem 0; font-family: 'JetBrains Mono', monospace; font-size: 0.875rem; color: #e2e8f0; }
+        .blog-content .inline-code { background: #1e293b; color: #38bdf8; padding: 0.15rem 0.4rem; border-radius: 0.25rem; font-family: 'JetBrains Mono', monospace; font-size: 0.875em; }
+        .blog-content .post-link { color: #38bdf8; text-decoration: underline; transition: color 0.2s; }
+        .blog-content .post-link:hover { color: #7dd3fc; }
+        .blog-content .post-ul { list-style: disc; padding-left: 1.5rem; margin: 0.75rem 0; color: #cbd5e1; }
+        .blog-content .post-li { margin-bottom: 0.25rem; line-height: 1.6; }
+        .blog-content .post-blockquote { border-left: 3px solid #0ea5e9; padding: 0.5rem 1rem; margin: 1rem 0; background: rgba(14, 165, 233, 0.05); border-radius: 0 0.5rem 0.5rem 0; }
+        .blog-content .post-blockquote p { color: #94a3b8; font-style: italic; }
+        .blog-content .post-hr { border: none; border-top: 1px solid #334155; margin: 2rem 0; }
+        .blog-content strong { color: #f1f5f9; font-weight: 600; }
+        .blog-content em { font-style: italic; }
+        6:["slug","view-transitions-api-guide","d"]
+0:["wLkx3_e9eF0HmBHirJWLm",[[["",{"children":["blog",{"children":[["slug","view-transitions-api-guide","d"],{"children":["__PAGE__?{\"slug\":\"view-transitions-api-guide\"}",{}]}]}]},"$undefined","$undefined",true],["",{"children":["blog",{"children":[["slug","view-transitions-api-guide","d"],{"children":["__PAGE__",{},[["$L1",["$","article",null,{"className":"max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-20","children":[["$","script",null,{"type":"application/ld+json","dangerouslySetInnerHTML":{"__html":"{\"@context\":\"https://schema.org\",\"@type\":\"Article\",\"headline\":\"The View Transitions API: Smooth Page Animations Without JavaScript\",\"description\":\"View Transitions API is now Baseline across all major browsers. Learn how to add smooth cross-page animations with one line of CSS — and master advanced MPA transitions, named elements, and custom animations.\",\"datePublished\":\"2026-05-24\",\"author\":{\"@type\":\"Organization\",\"name\":\"DevBench\"},\"publisher\":{\"@type\":\"Organization\",\"name\":\"DevBench\",\"url\":\"https://devbench-roan.vercel.app\"}}"}}],["$","script",null,{"type":"application/ld+json","dangerouslySetInnerHTML":{"__html":"{\"@context\":\"https://schema.org\",\"@type\":\"BreadcrumbList\",\"itemListElement\":[{\"@type\":\"ListItem\",\"position\":1,\"name\":\"Home\",\"item\":\"https://devbench-roan.vercel.app\"},{\"@type\":\"ListItem\",\"position\":2,\"name\":\"Blog\",\"item\":\"https://devbench-roan.vercel.app/blog\"},{\"@type\":\"ListItem\",\"position\":3,\"name\":\"The View Transitions API: Smooth Page Animations Without JavaScript\"}]}"}}],["$","$L2",null,{"href":"/blog","className":"inline-flex items-center gap-1.5 text-slate-400 hover:text-brand-400 text-sm transition-colors mb-8","children":[["$","svg",null,{"xmlns":"http://www.w3.org/2000/svg","width":24,"height":24,"viewBox":"0 0 24 24","fill":"none","stroke":"currentColor","strokeWidth":2,"strokeLinecap":"round","strokeLinejoin":"round","className":"lucide lucide-arrow-left w-4 h-4","children":[["$","path","1l729n",{"d":"m12 19-7-7 7-7"}],["$","path","x3x0zl",{"d":"M19 12H5"}],"$undefined"]}],"Back to Blog"]}],["$","header",null,{"className":"mb-10","children":[["$","h1",null,{"className":"text-3xl sm:text-4xl font-bold text-white leading-tight mb-4","children":"The View Transitions API: Smooth Page Animations Without JavaScript"}],["$","div",null,{"className":"flex flex-wrap items-center gap-4 text-sm text-slate-400","children":[["$","span",null,{"className":"flex items-center gap-1.5","children":[["$","svg",null,{"xmlns":"http://www.w3.org/2000/svg","width":24,"height":24,"viewBox":"0 0 24 24","fill":"none","stroke":"currentColor","strokeWidth":2,"strokeLinecap":"round","strokeLinejoin":"round","className":"lucide lucide-calendar w-4 h-4","children":[["$","rect","eu3xkr",{"width":"18","height":"18","x":"3","y":"4","rx":"2","ry":"2"}],["$","line","m3sa8f",{"x1":"16","x2":"16","y1":"2","y2":"6"}],["$","line","18kwsl",{"x1":"8","x2":"8","y1":"2","y2":"6"}],["$","line","xt86sb",{"x1":"3","x2":"21","y1":"10","y2":"10"}],"$undefined"]}],"2026-05-24"]}],["$","div",null,{"className":"flex flex-wrap gap-1.5","children":[["$","span","[\"css\"",{"className":"badge-secondary flex items-center gap-1","children":[["$","svg",null,{"xmlns":"http://www.w3.org/2000/svg","width":24,"height":24,"viewBox":"0 0 24 24","fill":"none","stroke":"currentColor","strokeWidth":2,"strokeLinecap":"round","strokeLinejoin":"round","className":"lucide lucide-tag w-3 h-3","children":[["$","path","14b2ls",{"d":"M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"}],["$","path","7u93v4",{"d":"M7 7h.01"}],"$undefined"]}],"[\"css\""]}],["$","span","\"view-transitions\"",{"className":"badge-secondary flex items-center gap-1","children":[["$","svg",null,{"xmlns":"http://www.w3.org/2000/svg","width":24,"height":24,"viewBox":"0 0 24 24","fill":"none","stroke":"currentColor","strokeWidth":2,"strokeLinecap":"round","strokeLinejoin":"round","className":"lucide lucide-tag w-3 h-3","children":[["$","path","14b2ls",{"d":"M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"}],["$","path","7u93v4",{"d":"M7 7h.01"}],"$undefined"]}],"\"view-transitions\""]}],["$","span","\"web-platform\"",{"className":"badge-secondary flex items-center gap-1","children":[["$","svg",null,{"xmlns":"http://www.w3.org/2000/svg","width":24,"height":24,"viewBox":"0 0 24 24","fill":"none","stroke":"currentColor","strokeWidth":2,"strokeLinecap":"round","strokeLinejoin":"round","className":"lucide lucide-tag w-3 h-3","children":[["$","path","14b2ls",{"d":"M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"}],["$","path","7u93v4",{"d":"M7 7h.01"}],"$undefined"]}],"\"web-platform\""]}],["$","span","\"performance\"",{"className":"badge-secondary flex items-center gap-1","children":[["$","svg",null,{"xmlns":"http://www.w3.org/2000/svg","width":24,"height":24,"viewBox":"0 0 24 24","fill":"none","stroke":"currentColor","strokeWidth":2,"strokeLinecap":"round","strokeLinejoin":"round","className":"lucide lucide-tag w-3 h-3","children":[["$","path","14b2ls",{"d":"M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"}],["$","path","7u93v4",{"d":"M7 7h.01"}],"$undefined"]}],"\"performance\""]}],["$","span","\"frontend\"]",{"className":"badge-secondary flex items-center gap-1","children":[["$","svg",null,{"xmlns":"http://www.w3.org/2000/svg","width":24,"height":24,"viewBox":"0 0 24 24","fill":"none","stroke":"currentColor","strokeWidth":2,"strokeLinecap":"round","strokeLinejoin":"round","className":"lucide lucide-tag w-3 h-3","children":[["$","path","14b2ls",{"d":"M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"}],["$","path","7u93v4",{"d":"M7 7h.01"}],"$undefined"]}],"\"frontend\"]"]}]]}]]}]]}],["$","div",null,{"className":"blog-content prose-p:text-slate-300 prose-p:leading-relaxed prose-p:mb-4","dangerouslySetInnerHTML":{"__html":"$3"}}],["$","style",null,{"dangerouslySetInnerHTML":{"__html":"$4"}}]]}],null],null],null]},[null,["$","$L5",null,{"parallelRouterKey":"children","segmentPath":["children","blog","children","$6","children"],"error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L7",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":"$undefined","notFoundStyles":"$undefined"}]],null]},[null,["$","$L5",null,{"parallelRouterKey":"children","segmentPath":["children","blog","children"],"error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L7",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":"$undefined","notFoundStyles":"$undefined"}]],null]},[[[["$","link","0",{"rel":"stylesheet","href":"/devbench-tech/_next/static/css/c877e59dbcb00f11.css","precedence":"next","crossOrigin":"$undefined"}]],["$","html",null,{"lang":"en","className":"dark","children":["$","body",null,{"className":"flex flex-col min-h-screen","children":[["$","script",null,{"type":"application/ld+json","dangerouslySetInnerHTML":{"__html":"{\"@context\":\"https://schema.org\",\"@type\":\"WebSite\",\"name\":\"DevBench\",\"url\":\"https://devbench-roan.vercel.app\",\"description\":\"Free developer tools for everyday use: JSON formatter, Base64 encoder/decoder, UUID generator, regex tester, benchmarks, and more.\",\"potentialAction\":{\"@type\":\"SearchAction\",\"target\":\"https://devbench-roan.vercel.app/tools?q={search_term_string}\",\"query-input\":\"required name=search_term_string\"}}"}}],["$","$L8",null,{}],["$","main",null,{"className":"flex-1","children":["$","$L5",null,{"parallelRouterKey":"children","segmentPath":["children"],"error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L7",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":[["$","title",null,{"children":"404: This page could not be found."}],["$","div",null,{"style":{"fontFamily":"system-ui,\"Segoe UI\",Roboto,Helvetica,Arial,sans-serif,\"Apple Color Emoji\",\"Segoe UI Emoji\"","height":"100vh","textAlign":"center","display":"flex","flexDirection":"column","alignItems":"center","justifyContent":"center"},"children":["$","div",null,{"children":[["$","style",null,{"dangerouslySetInnerHTML":{"__html":"body{color:#000;background:#fff;margin:0}.next-error-h1{border-right:1px solid rgba(0,0,0,.3)}@media (prefers-color-scheme:dark){body{color:#fff;background:#000}.next-error-h1{border-right:1px solid rgba(255,255,255,.3)}}"}}],["$","h1",null,{"className":"next-error-h1","style":{"display":"inline-block","margin":"0 20px 0 0","padding":"0 23px 0 0","fontSize":24,"fontWeight":500,"verticalAlign":"top","lineHeight":"49px"},"children":"404"}],["$","div",null,{"style":{"display":"inline-block"},"children":["$","h2",null,{"style":{"fontSize":14,"fontWeight":400,"lineHeight":"49px","margin":0},"children":"This page could not be found."}]}]]}]}]],"notFoundStyles":[]}]}],["$","footer",null,{"className":"bg-surface-light border-t border-slate-700/50 mt-auto","children":["$","div",null,{"className":"max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12","children":[["$","div",null,{"className":"grid grid-cols-1 md:grid-cols-3 gap-8","children":[["$","div",null,{"children":[["$","$L2",null,{"href":"/","className":"flex items-center gap-2.5 mb-3","children":[["$","div",null,{"className":"w-7 h-7 bg-brand-500 rounded-lg flex items-center justify-center","children":["$","svg",null,{"xmlns":"http://www.w3.org/2000/svg","width":24,"height":24,"viewBox":"0 0 24 24","fill":"none","stroke":"currentColor","strokeWidth":2,"strokeLinecap":"round","strokeLinejoin":"round","className":"lucide lucide-terminal w-3.5 h-3.5 text-white","children":[["$","polyline","akl6gq",{"points":"4 17 10 11 4 5"}],["$","line","q2wloq",{"x1":"12","x2":"20","y1":"19","y2":"19"}],"$undefined"]}]}],["$","span",null,{"className":"text-lg font-bold text-white","children":["Dev",["$","span",null,{"className":"gradient-text","children":"Bench"}]]}]]}],["$","p",null,{"className":"text-slate-400 text-sm leading-relaxed","children":"Free developer tools, benchmarks, and calculators. Built for developers, by developers."}]]}],["$","div",null,{"children":[["$","h3",null,{"className":"text-sm font-semibold text-slate-300 uppercase tracking-wider mb-4","children":"Tools"}],["$","ul",null,{"className":"space-y-2","children":[["$","li","/tools/json-formatter",{"children":["$","$L2",null,{"href":"/tools/json-formatter","className":"text-slate-400 hover:text-brand-400 text-sm transition-colors","children":"JSON Formatter"}]}],["$","li","/tools/base64",{"children":["$","$L2",null,{"href":"/tools/base64","className":"text-slate-400 hover:text-brand-400 text-sm transition-colors","children":"Base64 Encoder/Decoder"}]}],["$","li","/tools/uuid-generator",{"children":["$","$L2",null,{"href":"/tools/uuid-generator","className":"text-slate-400 hover:text-brand-400 text-sm transition-colors","children":"UUID Generator"}]}],["$","li","/tools/regex-tester",{"children":["$","$L2",null,{"href":"/tools/regex-tester","className":"text-slate-400 hover:text-brand-400 text-sm transition-colors","children":"Regex Tester"}]}]]}]]}],["$","div",null,{"children":[["$","h3",null,{"className":"text-sm font-semibold text-slate-300 uppercase tracking-wider mb-4","children":"Resources"}],["$","ul",null,{"className":"space-y-2","children":[["$","li","/blog",{"children":["$","$L2",null,{"href":"/blog","className":"text-slate-400 hover:text-brand-400 text-sm transition-colors","children":"Blog"}]}],["$","li","/benchmarks",{"children":["$","$L2",null,{"href":"/benchmarks","className":"text-slate-400 hover:text-brand-400 text-sm transition-colors","children":"Benchmarks"}]}],["$","li","/about",{"children":["$","$L2",null,{"href":"/about","className":"text-slate-400 hover:text-brand-400 text-sm transition-colors","children":"About"}]}]]}]]}]]}],["$","div",null,{"className":"mt-10 pt-6 border-t border-slate-700/50 flex flex-col sm:flex-row items-center justify-between gap-4","children":[["$","p",null,{"className":"text-slate-500 text-sm flex items-center gap-1","children":["Made with ",["$","svg",null,{"xmlns":"http://www.w3.org/2000/svg","width":24,"height":24,"viewBox":"0 0 24 24","fill":"none","stroke":"currentColor","strokeWidth":2,"strokeLinecap":"round","strokeLinejoin":"round","className":"lucide lucide-heart w-3.5 h-3.5 text-red-500 fill-red-500","children":[["$","path","c3ymky",{"d":"M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"}],"$undefined"]}]," by the DevBench team © ",2026]}],["$","a",null,{"href":"https://github.com","target":"_blank","rel":"noopener noreferrer","className":"text-slate-500 hover:text-slate-300 transition-colors","aria-label":"GitHub","children":["$","svg",null,{"xmlns":"http://www.w3.org/2000/svg","width":24,"height":24,"viewBox":"0 0 24 24","fill":"none","stroke":"currentColor","strokeWidth":2,"strokeLinecap":"round","strokeLinejoin":"round","className":"lucide lucide-github w-5 h-5","children":[["$","path","tonef",{"d":"M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"}],["$","path","9comsn",{"d":"M9 18c-4.51 2-5-2-7-2"}],"$undefined"]}]}]]}]]}]}],["$","$L9",null,{}],["$","$La",null,{"position":"bottom-right","toastOptions":{"style":{"background":"#1e293b","color":"#e2e8f0","border":"1px solid #334155","fontSize":"14px"}}}]]}]}]],null],null],["$Lb",null]]]]
+b:[["$","meta","0",{"name":"viewport","content":"width=device-width, initial-scale=1"}],["$","meta","1",{"charSet":"utf-8"}],["$","title","2",{"children":"The View Transitions API: Smooth Page Animations Without JavaScript | DevBench"}],["$","meta","3",{"name":"description","content":"View Transitions API is now Baseline across all major browsers. Learn how to add smooth cross-page animations with one line of CSS — and master advanced MPA transitions, named elements, and custom animations."}],["$","meta","4",{"name":"author","content":"DevBench"}],["$","meta","5",{"name":"keywords","content":"developer tools,JSON formatter,Base64,UUID generator,regex tester,benchmarks,dev tools"}],["$","meta","6",{"property":"og:title","content":"DevBench — Developer Tools & Calculators"}],["$","meta","7",{"property":"og:description","content":"Free developer tools for everyday use."}],["$","meta","8",{"property":"og:site_name","content":"DevBench"}],["$","meta","9",{"property":"og:locale","content":"en_US"}],["$","meta","10",{"property":"og:type","content":"website"}],["$","meta","11",{"name":"twitter:card","content":"summary"}],["$","meta","12",{"name":"twitter:title","content":"DevBench — Developer Tools & Calculators"}],["$","meta","13",{"name":"twitter:description","content":"Free developer tools for everyday use."}],["$","link","14",{"rel":"icon","href":"/favicon.svg"}]]
+1:null

@@ -1,0 +1,424 @@
+<!DOCTYPE html><html lang="en" class="dark"><head><meta charSet="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/><link rel="stylesheet" href="/devbench-tech/_next/static/css/c877e59dbcb00f11.css" data-precedence="next"/><link rel="preload" as="script" fetchPriority="low" href="/devbench-tech/_next/static/chunks/webpack-b521a83317325026.js"/><script src="/devbench-tech/_next/static/chunks/fd9d1056-04e0aa683dc3c41f.js" async=""></script><script src="/devbench-tech/_next/static/chunks/2117-8374a93ea77a2be4.js" async=""></script><script src="/devbench-tech/_next/static/chunks/main-app-aaec773b36366bc0.js" async=""></script><script src="/devbench-tech/_next/static/chunks/2972-4aaa15d119eeb022.js" async=""></script><script src="/devbench-tech/_next/static/chunks/app/blog/%5Bslug%5D/page-a411190e7012c687.js" async=""></script><script src="/devbench-tech/_next/static/chunks/44530001-4ecf7a22b5b24163.js" async=""></script><script src="/devbench-tech/_next/static/chunks/8375-c77b8de36f6696fb.js" async=""></script><script src="/devbench-tech/_next/static/chunks/6829-f51803445ddf1872.js" async=""></script><script src="/devbench-tech/_next/static/chunks/app/layout-488e5c40aa6ffa72.js" async=""></script><title>CSS color-mix(): The Complete Practical Guide | DevBench</title><meta name="description" content="Master CSS color-mix() for dynamic theming, color manipulation, and design systems. From basic syntax to advanced patterns with real-world examples — no preprocessors needed."/><meta name="author" content="DevBench"/><meta name="keywords" content="developer tools,JSON formatter,Base64,UUID generator,regex tester,benchmarks,dev tools"/><meta property="og:title" content="DevBench — Developer Tools &amp; Calculators"/><meta property="og:description" content="Free developer tools for everyday use."/><meta property="og:site_name" content="DevBench"/><meta property="og:locale" content="en_US"/><meta property="og:type" content="website"/><meta name="twitter:card" content="summary"/><meta name="twitter:title" content="DevBench — Developer Tools &amp; Calculators"/><meta name="twitter:description" content="Free developer tools for everyday use."/><link rel="icon" href="/favicon.svg"/><script src="/devbench-tech/_next/static/chunks/polyfills-42372ed130431b0a.js" noModule=""></script></head><body class="flex flex-col min-h-screen"><script type="application/ld+json">{"@context":"https://schema.org","@type":"WebSite","name":"DevBench","url":"https://devbench-roan.vercel.app","description":"Free developer tools for everyday use: JSON formatter, Base64 encoder/decoder, UUID generator, regex tester, benchmarks, and more.","potentialAction":{"@type":"SearchAction","target":"https://devbench-roan.vercel.app/tools?q={search_term_string}","query-input":"required name=search_term_string"}}</script><header class="sticky top-0 z-50 transition-all duration-300 bg-surface border-b border-transparent"><div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8"><div class="flex items-center justify-between h-16"><a class="flex items-center gap-2.5 group" href="/devbench-tech/"><div class="w-8 h-8 bg-brand-500 rounded-lg flex items-center justify-center group-hover:bg-brand-400 transition-colors"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-terminal w-4 h-4 text-white"><polyline points="4 17 10 11 4 5"></polyline><line x1="12" x2="20" y1="19" y2="19"></line></svg></div><span class="text-xl font-bold text-white tracking-tight">Dev<span class="gradient-text">Bench</span></span></a><nav class="hidden md:flex items-center gap-1"><a class="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 text-slate-400 hover:text-slate-200 hover:bg-surface-lighter" href="/devbench-tech/tools/"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-wrench w-4 h-4"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path></svg>Tools</a><a class="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 text-slate-400 hover:text-slate-200 hover:bg-surface-lighter" href="/devbench-tech/benchmarks/"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-bar-chart3 w-4 h-4"><path d="M3 3v18h18"></path><path d="M18 17V9"></path><path d="M13 17V5"></path><path d="M8 17v-3"></path></svg>Benchmarks</a><a class="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 bg-brand-500/10 text-brand-400" href="/devbench-tech/blog/"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-book-open w-4 h-4"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg>Blog</a><a class="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 text-slate-400 hover:text-slate-200 hover:bg-surface-lighter" href="/devbench-tech/about/"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-info w-4 h-4"><circle cx="12" cy="12" r="10"></circle><path d="M12 16v-4"></path><path d="M12 8h.01"></path></svg>About</a></nav><button class="md:hidden p-2 rounded-lg text-slate-400 hover:text-white hover:bg-surface-lighter transition-colors" aria-label="Toggle menu"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-menu w-5 h-5"><line x1="4" x2="20" y1="12" y2="12"></line><line x1="4" x2="20" y1="6" y2="6"></line><line x1="4" x2="20" y1="18" y2="18"></line></svg></button></div></div></header><main class="flex-1"><article class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-20"><script type="application/ld+json">{"@context":"https://schema.org","@type":"Article","headline":"CSS color-mix(): The Complete Practical Guide","description":"Master CSS color-mix() for dynamic theming, color manipulation, and design systems. From basic syntax to advanced patterns with real-world examples — no preprocessors needed.","datePublished":"2026-05-29","author":{"@type":"Organization","name":"DevBench"},"publisher":{"@type":"Organization","name":"DevBench","url":"https://devbench-roan.vercel.app"}}</script><script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://devbench-roan.vercel.app"},{"@type":"ListItem","position":2,"name":"Blog","item":"https://devbench-roan.vercel.app/blog"},{"@type":"ListItem","position":3,"name":"CSS color-mix(): The Complete Practical Guide"}]}</script><a class="inline-flex items-center gap-1.5 text-slate-400 hover:text-brand-400 text-sm transition-colors mb-8" href="/devbench-tech/blog/"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-arrow-left w-4 h-4"><path d="m12 19-7-7 7-7"></path><path d="M19 12H5"></path></svg>Back to Blog</a><header class="mb-10"><h1 class="text-3xl sm:text-4xl font-bold text-white leading-tight mb-4">CSS color-mix(): The Complete Practical Guide</h1><div class="flex flex-wrap items-center gap-4 text-sm text-slate-400"><span class="flex items-center gap-1.5"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-calendar w-4 h-4"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"></rect><line x1="16" x2="16" y1="2" y2="6"></line><line x1="8" x2="8" y1="2" y2="6"></line><line x1="3" x2="21" y1="10" y2="10"></line></svg>2026-05-29</span><div class="flex flex-wrap gap-1.5"><span class="badge-secondary flex items-center gap-1"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-tag w-3 h-3"><path d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"></path><path d="M7 7h.01"></path></svg>CSS</span><span class="badge-secondary flex items-center gap-1"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-tag w-3 h-3"><path d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"></path><path d="M7 7h.01"></path></svg>color-mix</span><span class="badge-secondary flex items-center gap-1"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-tag w-3 h-3"><path d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"></path><path d="M7 7h.01"></path></svg>color</span><span class="badge-secondary flex items-center gap-1"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-tag w-3 h-3"><path d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"></path><path d="M7 7h.01"></path></svg>design</span><span class="badge-secondary flex items-center gap-1"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-tag w-3 h-3"><path d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"></path><path d="M7 7h.01"></path></svg>theming</span><span class="badge-secondary flex items-center gap-1"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-tag w-3 h-3"><path d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"></path><path d="M7 7h.01"></path></svg>2026</span><span class="badge-secondary flex items-center gap-1"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-tag w-3 h-3"><path d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"></path><path d="M7 7h.01"></path></svg>guide</span></div></div></header><div class="blog-content prose-p:text-slate-300 prose-p:leading-relaxed prose-p:mb-4">
+<h1 class="post-h1">CSS <code class="inline-code">color-mix()</code>: The Complete Practical Guide</h1>
+
+<p class="post-p">
+CSS <code class="inline-code">color-mix()</code> landed as <strong>Baseline in April 2024</strong> and is now supported in every modern browser. It lets you mix two colors directly in CSS — no Sass, no PostCSS, no JavaScript. If you're building design systems, dark mode, or component libraries, this function will fundamentally change how you work with color.
+</p>
+
+<h2 class="post-h2">The Basics</h2>
+
+<p class="post-p">
+The syntax is straightforward:
+</p>
+
+<pre class="code-block"><code class="language-css">color-mix(in &amp;lt;color-space&amp;gt;, &amp;lt;color-1&amp;gt;, &amp;lt;color-2&amp;gt;)
+<p class="post-p">
+</code></pre>
+</p>
+
+<p class="post-p">
+The simplest possible usage — mix red and blue equally in sRGB:
+</p>
+
+<pre class="code-block"><code class="language-css">background: color-mix(in srgb, red, blue);
+<p class="post-p">
+/<em> Result: rgb(128, 0, 128) — a perfect purple </em>/
+</code></pre>
+</p>
+
+<p class="post-p">
+By default, each color contributes 50%. You can control the proportions with percentages:
+</p>
+
+<pre class="code-block"><code class="language-css">/<em> 70% red, 30% blue </em>/
+<p class="post-p">
+background: color-mix(in srgb, red 70%, blue 30%);
+</p>
+
+<p class="post-p">
+/<em> Only need to specify one — the other fills to 100% </em>/
+background: color-mix(in srgb, red 80%, blue);
+</code></pre>
+</p>
+
+<p class="post-p">
+If percentages don't sum to 100%, both are scaled proportionally:
+</p>
+
+<pre class="code-block"><code class="language-css">/<em> 25% / 50% → scaled to 33.3% / 66.7% </em>/
+<p class="post-p">
+background: color-mix(in srgb, red 25%, blue 50%);
+</code></pre>
+</p>
+
+<h2 class="post-h2">Color Spaces Matter</h2>
+
+<p class="post-p">
+The <code class="inline-code">in &lt;color-space&gt;</code> part is where <code class="inline-code">color-mix()</code> gets powerful. Different color spaces produce <strong>different intermediate colors</strong>:
+</p>
+
+<h3 class="post-h3">sRGB (default, but not the best)</h3>
+
+<pre class="code-block"><code class="language-css">/<em> sRGB mixing — can produce muddy midpoints </em>/
+<p class="post-p">
+background: color-mix(in srgb, #ff0000, #0000ff);
+</code></pre>
+</p>
+
+<p class="post-p">
+sRGB is the web's native space but its gamma curve creates non-uniform mixing. Midpoints between complementary colors often look desaturated and dull.
+</p>
+
+<h3 class="post-h3">OKLCH — The Perceptual Powerhouse</h3>
+
+<pre class="code-block"><code class="language-css">/<em> OKLCH — perceptually uniform, vibrant midpoints </em>/
+<p class="post-p">
+background: color-mix(in oklch, #ff0000, #0000ff);
+</code></pre>
+</p>
+
+<p class="post-p">
+OKLCH produces <strong>smoother, more natural blends</strong> because it's perceptually uniform. Equal steps in OKLCH look like equal visual changes to the human eye. This is the recommended space for most use cases.
+</p>
+
+<h3 class="post-h3">Other Color Spaces</h3>
+
+<ul class="post-ul"><li class="post-li"><strong><code class="inline-code">in hsl</code></strong> — works like HSL color pickers, good for saturation/lightness tweaking</li>
+<li class="post-li"><strong><code class="inline-code">in oklab</code></strong> — similar to OKLCH, perceptually uniform</li>
+<li class="post-li"><strong><code class="inline-code">in lch</code></strong> — cylindrical OKLab, useful for hue-based mixing</li>
+<li class="post-li"><strong><code class="inline-code">in display-p3</code></strong> — wide-gamut mixing for HDR displays</li>
+<li class="post-li"><strong><code class="inline-code">in xyz-d65</code></strong> — the reference space, rarely needed directly</li>
+</ul>
+<pre class="code-block"><code class="language-css">/<em> HSL mixing — keeps saturation alive in the middle </em>/
+<p class="post-p">
+background: color-mix(in hsl, #ff0000, #0000ff);
+</p>
+
+<p class="post-p">
+/<em> LCH mixing — preserves perceptual lightness </em>/
+background: color-mix(in lch, #ff0000, #0000ff);
+</p>
+
+<p class="post-p">
+/<em> Wide-gamut mixing for P3 displays </em>/
+background: color-mix(in display-p3, #ff0000, #0000ff);
+</code></pre>
+</p>
+
+<p class="post-p">
+Here's the difference visually: mixing red and blue in sRGB gives you a dark purplish-gray. In OKLCH, you get a vibrant purple that maintains perceptual brightness through the blend.
+</p>
+
+<h2 class="post-h2">Transparent Colors and Alpha</h2>
+
+<p class="post-p">
+<code class="inline-code">color-mix()</code> handles transparency gracefully:
+</p>
+
+<pre class="code-block"><code class="language-css">/<em> Mix a color with transparent → effectively applies opacity </em>/
+<p class="post-p">
+background: color-mix(in srgb, #3b82f6 80%, transparent);
+/<em> Same as: background: rgb(59 130 246 / 0.8) </em>/
+</p>
+
+<p class="post-p">
+/<em> Mix two semi-transparent colors </em>/
+background: color-mix(in srgb, rgb(255 0 0 / 0.5), rgb(0 0 255 / 0.5));
+</code></pre>
+</p>
+
+<p class="post-p">
+This is especially useful for creating <strong>alpha variants</strong> of design tokens:
+</p>
+
+<pre class="code-block"><code class="language-css">:root {
+<p class="post-p">
+--color-primary: #3b82f6;
+--color-primary-80: color-mix(in srgb, var(--color-primary) 80%, transparent);
+--color-primary-60: color-mix(in srgb, var(--color-primary) 60%, transparent);
+--color-primary-40: color-mix(in srgb, var(--color-primary) 40%, transparent);
+--color-primary-20: color-mix(in srgb, var(--color-primary) 20%, transparent);
+}
+</code></pre>
+</p>
+
+<h2 class="post-h2">Real-World Patterns</h2>
+
+<h3 class="post-h3">Pattern 1: Design System Color Scales</h3>
+
+<p class="post-p">
+Instead of hand-picking 10 shades of blue, derive them from one base color:
+</p>
+
+<pre class="code-block"><code class="language-css">:root {
+<p class="post-p">
+--blue: #3b82f6;
+</p>
+
+<p class="post-p">
+/<em> Tints (mix with white) </em>/
+--blue-50:  color-mix(in oklch, var(--blue) 10%, white);
+--blue-100: color-mix(in oklch, var(--blue) 25%, white);
+--blue-200: color-mix(in oklch, var(--blue) 50%, white);
+--blue-300: color-mix(in oklch, var(--blue) 70%, white);
+</p>
+
+<p class="post-p">
+/<em> Base </em>/
+--blue-500: var(--blue);
+</p>
+
+<p class="post-p">
+/<em> Shades (mix with black) </em>/
+--blue-700: color-mix(in oklch, var(--blue) 70%, black);
+--blue-800: color-mix(in oklch, var(--blue) 50%, black);
+--blue-900: color-mix(in oklch, var(--blue) 25%, black);
+}
+</code></pre>
+</p>
+
+<p class="post-p">
+Change <code class="inline-code">--blue</code> and the entire scale updates. This is dramatically less maintenance than managing 10 separate hex values.
+</p>
+
+<h3 class="post-h3">Pattern 2: Automatic Dark Mode</h3>
+
+<p class="post-p">
+Derive dark mode colors from light mode automatically:
+</p>
+
+<pre class="code-block"><code class="language-css">:root {
+<p class="post-p">
+--surface: #ffffff;
+--text: #0f172a;
+}
+</p>
+
+<p class="post-p">
+[data-theme="dark"] {
+--surface: color-mix(in oklch, var(--surface), black 85%);
+--text: color-mix(in oklch, var(--text), white 90%);
+}
+</code></pre>
+</p>
+
+<p class="post-p">
+For component-level dark variants:
+</p>
+
+<pre class="code-block"><code class="language-css">.card {
+<p class="post-p">
+background: var(--surface);
+color: var(--text);
+}
+</p>
+
+<p class="post-p">
+.card--elevated {
+/<em> Lighten in light mode, darken in dark mode — same rule works! </em>/
+background: color-mix(in oklch, var(--surface) 95%, var(--text));
+}
+</code></pre>
+</p>
+
+<h3 class="post-h3">Pattern 3: Accessible Contrast on Any Background</h3>
+
+<p class="post-p">
+Dynamically compute text colors that pass WCAG contrast:
+</p>
+
+<pre class="code-block"><code class="language-css">.badge {
+<p class="post-p">
+--badge-bg: var(--user-color, #3b82f6);
+background: var(--badge-bg);
+</p>
+
+<p class="post-p">
+/<em> Text is either white or black based on background luminance </em>/
+color: color-mix(in oklch, var(--badge-bg) 15%, white);
+}
+</code></pre>
+</p>
+
+<p class="post-p">
+For labels and chips where you want the text to be a darker shade of the background:
+</p>
+
+<pre class="code-block"><code class="language-css">.chip {
+<p class="post-p">
+background: color-mix(in oklch, var(--chip-color) 15%, transparent);
+color: color-mix(in oklch, var(--chip-color) 60%, black);
+border: 1px solid color-mix(in oklch, var(--chip-color) 30%, transparent);
+}
+</code></pre>
+</p>
+
+<h3 class="post-h3">Pattern 4: Hover and Active States</h3>
+
+<p class="post-p">
+Replace hardcoded hover colors with proportional mixing:
+</p>
+
+<pre class="code-block"><code class="language-css">.btn {
+<p class="post-p">
+background: var(--btn-bg, #3b82f6);
+</p>
+
+<p class="post-p">
+&amp;amp;:hover {
+/<em> Darken on hover — works for any color </em>/
+background: color-mix(in oklch, var(--btn-bg) 85%, black);
+}
+</p>
+
+<p class="post-p">
+&amp;amp;:active {
+background: color-mix(in oklch, var(--btn-bg) 75%, black);
+}
+</p>
+
+<p class="post-p">
+&amp;amp;:disabled {
+background: color-mix(in oklch, var(--btn-bg) 40%, transparent);
+}
+}
+</code></pre>
+</p>
+
+<h3 class="post-h3">Pattern 5: Gradient Stop Colors</h3>
+
+<p class="post-p">
+Calculate gradient midpoints dynamically:
+</p>
+
+<pre class="code-block"><code class="language-css">.hero-gradient {
+<p class="post-p">
+--from: #6366f1;
+--to: #ec4899;
+--mid: color-mix(in oklch, var(--from), var(--to));
+</p>
+
+<p class="post-p">
+background: linear-gradient(135deg, var(--from), var(--mid), var(--to));
+}
+</code></pre>
+</p>
+
+<h3 class="post-h3">Pattern 6: Theming with CSS Custom Properties</h3>
+
+<p class="post-p">
+Build a complete theming system:
+</p>
+
+<pre class="code-block"><code class="language-css">:root {
+<p class="post-p">
+--hue: 220;
+--chroma: 0.12;
+--lightness: 55%;
+</p>
+
+<p class="post-p">
+--color-primary: oklch(var(--lightness) var(--chroma) var(--hue));
+--color-primary-hover: color-mix(in oklch, var(--color-primary) 85%, black);
+--color-primary-light: color-mix(in oklch, var(--color-primary) 15%, transparent);
+--color-primary-text: color-mix(in oklch, var(--color-primary) 30%, white);
+}
+</p>
+
+<p class="post-p">
+[data-theme="green"] {
+--hue: 160;
+--chroma: 0.14;
+}
+</p>
+
+<p class="post-p">
+[data-theme="rose"] {
+--hue: 340;
+--chroma: 0.16;
+}
+</code></pre>
+</p>
+
+<p class="post-p">
+One <code class="inline-code">data-theme</code> attribute changes the entire palette.
+</p>
+
+<h2 class="post-h2">Performance Considerations</h2>
+
+<p class="post-p">
+<code class="inline-code">color-mix()</code> is computed at <strong>used-value time</strong>, meaning the browser evaluates it once per element per frame — similar to <code class="inline-code">calc()</code>. For static values, there's essentially zero runtime cost. For values that change (e.g., via <code class="inline-code">:hover</code> or custom property changes), recomputation is negligible.
+</p>
+
+<p class="post-p">
+<strong>Prefer <code class="inline-code">color-mix()</code> over JavaScript color manipulation.</strong> Computing colors in JS requires reading computed styles, doing math, and writing back — triggering layout thrashing. CSS <code class="inline-code">color-mix()</code> avoids all of that.
+</p>
+
+<h2 class="post-h2">Browser Support</h2>
+
+<p class="post-p">
+As of May 2026, <code class="inline-code">color-mix()</code> is <strong>Baseline: Widely Available</strong>:
+</p>
+
+<ul class="post-ul"><li class="post-li">Chrome/Edge 111+</li>
+<li class="post-li">Firefox 113+</li>
+<li class="post-li">Safari 16.2+</li>
+<li class="post-li">All major mobile browsers</li>
+</ul>
+<p class="post-p">
+No polyfill needed. It's safe to ship to production.
+</p>
+
+<h2 class="post-h2">When NOT to Use color-mix()</h2>
+
+<p class="post-p">
+<strong>Predefined design tokens.</strong> If your design system already defines every shade, <code class="inline-code">color-mix()</code> adds unnecessary complexity.
+</p>
+
+<p class="post-p">
+<strong>Complex multi-stop gradients.</strong> For 3+ color blends, use gradient syntax directly.
+</p>
+
+<p class="post-p">
+<strong>Critical brand colors.</strong> Automatically derived colors may not match brand guidelines exactly. Always test against brand standards.
+</p>
+
+<p class="post-p">
+<strong>Color space precision.</strong> sRGB mixing can produce unexpected desaturated midpoints. Always use OKLCH for perceptual consistency unless you have a specific reason to use another space.
+</p>
+
+<h2 class="post-h2">Try It Yourself</h2>
+
+<p class="post-p">
+We built a <a href="/tools/color-mix-playground/" class="post-link" target="_blank" rel="noopener noreferrer">Color Mix Playground</a> on DevBench where you can experiment with different color spaces, proportions, and see live results. Open it alongside this guide to build intuition for how each color space behaves.
+</p>
+
+<h2 class="post-h2">Key Takeaways</h2>
+
+<ul class="post-ul"><li class="post-li"><strong>Use OKLCH by default</strong> — it produces the most natural, perceptually uniform blends</li>
+<li class="post-li"><strong>Derive, don't hand-pick</strong> — compute shades, tints, and states from base colors</li>
+<li class="post-li"><strong>Combine with custom properties</strong> for zero-JS dynamic theming</li>
+<li class="post-li"><strong>Works everywhere</strong> — Baseline since early 2024, no polyfills needed</li>
+<li class="post-li"><strong>Prefer over JS color math</strong> — CSS-side computation avoids layout thrashing</li>
+</ul>
+<p class="post-p">
+<code class="inline-code">color-mix()</code> joins CSS nesting, <code class="inline-code">:has()</code>, container queries, and cascade layers as part of the modern CSS renaissance. It eliminates an entire class of preprocessor dependencies and JavaScript color utilities. Start using it today.
+</p>
+</div><style>
+        .blog-content .post-h1 { font-size: 1.75rem; font-weight: 700; color: #ffffff; margin-top: 2rem; margin-bottom: 1rem; }
+        .blog-content .post-h2 { font-size: 1.5rem; font-weight: 600; color: #f1f5f9; margin-top: 1.75rem; margin-bottom: 0.75rem; padding-bottom: 0.5rem; border-bottom: 1px solid #334155; }
+        .blog-content .post-h3 { font-size: 1.25rem; font-weight: 600; color: #e2e8f0; margin-top: 1.5rem; margin-bottom: 0.5rem; }
+        .blog-content .post-h4 { font-size: 1.1rem; font-weight: 600; color: #e2e8f0; margin-top: 1.25rem; margin-bottom: 0.5rem; }
+        .blog-content .post-p { color: #cbd5e1; line-height: 1.75; margin-bottom: 1rem; }
+        .blog-content .code-block { background: #0f172a; border: 1px solid #334155; border-radius: 0.5rem; padding: 1rem; overflow-x: auto; margin: 1rem 0; font-family: 'JetBrains Mono', monospace; font-size: 0.875rem; color: #e2e8f0; }
+        .blog-content .inline-code { background: #1e293b; color: #38bdf8; padding: 0.15rem 0.4rem; border-radius: 0.25rem; font-family: 'JetBrains Mono', monospace; font-size: 0.875em; }
+        .blog-content .post-link { color: #38bdf8; text-decoration: underline; transition: color 0.2s; }
+        .blog-content .post-link:hover { color: #7dd3fc; }
+        .blog-content .post-ul { list-style: disc; padding-left: 1.5rem; margin: 0.75rem 0; color: #cbd5e1; }
+        .blog-content .post-li { margin-bottom: 0.25rem; line-height: 1.6; }
+        .blog-content .post-blockquote { border-left: 3px solid #0ea5e9; padding: 0.5rem 1rem; margin: 1rem 0; background: rgba(14, 165, 233, 0.05); border-radius: 0 0.5rem 0.5rem 0; }
+        .blog-content .post-blockquote p { color: #94a3b8; font-style: italic; }
+        .blog-content .post-hr { border: none; border-top: 1px solid #334155; margin: 2rem 0; }
+        .blog-content strong { color: #f1f5f9; font-weight: 600; }
+        .blog-content em { font-style: italic; }
+        </style></article></main><footer class="bg-surface-light border-t border-slate-700/50 mt-auto"><div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12"><div class="grid grid-cols-1 md:grid-cols-3 gap-8"><div><a class="flex items-center gap-2.5 mb-3" href="/devbench-tech/"><div class="w-7 h-7 bg-brand-500 rounded-lg flex items-center justify-center"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-terminal w-3.5 h-3.5 text-white"><polyline points="4 17 10 11 4 5"></polyline><line x1="12" x2="20" y1="19" y2="19"></line></svg></div><span class="text-lg font-bold text-white">Dev<span class="gradient-text">Bench</span></span></a><p class="text-slate-400 text-sm leading-relaxed">Free developer tools, benchmarks, and calculators. Built for developers, by developers.</p></div><div><h3 class="text-sm font-semibold text-slate-300 uppercase tracking-wider mb-4">Tools</h3><ul class="space-y-2"><li><a class="text-slate-400 hover:text-brand-400 text-sm transition-colors" href="/devbench-tech/tools/json-formatter/">JSON Formatter</a></li><li><a class="text-slate-400 hover:text-brand-400 text-sm transition-colors" href="/devbench-tech/tools/base64/">Base64 Encoder/Decoder</a></li><li><a class="text-slate-400 hover:text-brand-400 text-sm transition-colors" href="/devbench-tech/tools/uuid-generator/">UUID Generator</a></li><li><a class="text-slate-400 hover:text-brand-400 text-sm transition-colors" href="/devbench-tech/tools/regex-tester/">Regex Tester</a></li></ul></div><div><h3 class="text-sm font-semibold text-slate-300 uppercase tracking-wider mb-4">Resources</h3><ul class="space-y-2"><li><a class="text-slate-400 hover:text-brand-400 text-sm transition-colors" href="/devbench-tech/blog/">Blog</a></li><li><a class="text-slate-400 hover:text-brand-400 text-sm transition-colors" href="/devbench-tech/benchmarks/">Benchmarks</a></li><li><a class="text-slate-400 hover:text-brand-400 text-sm transition-colors" href="/devbench-tech/about/">About</a></li></ul></div></div><div class="mt-10 pt-6 border-t border-slate-700/50 flex flex-col sm:flex-row items-center justify-between gap-4"><p class="text-slate-500 text-sm flex items-center gap-1">Made with <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-heart w-3.5 h-3.5 text-red-500 fill-red-500"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"></path></svg> by the DevBench team © <!-- -->2026</p><a href="https://github.com" target="_blank" rel="noopener noreferrer" class="text-slate-500 hover:text-slate-300 transition-colors" aria-label="GitHub"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-github w-5 h-5"><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"></path><path d="M9 18c-4.51 2-5-2-7-2"></path></svg></a></div></div></footer><div data-rht-toaster="" style="position:fixed;z-index:9999;top:16px;left:16px;right:16px;bottom:16px;pointer-events:none"></div><script src="/devbench-tech/_next/static/chunks/webpack-b521a83317325026.js" async=""></script><script>(self.__next_f=self.__next_f||[]).push([0]);self.__next_f.push([2,null])</script><script>self.__next_f.push([1,"1:HL[\"/devbench-tech/_next/static/css/c877e59dbcb00f11.css\",\"style\"]\n"])</script><script>self.__next_f.push([1,"2:I[12846,[],\"\"]\n4:I[72972,[\"2972\",\"static/chunks/2972-4aaa15d119eeb022.js\",\"308\",\"static/chunks/app/blog/%5Bslug%5D/page-a411190e7012c687.js\"],\"\"]\n7:I[4707,[],\"\"]\n9:I[36423,[],\"\"]\na:I[39295,[\"9762\",\"static/chunks/44530001-4ecf7a22b5b24163.js\",\"2972\",\"static/chunks/2972-4aaa15d119eeb022.js\",\"8375\",\"static/chunks/8375-c77b8de36f6696fb.js\",\"6829\",\"static/chunks/6829-f51803445ddf1872.js\",\"3185\",\"static/chunks/app/layout-488e5c40aa6ffa72.js\"],\"Header\"]\nb:I[66506,[\"9762\",\"static/chunks/44530001-4ecf7a22b5b24163.js\",\"2972\",\"static/chunks/2972-4aaa15d119eeb022.js\",\"8375\",\"static/chunks/8375-c77b8de36f6696fb.js\",\"6829\",\"static/chunks/6829-f51803445ddf1872.js\",\"3185\",\"static/chunks/app/layout-488e5c40aa6ffa72.js\"],\"Analytics\"]\nc:I[69064,[\"9762\",\"static/chunks/44530001-4ecf7a22b5b24163.js\",\"2972\",\"static/chunks/2972-4aaa15d119eeb022.js\",\"8375\",\"static/chunks/8375-c77b8de36f6696fb.js\",\"6829\",\"static/chunks/6829-f51803445ddf1872.js\",\"3185\",\"static/chunks/app/layout-488e5c40aa6ffa72.js\"],\"Toaster\"]\ne:I[61060,[],\"\"]\n5:T3553,"])</script><script>self.__next_f.push([1,"\n\u003ch1 class=\"post-h1\"\u003eCSS \u003ccode class=\"inline-code\"\u003ecolor-mix()\u003c/code\u003e: The Complete Practical Guide\u003c/h1\u003e\n\n\u003cp class=\"post-p\"\u003e\nCSS \u003ccode class=\"inline-code\"\u003ecolor-mix()\u003c/code\u003e landed as \u003cstrong\u003eBaseline in April 2024\u003c/strong\u003e and is now supported in every modern browser. It lets you mix two colors directly in CSS — no Sass, no PostCSS, no JavaScript. If you're building design systems, dark mode, or component libraries, this function will fundamentally change how you work with color.\n\u003c/p\u003e\n\n\u003ch2 class=\"post-h2\"\u003eThe Basics\u003c/h2\u003e\n\n\u003cp class=\"post-p\"\u003e\nThe syntax is straightforward:\n\u003c/p\u003e\n\n\u003cpre class=\"code-block\"\u003e\u003ccode class=\"language-css\"\u003ecolor-mix(in \u0026amp;lt;color-space\u0026amp;gt;, \u0026amp;lt;color-1\u0026amp;gt;, \u0026amp;lt;color-2\u0026amp;gt;)\n\u003cp class=\"post-p\"\u003e\n\u003c/code\u003e\u003c/pre\u003e\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\nThe simplest possible usage — mix red and blue equally in sRGB:\n\u003c/p\u003e\n\n\u003cpre class=\"code-block\"\u003e\u003ccode class=\"language-css\"\u003ebackground: color-mix(in srgb, red, blue);\n\u003cp class=\"post-p\"\u003e\n/\u003cem\u003e Result: rgb(128, 0, 128) — a perfect purple \u003c/em\u003e/\n\u003c/code\u003e\u003c/pre\u003e\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\nBy default, each color contributes 50%. You can control the proportions with percentages:\n\u003c/p\u003e\n\n\u003cpre class=\"code-block\"\u003e\u003ccode class=\"language-css\"\u003e/\u003cem\u003e 70% red, 30% blue \u003c/em\u003e/\n\u003cp class=\"post-p\"\u003e\nbackground: color-mix(in srgb, red 70%, blue 30%);\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n/\u003cem\u003e Only need to specify one — the other fills to 100% \u003c/em\u003e/\nbackground: color-mix(in srgb, red 80%, blue);\n\u003c/code\u003e\u003c/pre\u003e\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\nIf percentages don't sum to 100%, both are scaled proportionally:\n\u003c/p\u003e\n\n\u003cpre class=\"code-block\"\u003e\u003ccode class=\"language-css\"\u003e/\u003cem\u003e 25% / 50% → scaled to 33.3% / 66.7% \u003c/em\u003e/\n\u003cp class=\"post-p\"\u003e\nbackground: color-mix(in srgb, red 25%, blue 50%);\n\u003c/code\u003e\u003c/pre\u003e\n\u003c/p\u003e\n\n\u003ch2 class=\"post-h2\"\u003eColor Spaces Matter\u003c/h2\u003e\n\n\u003cp class=\"post-p\"\u003e\nThe \u003ccode class=\"inline-code\"\u003ein \u0026lt;color-space\u0026gt;\u003c/code\u003e part is where \u003ccode class=\"inline-code\"\u003ecolor-mix()\u003c/code\u003e gets powerful. Different color spaces produce \u003cstrong\u003edifferent intermediate colors\u003c/strong\u003e:\n\u003c/p\u003e\n\n\u003ch3 class=\"post-h3\"\u003esRGB (default, but not the best)\u003c/h3\u003e\n\n\u003cpre class=\"code-block\"\u003e\u003ccode class=\"language-css\"\u003e/\u003cem\u003e sRGB mixing — can produce muddy midpoints \u003c/em\u003e/\n\u003cp class=\"post-p\"\u003e\nbackground: color-mix(in srgb, #ff0000, #0000ff);\n\u003c/code\u003e\u003c/pre\u003e\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\nsRGB is the web's native space but its gamma curve creates non-uniform mixing. Midpoints between complementary colors often look desaturated and dull.\n\u003c/p\u003e\n\n\u003ch3 class=\"post-h3\"\u003eOKLCH — The Perceptual Powerhouse\u003c/h3\u003e\n\n\u003cpre class=\"code-block\"\u003e\u003ccode class=\"language-css\"\u003e/\u003cem\u003e OKLCH — perceptually uniform, vibrant midpoints \u003c/em\u003e/\n\u003cp class=\"post-p\"\u003e\nbackground: color-mix(in oklch, #ff0000, #0000ff);\n\u003c/code\u003e\u003c/pre\u003e\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\nOKLCH produces \u003cstrong\u003esmoother, more natural blends\u003c/strong\u003e because it's perceptually uniform. Equal steps in OKLCH look like equal visual changes to the human eye. This is the recommended space for most use cases.\n\u003c/p\u003e\n\n\u003ch3 class=\"post-h3\"\u003eOther Color Spaces\u003c/h3\u003e\n\n\u003cul class=\"post-ul\"\u003e\u003cli class=\"post-li\"\u003e\u003cstrong\u003e\u003ccode class=\"inline-code\"\u003ein hsl\u003c/code\u003e\u003c/strong\u003e — works like HSL color pickers, good for saturation/lightness tweaking\u003c/li\u003e\n\u003cli class=\"post-li\"\u003e\u003cstrong\u003e\u003ccode class=\"inline-code\"\u003ein oklab\u003c/code\u003e\u003c/strong\u003e — similar to OKLCH, perceptually uniform\u003c/li\u003e\n\u003cli class=\"post-li\"\u003e\u003cstrong\u003e\u003ccode class=\"inline-code\"\u003ein lch\u003c/code\u003e\u003c/strong\u003e — cylindrical OKLab, useful for hue-based mixing\u003c/li\u003e\n\u003cli class=\"post-li\"\u003e\u003cstrong\u003e\u003ccode class=\"inline-code\"\u003ein display-p3\u003c/code\u003e\u003c/strong\u003e — wide-gamut mixing for HDR displays\u003c/li\u003e\n\u003cli class=\"post-li\"\u003e\u003cstrong\u003e\u003ccode class=\"inline-code\"\u003ein xyz-d65\u003c/code\u003e\u003c/strong\u003e — the reference space, rarely needed directly\u003c/li\u003e\n\u003c/ul\u003e\n\u003cpre class=\"code-block\"\u003e\u003ccode class=\"language-css\"\u003e/\u003cem\u003e HSL mixing — keeps saturation alive in the middle \u003c/em\u003e/\n\u003cp class=\"post-p\"\u003e\nbackground: color-mix(in hsl, #ff0000, #0000ff);\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n/\u003cem\u003e LCH mixing — preserves perceptual lightness \u003c/em\u003e/\nbackground: color-mix(in lch, #ff0000, #0000ff);\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n/\u003cem\u003e Wide-gamut mixing for P3 displays \u003c/em\u003e/\nbackground: color-mix(in display-p3, #ff0000, #0000ff);\n\u003c/code\u003e\u003c/pre\u003e\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\nHere's the difference visually: mixing red and blue in sRGB gives you a dark purplish-gray. In OKLCH, you get a vibrant purple that maintains perceptual brightness through the blend.\n\u003c/p\u003e\n\n\u003ch2 class=\"post-h2\"\u003eTransparent Colors and Alpha\u003c/h2\u003e\n\n\u003cp class=\"post-p\"\u003e\n\u003ccode class=\"inline-code\"\u003ecolor-mix()\u003c/code\u003e handles transparency gracefully:\n\u003c/p\u003e\n\n\u003cpre class=\"code-block\"\u003e\u003ccode class=\"language-css\"\u003e/\u003cem\u003e Mix a color with transparent → effectively applies opacity \u003c/em\u003e/\n\u003cp class=\"post-p\"\u003e\nbackground: color-mix(in srgb, #3b82f6 80%, transparent);\n/\u003cem\u003e Same as: background: rgb(59 130 246 / 0.8) \u003c/em\u003e/\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n/\u003cem\u003e Mix two semi-transparent colors \u003c/em\u003e/\nbackground: color-mix(in srgb, rgb(255 0 0 / 0.5), rgb(0 0 255 / 0.5));\n\u003c/code\u003e\u003c/pre\u003e\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\nThis is especially useful for creating \u003cstrong\u003ealpha variants\u003c/strong\u003e of design tokens:\n\u003c/p\u003e\n\n\u003cpre class=\"code-block\"\u003e\u003ccode class=\"language-css\"\u003e:root {\n\u003cp class=\"post-p\"\u003e\n--color-primary: #3b82f6;\n--color-primary-80: color-mix(in srgb, var(--color-primary) 80%, transparent);\n--color-primary-60: color-mix(in srgb, var(--color-primary) 60%, transparent);\n--color-primary-40: color-mix(in srgb, var(--color-primary) 40%, transparent);\n--color-primary-20: color-mix(in srgb, var(--color-primary) 20%, transparent);\n}\n\u003c/code\u003e\u003c/pre\u003e\n\u003c/p\u003e\n\n\u003ch2 class=\"post-h2\"\u003eReal-World Patterns\u003c/h2\u003e\n\n\u003ch3 class=\"post-h3\"\u003ePattern 1: Design System Color Scales\u003c/h3\u003e\n\n\u003cp class=\"post-p\"\u003e\nInstead of hand-picking 10 shades of blue, derive them from one base color:\n\u003c/p\u003e\n\n\u003cpre class=\"code-block\"\u003e\u003ccode class=\"language-css\"\u003e:root {\n\u003cp class=\"post-p\"\u003e\n--blue: #3b82f6;\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n/\u003cem\u003e Tints (mix with white) \u003c/em\u003e/\n--blue-50:  color-mix(in oklch, var(--blue) 10%, white);\n--blue-100: color-mix(in oklch, var(--blue) 25%, white);\n--blue-200: color-mix(in oklch, var(--blue) 50%, white);\n--blue-300: color-mix(in oklch, var(--blue) 70%, white);\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n/\u003cem\u003e Base \u003c/em\u003e/\n--blue-500: var(--blue);\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n/\u003cem\u003e Shades (mix with black) \u003c/em\u003e/\n--blue-700: color-mix(in oklch, var(--blue) 70%, black);\n--blue-800: color-mix(in oklch, var(--blue) 50%, black);\n--blue-900: color-mix(in oklch, var(--blue) 25%, black);\n}\n\u003c/code\u003e\u003c/pre\u003e\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\nChange \u003ccode class=\"inline-code\"\u003e--blue\u003c/code\u003e and the entire scale updates. This is dramatically less maintenance than managing 10 separate hex values.\n\u003c/p\u003e\n\n\u003ch3 class=\"post-h3\"\u003ePattern 2: Automatic Dark Mode\u003c/h3\u003e\n\n\u003cp class=\"post-p\"\u003e\nDerive dark mode colors from light mode automatically:\n\u003c/p\u003e\n\n\u003cpre class=\"code-block\"\u003e\u003ccode class=\"language-css\"\u003e:root {\n\u003cp class=\"post-p\"\u003e\n--surface: #ffffff;\n--text: #0f172a;\n}\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n[data-theme=\"dark\"] {\n--surface: color-mix(in oklch, var(--surface), black 85%);\n--text: color-mix(in oklch, var(--text), white 90%);\n}\n\u003c/code\u003e\u003c/pre\u003e\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\nFor component-level dark variants:\n\u003c/p\u003e\n\n\u003cpre class=\"code-block\"\u003e\u003ccode class=\"language-css\"\u003e.card {\n\u003cp class=\"post-p\"\u003e\nbackground: var(--surface);\ncolor: var(--text);\n}\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n.card--elevated {\n/\u003cem\u003e Lighten in light mode, darken in dark mode — same rule works! \u003c/em\u003e/\nbackground: color-mix(in oklch, var(--surface) 95%, var(--text));\n}\n\u003c/code\u003e\u003c/pre\u003e\n\u003c/p\u003e\n\n\u003ch3 class=\"post-h3\"\u003ePattern 3: Accessible Contrast on Any Background\u003c/h3\u003e\n\n\u003cp class=\"post-p\"\u003e\nDynamically compute text colors that pass WCAG contrast:\n\u003c/p\u003e\n\n\u003cpre class=\"code-block\"\u003e\u003ccode class=\"language-css\"\u003e.badge {\n\u003cp class=\"post-p\"\u003e\n--badge-bg: var(--user-color, #3b82f6);\nbackground: var(--badge-bg);\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n/\u003cem\u003e Text is either white or black based on background luminance \u003c/em\u003e/\ncolor: color-mix(in oklch, var(--badge-bg) 15%, white);\n}\n\u003c/code\u003e\u003c/pre\u003e\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\nFor labels and chips where you want the text to be a darker shade of the background:\n\u003c/p\u003e\n\n\u003cpre class=\"code-block\"\u003e\u003ccode class=\"language-css\"\u003e.chip {\n\u003cp class=\"post-p\"\u003e\nbackground: color-mix(in oklch, var(--chip-color) 15%, transparent);\ncolor: color-mix(in oklch, var(--chip-color) 60%, black);\nborder: 1px solid color-mix(in oklch, var(--chip-color) 30%, transparent);\n}\n\u003c/code\u003e\u003c/pre\u003e\n\u003c/p\u003e\n\n\u003ch3 class=\"post-h3\"\u003ePattern 4: Hover and Active States\u003c/h3\u003e\n\n\u003cp class=\"post-p\"\u003e\nReplace hardcoded hover colors with proportional mixing:\n\u003c/p\u003e\n\n\u003cpre class=\"code-block\"\u003e\u003ccode class=\"language-css\"\u003e.btn {\n\u003cp class=\"post-p\"\u003e\nbackground: var(--btn-bg, #3b82f6);\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n\u0026amp;amp;:hover {\n/\u003cem\u003e Darken on hover — works for any color \u003c/em\u003e/\nbackground: color-mix(in oklch, var(--btn-bg) 85%, black);\n}\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n\u0026amp;amp;:active {\nbackground: color-mix(in oklch, var(--btn-bg) 75%, black);\n}\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n\u0026amp;amp;:disabled {\nbackground: color-mix(in oklch, var(--btn-bg) 40%, transparent);\n}\n}\n\u003c/code\u003e\u003c/pre\u003e\n\u003c/p\u003e\n\n\u003ch3 class=\"post-h3\"\u003ePattern 5: Gradient Stop Colors\u003c/h3\u003e\n\n\u003cp class=\"post-p\"\u003e\nCalculate gradient midpoints dynamically:\n\u003c/p\u003e\n\n\u003cpre class=\"code-block\"\u003e\u003ccode class=\"language-css\"\u003e.hero-gradient {\n\u003cp class=\"post-p\"\u003e\n--from: #6366f1;\n--to: #ec4899;\n--mid: color-mix(in oklch, var(--from), var(--to));\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\nbackground: linear-gradient(135deg, var(--from), var(--mid), var(--to));\n}\n\u003c/code\u003e\u003c/pre\u003e\n\u003c/p\u003e\n\n\u003ch3 class=\"post-h3\"\u003ePattern 6: Theming with CSS Custom Properties\u003c/h3\u003e\n\n\u003cp class=\"post-p\"\u003e\nBuild a complete theming system:\n\u003c/p\u003e\n\n\u003cpre class=\"code-block\"\u003e\u003ccode class=\"language-css\"\u003e:root {\n\u003cp class=\"post-p\"\u003e\n--hue: 220;\n--chroma: 0.12;\n--lightness: 55%;\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n--color-primary: oklch(var(--lightness) var(--chroma) var(--hue));\n--color-primary-hover: color-mix(in oklch, var(--color-primary) 85%, black);\n--color-primary-light: color-mix(in oklch, var(--color-primary) 15%, transparent);\n--color-primary-text: color-mix(in oklch, var(--color-primary) 30%, white);\n}\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n[data-theme=\"green\"] {\n--hue: 160;\n--chroma: 0.14;\n}\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n[data-theme=\"rose\"] {\n--hue: 340;\n--chroma: 0.16;\n}\n\u003c/code\u003e\u003c/pre\u003e\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\nOne \u003ccode class=\"inline-code\"\u003edata-theme\u003c/code\u003e attribute changes the entire palette.\n\u003c/p\u003e\n\n\u003ch2 class=\"post-h2\"\u003ePerformance Considerations\u003c/h2\u003e\n\n\u003cp class=\"post-p\"\u003e\n\u003ccode class=\"inline-code\"\u003ecolor-mix()\u003c/code\u003e is computed at \u003cstrong\u003eused-value time\u003c/strong\u003e, meaning the browser evaluates it once per element per frame — similar to \u003ccode class=\"inline-code\"\u003ecalc()\u003c/code\u003e. For static values, there's essentially zero runtime cost. For values that change (e.g., via \u003ccode class=\"inline-code\"\u003e:hover\u003c/code\u003e or custom property changes), recomputation is negligible.\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n\u003cstrong\u003ePrefer \u003ccode class=\"inline-code\"\u003ecolor-mix()\u003c/code\u003e over JavaScript color manipulation.\u003c/strong\u003e Computing colors in JS requires reading computed styles, doing math, and writing back — triggering layout thrashing. CSS \u003ccode class=\"inline-code\"\u003ecolor-mix()\u003c/code\u003e avoids all of that.\n\u003c/p\u003e\n\n\u003ch2 class=\"post-h2\"\u003eBrowser Support\u003c/h2\u003e\n\n\u003cp class=\"post-p\"\u003e\nAs of May 2026, \u003ccode class=\"inline-code\"\u003ecolor-mix()\u003c/code\u003e is \u003cstrong\u003eBaseline: Widely Available\u003c/strong\u003e:\n\u003c/p\u003e\n\n\u003cul class=\"post-ul\"\u003e\u003cli class=\"post-li\"\u003eChrome/Edge 111+\u003c/li\u003e\n\u003cli class=\"post-li\"\u003eFirefox 113+\u003c/li\u003e\n\u003cli class=\"post-li\"\u003eSafari 16.2+\u003c/li\u003e\n\u003cli class=\"post-li\"\u003eAll major mobile browsers\u003c/li\u003e\n\u003c/ul\u003e\n\u003cp class=\"post-p\"\u003e\nNo polyfill needed. It's safe to ship to production.\n\u003c/p\u003e\n\n\u003ch2 class=\"post-h2\"\u003eWhen NOT to Use color-mix()\u003c/h2\u003e\n\n\u003cp class=\"post-p\"\u003e\n\u003cstrong\u003ePredefined design tokens.\u003c/strong\u003e If your design system already defines every shade, \u003ccode class=\"inline-code\"\u003ecolor-mix()\u003c/code\u003e adds unnecessary complexity.\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n\u003cstrong\u003eComplex multi-stop gradients.\u003c/strong\u003e For 3+ color blends, use gradient syntax directly.\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n\u003cstrong\u003eCritical brand colors.\u003c/strong\u003e Automatically derived colors may not match brand guidelines exactly. Always test against brand standards.\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n\u003cstrong\u003eColor space precision.\u003c/strong\u003e sRGB mixing can produce unexpected desaturated midpoints. Always use OKLCH for perceptual consistency unless you have a specific reason to use another space.\n\u003c/p\u003e\n\n\u003ch2 class=\"post-h2\"\u003eTry It Yourself\u003c/h2\u003e\n\n\u003cp class=\"post-p\"\u003e\nWe built a \u003ca href=\"/tools/color-mix-playground/\" class=\"post-link\" target=\"_blank\" rel=\"noopener noreferrer\"\u003eColor Mix Playground\u003c/a\u003e on DevBench where you can experiment with different color spaces, proportions, and see live results. Open it alongside this guide to build intuition for how each color space behaves.\n\u003c/p\u003e\n\n\u003ch2 class=\"post-h2\"\u003eKey Takeaways\u003c/h2\u003e\n\n\u003cul class=\"post-ul\"\u003e\u003cli class=\"post-li\"\u003e\u003cstrong\u003eUse OKLCH by default\u003c/strong\u003e — it produces the most natural, perceptually uniform blends\u003c/li\u003e\n\u003cli class=\"post-li\"\u003e\u003cstrong\u003eDerive, don't hand-pick\u003c/strong\u003e — compute shades, tints, and states from base colors\u003c/li\u003e\n\u003cli class=\"post-li\"\u003e\u003cstrong\u003eCombine with custom properties\u003c/strong\u003e for zero-JS dynamic theming\u003c/li\u003e\n\u003cli class=\"post-li\"\u003e\u003cstrong\u003eWorks everywhere\u003c/strong\u003e — Baseline since early 2024, no polyfills needed\u003c/li\u003e\n\u003cli class=\"post-li\"\u003e\u003cstrong\u003ePrefer over JS color math\u003c/strong\u003e — CSS-side computation avoids layout thrashing\u003c/li\u003e\n\u003c/ul\u003e\n\u003cp class=\"post-p\"\u003e\n\u003ccode class=\"inline-code\"\u003ecolor-mix()\u003c/code\u003e joins CSS nesting, \u003ccode class=\"inline-code\"\u003e:has()\u003c/code\u003e, container queries, and cascade layers as part of the modern CSS renaissance. It eliminates an entire class of preprocessor dependencies and JavaScript color utilities. Start using it today.\n\u003c/p\u003e\n"])</script><script>self.__next_f.push([1,"6:T78f,\n        .blog-content .post-h1 { font-size: 1.75rem; font-weight: 700; color: #ffffff; margin-top: 2rem; margin-bottom: 1rem; }\n        .blog-content .post-h2 { font-size: 1.5rem; font-weight: 600; color: #f1f5f9; margin-top: 1.75rem; margin-bottom: 0.75rem; padding-bottom: 0.5rem; border-bottom: 1px solid #334155; }\n        .blog-content .post-h3 { font-size: 1.25rem; font-weight: 600; color: #e2e8f0; margin-top: 1.5rem; margin-bottom: 0.5rem; }\n        .blog-content .post-h4 { font-size: 1.1rem; font-weight: 600; color: #e2e8f0; margin-top: 1.25rem; margin-bottom: 0.5rem; }\n        .blog-content .post-p { color: #cbd5e1; line-height: 1.75; margin-bottom: 1rem; }\n        .blog-content .code-block { background: #0f172a; border: 1px solid #334155; border-radius: 0.5rem; padding: 1rem; overflow-x: auto; margin: 1rem 0; font-family: 'JetBrains Mono', monospace; font-size: 0.875rem; color: #e2e8f0; }\n        .blog-content .inline-code { background: #1e293b; color: #38bdf8; padding: 0.15rem 0.4rem; border-radius: 0.25rem; font-family: 'JetBrains Mono', monospace; font-size: 0.875em; }\n        .blog-content .post-link { color: #38bdf8; text-decoration: underline; transition: color 0.2s; }\n        .blog-content .post-link:hover { color: #7dd3fc; }\n        .blog-content .post-ul { list-style: disc; padding-left: 1.5rem; margin: 0.75rem 0; color: #cbd5e1; }\n        .blog-content .post-li { margin-bottom: 0.25rem; line-height: 1.6; }\n        .blog-content .post-blockquote { border-left: 3px solid #0ea5e9; padding: 0.5rem 1rem; margin: 1rem 0; background: rgba(14, 165, 233, 0.05); border-radius: 0 0.5rem 0.5rem 0; }\n        .blog-content .post-blockquote p { color: #94a3b8; font-style: italic; }\n        .blog-content .post-hr { border: none; border-top: 1px solid #334155; margin: 2rem 0; }\n        .blog-content strong { color: #f1f5f9; font-weight: 600; }\n        .blog-content em { font-style: italic; }\n        8:[\"slug\",\"css-color-mix-complete-guide\",\"d\"]\nf:[]\n"])</script><script>self.__next_f.push([1,"0:[\"$\",\"$L2\",null,{\"buildId\":\"wLkx3_e9eF0HmBHirJWLm\",\"assetPrefix\":\"/devbench-tech\",\"urlParts\":[\"\",\"blog\",\"css-color-mix-complete-guide\",\"\"],\"initialTree\":[\"\",{\"children\":[\"blog\",{\"children\":[[\"slug\",\"css-color-mix-complete-guide\",\"d\"],{\"children\":[\"__PAGE__?{\\\"slug\\\":\\\"css-color-mix-complete-guide\\\"}\",{}]}]}]},\"$undefined\",\"$undefined\",true],\"initialSeedData\":[\"\",{\"children\":[\"blog\",{\"children\":[[\"slug\",\"css-color-mix-complete-guide\",\"d\"],{\"children\":[\"__PAGE__\",{},[[\"$L3\",[\"$\",\"article\",null,{\"className\":\"max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-20\",\"children\":[[\"$\",\"script\",null,{\"type\":\"application/ld+json\",\"dangerouslySetInnerHTML\":{\"__html\":\"{\\\"@context\\\":\\\"https://schema.org\\\",\\\"@type\\\":\\\"Article\\\",\\\"headline\\\":\\\"CSS color-mix(): The Complete Practical Guide\\\",\\\"description\\\":\\\"Master CSS color-mix() for dynamic theming, color manipulation, and design systems. From basic syntax to advanced patterns with real-world examples — no preprocessors needed.\\\",\\\"datePublished\\\":\\\"2026-05-29\\\",\\\"author\\\":{\\\"@type\\\":\\\"Organization\\\",\\\"name\\\":\\\"DevBench\\\"},\\\"publisher\\\":{\\\"@type\\\":\\\"Organization\\\",\\\"name\\\":\\\"DevBench\\\",\\\"url\\\":\\\"https://devbench-roan.vercel.app\\\"}}\"}}],[\"$\",\"script\",null,{\"type\":\"application/ld+json\",\"dangerouslySetInnerHTML\":{\"__html\":\"{\\\"@context\\\":\\\"https://schema.org\\\",\\\"@type\\\":\\\"BreadcrumbList\\\",\\\"itemListElement\\\":[{\\\"@type\\\":\\\"ListItem\\\",\\\"position\\\":1,\\\"name\\\":\\\"Home\\\",\\\"item\\\":\\\"https://devbench-roan.vercel.app\\\"},{\\\"@type\\\":\\\"ListItem\\\",\\\"position\\\":2,\\\"name\\\":\\\"Blog\\\",\\\"item\\\":\\\"https://devbench-roan.vercel.app/blog\\\"},{\\\"@type\\\":\\\"ListItem\\\",\\\"position\\\":3,\\\"name\\\":\\\"CSS color-mix(): The Complete Practical Guide\\\"}]}\"}}],[\"$\",\"$L4\",null,{\"href\":\"/blog\",\"className\":\"inline-flex items-center gap-1.5 text-slate-400 hover:text-brand-400 text-sm transition-colors mb-8\",\"children\":[[\"$\",\"svg\",null,{\"xmlns\":\"http://www.w3.org/2000/svg\",\"width\":24,\"height\":24,\"viewBox\":\"0 0 24 24\",\"fill\":\"none\",\"stroke\":\"currentColor\",\"strokeWidth\":2,\"strokeLinecap\":\"round\",\"strokeLinejoin\":\"round\",\"className\":\"lucide lucide-arrow-left w-4 h-4\",\"children\":[[\"$\",\"path\",\"1l729n\",{\"d\":\"m12 19-7-7 7-7\"}],[\"$\",\"path\",\"x3x0zl\",{\"d\":\"M19 12H5\"}],\"$undefined\"]}],\"Back to Blog\"]}],[\"$\",\"header\",null,{\"className\":\"mb-10\",\"children\":[[\"$\",\"h1\",null,{\"className\":\"text-3xl sm:text-4xl font-bold text-white leading-tight mb-4\",\"children\":\"CSS color-mix(): The Complete Practical Guide\"}],[\"$\",\"div\",null,{\"className\":\"flex flex-wrap items-center gap-4 text-sm text-slate-400\",\"children\":[[\"$\",\"span\",null,{\"className\":\"flex items-center gap-1.5\",\"children\":[[\"$\",\"svg\",null,{\"xmlns\":\"http://www.w3.org/2000/svg\",\"width\":24,\"height\":24,\"viewBox\":\"0 0 24 24\",\"fill\":\"none\",\"stroke\":\"currentColor\",\"strokeWidth\":2,\"strokeLinecap\":\"round\",\"strokeLinejoin\":\"round\",\"className\":\"lucide lucide-calendar w-4 h-4\",\"children\":[[\"$\",\"rect\",\"eu3xkr\",{\"width\":\"18\",\"height\":\"18\",\"x\":\"3\",\"y\":\"4\",\"rx\":\"2\",\"ry\":\"2\"}],[\"$\",\"line\",\"m3sa8f\",{\"x1\":\"16\",\"x2\":\"16\",\"y1\":\"2\",\"y2\":\"6\"}],[\"$\",\"line\",\"18kwsl\",{\"x1\":\"8\",\"x2\":\"8\",\"y1\":\"2\",\"y2\":\"6\"}],[\"$\",\"line\",\"xt86sb\",{\"x1\":\"3\",\"x2\":\"21\",\"y1\":\"10\",\"y2\":\"10\"}],\"$undefined\"]}],\"2026-05-29\"]}],[\"$\",\"div\",null,{\"className\":\"flex flex-wrap gap-1.5\",\"children\":[[\"$\",\"span\",\"CSS\",{\"className\":\"badge-secondary flex items-center gap-1\",\"children\":[[\"$\",\"svg\",null,{\"xmlns\":\"http://www.w3.org/2000/svg\",\"width\":24,\"height\":24,\"viewBox\":\"0 0 24 24\",\"fill\":\"none\",\"stroke\":\"currentColor\",\"strokeWidth\":2,\"strokeLinecap\":\"round\",\"strokeLinejoin\":\"round\",\"className\":\"lucide lucide-tag w-3 h-3\",\"children\":[[\"$\",\"path\",\"14b2ls\",{\"d\":\"M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z\"}],[\"$\",\"path\",\"7u93v4\",{\"d\":\"M7 7h.01\"}],\"$undefined\"]}],\"CSS\"]}],[\"$\",\"span\",\"color-mix\",{\"className\":\"badge-secondary flex items-center gap-1\",\"children\":[[\"$\",\"svg\",null,{\"xmlns\":\"http://www.w3.org/2000/svg\",\"width\":24,\"height\":24,\"viewBox\":\"0 0 24 24\",\"fill\":\"none\",\"stroke\":\"currentColor\",\"strokeWidth\":2,\"strokeLinecap\":\"round\",\"strokeLinejoin\":\"round\",\"className\":\"lucide lucide-tag w-3 h-3\",\"children\":[[\"$\",\"path\",\"14b2ls\",{\"d\":\"M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z\"}],[\"$\",\"path\",\"7u93v4\",{\"d\":\"M7 7h.01\"}],\"$undefined\"]}],\"color-mix\"]}],[\"$\",\"span\",\"color\",{\"className\":\"badge-secondary flex items-center gap-1\",\"children\":[[\"$\",\"svg\",null,{\"xmlns\":\"http://www.w3.org/2000/svg\",\"width\":24,\"height\":24,\"viewBox\":\"0 0 24 24\",\"fill\":\"none\",\"stroke\":\"currentColor\",\"strokeWidth\":2,\"strokeLinecap\":\"round\",\"strokeLinejoin\":\"round\",\"className\":\"lucide lucide-tag w-3 h-3\",\"children\":[[\"$\",\"path\",\"14b2ls\",{\"d\":\"M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z\"}],[\"$\",\"path\",\"7u93v4\",{\"d\":\"M7 7h.01\"}],\"$undefined\"]}],\"color\"]}],[\"$\",\"span\",\"design\",{\"className\":\"badge-secondary flex items-center gap-1\",\"children\":[[\"$\",\"svg\",null,{\"xmlns\":\"http://www.w3.org/2000/svg\",\"width\":24,\"height\":24,\"viewBox\":\"0 0 24 24\",\"fill\":\"none\",\"stroke\":\"currentColor\",\"strokeWidth\":2,\"strokeLinecap\":\"round\",\"strokeLinejoin\":\"round\",\"className\":\"lucide lucide-tag w-3 h-3\",\"children\":[[\"$\",\"path\",\"14b2ls\",{\"d\":\"M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z\"}],[\"$\",\"path\",\"7u93v4\",{\"d\":\"M7 7h.01\"}],\"$undefined\"]}],\"design\"]}],[\"$\",\"span\",\"theming\",{\"className\":\"badge-secondary flex items-center gap-1\",\"children\":[[\"$\",\"svg\",null,{\"xmlns\":\"http://www.w3.org/2000/svg\",\"width\":24,\"height\":24,\"viewBox\":\"0 0 24 24\",\"fill\":\"none\",\"stroke\":\"currentColor\",\"strokeWidth\":2,\"strokeLinecap\":\"round\",\"strokeLinejoin\":\"round\",\"className\":\"lucide lucide-tag w-3 h-3\",\"children\":[[\"$\",\"path\",\"14b2ls\",{\"d\":\"M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z\"}],[\"$\",\"path\",\"7u93v4\",{\"d\":\"M7 7h.01\"}],\"$undefined\"]}],\"theming\"]}],[\"$\",\"span\",\"2026\",{\"className\":\"badge-secondary flex items-center gap-1\",\"children\":[[\"$\",\"svg\",null,{\"xmlns\":\"http://www.w3.org/2000/svg\",\"width\":24,\"height\":24,\"viewBox\":\"0 0 24 24\",\"fill\":\"none\",\"stroke\":\"currentColor\",\"strokeWidth\":2,\"strokeLinecap\":\"round\",\"strokeLinejoin\":\"round\",\"className\":\"lucide lucide-tag w-3 h-3\",\"children\":[[\"$\",\"path\",\"14b2ls\",{\"d\":\"M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z\"}],[\"$\",\"path\",\"7u93v4\",{\"d\":\"M7 7h.01\"}],\"$undefined\"]}],\"2026\"]}],[\"$\",\"span\",\"guide\",{\"className\":\"badge-secondary flex items-center gap-1\",\"children\":[[\"$\",\"svg\",null,{\"xmlns\":\"http://www.w3.org/2000/svg\",\"width\":24,\"height\":24,\"viewBox\":\"0 0 24 24\",\"fill\":\"none\",\"stroke\":\"currentColor\",\"strokeWidth\":2,\"strokeLinecap\":\"round\",\"strokeLinejoin\":\"round\",\"className\":\"lucide lucide-tag w-3 h-3\",\"children\":[[\"$\",\"path\",\"14b2ls\",{\"d\":\"M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z\"}],[\"$\",\"path\",\"7u93v4\",{\"d\":\"M7 7h.01\"}],\"$undefined\"]}],\"guide\"]}]]}]]}]]}],[\"$\",\"div\",null,{\"className\":\"blog-content prose-p:text-slate-300 prose-p:leading-relaxed prose-p:mb-4\",\"dangerouslySetInnerHTML\":{\"__html\":\"$5\"}}],[\"$\",\"style\",null,{\"dangerouslySetInnerHTML\":{\"__html\":\"$6\"}}]]}],null],null],null]},[null,[\"$\",\"$L7\",null,{\"parallelRouterKey\":\"children\",\"segmentPath\":[\"children\",\"blog\",\"children\",\"$8\",\"children\"],\"error\":\"$undefined\",\"errorStyles\":\"$undefined\",\"errorScripts\":\"$undefined\",\"template\":[\"$\",\"$L9\",null,{}],\"templateStyles\":\"$undefined\",\"templateScripts\":\"$undefined\",\"notFound\":\"$undefined\",\"notFoundStyles\":\"$undefined\"}]],null]},[null,[\"$\",\"$L7\",null,{\"parallelRouterKey\":\"children\",\"segmentPath\":[\"children\",\"blog\",\"children\"],\"error\":\"$undefined\",\"errorStyles\":\"$undefined\",\"errorScripts\":\"$undefined\",\"template\":[\"$\",\"$L9\",null,{}],\"templateStyles\":\"$undefined\",\"templateScripts\":\"$undefined\",\"notFound\":\"$undefined\",\"notFoundStyles\":\"$undefined\"}]],null]},[[[[\"$\",\"link\",\"0\",{\"rel\":\"stylesheet\",\"href\":\"/devbench-tech/_next/static/css/c877e59dbcb00f11.css\",\"precedence\":\"next\",\"crossOrigin\":\"$undefined\"}]],[\"$\",\"html\",null,{\"lang\":\"en\",\"className\":\"dark\",\"children\":[\"$\",\"body\",null,{\"className\":\"flex flex-col min-h-screen\",\"children\":[[\"$\",\"script\",null,{\"type\":\"application/ld+json\",\"dangerouslySetInnerHTML\":{\"__html\":\"{\\\"@context\\\":\\\"https://schema.org\\\",\\\"@type\\\":\\\"WebSite\\\",\\\"name\\\":\\\"DevBench\\\",\\\"url\\\":\\\"https://devbench-roan.vercel.app\\\",\\\"description\\\":\\\"Free developer tools for everyday use: JSON formatter, Base64 encoder/decoder, UUID generator, regex tester, benchmarks, and more.\\\",\\\"potentialAction\\\":{\\\"@type\\\":\\\"SearchAction\\\",\\\"target\\\":\\\"https://devbench-roan.vercel.app/tools?q={search_term_string}\\\",\\\"query-input\\\":\\\"required name=search_term_string\\\"}}\"}}],[\"$\",\"$La\",null,{}],[\"$\",\"main\",null,{\"className\":\"flex-1\",\"children\":[\"$\",\"$L7\",null,{\"parallelRouterKey\":\"children\",\"segmentPath\":[\"children\"],\"error\":\"$undefined\",\"errorStyles\":\"$undefined\",\"errorScripts\":\"$undefined\",\"template\":[\"$\",\"$L9\",null,{}],\"templateStyles\":\"$undefined\",\"templateScripts\":\"$undefined\",\"notFound\":[[\"$\",\"title\",null,{\"children\":\"404: This page could not be found.\"}],[\"$\",\"div\",null,{\"style\":{\"fontFamily\":\"system-ui,\\\"Segoe UI\\\",Roboto,Helvetica,Arial,sans-serif,\\\"Apple Color Emoji\\\",\\\"Segoe UI Emoji\\\"\",\"height\":\"100vh\",\"textAlign\":\"center\",\"display\":\"flex\",\"flexDirection\":\"column\",\"alignItems\":\"center\",\"justifyContent\":\"center\"},\"children\":[\"$\",\"div\",null,{\"children\":[[\"$\",\"style\",null,{\"dangerouslySetInnerHTML\":{\"__html\":\"body{color:#000;background:#fff;margin:0}.next-error-h1{border-right:1px solid rgba(0,0,0,.3)}@media (prefers-color-scheme:dark){body{color:#fff;background:#000}.next-error-h1{border-right:1px solid rgba(255,255,255,.3)}}\"}}],[\"$\",\"h1\",null,{\"className\":\"next-error-h1\",\"style\":{\"display\":\"inline-block\",\"margin\":\"0 20px 0 0\",\"padding\":\"0 23px 0 0\",\"fontSize\":24,\"fontWeight\":500,\"verticalAlign\":\"top\",\"lineHeight\":\"49px\"},\"children\":\"404\"}],[\"$\",\"div\",null,{\"style\":{\"display\":\"inline-block\"},\"children\":[\"$\",\"h2\",null,{\"style\":{\"fontSize\":14,\"fontWeight\":400,\"lineHeight\":\"49px\",\"margin\":0},\"children\":\"This page could not be found.\"}]}]]}]}]],\"notFoundStyles\":[]}]}],[\"$\",\"footer\",null,{\"className\":\"bg-surface-light border-t border-slate-700/50 mt-auto\",\"children\":[\"$\",\"div\",null,{\"className\":\"max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12\",\"children\":[[\"$\",\"div\",null,{\"className\":\"grid grid-cols-1 md:grid-cols-3 gap-8\",\"children\":[[\"$\",\"div\",null,{\"children\":[[\"$\",\"$L4\",null,{\"href\":\"/\",\"className\":\"flex items-center gap-2.5 mb-3\",\"children\":[[\"$\",\"div\",null,{\"className\":\"w-7 h-7 bg-brand-500 rounded-lg flex items-center justify-center\",\"children\":[\"$\",\"svg\",null,{\"xmlns\":\"http://www.w3.org/2000/svg\",\"width\":24,\"height\":24,\"viewBox\":\"0 0 24 24\",\"fill\":\"none\",\"stroke\":\"currentColor\",\"strokeWidth\":2,\"strokeLinecap\":\"round\",\"strokeLinejoin\":\"round\",\"className\":\"lucide lucide-terminal w-3.5 h-3.5 text-white\",\"children\":[[\"$\",\"polyline\",\"akl6gq\",{\"points\":\"4 17 10 11 4 5\"}],[\"$\",\"line\",\"q2wloq\",{\"x1\":\"12\",\"x2\":\"20\",\"y1\":\"19\",\"y2\":\"19\"}],\"$undefined\"]}]}],[\"$\",\"span\",null,{\"className\":\"text-lg font-bold text-white\",\"children\":[\"Dev\",[\"$\",\"span\",null,{\"className\":\"gradient-text\",\"children\":\"Bench\"}]]}]]}],[\"$\",\"p\",null,{\"className\":\"text-slate-400 text-sm leading-relaxed\",\"children\":\"Free developer tools, benchmarks, and calculators. Built for developers, by developers.\"}]]}],[\"$\",\"div\",null,{\"children\":[[\"$\",\"h3\",null,{\"className\":\"text-sm font-semibold text-slate-300 uppercase tracking-wider mb-4\",\"children\":\"Tools\"}],[\"$\",\"ul\",null,{\"className\":\"space-y-2\",\"children\":[[\"$\",\"li\",\"/tools/json-formatter\",{\"children\":[\"$\",\"$L4\",null,{\"href\":\"/tools/json-formatter\",\"className\":\"text-slate-400 hover:text-brand-400 text-sm transition-colors\",\"children\":\"JSON Formatter\"}]}],[\"$\",\"li\",\"/tools/base64\",{\"children\":[\"$\",\"$L4\",null,{\"href\":\"/tools/base64\",\"className\":\"text-slate-400 hover:text-brand-400 text-sm transition-colors\",\"children\":\"Base64 Encoder/Decoder\"}]}],[\"$\",\"li\",\"/tools/uuid-generator\",{\"children\":[\"$\",\"$L4\",null,{\"href\":\"/tools/uuid-generator\",\"className\":\"text-slate-400 hover:text-brand-400 text-sm transition-colors\",\"children\":\"UUID Generator\"}]}],[\"$\",\"li\",\"/tools/regex-tester\",{\"children\":[\"$\",\"$L4\",null,{\"href\":\"/tools/regex-tester\",\"className\":\"text-slate-400 hover:text-brand-400 text-sm transition-colors\",\"children\":\"Regex Tester\"}]}]]}]]}],[\"$\",\"div\",null,{\"children\":[[\"$\",\"h3\",null,{\"className\":\"text-sm font-semibold text-slate-300 uppercase tracking-wider mb-4\",\"children\":\"Resources\"}],[\"$\",\"ul\",null,{\"className\":\"space-y-2\",\"children\":[[\"$\",\"li\",\"/blog\",{\"children\":[\"$\",\"$L4\",null,{\"href\":\"/blog\",\"className\":\"text-slate-400 hover:text-brand-400 text-sm transition-colors\",\"children\":\"Blog\"}]}],[\"$\",\"li\",\"/benchmarks\",{\"children\":[\"$\",\"$L4\",null,{\"href\":\"/benchmarks\",\"className\":\"text-slate-400 hover:text-brand-400 text-sm transition-colors\",\"children\":\"Benchmarks\"}]}],[\"$\",\"li\",\"/about\",{\"children\":[\"$\",\"$L4\",null,{\"href\":\"/about\",\"className\":\"text-slate-400 hover:text-brand-400 text-sm transition-colors\",\"children\":\"About\"}]}]]}]]}]]}],[\"$\",\"div\",null,{\"className\":\"mt-10 pt-6 border-t border-slate-700/50 flex flex-col sm:flex-row items-center justify-between gap-4\",\"children\":[[\"$\",\"p\",null,{\"className\":\"text-slate-500 text-sm flex items-center gap-1\",\"children\":[\"Made with \",[\"$\",\"svg\",null,{\"xmlns\":\"http://www.w3.org/2000/svg\",\"width\":24,\"height\":24,\"viewBox\":\"0 0 24 24\",\"fill\":\"none\",\"stroke\":\"currentColor\",\"strokeWidth\":2,\"strokeLinecap\":\"round\",\"strokeLinejoin\":\"round\",\"className\":\"lucide lucide-heart w-3.5 h-3.5 text-red-500 fill-red-500\",\"children\":[[\"$\",\"path\",\"c3ymky\",{\"d\":\"M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z\"}],\"$undefined\"]}],\" by the DevBench team © \",2026]}],[\"$\",\"a\",null,{\"href\":\"https://github.com\",\"target\":\"_blank\",\"rel\":\"noopener noreferrer\",\"className\":\"text-slate-500 hover:text-slate-300 transition-colors\",\"aria-label\":\"GitHub\",\"children\":[\"$\",\"svg\",null,{\"xmlns\":\"http://www.w3.org/2000/svg\",\"width\":24,\"height\":24,\"viewBox\":\"0 0 24 24\",\"fill\":\"none\",\"stroke\":\"currentColor\",\"strokeWidth\":2,\"strokeLinecap\":\"round\",\"strokeLinejoin\":\"round\",\"className\":\"lucide lucide-github w-5 h-5\",\"children\":[[\"$\",\"path\",\"tonef\",{\"d\":\"M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4\"}],[\"$\",\"path\",\"9comsn\",{\"d\":\"M9 18c-4.51 2-5-2-7-2\"}],\"$undefined\"]}]}]]}]]}]}],[\"$\",\"$Lb\",null,{}],[\"$\",\"$Lc\",null,{\"position\":\"bottom-right\",\"toastOptions\":{\"style\":{\"background\":\"#1e293b\",\"color\":\"#e2e8f0\",\"border\":\"1px solid #334155\",\"fontSize\":\"14px\"}}}]]}]}]],null],null],\"couldBeIntercepted\":false,\"initialHead\":[null,\"$Ld\"],\"globalErrorComponent\":\"$e\",\"missingSlots\":\"$Wf\"}]\n"])</script><script>self.__next_f.push([1,"d:[[\"$\",\"meta\",\"0\",{\"name\":\"viewport\",\"content\":\"width=device-width, initial-scale=1\"}],[\"$\",\"meta\",\"1\",{\"charSet\":\"utf-8\"}],[\"$\",\"title\",\"2\",{\"children\":\"CSS color-mix(): The Complete Practical Guide | DevBench\"}],[\"$\",\"meta\",\"3\",{\"name\":\"description\",\"content\":\"Master CSS color-mix() for dynamic theming, color manipulation, and design systems. From basic syntax to advanced patterns with real-world examples — no preprocessors needed.\"}],[\"$\",\"meta\",\"4\",{\"name\":\"author\",\"content\":\"DevBench\"}],[\"$\",\"meta\",\"5\",{\"name\":\"keywords\",\"content\":\"developer tools,JSON formatter,Base64,UUID generator,regex tester,benchmarks,dev tools\"}],[\"$\",\"meta\",\"6\",{\"property\":\"og:title\",\"content\":\"DevBench — Developer Tools \u0026 Calculators\"}],[\"$\",\"meta\",\"7\",{\"property\":\"og:description\",\"content\":\"Free developer tools for everyday use.\"}],[\"$\",\"meta\",\"8\",{\"property\":\"og:site_name\",\"content\":\"DevBench\"}],[\"$\",\"meta\",\"9\",{\"property\":\"og:locale\",\"content\":\"en_US\"}],[\"$\",\"meta\",\"10\",{\"property\":\"og:type\",\"content\":\"website\"}],[\"$\",\"meta\",\"11\",{\"name\":\"twitter:card\",\"content\":\"summary\"}],[\"$\",\"meta\",\"12\",{\"name\":\"twitter:title\",\"content\":\"DevBench — Developer Tools \u0026 Calculators\"}],[\"$\",\"meta\",\"13\",{\"name\":\"twitter:description\",\"content\":\"Free developer tools for everyday use.\"}],[\"$\",\"link\",\"14\",{\"rel\":\"icon\",\"href\":\"/favicon.svg\"}]]\n3:null\n"])</script></body></html>

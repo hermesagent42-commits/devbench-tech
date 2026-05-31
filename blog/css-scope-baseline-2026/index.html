@@ -1,0 +1,432 @@
+<!DOCTYPE html><html lang="en" class="dark"><head><meta charSet="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/><link rel="stylesheet" href="/devbench-tech/_next/static/css/c877e59dbcb00f11.css" data-precedence="next"/><link rel="preload" as="script" fetchPriority="low" href="/devbench-tech/_next/static/chunks/webpack-b521a83317325026.js"/><script src="/devbench-tech/_next/static/chunks/fd9d1056-04e0aa683dc3c41f.js" async=""></script><script src="/devbench-tech/_next/static/chunks/2117-8374a93ea77a2be4.js" async=""></script><script src="/devbench-tech/_next/static/chunks/main-app-aaec773b36366bc0.js" async=""></script><script src="/devbench-tech/_next/static/chunks/2972-4aaa15d119eeb022.js" async=""></script><script src="/devbench-tech/_next/static/chunks/app/blog/%5Bslug%5D/page-a411190e7012c687.js" async=""></script><script src="/devbench-tech/_next/static/chunks/44530001-4ecf7a22b5b24163.js" async=""></script><script src="/devbench-tech/_next/static/chunks/8375-c77b8de36f6696fb.js" async=""></script><script src="/devbench-tech/_next/static/chunks/6829-f51803445ddf1872.js" async=""></script><script src="/devbench-tech/_next/static/chunks/app/layout-488e5c40aa6ffa72.js" async=""></script><title>CSS @scope in 2026: The End of Naming Conventions and Heavy Abstractions | DevBench</title><meta name="description" content="CSS @scope is now Baseline across all browsers — scoped styles without BEM, CSS Modules, or CSS-in-JS. Learn the syntax, scope roots, scope limits, proximity, and how to migrate from naming conventions to native scoping."/><meta name="author" content="DevBench"/><meta name="keywords" content="developer tools,JSON formatter,Base64,UUID generator,regex tester,benchmarks,dev tools"/><meta property="og:title" content="DevBench — Developer Tools &amp; Calculators"/><meta property="og:description" content="Free developer tools for everyday use."/><meta property="og:site_name" content="DevBench"/><meta property="og:locale" content="en_US"/><meta property="og:type" content="website"/><meta name="twitter:card" content="summary"/><meta name="twitter:title" content="DevBench — Developer Tools &amp; Calculators"/><meta name="twitter:description" content="Free developer tools for everyday use."/><link rel="icon" href="/favicon.svg"/><script src="/devbench-tech/_next/static/chunks/polyfills-42372ed130431b0a.js" noModule=""></script></head><body class="flex flex-col min-h-screen"><script type="application/ld+json">{"@context":"https://schema.org","@type":"WebSite","name":"DevBench","url":"https://devbench-roan.vercel.app","description":"Free developer tools for everyday use: JSON formatter, Base64 encoder/decoder, UUID generator, regex tester, benchmarks, and more.","potentialAction":{"@type":"SearchAction","target":"https://devbench-roan.vercel.app/tools?q={search_term_string}","query-input":"required name=search_term_string"}}</script><header class="sticky top-0 z-50 transition-all duration-300 bg-surface border-b border-transparent"><div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8"><div class="flex items-center justify-between h-16"><a class="flex items-center gap-2.5 group" href="/devbench-tech/"><div class="w-8 h-8 bg-brand-500 rounded-lg flex items-center justify-center group-hover:bg-brand-400 transition-colors"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-terminal w-4 h-4 text-white"><polyline points="4 17 10 11 4 5"></polyline><line x1="12" x2="20" y1="19" y2="19"></line></svg></div><span class="text-xl font-bold text-white tracking-tight">Dev<span class="gradient-text">Bench</span></span></a><nav class="hidden md:flex items-center gap-1"><a class="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 text-slate-400 hover:text-slate-200 hover:bg-surface-lighter" href="/devbench-tech/tools/"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-wrench w-4 h-4"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path></svg>Tools</a><a class="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 text-slate-400 hover:text-slate-200 hover:bg-surface-lighter" href="/devbench-tech/benchmarks/"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-bar-chart3 w-4 h-4"><path d="M3 3v18h18"></path><path d="M18 17V9"></path><path d="M13 17V5"></path><path d="M8 17v-3"></path></svg>Benchmarks</a><a class="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 bg-brand-500/10 text-brand-400" href="/devbench-tech/blog/"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-book-open w-4 h-4"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg>Blog</a><a class="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 text-slate-400 hover:text-slate-200 hover:bg-surface-lighter" href="/devbench-tech/about/"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-info w-4 h-4"><circle cx="12" cy="12" r="10"></circle><path d="M12 16v-4"></path><path d="M12 8h.01"></path></svg>About</a></nav><button class="md:hidden p-2 rounded-lg text-slate-400 hover:text-white hover:bg-surface-lighter transition-colors" aria-label="Toggle menu"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-menu w-5 h-5"><line x1="4" x2="20" y1="12" y2="12"></line><line x1="4" x2="20" y1="6" y2="6"></line><line x1="4" x2="20" y1="18" y2="18"></line></svg></button></div></div></header><main class="flex-1"><article class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-20"><script type="application/ld+json">{"@context":"https://schema.org","@type":"Article","headline":"CSS @scope in 2026: The End of Naming Conventions and Heavy Abstractions","description":"CSS @scope is now Baseline across all browsers — scoped styles without BEM, CSS Modules, or CSS-in-JS. Learn the syntax, scope roots, scope limits, proximity, and how to migrate from naming conventions to native scoping.","datePublished":"2026-05-28","author":{"@type":"Organization","name":"DevBench"},"publisher":{"@type":"Organization","name":"DevBench","url":"https://devbench-roan.vercel.app"}}</script><script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://devbench-roan.vercel.app"},{"@type":"ListItem","position":2,"name":"Blog","item":"https://devbench-roan.vercel.app/blog"},{"@type":"ListItem","position":3,"name":"CSS @scope in 2026: The End of Naming Conventions and Heavy Abstractions"}]}</script><a class="inline-flex items-center gap-1.5 text-slate-400 hover:text-brand-400 text-sm transition-colors mb-8" href="/devbench-tech/blog/"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-arrow-left w-4 h-4"><path d="m12 19-7-7 7-7"></path><path d="M19 12H5"></path></svg>Back to Blog</a><header class="mb-10"><h1 class="text-3xl sm:text-4xl font-bold text-white leading-tight mb-4">CSS @scope in 2026: The End of Naming Conventions and Heavy Abstractions</h1><div class="flex flex-wrap items-center gap-4 text-sm text-slate-400"><span class="flex items-center gap-1.5"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-calendar w-4 h-4"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"></rect><line x1="16" x2="16" y1="2" y2="6"></line><line x1="8" x2="8" y1="2" y2="6"></line><line x1="3" x2="21" y1="10" y2="10"></line></svg>2026-05-28</span><div class="flex flex-wrap gap-1.5"><span class="badge-secondary flex items-center gap-1"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-tag w-3 h-3"><path d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"></path><path d="M7 7h.01"></path></svg>[&quot;CSS&quot;</span><span class="badge-secondary flex items-center gap-1"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-tag w-3 h-3"><path d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"></path><path d="M7 7h.01"></path></svg>&quot;@scope&quot;</span><span class="badge-secondary flex items-center gap-1"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-tag w-3 h-3"><path d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"></path><path d="M7 7h.01"></path></svg>&quot;Baseline 2026&quot;</span><span class="badge-secondary flex items-center gap-1"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-tag w-3 h-3"><path d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"></path><path d="M7 7h.01"></path></svg>&quot;Scoped Styles&quot;</span><span class="badge-secondary flex items-center gap-1"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-tag w-3 h-3"><path d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"></path><path d="M7 7h.01"></path></svg>&quot;CSS Architecture&quot;</span><span class="badge-secondary flex items-center gap-1"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-tag w-3 h-3"><path d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"></path><path d="M7 7h.01"></path></svg>&quot;Design Systems&quot;</span><span class="badge-secondary flex items-center gap-1"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-tag w-3 h-3"><path d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"></path><path d="M7 7h.01"></path></svg>&quot;2026&quot;]</span></div></div></header><div class="blog-content prose-p:text-slate-300 prose-p:leading-relaxed prose-p:mb-4">
+<h2 class="post-h2">The Naming Problem We All Live With</h2>
+
+<p class="post-p">
+For 25 years, CSS has been global. Every selector you write can potentially match any element in the entire DOM. This single property — the cascade's global reach — has driven every naming convention, every CSS architecture, and every CSS-in-JS library ever created.
+</p>
+
+<p class="post-p">
+It's why we have BEM:
+</p>
+
+<pre class="code-block"><code class="language-css">.card { }
+<p class="post-p">
+.card__title { }
+.card__title--highlighted { }
+.card__body { }
+.card__footer { }
+.card__footer__button { }
+.card__footer__button--disabled { }
+</code></pre>
+</p>
+
+<p class="post-p">
+It's why we have CSS Modules, which produce names like <code class="inline-code">.Card_title_a3x9k</code>. It's why we have Tailwind's utility-first approach — because atomic classes don't collide. It's why we have 50 competing "CSS in JS" libraries, each solving the exact same problem in a slightly different way.
+</p>
+
+<p class="post-p">
+All of these solutions exist to answer one question: <strong>"How do I write CSS for <em>this</em> component without it leaking into <em>that</em> component?"</strong>
+</p>
+
+<p class="post-p">
+CSS <code class="inline-code">@scope</code> answers that question natively. No build step. No naming convention. No library. Just CSS.
+</p>
+
+<h2 class="post-h2">What CSS @scope Does</h2>
+
+<p class="post-p">
+The <code class="inline-code">@scope</code> at-rule defines a <strong>scope</strong> — a region of the DOM — and limits the styles within it to only match elements inside that region. It's the browser-native version of what CSS Modules, Vue's <code class="inline-code">&lt;style scoped&gt;</code>, and Svelte's scoped styles do, but it works in plain CSS files.
+</p>
+
+<pre class="code-block"><code class="language-css">@scope (.card) {
+<p class="post-p">
+/<em> Every selector here only matches inside .card </em>/
+.title {
+font-size: 1.25rem;
+}
+</p>
+
+<p class="post-p">
+p {
+line-height: 1.6;
+}
+</p>
+
+<p class="post-p">
+button {
+border-radius: 8px;
+}
+}
+</code></pre>
+</p>
+
+<p class="post-p">
+Those <code class="inline-code">.title</code> and <code class="inline-code">button</code> selectors will <strong>never</strong> match elements outside a <code class="inline-code">.card</code> element. Write them anywhere in your CSS file — no collisions, no specificity wars, no BEM names.
+</p>
+
+<h2 class="post-h2">The Anatomy of @scope</h2>
+
+<p class="post-p">
+The full syntax has three parts:
+</p>
+
+<pre class="code-block"><code class="language-css">@scope (&amp;lt;scope-root&amp;gt;) to (&amp;lt;scope-limit&amp;gt;) {
+<p class="post-p">
+/<em> scoped style rules </em>/
+}
+</code></pre>
+</p>
+
+<h3 class="post-h3">Scope Root (required)</h3>
+
+<p class="post-p">
+The <strong>scope root</strong> is a selector that defines where the scope begins. All scoped rules only apply to elements that are descendants of this root.
+</p>
+
+<pre class="code-block"><code class="language-css">@scope (.sidebar) {
+<p class="post-p">
+a { color: blue; }
+}
+</code></pre>
+</p>
+
+<p class="post-p">
+The <code class="inline-code">a</code> rule matches <code class="inline-code">&lt;a&gt;</code> elements that are inside <code class="inline-code">.sidebar</code>, but NOT <code class="inline-code">&lt;a&gt;</code> elements outside it.
+</p>
+
+<p class="post-p">
+&gt; <strong>Important</strong>: The scope root itself is <em>not</em> matched by the scoped rules — only its descendants. To style the root, write it outside the scope block.
+</p>
+
+<h3 class="post-h3">Scope Limit (optional)</h3>
+
+<p class="post-p">
+The <strong>scope limit</strong> defines where the scope <em>stops</em>. Styles don't apply to elements that are beyond this boundary — even if they're descendants of the scope root.
+</p>
+
+<pre class="code-block"><code class="language-css">@scope (.article) to (.comments-section) {
+<p class="post-p">
+p {
+line-height: 1.8;
+}
+}
+</code></pre>
+</p>
+
+<p class="post-p">
+Here, <code class="inline-code">&lt;p&gt;</code> elements inside <code class="inline-code">.article</code> get the styling, but once you hit <code class="inline-code">.comments-section</code> and anything inside it, the scope stops. The comments section is "donut-holed" out.
+</p>
+
+<h3 class="post-h3">The <code class="inline-code">:scope</code> Pseudo-Class</h3>
+
+<p class="post-p">
+Inside an <code class="inline-code">@scope</code> block, <code class="inline-code">:scope</code> refers to the scope root:
+</p>
+
+<pre class="code-block"><code class="language-css">@scope (.card) {
+<p class="post-p">
+:scope {
+border: 1px solid #e5e7eb;
+padding: 1rem;
+}
+}
+</code></pre>
+</p>
+
+<p class="post-p">
+This is equivalent to writing <code class="inline-code">.card { border: ...; padding: ...; }</code> outside the block, but it keeps everything together.
+</p>
+
+<h2 class="post-h2">Proximity: The Real Game-Changer</h2>
+
+<p class="post-p">
+The most powerful feature of <code class="inline-code">@scope</code> — and the one that has no equivalent in any naming convention — is <strong>proximity</strong>.
+</p>
+
+<p class="post-p">
+When two <code class="inline-code">@scope</code> blocks define conflicting styles on the same element, <strong>the one whose scope root is closer to the element wins</strong>. Not specificity. Not source order. Proximity.
+</p>
+
+<pre class="code-block"><code class="language-css">@scope (.light-theme) {
+<p class="post-p">
+p { color: #1a1a1a; }
+}
+</p>
+
+<p class="post-p">
+@scope (.dark-theme) {
+p { color: #fafafa; }
+}
+</code></pre>
+</p>
+
+<p class="post-p">
+If you have:
+</p>
+
+<pre class="code-block"><code class="language-html">&amp;lt;div class="dark-theme"&amp;gt;
+<p class="post-p">
+&amp;lt;div class="light-theme"&amp;gt;
+&amp;lt;p&amp;gt;What color am I?&amp;lt;/p&amp;gt;
+&amp;lt;/div&amp;gt;
+&amp;lt;/div&amp;gt;
+</code></pre>
+</p>
+
+<p class="post-p">
+The <code class="inline-code">&lt;p&gt;</code> is <code class="inline-code">#1a1a1a</code> (light), because <code class="inline-code">.light-theme</code> is closer in the DOM tree than <code class="inline-code">.dark-theme</code>. This is <strong>scope proximity</strong> — it resolves the conflict by measuring DOM distance, not by counting selectors. It's the cascade logic we always wished existed.
+</p>
+
+<p class="post-p">
+This means you can nest scoped components arbitrarily deep and the inner scope always wins. Component libraries that use <code class="inline-code">@scope</code> compose perfectly without any naming collisions.
+</p>
+
+<h2 class="post-h2">Practical Patterns</h2>
+
+<h3 class="post-h3">Pattern 1: Component-Scoped Styles (Replace BEM)</h3>
+
+<p class="post-p">
+Before:
+</p>
+<pre class="code-block"><code class="language-css">.card { }
+<p class="post-p">
+.card__title { font-size: 1.25rem; }
+.card__body { line-height: 1.6; }
+.card__button { background: blue; }
+.card__button--primary { background: darkblue; }
+</code></pre>
+</p>
+
+<p class="post-p">
+After:
+</p>
+<pre class="code-block"><code class="language-css">@scope (.card) {
+<p class="post-p">
+.title { font-size: 1.25rem; }
+.body { line-height: 1.6; }
+</p>
+
+<p class="post-p">
+.button {
+background: blue;
+</p>
+
+<p class="post-p">
+&amp;amp;.primary {
+background: darkblue;
+}
+}
+}
+</code></pre>
+</p>
+
+<p class="post-p">
+Clean, readable, no collisions. The <code class="inline-code">.title</code> class will <em>never</em> match a <code class="inline-code">.title</code> inside a <code class="inline-code">.sidebar</code> or anywhere else.
+</p>
+
+<h3 class="post-h3">Pattern 2: Section-Level Theming</h3>
+
+<pre class="code-block"><code class="language-css">@scope (.marketing-section) {
+<p class="post-p">
+h1 { font-family: 'Display', serif; }
+p { font-size: 1.125rem; }
+}
+</p>
+
+<p class="post-p">
+@scope (.docs-section) {
+h1 { font-family: 'Mono', monospace; }
+p { font-size: 0.9375rem; }
+}
+</code></pre>
+</p>
+
+<p class="post-p">
+Each section gets its own typography — no class prefixes, no <code class="inline-code">!important</code>, no specificity hacks.
+</p>
+
+<h3 class="post-h3">Pattern 3: Donut Scope for Layout Exceptions</h3>
+
+<pre class="code-block"><code class="language-css">@scope (.full-width-content) to (.sidebar) {
+<p class="post-p">
+p { max-width: 72ch; }
+img { max-width: 100%; }
+}
+</code></pre>
+</p>
+
+<p class="post-p">
+The main content area gets constrained text, but once a sidebar starts, those constraints don't apply — the sidebar manages its own layout.
+</p>
+
+<h3 class="post-h3">Pattern 4: Design System Primitive Overrides</h3>
+
+<pre class="code-block"><code class="language-css">/<em> Design system base </em>/
+<p class="post-p">
+@scope ([data-component="button"]) {
+:scope {
+display: inline-flex;
+padding: 0.5rem 1rem;
+}
+}
+</p>
+
+<p class="post-p">
+/<em> Marketing override — closer in DOM, wins via proximity </em>/
+@scope (.hero-section) {
+[data-component="button"] {
+padding: 1rem 2rem;
+font-size: 1.25rem;
+}
+}
+</code></pre>
+</p>
+
+<p class="post-p">
+The hero overrides the design system button without raising specificity, without <code class="inline-code">!important</code>, and without worrying about selector collision.
+</p>
+
+<h3 class="post-h3">Pattern 5: Third-Party Widget Isolation</h3>
+
+<p class="post-p">
+Embedding a third-party widget but don't want its CSS to leak out?
+</p>
+
+<pre class="code-block"><code class="language-css">@scope (.weather-widget) {
+<p class="post-p">
+* { margin: 0; padding: 0; box-sizing: border-box; }
+/<em> widget styles here </em>/
+}
+</code></pre>
+</p>
+
+<p class="post-p">
+Everything inside <code class="inline-code">.weather-widget</code> is contained. The <code class="inline-code">*</code> reset doesn't blow up your whole page.
+</p>
+
+<h2 class="post-h2">@scope vs. The Alternatives</h2>
+
+<p class="post-p">
+| Approach | Scoping | Build Step | Naming Burden | Proximity | Browser-Native |
+|---|---|---|---|---|---|
+| BEM | Manual naming | No | High | No | Yes |
+| CSS Modules | Hashed names | Yes | None | No | No |
+| CSS-in-JS | Runtime isolation | Yes | None | Sometimes | No |
+| Shadow DOM | Full isolation | No | None | No | Yes |
+| <strong>@scope</strong> | <strong>Native scoping</strong> | <strong>No</strong> | <strong>None</strong> | <strong>Yes</strong> | <strong>Yes</strong> |
+</p>
+
+<p class="post-p">
+Shadow DOM gives you the strongest isolation (styles literally cannot cross the shadow boundary), but it also means you can't share design tokens or inherit typography without custom properties. <code class="inline-code">@scope</code> gives you the middle ground: styles don't leak out, but you can still inherit CSS custom properties, <code class="inline-code">font-family</code>, and other inheritable properties.
+</p>
+
+<h2 class="post-h2">How @scope Interacts With Specificity</h2>
+
+<p class="post-p">
+Scoped rules have the <em>same</em> specificity they'd have outside the scope block. <code class="inline-code">.title</code> inside <code class="inline-code">@scope (.card)</code> has specificity <code class="inline-code">(0,1,0)</code> — same as any class selector.
+</p>
+
+<p class="post-p">
+What changes is <strong>the cascade</strong>. The proximity mechanism is checked <em>before</em> specificity. If two scoped rules conflict:
+</p>
+
+<ul class="post-ul"><li class="post-li">Check scope proximity — closer scope root wins</li>
+<li class="post-li">If same distance, then check specificity</li>
+<li class="post-li">If same specificity, then source order</li>
+</ul>
+<p class="post-p">
+This is huge. It means you can write low-specificity selectors (<code class="inline-code">.title</code>, <code class="inline-code">p</code>, <code class="inline-code">button</code>) and let proximity handle conflicts instead of reaching for increasingly specific selectors.
+</p>
+
+<h2 class="post-h2">Browser Support</h2>
+
+<p class="post-p">
+As of 2026, <code class="inline-code">@scope</code> is <strong>Baseline</strong> — supported in all four major browser engines:
+</p>
+
+<ul class="post-ul"><li class="post-li"><strong>Chrome</strong> 118+ (October 2023)</li>
+<li class="post-li"><strong>Firefox</strong> 128+ (July 2024)</li>
+<li class="post-li"><strong>Safari</strong> 17.4+ (March 2024)</li>
+<li class="post-li"><strong>Edge</strong> 118+ (October 2023)</li>
+</ul>
+<p class="post-p">
+That's ~94% global coverage and climbing. If you're targeting modern browsers, you can use <code class="inline-code">@scope</code> today without a fallback.
+</p>
+
+<h2 class="post-h2">Migration Strategy</h2>
+
+<p class="post-p">
+If you have an existing codebase with BEM or CSS Modules, you don't need a full rewrite. <code class="inline-code">@scope</code> composes with everything:
+</p>
+
+<pre class="code-block"><code class="language-css">/<em> Keep your existing BEM for now </em>/
+<p class="post-p">
+.card { }
+.card__title { }
+</p>
+
+<p class="post-p">
+/<em> Add @scope for new components </em>/
+@scope (.card-v2) {
+.title { }
+.body { }
+}
+</code></pre>
+</p>
+
+<p class="post-p">
+Both coexist perfectly. Migrate component by component.
+</p>
+
+<p class="post-p">
+For a gradual migration:
+</p>
+
+<ul class="post-ul"><li class="post-li"><strong>Start with new components</strong> — write them with <code class="inline-code">@scope</code> from day one</li>
+<li class="post-li"><strong>Identify collision-prone areas</strong> — components whose styles keep leaking into each other</li>
+<li class="post-li"><strong>Rewrite those components</strong> — replace long BEM/Module names with short, scoped class names</li>
+<li class="post-li"><strong>Adopt proximity</strong> — let nested components override each other naturally</li>
+<li class="post-li"><strong>Remove the build step</strong> — if you were using CSS Modules purely for scoping, you can drop it</li>
+</ul>
+<h2 class="post-h2">Limitations</h2>
+
+<p class="post-p">
+@scope is not a silver bullet. Be aware of:
+</p>
+
+<ul class="post-ul"><li class="post-li"><strong>No style encapsulation</strong> — unlike Shadow DOM, scoped styles can still read and inherit CSS custom properties from ancestors. This is usually what you want, but it's not isolation.</li>
+<li class="post-li"><strong>No dynamic scoping</strong> — the scope root is static CSS, not a JavaScript variable. You can't dynamically create scopes at runtime like you can with some CSS-in-JS libraries.</li>
+<li class="post-li"><strong>No style export</strong> — you can't export a "scope" for other components to consume, the way CSS Modules let you import a <code class="inline-code">styles</code> object.</li>
+<li class="post-li"><strong>Selectors inside</strong>: Only the <em>rightmost</em> part of a selector is scoped. In <code class="inline-code">@scope (.card) { .sidebar .title }</code>, <code class="inline-code">.sidebar .title</code> is scoped together as a unit — <code class="inline-code">.sidebar</code> is NOT matched outside the scope. The entire selector chain is scoped. But <code class="inline-code">:scope .title</code> specifically targets <code class="inline-code">.title</code> as a direct child of the scope root.</li>
+</ul>
+<h2 class="post-h2">The Bottom Line</h2>
+
+<p class="post-p">
+CSS <code class="inline-code">@scope</code> is the feature the web platform needed 20 years ago. It solves the naming collision problem — the single biggest pain point in CSS — natively, elegantly, and with zero build tooling. It introduces proximity, a cascade mechanism that makes nested component composition finally work the way you'd intuitively expect.
+</p>
+
+<p class="post-p">
+If you're starting a new project in 2026, you should seriously consider using <code class="inline-code">@scope</code> as your primary scoping mechanism. Combined with CSS custom properties for theming and <code class="inline-code">@layer</code> for architecture, you get a CSS system that's powerful enough to replace most of what build tools provided — but in the browser, where it's faster and simpler.
+</p>
+
+<p class="post-p">
+The era of <code class="inline-code">.card__title__icon__badge--highlighted</code> is over. Long live <code class="inline-code">@scope</code>.
+</p>
+</div><style>
+        .blog-content .post-h1 { font-size: 1.75rem; font-weight: 700; color: #ffffff; margin-top: 2rem; margin-bottom: 1rem; }
+        .blog-content .post-h2 { font-size: 1.5rem; font-weight: 600; color: #f1f5f9; margin-top: 1.75rem; margin-bottom: 0.75rem; padding-bottom: 0.5rem; border-bottom: 1px solid #334155; }
+        .blog-content .post-h3 { font-size: 1.25rem; font-weight: 600; color: #e2e8f0; margin-top: 1.5rem; margin-bottom: 0.5rem; }
+        .blog-content .post-h4 { font-size: 1.1rem; font-weight: 600; color: #e2e8f0; margin-top: 1.25rem; margin-bottom: 0.5rem; }
+        .blog-content .post-p { color: #cbd5e1; line-height: 1.75; margin-bottom: 1rem; }
+        .blog-content .code-block { background: #0f172a; border: 1px solid #334155; border-radius: 0.5rem; padding: 1rem; overflow-x: auto; margin: 1rem 0; font-family: 'JetBrains Mono', monospace; font-size: 0.875rem; color: #e2e8f0; }
+        .blog-content .inline-code { background: #1e293b; color: #38bdf8; padding: 0.15rem 0.4rem; border-radius: 0.25rem; font-family: 'JetBrains Mono', monospace; font-size: 0.875em; }
+        .blog-content .post-link { color: #38bdf8; text-decoration: underline; transition: color 0.2s; }
+        .blog-content .post-link:hover { color: #7dd3fc; }
+        .blog-content .post-ul { list-style: disc; padding-left: 1.5rem; margin: 0.75rem 0; color: #cbd5e1; }
+        .blog-content .post-li { margin-bottom: 0.25rem; line-height: 1.6; }
+        .blog-content .post-blockquote { border-left: 3px solid #0ea5e9; padding: 0.5rem 1rem; margin: 1rem 0; background: rgba(14, 165, 233, 0.05); border-radius: 0 0.5rem 0.5rem 0; }
+        .blog-content .post-blockquote p { color: #94a3b8; font-style: italic; }
+        .blog-content .post-hr { border: none; border-top: 1px solid #334155; margin: 2rem 0; }
+        .blog-content strong { color: #f1f5f9; font-weight: 600; }
+        .blog-content em { font-style: italic; }
+        </style></article></main><footer class="bg-surface-light border-t border-slate-700/50 mt-auto"><div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12"><div class="grid grid-cols-1 md:grid-cols-3 gap-8"><div><a class="flex items-center gap-2.5 mb-3" href="/devbench-tech/"><div class="w-7 h-7 bg-brand-500 rounded-lg flex items-center justify-center"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-terminal w-3.5 h-3.5 text-white"><polyline points="4 17 10 11 4 5"></polyline><line x1="12" x2="20" y1="19" y2="19"></line></svg></div><span class="text-lg font-bold text-white">Dev<span class="gradient-text">Bench</span></span></a><p class="text-slate-400 text-sm leading-relaxed">Free developer tools, benchmarks, and calculators. Built for developers, by developers.</p></div><div><h3 class="text-sm font-semibold text-slate-300 uppercase tracking-wider mb-4">Tools</h3><ul class="space-y-2"><li><a class="text-slate-400 hover:text-brand-400 text-sm transition-colors" href="/devbench-tech/tools/json-formatter/">JSON Formatter</a></li><li><a class="text-slate-400 hover:text-brand-400 text-sm transition-colors" href="/devbench-tech/tools/base64/">Base64 Encoder/Decoder</a></li><li><a class="text-slate-400 hover:text-brand-400 text-sm transition-colors" href="/devbench-tech/tools/uuid-generator/">UUID Generator</a></li><li><a class="text-slate-400 hover:text-brand-400 text-sm transition-colors" href="/devbench-tech/tools/regex-tester/">Regex Tester</a></li></ul></div><div><h3 class="text-sm font-semibold text-slate-300 uppercase tracking-wider mb-4">Resources</h3><ul class="space-y-2"><li><a class="text-slate-400 hover:text-brand-400 text-sm transition-colors" href="/devbench-tech/blog/">Blog</a></li><li><a class="text-slate-400 hover:text-brand-400 text-sm transition-colors" href="/devbench-tech/benchmarks/">Benchmarks</a></li><li><a class="text-slate-400 hover:text-brand-400 text-sm transition-colors" href="/devbench-tech/about/">About</a></li></ul></div></div><div class="mt-10 pt-6 border-t border-slate-700/50 flex flex-col sm:flex-row items-center justify-between gap-4"><p class="text-slate-500 text-sm flex items-center gap-1">Made with <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-heart w-3.5 h-3.5 text-red-500 fill-red-500"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"></path></svg> by the DevBench team © <!-- -->2026</p><a href="https://github.com" target="_blank" rel="noopener noreferrer" class="text-slate-500 hover:text-slate-300 transition-colors" aria-label="GitHub"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-github w-5 h-5"><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"></path><path d="M9 18c-4.51 2-5-2-7-2"></path></svg></a></div></div></footer><div data-rht-toaster="" style="position:fixed;z-index:9999;top:16px;left:16px;right:16px;bottom:16px;pointer-events:none"></div><script src="/devbench-tech/_next/static/chunks/webpack-b521a83317325026.js" async=""></script><script>(self.__next_f=self.__next_f||[]).push([0]);self.__next_f.push([2,null])</script><script>self.__next_f.push([1,"1:HL[\"/devbench-tech/_next/static/css/c877e59dbcb00f11.css\",\"style\"]\n"])</script><script>self.__next_f.push([1,"2:I[12846,[],\"\"]\n4:I[72972,[\"2972\",\"static/chunks/2972-4aaa15d119eeb022.js\",\"308\",\"static/chunks/app/blog/%5Bslug%5D/page-a411190e7012c687.js\"],\"\"]\n7:I[4707,[],\"\"]\n9:I[36423,[],\"\"]\na:I[39295,[\"9762\",\"static/chunks/44530001-4ecf7a22b5b24163.js\",\"2972\",\"static/chunks/2972-4aaa15d119eeb022.js\",\"8375\",\"static/chunks/8375-c77b8de36f6696fb.js\",\"6829\",\"static/chunks/6829-f51803445ddf1872.js\",\"3185\",\"static/chunks/app/layout-488e5c40aa6ffa72.js\"],\"Header\"]\nb:I[66506,[\"9762\",\"static/chunks/44530001-4ecf7a22b5b24163.js\",\"2972\",\"static/chunks/2972-4aaa15d119eeb022.js\",\"8375\",\"static/chunks/8375-c77b8de36f6696fb.js\",\"6829\",\"static/chunks/6829-f51803445ddf1872.js\",\"3185\",\"static/chunks/app/layout-488e5c40aa6ffa72.js\"],\"Analytics\"]\nc:I[69064,[\"9762\",\"static/chunks/44530001-4ecf7a22b5b24163.js\",\"2972\",\"static/chunks/2972-4aaa15d119eeb022.js\",\"8375\",\"static/chunks/8375-c77b8de36f6696fb.js\",\"6829\",\"static/chunks/6829-f51803445ddf1872.js\",\"3185\",\"static/chunks/app/layout-488e5c40aa6ffa72.js\"],\"Toaster\"]\ne:I[61060,[],\"\"]\n5:T3e88,"])</script><script>self.__next_f.push([1,"\n\u003ch2 class=\"post-h2\"\u003eThe Naming Problem We All Live With\u003c/h2\u003e\n\n\u003cp class=\"post-p\"\u003e\nFor 25 years, CSS has been global. Every selector you write can potentially match any element in the entire DOM. This single property — the cascade's global reach — has driven every naming convention, every CSS architecture, and every CSS-in-JS library ever created.\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\nIt's why we have BEM:\n\u003c/p\u003e\n\n\u003cpre class=\"code-block\"\u003e\u003ccode class=\"language-css\"\u003e.card { }\n\u003cp class=\"post-p\"\u003e\n.card__title { }\n.card__title--highlighted { }\n.card__body { }\n.card__footer { }\n.card__footer__button { }\n.card__footer__button--disabled { }\n\u003c/code\u003e\u003c/pre\u003e\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\nIt's why we have CSS Modules, which produce names like \u003ccode class=\"inline-code\"\u003e.Card_title_a3x9k\u003c/code\u003e. It's why we have Tailwind's utility-first approach — because atomic classes don't collide. It's why we have 50 competing \"CSS in JS\" libraries, each solving the exact same problem in a slightly different way.\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\nAll of these solutions exist to answer one question: \u003cstrong\u003e\"How do I write CSS for \u003cem\u003ethis\u003c/em\u003e component without it leaking into \u003cem\u003ethat\u003c/em\u003e component?\"\u003c/strong\u003e\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\nCSS \u003ccode class=\"inline-code\"\u003e@scope\u003c/code\u003e answers that question natively. No build step. No naming convention. No library. Just CSS.\n\u003c/p\u003e\n\n\u003ch2 class=\"post-h2\"\u003eWhat CSS @scope Does\u003c/h2\u003e\n\n\u003cp class=\"post-p\"\u003e\nThe \u003ccode class=\"inline-code\"\u003e@scope\u003c/code\u003e at-rule defines a \u003cstrong\u003escope\u003c/strong\u003e — a region of the DOM — and limits the styles within it to only match elements inside that region. It's the browser-native version of what CSS Modules, Vue's \u003ccode class=\"inline-code\"\u003e\u0026lt;style scoped\u0026gt;\u003c/code\u003e, and Svelte's scoped styles do, but it works in plain CSS files.\n\u003c/p\u003e\n\n\u003cpre class=\"code-block\"\u003e\u003ccode class=\"language-css\"\u003e@scope (.card) {\n\u003cp class=\"post-p\"\u003e\n/\u003cem\u003e Every selector here only matches inside .card \u003c/em\u003e/\n.title {\nfont-size: 1.25rem;\n}\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\np {\nline-height: 1.6;\n}\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\nbutton {\nborder-radius: 8px;\n}\n}\n\u003c/code\u003e\u003c/pre\u003e\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\nThose \u003ccode class=\"inline-code\"\u003e.title\u003c/code\u003e and \u003ccode class=\"inline-code\"\u003ebutton\u003c/code\u003e selectors will \u003cstrong\u003enever\u003c/strong\u003e match elements outside a \u003ccode class=\"inline-code\"\u003e.card\u003c/code\u003e element. Write them anywhere in your CSS file — no collisions, no specificity wars, no BEM names.\n\u003c/p\u003e\n\n\u003ch2 class=\"post-h2\"\u003eThe Anatomy of @scope\u003c/h2\u003e\n\n\u003cp class=\"post-p\"\u003e\nThe full syntax has three parts:\n\u003c/p\u003e\n\n\u003cpre class=\"code-block\"\u003e\u003ccode class=\"language-css\"\u003e@scope (\u0026amp;lt;scope-root\u0026amp;gt;) to (\u0026amp;lt;scope-limit\u0026amp;gt;) {\n\u003cp class=\"post-p\"\u003e\n/\u003cem\u003e scoped style rules \u003c/em\u003e/\n}\n\u003c/code\u003e\u003c/pre\u003e\n\u003c/p\u003e\n\n\u003ch3 class=\"post-h3\"\u003eScope Root (required)\u003c/h3\u003e\n\n\u003cp class=\"post-p\"\u003e\nThe \u003cstrong\u003escope root\u003c/strong\u003e is a selector that defines where the scope begins. All scoped rules only apply to elements that are descendants of this root.\n\u003c/p\u003e\n\n\u003cpre class=\"code-block\"\u003e\u003ccode class=\"language-css\"\u003e@scope (.sidebar) {\n\u003cp class=\"post-p\"\u003e\na { color: blue; }\n}\n\u003c/code\u003e\u003c/pre\u003e\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\nThe \u003ccode class=\"inline-code\"\u003ea\u003c/code\u003e rule matches \u003ccode class=\"inline-code\"\u003e\u0026lt;a\u0026gt;\u003c/code\u003e elements that are inside \u003ccode class=\"inline-code\"\u003e.sidebar\u003c/code\u003e, but NOT \u003ccode class=\"inline-code\"\u003e\u0026lt;a\u0026gt;\u003c/code\u003e elements outside it.\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n\u0026gt; \u003cstrong\u003eImportant\u003c/strong\u003e: The scope root itself is \u003cem\u003enot\u003c/em\u003e matched by the scoped rules — only its descendants. To style the root, write it outside the scope block.\n\u003c/p\u003e\n\n\u003ch3 class=\"post-h3\"\u003eScope Limit (optional)\u003c/h3\u003e\n\n\u003cp class=\"post-p\"\u003e\nThe \u003cstrong\u003escope limit\u003c/strong\u003e defines where the scope \u003cem\u003estops\u003c/em\u003e. Styles don't apply to elements that are beyond this boundary — even if they're descendants of the scope root.\n\u003c/p\u003e\n\n\u003cpre class=\"code-block\"\u003e\u003ccode class=\"language-css\"\u003e@scope (.article) to (.comments-section) {\n\u003cp class=\"post-p\"\u003e\np {\nline-height: 1.8;\n}\n}\n\u003c/code\u003e\u003c/pre\u003e\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\nHere, \u003ccode class=\"inline-code\"\u003e\u0026lt;p\u0026gt;\u003c/code\u003e elements inside \u003ccode class=\"inline-code\"\u003e.article\u003c/code\u003e get the styling, but once you hit \u003ccode class=\"inline-code\"\u003e.comments-section\u003c/code\u003e and anything inside it, the scope stops. The comments section is \"donut-holed\" out.\n\u003c/p\u003e\n\n\u003ch3 class=\"post-h3\"\u003eThe \u003ccode class=\"inline-code\"\u003e:scope\u003c/code\u003e Pseudo-Class\u003c/h3\u003e\n\n\u003cp class=\"post-p\"\u003e\nInside an \u003ccode class=\"inline-code\"\u003e@scope\u003c/code\u003e block, \u003ccode class=\"inline-code\"\u003e:scope\u003c/code\u003e refers to the scope root:\n\u003c/p\u003e\n\n\u003cpre class=\"code-block\"\u003e\u003ccode class=\"language-css\"\u003e@scope (.card) {\n\u003cp class=\"post-p\"\u003e\n:scope {\nborder: 1px solid #e5e7eb;\npadding: 1rem;\n}\n}\n\u003c/code\u003e\u003c/pre\u003e\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\nThis is equivalent to writing \u003ccode class=\"inline-code\"\u003e.card { border: ...; padding: ...; }\u003c/code\u003e outside the block, but it keeps everything together.\n\u003c/p\u003e\n\n\u003ch2 class=\"post-h2\"\u003eProximity: The Real Game-Changer\u003c/h2\u003e\n\n\u003cp class=\"post-p\"\u003e\nThe most powerful feature of \u003ccode class=\"inline-code\"\u003e@scope\u003c/code\u003e — and the one that has no equivalent in any naming convention — is \u003cstrong\u003eproximity\u003c/strong\u003e.\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\nWhen two \u003ccode class=\"inline-code\"\u003e@scope\u003c/code\u003e blocks define conflicting styles on the same element, \u003cstrong\u003ethe one whose scope root is closer to the element wins\u003c/strong\u003e. Not specificity. Not source order. Proximity.\n\u003c/p\u003e\n\n\u003cpre class=\"code-block\"\u003e\u003ccode class=\"language-css\"\u003e@scope (.light-theme) {\n\u003cp class=\"post-p\"\u003e\np { color: #1a1a1a; }\n}\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n@scope (.dark-theme) {\np { color: #fafafa; }\n}\n\u003c/code\u003e\u003c/pre\u003e\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\nIf you have:\n\u003c/p\u003e\n\n\u003cpre class=\"code-block\"\u003e\u003ccode class=\"language-html\"\u003e\u0026amp;lt;div class=\"dark-theme\"\u0026amp;gt;\n\u003cp class=\"post-p\"\u003e\n\u0026amp;lt;div class=\"light-theme\"\u0026amp;gt;\n\u0026amp;lt;p\u0026amp;gt;What color am I?\u0026amp;lt;/p\u0026amp;gt;\n\u0026amp;lt;/div\u0026amp;gt;\n\u0026amp;lt;/div\u0026amp;gt;\n\u003c/code\u003e\u003c/pre\u003e\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\nThe \u003ccode class=\"inline-code\"\u003e\u0026lt;p\u0026gt;\u003c/code\u003e is \u003ccode class=\"inline-code\"\u003e#1a1a1a\u003c/code\u003e (light), because \u003ccode class=\"inline-code\"\u003e.light-theme\u003c/code\u003e is closer in the DOM tree than \u003ccode class=\"inline-code\"\u003e.dark-theme\u003c/code\u003e. This is \u003cstrong\u003escope proximity\u003c/strong\u003e — it resolves the conflict by measuring DOM distance, not by counting selectors. It's the cascade logic we always wished existed.\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\nThis means you can nest scoped components arbitrarily deep and the inner scope always wins. Component libraries that use \u003ccode class=\"inline-code\"\u003e@scope\u003c/code\u003e compose perfectly without any naming collisions.\n\u003c/p\u003e\n\n\u003ch2 class=\"post-h2\"\u003ePractical Patterns\u003c/h2\u003e\n\n\u003ch3 class=\"post-h3\"\u003ePattern 1: Component-Scoped Styles (Replace BEM)\u003c/h3\u003e\n\n\u003cp class=\"post-p\"\u003e\nBefore:\n\u003c/p\u003e\n\u003cpre class=\"code-block\"\u003e\u003ccode class=\"language-css\"\u003e.card { }\n\u003cp class=\"post-p\"\u003e\n.card__title { font-size: 1.25rem; }\n.card__body { line-height: 1.6; }\n.card__button { background: blue; }\n.card__button--primary { background: darkblue; }\n\u003c/code\u003e\u003c/pre\u003e\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\nAfter:\n\u003c/p\u003e\n\u003cpre class=\"code-block\"\u003e\u003ccode class=\"language-css\"\u003e@scope (.card) {\n\u003cp class=\"post-p\"\u003e\n.title { font-size: 1.25rem; }\n.body { line-height: 1.6; }\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n.button {\nbackground: blue;\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n\u0026amp;amp;.primary {\nbackground: darkblue;\n}\n}\n}\n\u003c/code\u003e\u003c/pre\u003e\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\nClean, readable, no collisions. The \u003ccode class=\"inline-code\"\u003e.title\u003c/code\u003e class will \u003cem\u003enever\u003c/em\u003e match a \u003ccode class=\"inline-code\"\u003e.title\u003c/code\u003e inside a \u003ccode class=\"inline-code\"\u003e.sidebar\u003c/code\u003e or anywhere else.\n\u003c/p\u003e\n\n\u003ch3 class=\"post-h3\"\u003ePattern 2: Section-Level Theming\u003c/h3\u003e\n\n\u003cpre class=\"code-block\"\u003e\u003ccode class=\"language-css\"\u003e@scope (.marketing-section) {\n\u003cp class=\"post-p\"\u003e\nh1 { font-family: 'Display', serif; }\np { font-size: 1.125rem; }\n}\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n@scope (.docs-section) {\nh1 { font-family: 'Mono', monospace; }\np { font-size: 0.9375rem; }\n}\n\u003c/code\u003e\u003c/pre\u003e\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\nEach section gets its own typography — no class prefixes, no \u003ccode class=\"inline-code\"\u003e!important\u003c/code\u003e, no specificity hacks.\n\u003c/p\u003e\n\n\u003ch3 class=\"post-h3\"\u003ePattern 3: Donut Scope for Layout Exceptions\u003c/h3\u003e\n\n\u003cpre class=\"code-block\"\u003e\u003ccode class=\"language-css\"\u003e@scope (.full-width-content) to (.sidebar) {\n\u003cp class=\"post-p\"\u003e\np { max-width: 72ch; }\nimg { max-width: 100%; }\n}\n\u003c/code\u003e\u003c/pre\u003e\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\nThe main content area gets constrained text, but once a sidebar starts, those constraints don't apply — the sidebar manages its own layout.\n\u003c/p\u003e\n\n\u003ch3 class=\"post-h3\"\u003ePattern 4: Design System Primitive Overrides\u003c/h3\u003e\n\n\u003cpre class=\"code-block\"\u003e\u003ccode class=\"language-css\"\u003e/\u003cem\u003e Design system base \u003c/em\u003e/\n\u003cp class=\"post-p\"\u003e\n@scope ([data-component=\"button\"]) {\n:scope {\ndisplay: inline-flex;\npadding: 0.5rem 1rem;\n}\n}\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n/\u003cem\u003e Marketing override — closer in DOM, wins via proximity \u003c/em\u003e/\n@scope (.hero-section) {\n[data-component=\"button\"] {\npadding: 1rem 2rem;\nfont-size: 1.25rem;\n}\n}\n\u003c/code\u003e\u003c/pre\u003e\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\nThe hero overrides the design system button without raising specificity, without \u003ccode class=\"inline-code\"\u003e!important\u003c/code\u003e, and without worrying about selector collision.\n\u003c/p\u003e\n\n\u003ch3 class=\"post-h3\"\u003ePattern 5: Third-Party Widget Isolation\u003c/h3\u003e\n\n\u003cp class=\"post-p\"\u003e\nEmbedding a third-party widget but don't want its CSS to leak out?\n\u003c/p\u003e\n\n\u003cpre class=\"code-block\"\u003e\u003ccode class=\"language-css\"\u003e@scope (.weather-widget) {\n\u003cp class=\"post-p\"\u003e\n* { margin: 0; padding: 0; box-sizing: border-box; }\n/\u003cem\u003e widget styles here \u003c/em\u003e/\n}\n\u003c/code\u003e\u003c/pre\u003e\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\nEverything inside \u003ccode class=\"inline-code\"\u003e.weather-widget\u003c/code\u003e is contained. The \u003ccode class=\"inline-code\"\u003e*\u003c/code\u003e reset doesn't blow up your whole page.\n\u003c/p\u003e\n\n\u003ch2 class=\"post-h2\"\u003e@scope vs. The Alternatives\u003c/h2\u003e\n\n\u003cp class=\"post-p\"\u003e\n| Approach | Scoping | Build Step | Naming Burden | Proximity | Browser-Native |\n|---|---|---|---|---|---|\n| BEM | Manual naming | No | High | No | Yes |\n| CSS Modules | Hashed names | Yes | None | No | No |\n| CSS-in-JS | Runtime isolation | Yes | None | Sometimes | No |\n| Shadow DOM | Full isolation | No | None | No | Yes |\n| \u003cstrong\u003e@scope\u003c/strong\u003e | \u003cstrong\u003eNative scoping\u003c/strong\u003e | \u003cstrong\u003eNo\u003c/strong\u003e | \u003cstrong\u003eNone\u003c/strong\u003e | \u003cstrong\u003eYes\u003c/strong\u003e | \u003cstrong\u003eYes\u003c/strong\u003e |\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\nShadow DOM gives you the strongest isolation (styles literally cannot cross the shadow boundary), but it also means you can't share design tokens or inherit typography without custom properties. \u003ccode class=\"inline-code\"\u003e@scope\u003c/code\u003e gives you the middle ground: styles don't leak out, but you can still inherit CSS custom properties, \u003ccode class=\"inline-code\"\u003efont-family\u003c/code\u003e, and other inheritable properties.\n\u003c/p\u003e\n\n\u003ch2 class=\"post-h2\"\u003eHow @scope Interacts With Specificity\u003c/h2\u003e\n\n\u003cp class=\"post-p\"\u003e\nScoped rules have the \u003cem\u003esame\u003c/em\u003e specificity they'd have outside the scope block. \u003ccode class=\"inline-code\"\u003e.title\u003c/code\u003e inside \u003ccode class=\"inline-code\"\u003e@scope (.card)\u003c/code\u003e has specificity \u003ccode class=\"inline-code\"\u003e(0,1,0)\u003c/code\u003e — same as any class selector.\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\nWhat changes is \u003cstrong\u003ethe cascade\u003c/strong\u003e. The proximity mechanism is checked \u003cem\u003ebefore\u003c/em\u003e specificity. If two scoped rules conflict:\n\u003c/p\u003e\n\n\u003cul class=\"post-ul\"\u003e\u003cli class=\"post-li\"\u003eCheck scope proximity — closer scope root wins\u003c/li\u003e\n\u003cli class=\"post-li\"\u003eIf same distance, then check specificity\u003c/li\u003e\n\u003cli class=\"post-li\"\u003eIf same specificity, then source order\u003c/li\u003e\n\u003c/ul\u003e\n\u003cp class=\"post-p\"\u003e\nThis is huge. It means you can write low-specificity selectors (\u003ccode class=\"inline-code\"\u003e.title\u003c/code\u003e, \u003ccode class=\"inline-code\"\u003ep\u003c/code\u003e, \u003ccode class=\"inline-code\"\u003ebutton\u003c/code\u003e) and let proximity handle conflicts instead of reaching for increasingly specific selectors.\n\u003c/p\u003e\n\n\u003ch2 class=\"post-h2\"\u003eBrowser Support\u003c/h2\u003e\n\n\u003cp class=\"post-p\"\u003e\nAs of 2026, \u003ccode class=\"inline-code\"\u003e@scope\u003c/code\u003e is \u003cstrong\u003eBaseline\u003c/strong\u003e — supported in all four major browser engines:\n\u003c/p\u003e\n\n\u003cul class=\"post-ul\"\u003e\u003cli class=\"post-li\"\u003e\u003cstrong\u003eChrome\u003c/strong\u003e 118+ (October 2023)\u003c/li\u003e\n\u003cli class=\"post-li\"\u003e\u003cstrong\u003eFirefox\u003c/strong\u003e 128+ (July 2024)\u003c/li\u003e\n\u003cli class=\"post-li\"\u003e\u003cstrong\u003eSafari\u003c/strong\u003e 17.4+ (March 2024)\u003c/li\u003e\n\u003cli class=\"post-li\"\u003e\u003cstrong\u003eEdge\u003c/strong\u003e 118+ (October 2023)\u003c/li\u003e\n\u003c/ul\u003e\n\u003cp class=\"post-p\"\u003e\nThat's ~94% global coverage and climbing. If you're targeting modern browsers, you can use \u003ccode class=\"inline-code\"\u003e@scope\u003c/code\u003e today without a fallback.\n\u003c/p\u003e\n\n\u003ch2 class=\"post-h2\"\u003eMigration Strategy\u003c/h2\u003e\n\n\u003cp class=\"post-p\"\u003e\nIf you have an existing codebase with BEM or CSS Modules, you don't need a full rewrite. \u003ccode class=\"inline-code\"\u003e@scope\u003c/code\u003e composes with everything:\n\u003c/p\u003e\n\n\u003cpre class=\"code-block\"\u003e\u003ccode class=\"language-css\"\u003e/\u003cem\u003e Keep your existing BEM for now \u003c/em\u003e/\n\u003cp class=\"post-p\"\u003e\n.card { }\n.card__title { }\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n/\u003cem\u003e Add @scope for new components \u003c/em\u003e/\n@scope (.card-v2) {\n.title { }\n.body { }\n}\n\u003c/code\u003e\u003c/pre\u003e\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\nBoth coexist perfectly. Migrate component by component.\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\nFor a gradual migration:\n\u003c/p\u003e\n\n\u003cul class=\"post-ul\"\u003e\u003cli class=\"post-li\"\u003e\u003cstrong\u003eStart with new components\u003c/strong\u003e — write them with \u003ccode class=\"inline-code\"\u003e@scope\u003c/code\u003e from day one\u003c/li\u003e\n\u003cli class=\"post-li\"\u003e\u003cstrong\u003eIdentify collision-prone areas\u003c/strong\u003e — components whose styles keep leaking into each other\u003c/li\u003e\n\u003cli class=\"post-li\"\u003e\u003cstrong\u003eRewrite those components\u003c/strong\u003e — replace long BEM/Module names with short, scoped class names\u003c/li\u003e\n\u003cli class=\"post-li\"\u003e\u003cstrong\u003eAdopt proximity\u003c/strong\u003e — let nested components override each other naturally\u003c/li\u003e\n\u003cli class=\"post-li\"\u003e\u003cstrong\u003eRemove the build step\u003c/strong\u003e — if you were using CSS Modules purely for scoping, you can drop it\u003c/li\u003e\n\u003c/ul\u003e\n\u003ch2 class=\"post-h2\"\u003eLimitations\u003c/h2\u003e\n\n\u003cp class=\"post-p\"\u003e\n@scope is not a silver bullet. Be aware of:\n\u003c/p\u003e\n\n\u003cul class=\"post-ul\"\u003e\u003cli class=\"post-li\"\u003e\u003cstrong\u003eNo style encapsulation\u003c/strong\u003e — unlike Shadow DOM, scoped styles can still read and inherit CSS custom properties from ancestors. This is usually what you want, but it's not isolation.\u003c/li\u003e\n\u003cli class=\"post-li\"\u003e\u003cstrong\u003eNo dynamic scoping\u003c/strong\u003e — the scope root is static CSS, not a JavaScript variable. You can't dynamically create scopes at runtime like you can with some CSS-in-JS libraries.\u003c/li\u003e\n\u003cli class=\"post-li\"\u003e\u003cstrong\u003eNo style export\u003c/strong\u003e — you can't export a \"scope\" for other components to consume, the way CSS Modules let you import a \u003ccode class=\"inline-code\"\u003estyles\u003c/code\u003e object.\u003c/li\u003e\n\u003cli class=\"post-li\"\u003e\u003cstrong\u003eSelectors inside\u003c/strong\u003e: Only the \u003cem\u003erightmost\u003c/em\u003e part of a selector is scoped. In \u003ccode class=\"inline-code\"\u003e@scope (.card) { .sidebar .title }\u003c/code\u003e, \u003ccode class=\"inline-code\"\u003e.sidebar .title\u003c/code\u003e is scoped together as a unit — \u003ccode class=\"inline-code\"\u003e.sidebar\u003c/code\u003e is NOT matched outside the scope. The entire selector chain is scoped. But \u003ccode class=\"inline-code\"\u003e:scope .title\u003c/code\u003e specifically targets \u003ccode class=\"inline-code\"\u003e.title\u003c/code\u003e as a direct child of the scope root.\u003c/li\u003e\n\u003c/ul\u003e\n\u003ch2 class=\"post-h2\"\u003eThe Bottom Line\u003c/h2\u003e\n\n\u003cp class=\"post-p\"\u003e\nCSS \u003ccode class=\"inline-code\"\u003e@scope\u003c/code\u003e is the feature the web platform needed 20 years ago. It solves the naming collision problem — the single biggest pain point in CSS — natively, elegantly, and with zero build tooling. It introduces proximity, a cascade mechanism that makes nested component composition finally work the way you'd intuitively expect.\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\nIf you're starting a new project in 2026, you should seriously consider using \u003ccode class=\"inline-code\"\u003e@scope\u003c/code\u003e as your primary scoping mechanism. Combined with CSS custom properties for theming and \u003ccode class=\"inline-code\"\u003e@layer\u003c/code\u003e for architecture, you get a CSS system that's powerful enough to replace most of what build tools provided — but in the browser, where it's faster and simpler.\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\nThe era of \u003ccode class=\"inline-code\"\u003e.card__title__icon__badge--highlighted\u003c/code\u003e is over. Long live \u003ccode class=\"inline-code\"\u003e@scope\u003c/code\u003e.\n\u003c/p\u003e\n"])</script><script>self.__next_f.push([1,"6:T78f,\n        .blog-content .post-h1 { font-size: 1.75rem; font-weight: 700; color: #ffffff; margin-top: 2rem; margin-bottom: 1rem; }\n        .blog-content .post-h2 { font-size: 1.5rem; font-weight: 600; color: #f1f5f9; margin-top: 1.75rem; margin-bottom: 0.75rem; padding-bottom: 0.5rem; border-bottom: 1px solid #334155; }\n        .blog-content .post-h3 { font-size: 1.25rem; font-weight: 600; color: #e2e8f0; margin-top: 1.5rem; margin-bottom: 0.5rem; }\n        .blog-content .post-h4 { font-size: 1.1rem; font-weight: 600; color: #e2e8f0; margin-top: 1.25rem; margin-bottom: 0.5rem; }\n        .blog-content .post-p { color: #cbd5e1; line-height: 1.75; margin-bottom: 1rem; }\n        .blog-content .code-block { background: #0f172a; border: 1px solid #334155; border-radius: 0.5rem; padding: 1rem; overflow-x: auto; margin: 1rem 0; font-family: 'JetBrains Mono', monospace; font-size: 0.875rem; color: #e2e8f0; }\n        .blog-content .inline-code { background: #1e293b; color: #38bdf8; padding: 0.15rem 0.4rem; border-radius: 0.25rem; font-family: 'JetBrains Mono', monospace; font-size: 0.875em; }\n        .blog-content .post-link { color: #38bdf8; text-decoration: underline; transition: color 0.2s; }\n        .blog-content .post-link:hover { color: #7dd3fc; }\n        .blog-content .post-ul { list-style: disc; padding-left: 1.5rem; margin: 0.75rem 0; color: #cbd5e1; }\n        .blog-content .post-li { margin-bottom: 0.25rem; line-height: 1.6; }\n        .blog-content .post-blockquote { border-left: 3px solid #0ea5e9; padding: 0.5rem 1rem; margin: 1rem 0; background: rgba(14, 165, 233, 0.05); border-radius: 0 0.5rem 0.5rem 0; }\n        .blog-content .post-blockquote p { color: #94a3b8; font-style: italic; }\n        .blog-content .post-hr { border: none; border-top: 1px solid #334155; margin: 2rem 0; }\n        .blog-content strong { color: #f1f5f9; font-weight: 600; }\n        .blog-content em { font-style: italic; }\n        8:[\"slug\",\"css-scope-baseline-2026\",\"d\"]\nf:[]\n"])</script><script>self.__next_f.push([1,"0:[\"$\",\"$L2\",null,{\"buildId\":\"wLkx3_e9eF0HmBHirJWLm\",\"assetPrefix\":\"/devbench-tech\",\"urlParts\":[\"\",\"blog\",\"css-scope-baseline-2026\",\"\"],\"initialTree\":[\"\",{\"children\":[\"blog\",{\"children\":[[\"slug\",\"css-scope-baseline-2026\",\"d\"],{\"children\":[\"__PAGE__?{\\\"slug\\\":\\\"css-scope-baseline-2026\\\"}\",{}]}]}]},\"$undefined\",\"$undefined\",true],\"initialSeedData\":[\"\",{\"children\":[\"blog\",{\"children\":[[\"slug\",\"css-scope-baseline-2026\",\"d\"],{\"children\":[\"__PAGE__\",{},[[\"$L3\",[\"$\",\"article\",null,{\"className\":\"max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-20\",\"children\":[[\"$\",\"script\",null,{\"type\":\"application/ld+json\",\"dangerouslySetInnerHTML\":{\"__html\":\"{\\\"@context\\\":\\\"https://schema.org\\\",\\\"@type\\\":\\\"Article\\\",\\\"headline\\\":\\\"CSS @scope in 2026: The End of Naming Conventions and Heavy Abstractions\\\",\\\"description\\\":\\\"CSS @scope is now Baseline across all browsers — scoped styles without BEM, CSS Modules, or CSS-in-JS. Learn the syntax, scope roots, scope limits, proximity, and how to migrate from naming conventions to native scoping.\\\",\\\"datePublished\\\":\\\"2026-05-28\\\",\\\"author\\\":{\\\"@type\\\":\\\"Organization\\\",\\\"name\\\":\\\"DevBench\\\"},\\\"publisher\\\":{\\\"@type\\\":\\\"Organization\\\",\\\"name\\\":\\\"DevBench\\\",\\\"url\\\":\\\"https://devbench-roan.vercel.app\\\"}}\"}}],[\"$\",\"script\",null,{\"type\":\"application/ld+json\",\"dangerouslySetInnerHTML\":{\"__html\":\"{\\\"@context\\\":\\\"https://schema.org\\\",\\\"@type\\\":\\\"BreadcrumbList\\\",\\\"itemListElement\\\":[{\\\"@type\\\":\\\"ListItem\\\",\\\"position\\\":1,\\\"name\\\":\\\"Home\\\",\\\"item\\\":\\\"https://devbench-roan.vercel.app\\\"},{\\\"@type\\\":\\\"ListItem\\\",\\\"position\\\":2,\\\"name\\\":\\\"Blog\\\",\\\"item\\\":\\\"https://devbench-roan.vercel.app/blog\\\"},{\\\"@type\\\":\\\"ListItem\\\",\\\"position\\\":3,\\\"name\\\":\\\"CSS @scope in 2026: The End of Naming Conventions and Heavy Abstractions\\\"}]}\"}}],[\"$\",\"$L4\",null,{\"href\":\"/blog\",\"className\":\"inline-flex items-center gap-1.5 text-slate-400 hover:text-brand-400 text-sm transition-colors mb-8\",\"children\":[[\"$\",\"svg\",null,{\"xmlns\":\"http://www.w3.org/2000/svg\",\"width\":24,\"height\":24,\"viewBox\":\"0 0 24 24\",\"fill\":\"none\",\"stroke\":\"currentColor\",\"strokeWidth\":2,\"strokeLinecap\":\"round\",\"strokeLinejoin\":\"round\",\"className\":\"lucide lucide-arrow-left w-4 h-4\",\"children\":[[\"$\",\"path\",\"1l729n\",{\"d\":\"m12 19-7-7 7-7\"}],[\"$\",\"path\",\"x3x0zl\",{\"d\":\"M19 12H5\"}],\"$undefined\"]}],\"Back to Blog\"]}],[\"$\",\"header\",null,{\"className\":\"mb-10\",\"children\":[[\"$\",\"h1\",null,{\"className\":\"text-3xl sm:text-4xl font-bold text-white leading-tight mb-4\",\"children\":\"CSS @scope in 2026: The End of Naming Conventions and Heavy Abstractions\"}],[\"$\",\"div\",null,{\"className\":\"flex flex-wrap items-center gap-4 text-sm text-slate-400\",\"children\":[[\"$\",\"span\",null,{\"className\":\"flex items-center gap-1.5\",\"children\":[[\"$\",\"svg\",null,{\"xmlns\":\"http://www.w3.org/2000/svg\",\"width\":24,\"height\":24,\"viewBox\":\"0 0 24 24\",\"fill\":\"none\",\"stroke\":\"currentColor\",\"strokeWidth\":2,\"strokeLinecap\":\"round\",\"strokeLinejoin\":\"round\",\"className\":\"lucide lucide-calendar w-4 h-4\",\"children\":[[\"$\",\"rect\",\"eu3xkr\",{\"width\":\"18\",\"height\":\"18\",\"x\":\"3\",\"y\":\"4\",\"rx\":\"2\",\"ry\":\"2\"}],[\"$\",\"line\",\"m3sa8f\",{\"x1\":\"16\",\"x2\":\"16\",\"y1\":\"2\",\"y2\":\"6\"}],[\"$\",\"line\",\"18kwsl\",{\"x1\":\"8\",\"x2\":\"8\",\"y1\":\"2\",\"y2\":\"6\"}],[\"$\",\"line\",\"xt86sb\",{\"x1\":\"3\",\"x2\":\"21\",\"y1\":\"10\",\"y2\":\"10\"}],\"$undefined\"]}],\"2026-05-28\"]}],[\"$\",\"div\",null,{\"className\":\"flex flex-wrap gap-1.5\",\"children\":[[\"$\",\"span\",\"[\\\"CSS\\\"\",{\"className\":\"badge-secondary flex items-center gap-1\",\"children\":[[\"$\",\"svg\",null,{\"xmlns\":\"http://www.w3.org/2000/svg\",\"width\":24,\"height\":24,\"viewBox\":\"0 0 24 24\",\"fill\":\"none\",\"stroke\":\"currentColor\",\"strokeWidth\":2,\"strokeLinecap\":\"round\",\"strokeLinejoin\":\"round\",\"className\":\"lucide lucide-tag w-3 h-3\",\"children\":[[\"$\",\"path\",\"14b2ls\",{\"d\":\"M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z\"}],[\"$\",\"path\",\"7u93v4\",{\"d\":\"M7 7h.01\"}],\"$undefined\"]}],\"[\\\"CSS\\\"\"]}],[\"$\",\"span\",\"\\\"@scope\\\"\",{\"className\":\"badge-secondary flex items-center gap-1\",\"children\":[[\"$\",\"svg\",null,{\"xmlns\":\"http://www.w3.org/2000/svg\",\"width\":24,\"height\":24,\"viewBox\":\"0 0 24 24\",\"fill\":\"none\",\"stroke\":\"currentColor\",\"strokeWidth\":2,\"strokeLinecap\":\"round\",\"strokeLinejoin\":\"round\",\"className\":\"lucide lucide-tag w-3 h-3\",\"children\":[[\"$\",\"path\",\"14b2ls\",{\"d\":\"M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z\"}],[\"$\",\"path\",\"7u93v4\",{\"d\":\"M7 7h.01\"}],\"$undefined\"]}],\"\\\"@scope\\\"\"]}],[\"$\",\"span\",\"\\\"Baseline 2026\\\"\",{\"className\":\"badge-secondary flex items-center gap-1\",\"children\":[[\"$\",\"svg\",null,{\"xmlns\":\"http://www.w3.org/2000/svg\",\"width\":24,\"height\":24,\"viewBox\":\"0 0 24 24\",\"fill\":\"none\",\"stroke\":\"currentColor\",\"strokeWidth\":2,\"strokeLinecap\":\"round\",\"strokeLinejoin\":\"round\",\"className\":\"lucide lucide-tag w-3 h-3\",\"children\":[[\"$\",\"path\",\"14b2ls\",{\"d\":\"M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z\"}],[\"$\",\"path\",\"7u93v4\",{\"d\":\"M7 7h.01\"}],\"$undefined\"]}],\"\\\"Baseline 2026\\\"\"]}],[\"$\",\"span\",\"\\\"Scoped Styles\\\"\",{\"className\":\"badge-secondary flex items-center gap-1\",\"children\":[[\"$\",\"svg\",null,{\"xmlns\":\"http://www.w3.org/2000/svg\",\"width\":24,\"height\":24,\"viewBox\":\"0 0 24 24\",\"fill\":\"none\",\"stroke\":\"currentColor\",\"strokeWidth\":2,\"strokeLinecap\":\"round\",\"strokeLinejoin\":\"round\",\"className\":\"lucide lucide-tag w-3 h-3\",\"children\":[[\"$\",\"path\",\"14b2ls\",{\"d\":\"M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z\"}],[\"$\",\"path\",\"7u93v4\",{\"d\":\"M7 7h.01\"}],\"$undefined\"]}],\"\\\"Scoped Styles\\\"\"]}],[\"$\",\"span\",\"\\\"CSS Architecture\\\"\",{\"className\":\"badge-secondary flex items-center gap-1\",\"children\":[[\"$\",\"svg\",null,{\"xmlns\":\"http://www.w3.org/2000/svg\",\"width\":24,\"height\":24,\"viewBox\":\"0 0 24 24\",\"fill\":\"none\",\"stroke\":\"currentColor\",\"strokeWidth\":2,\"strokeLinecap\":\"round\",\"strokeLinejoin\":\"round\",\"className\":\"lucide lucide-tag w-3 h-3\",\"children\":[[\"$\",\"path\",\"14b2ls\",{\"d\":\"M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z\"}],[\"$\",\"path\",\"7u93v4\",{\"d\":\"M7 7h.01\"}],\"$undefined\"]}],\"\\\"CSS Architecture\\\"\"]}],[\"$\",\"span\",\"\\\"Design Systems\\\"\",{\"className\":\"badge-secondary flex items-center gap-1\",\"children\":[[\"$\",\"svg\",null,{\"xmlns\":\"http://www.w3.org/2000/svg\",\"width\":24,\"height\":24,\"viewBox\":\"0 0 24 24\",\"fill\":\"none\",\"stroke\":\"currentColor\",\"strokeWidth\":2,\"strokeLinecap\":\"round\",\"strokeLinejoin\":\"round\",\"className\":\"lucide lucide-tag w-3 h-3\",\"children\":[[\"$\",\"path\",\"14b2ls\",{\"d\":\"M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z\"}],[\"$\",\"path\",\"7u93v4\",{\"d\":\"M7 7h.01\"}],\"$undefined\"]}],\"\\\"Design Systems\\\"\"]}],[\"$\",\"span\",\"\\\"2026\\\"]\",{\"className\":\"badge-secondary flex items-center gap-1\",\"children\":[[\"$\",\"svg\",null,{\"xmlns\":\"http://www.w3.org/2000/svg\",\"width\":24,\"height\":24,\"viewBox\":\"0 0 24 24\",\"fill\":\"none\",\"stroke\":\"currentColor\",\"strokeWidth\":2,\"strokeLinecap\":\"round\",\"strokeLinejoin\":\"round\",\"className\":\"lucide lucide-tag w-3 h-3\",\"children\":[[\"$\",\"path\",\"14b2ls\",{\"d\":\"M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z\"}],[\"$\",\"path\",\"7u93v4\",{\"d\":\"M7 7h.01\"}],\"$undefined\"]}],\"\\\"2026\\\"]\"]}]]}]]}]]}],[\"$\",\"div\",null,{\"className\":\"blog-content prose-p:text-slate-300 prose-p:leading-relaxed prose-p:mb-4\",\"dangerouslySetInnerHTML\":{\"__html\":\"$5\"}}],[\"$\",\"style\",null,{\"dangerouslySetInnerHTML\":{\"__html\":\"$6\"}}]]}],null],null],null]},[null,[\"$\",\"$L7\",null,{\"parallelRouterKey\":\"children\",\"segmentPath\":[\"children\",\"blog\",\"children\",\"$8\",\"children\"],\"error\":\"$undefined\",\"errorStyles\":\"$undefined\",\"errorScripts\":\"$undefined\",\"template\":[\"$\",\"$L9\",null,{}],\"templateStyles\":\"$undefined\",\"templateScripts\":\"$undefined\",\"notFound\":\"$undefined\",\"notFoundStyles\":\"$undefined\"}]],null]},[null,[\"$\",\"$L7\",null,{\"parallelRouterKey\":\"children\",\"segmentPath\":[\"children\",\"blog\",\"children\"],\"error\":\"$undefined\",\"errorStyles\":\"$undefined\",\"errorScripts\":\"$undefined\",\"template\":[\"$\",\"$L9\",null,{}],\"templateStyles\":\"$undefined\",\"templateScripts\":\"$undefined\",\"notFound\":\"$undefined\",\"notFoundStyles\":\"$undefined\"}]],null]},[[[[\"$\",\"link\",\"0\",{\"rel\":\"stylesheet\",\"href\":\"/devbench-tech/_next/static/css/c877e59dbcb00f11.css\",\"precedence\":\"next\",\"crossOrigin\":\"$undefined\"}]],[\"$\",\"html\",null,{\"lang\":\"en\",\"className\":\"dark\",\"children\":[\"$\",\"body\",null,{\"className\":\"flex flex-col min-h-screen\",\"children\":[[\"$\",\"script\",null,{\"type\":\"application/ld+json\",\"dangerouslySetInnerHTML\":{\"__html\":\"{\\\"@context\\\":\\\"https://schema.org\\\",\\\"@type\\\":\\\"WebSite\\\",\\\"name\\\":\\\"DevBench\\\",\\\"url\\\":\\\"https://devbench-roan.vercel.app\\\",\\\"description\\\":\\\"Free developer tools for everyday use: JSON formatter, Base64 encoder/decoder, UUID generator, regex tester, benchmarks, and more.\\\",\\\"potentialAction\\\":{\\\"@type\\\":\\\"SearchAction\\\",\\\"target\\\":\\\"https://devbench-roan.vercel.app/tools?q={search_term_string}\\\",\\\"query-input\\\":\\\"required name=search_term_string\\\"}}\"}}],[\"$\",\"$La\",null,{}],[\"$\",\"main\",null,{\"className\":\"flex-1\",\"children\":[\"$\",\"$L7\",null,{\"parallelRouterKey\":\"children\",\"segmentPath\":[\"children\"],\"error\":\"$undefined\",\"errorStyles\":\"$undefined\",\"errorScripts\":\"$undefined\",\"template\":[\"$\",\"$L9\",null,{}],\"templateStyles\":\"$undefined\",\"templateScripts\":\"$undefined\",\"notFound\":[[\"$\",\"title\",null,{\"children\":\"404: This page could not be found.\"}],[\"$\",\"div\",null,{\"style\":{\"fontFamily\":\"system-ui,\\\"Segoe UI\\\",Roboto,Helvetica,Arial,sans-serif,\\\"Apple Color Emoji\\\",\\\"Segoe UI Emoji\\\"\",\"height\":\"100vh\",\"textAlign\":\"center\",\"display\":\"flex\",\"flexDirection\":\"column\",\"alignItems\":\"center\",\"justifyContent\":\"center\"},\"children\":[\"$\",\"div\",null,{\"children\":[[\"$\",\"style\",null,{\"dangerouslySetInnerHTML\":{\"__html\":\"body{color:#000;background:#fff;margin:0}.next-error-h1{border-right:1px solid rgba(0,0,0,.3)}@media (prefers-color-scheme:dark){body{color:#fff;background:#000}.next-error-h1{border-right:1px solid rgba(255,255,255,.3)}}\"}}],[\"$\",\"h1\",null,{\"className\":\"next-error-h1\",\"style\":{\"display\":\"inline-block\",\"margin\":\"0 20px 0 0\",\"padding\":\"0 23px 0 0\",\"fontSize\":24,\"fontWeight\":500,\"verticalAlign\":\"top\",\"lineHeight\":\"49px\"},\"children\":\"404\"}],[\"$\",\"div\",null,{\"style\":{\"display\":\"inline-block\"},\"children\":[\"$\",\"h2\",null,{\"style\":{\"fontSize\":14,\"fontWeight\":400,\"lineHeight\":\"49px\",\"margin\":0},\"children\":\"This page could not be found.\"}]}]]}]}]],\"notFoundStyles\":[]}]}],[\"$\",\"footer\",null,{\"className\":\"bg-surface-light border-t border-slate-700/50 mt-auto\",\"children\":[\"$\",\"div\",null,{\"className\":\"max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12\",\"children\":[[\"$\",\"div\",null,{\"className\":\"grid grid-cols-1 md:grid-cols-3 gap-8\",\"children\":[[\"$\",\"div\",null,{\"children\":[[\"$\",\"$L4\",null,{\"href\":\"/\",\"className\":\"flex items-center gap-2.5 mb-3\",\"children\":[[\"$\",\"div\",null,{\"className\":\"w-7 h-7 bg-brand-500 rounded-lg flex items-center justify-center\",\"children\":[\"$\",\"svg\",null,{\"xmlns\":\"http://www.w3.org/2000/svg\",\"width\":24,\"height\":24,\"viewBox\":\"0 0 24 24\",\"fill\":\"none\",\"stroke\":\"currentColor\",\"strokeWidth\":2,\"strokeLinecap\":\"round\",\"strokeLinejoin\":\"round\",\"className\":\"lucide lucide-terminal w-3.5 h-3.5 text-white\",\"children\":[[\"$\",\"polyline\",\"akl6gq\",{\"points\":\"4 17 10 11 4 5\"}],[\"$\",\"line\",\"q2wloq\",{\"x1\":\"12\",\"x2\":\"20\",\"y1\":\"19\",\"y2\":\"19\"}],\"$undefined\"]}]}],[\"$\",\"span\",null,{\"className\":\"text-lg font-bold text-white\",\"children\":[\"Dev\",[\"$\",\"span\",null,{\"className\":\"gradient-text\",\"children\":\"Bench\"}]]}]]}],[\"$\",\"p\",null,{\"className\":\"text-slate-400 text-sm leading-relaxed\",\"children\":\"Free developer tools, benchmarks, and calculators. Built for developers, by developers.\"}]]}],[\"$\",\"div\",null,{\"children\":[[\"$\",\"h3\",null,{\"className\":\"text-sm font-semibold text-slate-300 uppercase tracking-wider mb-4\",\"children\":\"Tools\"}],[\"$\",\"ul\",null,{\"className\":\"space-y-2\",\"children\":[[\"$\",\"li\",\"/tools/json-formatter\",{\"children\":[\"$\",\"$L4\",null,{\"href\":\"/tools/json-formatter\",\"className\":\"text-slate-400 hover:text-brand-400 text-sm transition-colors\",\"children\":\"JSON Formatter\"}]}],[\"$\",\"li\",\"/tools/base64\",{\"children\":[\"$\",\"$L4\",null,{\"href\":\"/tools/base64\",\"className\":\"text-slate-400 hover:text-brand-400 text-sm transition-colors\",\"children\":\"Base64 Encoder/Decoder\"}]}],[\"$\",\"li\",\"/tools/uuid-generator\",{\"children\":[\"$\",\"$L4\",null,{\"href\":\"/tools/uuid-generator\",\"className\":\"text-slate-400 hover:text-brand-400 text-sm transition-colors\",\"children\":\"UUID Generator\"}]}],[\"$\",\"li\",\"/tools/regex-tester\",{\"children\":[\"$\",\"$L4\",null,{\"href\":\"/tools/regex-tester\",\"className\":\"text-slate-400 hover:text-brand-400 text-sm transition-colors\",\"children\":\"Regex Tester\"}]}]]}]]}],[\"$\",\"div\",null,{\"children\":[[\"$\",\"h3\",null,{\"className\":\"text-sm font-semibold text-slate-300 uppercase tracking-wider mb-4\",\"children\":\"Resources\"}],[\"$\",\"ul\",null,{\"className\":\"space-y-2\",\"children\":[[\"$\",\"li\",\"/blog\",{\"children\":[\"$\",\"$L4\",null,{\"href\":\"/blog\",\"className\":\"text-slate-400 hover:text-brand-400 text-sm transition-colors\",\"children\":\"Blog\"}]}],[\"$\",\"li\",\"/benchmarks\",{\"children\":[\"$\",\"$L4\",null,{\"href\":\"/benchmarks\",\"className\":\"text-slate-400 hover:text-brand-400 text-sm transition-colors\",\"children\":\"Benchmarks\"}]}],[\"$\",\"li\",\"/about\",{\"children\":[\"$\",\"$L4\",null,{\"href\":\"/about\",\"className\":\"text-slate-400 hover:text-brand-400 text-sm transition-colors\",\"children\":\"About\"}]}]]}]]}]]}],[\"$\",\"div\",null,{\"className\":\"mt-10 pt-6 border-t border-slate-700/50 flex flex-col sm:flex-row items-center justify-between gap-4\",\"children\":[[\"$\",\"p\",null,{\"className\":\"text-slate-500 text-sm flex items-center gap-1\",\"children\":[\"Made with \",[\"$\",\"svg\",null,{\"xmlns\":\"http://www.w3.org/2000/svg\",\"width\":24,\"height\":24,\"viewBox\":\"0 0 24 24\",\"fill\":\"none\",\"stroke\":\"currentColor\",\"strokeWidth\":2,\"strokeLinecap\":\"round\",\"strokeLinejoin\":\"round\",\"className\":\"lucide lucide-heart w-3.5 h-3.5 text-red-500 fill-red-500\",\"children\":[[\"$\",\"path\",\"c3ymky\",{\"d\":\"M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z\"}],\"$undefined\"]}],\" by the DevBench team © \",2026]}],[\"$\",\"a\",null,{\"href\":\"https://github.com\",\"target\":\"_blank\",\"rel\":\"noopener noreferrer\",\"className\":\"text-slate-500 hover:text-slate-300 transition-colors\",\"aria-label\":\"GitHub\",\"children\":[\"$\",\"svg\",null,{\"xmlns\":\"http://www.w3.org/2000/svg\",\"width\":24,\"height\":24,\"viewBox\":\"0 0 24 24\",\"fill\":\"none\",\"stroke\":\"currentColor\",\"strokeWidth\":2,\"strokeLinecap\":\"round\",\"strokeLinejoin\":\"round\",\"className\":\"lucide lucide-github w-5 h-5\",\"children\":[[\"$\",\"path\",\"tonef\",{\"d\":\"M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4\"}],[\"$\",\"path\",\"9comsn\",{\"d\":\"M9 18c-4.51 2-5-2-7-2\"}],\"$undefined\"]}]}]]}]]}]}],[\"$\",\"$Lb\",null,{}],[\"$\",\"$Lc\",null,{\"position\":\"bottom-right\",\"toastOptions\":{\"style\":{\"background\":\"#1e293b\",\"color\":\"#e2e8f0\",\"border\":\"1px solid #334155\",\"fontSize\":\"14px\"}}}]]}]}]],null],null],\"couldBeIntercepted\":false,\"initialHead\":[null,\"$Ld\"],\"globalErrorComponent\":\"$e\",\"missingSlots\":\"$Wf\"}]\n"])</script><script>self.__next_f.push([1,"d:[[\"$\",\"meta\",\"0\",{\"name\":\"viewport\",\"content\":\"width=device-width, initial-scale=1\"}],[\"$\",\"meta\",\"1\",{\"charSet\":\"utf-8\"}],[\"$\",\"title\",\"2\",{\"children\":\"CSS @scope in 2026: The End of Naming Conventions and Heavy Abstractions | DevBench\"}],[\"$\",\"meta\",\"3\",{\"name\":\"description\",\"content\":\"CSS @scope is now Baseline across all browsers — scoped styles without BEM, CSS Modules, or CSS-in-JS. Learn the syntax, scope roots, scope limits, proximity, and how to migrate from naming conventions to native scoping.\"}],[\"$\",\"meta\",\"4\",{\"name\":\"author\",\"content\":\"DevBench\"}],[\"$\",\"meta\",\"5\",{\"name\":\"keywords\",\"content\":\"developer tools,JSON formatter,Base64,UUID generator,regex tester,benchmarks,dev tools\"}],[\"$\",\"meta\",\"6\",{\"property\":\"og:title\",\"content\":\"DevBench — Developer Tools \u0026 Calculators\"}],[\"$\",\"meta\",\"7\",{\"property\":\"og:description\",\"content\":\"Free developer tools for everyday use.\"}],[\"$\",\"meta\",\"8\",{\"property\":\"og:site_name\",\"content\":\"DevBench\"}],[\"$\",\"meta\",\"9\",{\"property\":\"og:locale\",\"content\":\"en_US\"}],[\"$\",\"meta\",\"10\",{\"property\":\"og:type\",\"content\":\"website\"}],[\"$\",\"meta\",\"11\",{\"name\":\"twitter:card\",\"content\":\"summary\"}],[\"$\",\"meta\",\"12\",{\"name\":\"twitter:title\",\"content\":\"DevBench — Developer Tools \u0026 Calculators\"}],[\"$\",\"meta\",\"13\",{\"name\":\"twitter:description\",\"content\":\"Free developer tools for everyday use.\"}],[\"$\",\"link\",\"14\",{\"rel\":\"icon\",\"href\":\"/favicon.svg\"}]]\n3:null\n"])</script></body></html>

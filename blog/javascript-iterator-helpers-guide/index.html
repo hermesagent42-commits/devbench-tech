@@ -1,0 +1,470 @@
+<!DOCTYPE html><html lang="en" class="dark"><head><meta charSet="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/><link rel="stylesheet" href="/devbench-tech/_next/static/css/c877e59dbcb00f11.css" data-precedence="next"/><link rel="preload" as="script" fetchPriority="low" href="/devbench-tech/_next/static/chunks/webpack-b521a83317325026.js"/><script src="/devbench-tech/_next/static/chunks/fd9d1056-04e0aa683dc3c41f.js" async=""></script><script src="/devbench-tech/_next/static/chunks/2117-8374a93ea77a2be4.js" async=""></script><script src="/devbench-tech/_next/static/chunks/main-app-aaec773b36366bc0.js" async=""></script><script src="/devbench-tech/_next/static/chunks/2972-4aaa15d119eeb022.js" async=""></script><script src="/devbench-tech/_next/static/chunks/app/blog/%5Bslug%5D/page-a411190e7012c687.js" async=""></script><script src="/devbench-tech/_next/static/chunks/44530001-4ecf7a22b5b24163.js" async=""></script><script src="/devbench-tech/_next/static/chunks/8375-c77b8de36f6696fb.js" async=""></script><script src="/devbench-tech/_next/static/chunks/6829-f51803445ddf1872.js" async=""></script><script src="/devbench-tech/_next/static/chunks/app/layout-488e5c40aa6ffa72.js" async=""></script><title>JavaScript Iterator Helpers: .map(), .filter(), and .take() on Every Iterable | DevBench</title><meta name="description" content="Iterator Helpers bring the full array method chain to generators, Sets, Maps, and any iterable — lazily evaluated, memory-efficient, and composable. Here&#x27;s everything you need to know with production-ready patterns."/><meta name="author" content="DevBench"/><meta name="keywords" content="developer tools,JSON formatter,Base64,UUID generator,regex tester,benchmarks,dev tools"/><meta property="og:title" content="DevBench — Developer Tools &amp; Calculators"/><meta property="og:description" content="Free developer tools for everyday use."/><meta property="og:site_name" content="DevBench"/><meta property="og:locale" content="en_US"/><meta property="og:type" content="website"/><meta name="twitter:card" content="summary"/><meta name="twitter:title" content="DevBench — Developer Tools &amp; Calculators"/><meta name="twitter:description" content="Free developer tools for everyday use."/><link rel="icon" href="/favicon.svg"/><script src="/devbench-tech/_next/static/chunks/polyfills-42372ed130431b0a.js" noModule=""></script></head><body class="flex flex-col min-h-screen"><script type="application/ld+json">{"@context":"https://schema.org","@type":"WebSite","name":"DevBench","url":"https://devbench-roan.vercel.app","description":"Free developer tools for everyday use: JSON formatter, Base64 encoder/decoder, UUID generator, regex tester, benchmarks, and more.","potentialAction":{"@type":"SearchAction","target":"https://devbench-roan.vercel.app/tools?q={search_term_string}","query-input":"required name=search_term_string"}}</script><header class="sticky top-0 z-50 transition-all duration-300 bg-surface border-b border-transparent"><div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8"><div class="flex items-center justify-between h-16"><a class="flex items-center gap-2.5 group" href="/devbench-tech/"><div class="w-8 h-8 bg-brand-500 rounded-lg flex items-center justify-center group-hover:bg-brand-400 transition-colors"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-terminal w-4 h-4 text-white"><polyline points="4 17 10 11 4 5"></polyline><line x1="12" x2="20" y1="19" y2="19"></line></svg></div><span class="text-xl font-bold text-white tracking-tight">Dev<span class="gradient-text">Bench</span></span></a><nav class="hidden md:flex items-center gap-1"><a class="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 text-slate-400 hover:text-slate-200 hover:bg-surface-lighter" href="/devbench-tech/tools/"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-wrench w-4 h-4"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path></svg>Tools</a><a class="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 text-slate-400 hover:text-slate-200 hover:bg-surface-lighter" href="/devbench-tech/benchmarks/"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-bar-chart3 w-4 h-4"><path d="M3 3v18h18"></path><path d="M18 17V9"></path><path d="M13 17V5"></path><path d="M8 17v-3"></path></svg>Benchmarks</a><a class="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 bg-brand-500/10 text-brand-400" href="/devbench-tech/blog/"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-book-open w-4 h-4"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg>Blog</a><a class="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 text-slate-400 hover:text-slate-200 hover:bg-surface-lighter" href="/devbench-tech/about/"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-info w-4 h-4"><circle cx="12" cy="12" r="10"></circle><path d="M12 16v-4"></path><path d="M12 8h.01"></path></svg>About</a></nav><button class="md:hidden p-2 rounded-lg text-slate-400 hover:text-white hover:bg-surface-lighter transition-colors" aria-label="Toggle menu"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-menu w-5 h-5"><line x1="4" x2="20" y1="12" y2="12"></line><line x1="4" x2="20" y1="6" y2="6"></line><line x1="4" x2="20" y1="18" y2="18"></line></svg></button></div></div></header><main class="flex-1"><article class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-20"><script type="application/ld+json">{"@context":"https://schema.org","@type":"Article","headline":"JavaScript Iterator Helpers: .map(), .filter(), and .take() on Every Iterable","description":"Iterator Helpers bring the full array method chain to generators, Sets, Maps, and any iterable — lazily evaluated, memory-efficient, and composable. Here's everything you need to know with production-ready patterns.","datePublished":"2026-05-31","author":{"@type":"Organization","name":"DevBench"},"publisher":{"@type":"Organization","name":"DevBench","url":"https://devbench-roan.vercel.app"}}</script><script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://devbench-roan.vercel.app"},{"@type":"ListItem","position":2,"name":"Blog","item":"https://devbench-roan.vercel.app/blog"},{"@type":"ListItem","position":3,"name":"JavaScript Iterator Helpers: .map(), .filter(), and .take() on Every Iterable"}]}</script><a class="inline-flex items-center gap-1.5 text-slate-400 hover:text-brand-400 text-sm transition-colors mb-8" href="/devbench-tech/blog/"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-arrow-left w-4 h-4"><path d="m12 19-7-7 7-7"></path><path d="M19 12H5"></path></svg>Back to Blog</a><header class="mb-10"><h1 class="text-3xl sm:text-4xl font-bold text-white leading-tight mb-4">JavaScript Iterator Helpers: .map(), .filter(), and .take() on Every Iterable</h1><div class="flex flex-wrap items-center gap-4 text-sm text-slate-400"><span class="flex items-center gap-1.5"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-calendar w-4 h-4"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"></rect><line x1="16" x2="16" y1="2" y2="6"></line><line x1="8" x2="8" y1="2" y2="6"></line><line x1="3" x2="21" y1="10" y2="10"></line></svg>2026-05-31</span><div class="flex flex-wrap gap-1.5"><span class="badge-secondary flex items-center gap-1"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-tag w-3 h-3"><path d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"></path><path d="M7 7h.01"></path></svg>[&quot;JavaScript&quot;</span><span class="badge-secondary flex items-center gap-1"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-tag w-3 h-3"><path d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"></path><path d="M7 7h.01"></path></svg>&quot;Iterators&quot;</span><span class="badge-secondary flex items-center gap-1"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-tag w-3 h-3"><path d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"></path><path d="M7 7h.01"></path></svg>&quot;Generators&quot;</span><span class="badge-secondary flex items-center gap-1"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-tag w-3 h-3"><path d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"></path><path d="M7 7h.01"></path></svg>&quot;Web Platform&quot;</span><span class="badge-secondary flex items-center gap-1"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-tag w-3 h-3"><path d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"></path><path d="M7 7h.01"></path></svg>&quot;ES2025&quot;</span><span class="badge-secondary flex items-center gap-1"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-tag w-3 h-3"><path d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"></path><path d="M7 7h.01"></path></svg>&quot;2026&quot;</span><span class="badge-secondary flex items-center gap-1"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-tag w-3 h-3"><path d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"></path><path d="M7 7h.01"></path></svg>&quot;Functional Programming&quot;]</span></div></div></header><div class="blog-content prose-p:text-slate-300 prose-p:leading-relaxed prose-p:mb-4">
+<h2 class="post-h2">The Problem: Arrays Aren't Always the Answer</h2>
+
+<p class="post-p">
+JavaScript developers love chaining array methods:
+</p>
+
+<pre class="code-block"><code class="language-javascript">const result = data
+<p class="post-p">
+.filter(item =&amp;gt; item.active)
+.map(item =&amp;gt; item.name)
+.slice(0, 10);
+</code></pre>
+</p>
+
+<p class="post-p">
+This pattern is clean, readable, and declarative. But it has a hidden cost: <strong>each step creates a new intermediate array</strong>. With 10,000 items, that's three full passes and two temporary arrays. With a generator yielding infinite values, it flat-out doesn't work.
+</p>
+
+<p class="post-p">
+Enter <strong>Iterator Helpers</strong> — the same <code class="inline-code">.map()</code>, <code class="inline-code">.filter()</code>, <code class="inline-code">.take()</code>, <code class="inline-code">.drop()</code>, <code class="inline-code">.flatMap()</code>, <code class="inline-code">.reduce()</code>, <code class="inline-code">.find()</code>, <code class="inline-code">.some()</code>, <code class="inline-code">.every()</code>, and <code class="inline-code">.forEach()</code> methods, but on <strong>any iterable</strong> (generators, Sets, Maps, strings, NodeLists, custom iterators) — lazily evaluated, zero intermediate arrays.
+</p>
+
+<pre class="code-block"><code class="language-javascript">// Instead of:
+<p class="post-p">
+[...set].filter(x =&amp;gt; x &amp;gt; 5).map(x =&amp;gt; x * 2);
+</p>
+
+<p class="post-p">
+// You write:
+set.values().filter(x =&amp;gt; x &amp;gt; 5).map(x =&amp;gt; x * 2).toArray();
+</code></pre>
+</p>
+
+<p class="post-p">
+No intermediate arrays. Just a pipeline of lazy transformations.
+</p>
+
+<h2 class="post-h2">The Iterator Namespace</h2>
+
+<p class="post-p">
+Every iterable's <code class="inline-code">.values()</code> method (or the iterable itself via <code class="inline-code">Iterator.from()</code>) now exposes a full chainable API:
+</p>
+
+<pre class="code-block"><code class="language-javascript">// On any iterable
+<p class="post-p">
+const it = Iterator.from(someIterable);
+</p>
+
+<p class="post-p">
+// Or directly on built-in iterators
+const it = map.values(); // MapIterator
+const it = set.values(); // SetIterator
+const it = generator();  // Generator object
+</code></pre>
+</p>
+
+<p class="post-p">
+All of these now have <code class="inline-code">.map()</code>, <code class="inline-code">.filter()</code>, <code class="inline-code">.take()</code>, and the rest.
+</p>
+
+<h2 class="post-h2">Every Iterator Helper Method</h2>
+
+<h3 class="post-h3"><code class="inline-code">.map(fn)</code> — Transform each value</h3>
+
+<pre class="code-block"><code class="language-javascript">function* fibonacci() {
+<p class="post-p">
+let a = 0, b = 1;
+while (true) { yield a; [a, b] = [b, a + b]; }
+}
+</p>
+
+<p class="post-p">
+// Square the first 10 fibonacci numbers — all lazy, no infinite loop
+const squares = fibonacci()
+.take(10)
+.map(n =&amp;gt; n * n)
+.toArray();
+// [0, 1, 1, 4, 9, 25, 64, 169, 441, 1156]
+</code></pre>
+</p>
+
+<p class="post-p">
+Notice: <code class="inline-code">.take(10)</code> stops the infinite generator, and <code class="inline-code">.map()</code> only transforms the 10 values that make it through. No wasted work.
+</p>
+
+<h3 class="post-h3"><code class="inline-code">.filter(fn)</code> — Keep only matching values</h3>
+
+<pre class="code-block"><code class="language-javascript">// Get active admins from a Map of user records
+<p class="post-p">
+const users = new Map([
+['alice', { role: 'admin', active: true }],
+['bob',   { role: 'user',  active: true }],
+['carol', { role: 'admin', active: false }],
+['dave',  { role: 'admin', active: true }],
+]);
+</p>
+
+<p class="post-p">
+const activeAdmins = users.values()
+.filter(u =&amp;gt; u.role === 'admin')
+.filter(u =&amp;gt; u.active)
+.toArray();
+// [{ role: 'admin', active: true }, { role: 'admin', active: true }]
+</code></pre>
+</p>
+
+<h3 class="post-h3"><code class="inline-code">.take(n)</code> — Take the first N values</h3>
+
+<pre class="code-block"><code class="language-javascript">// Read first 5 lines of a large file (via streaming generator)
+<p class="post-p">
+function* readLines(stream) {
+// ... streaming file read
+}
+</p>
+
+<p class="post-p">
+const preview = readLines(hugeFile)
+.take(5)
+.toArray();
+</code></pre>
+</p>
+
+<p class="post-p">
+This is the killer feature for infinite generators and large datasets. Stop processing after N items without reading everything.
+</p>
+
+<h3 class="post-h3"><code class="inline-code">.drop(n)</code> — Skip the first N values</h3>
+
+<pre class="code-block"><code class="language-javascript">// Skip header row, then process
+<p class="post-p">
+const csvLines = rawLines.drop(1).map(parseRow).toArray();
+</code></pre>
+</p>
+
+<h3 class="post-h3"><code class="inline-code">.flatMap(fn)</code> — Map and flatten</h3>
+
+<pre class="code-block"><code class="language-javascript">// Expand each user's roles
+<p class="post-p">
+const allRoles = users.values()
+.flatMap(u =&amp;gt; u.roles)  // Each user.roles is an array
+.toArray();
+</code></pre>
+</p>
+
+<h3 class="post-h3"><code class="inline-code">.reduce(fn, initial)</code> — Fold values into a single result</h3>
+
+<pre class="code-block"><code class="language-javascript">const total = orders.values()
+<p class="post-p">
+.map(o =&amp;gt; o.total)
+.reduce((sum, val) =&amp;gt; sum + val, 0);
+</code></pre>
+</p>
+
+<h3 class="post-h3"><code class="inline-code">.find(fn)</code> — Return first match (or undefined)</h3>
+
+<pre class="code-block"><code class="language-javascript">const firstAdmin = users.values().find(u =&amp;gt; u.role === 'admin');
+<p class="post-p">
+</code></pre>
+</p>
+
+<h3 class="post-h3"><code class="inline-code">.some(fn)</code> — Does any value satisfy the predicate?</h3>
+
+<pre class="code-block"><code class="language-javascript">const hasInactive = users.values().some(u =&amp;gt; !u.active);
+<p class="post-p">
+</code></pre>
+</p>
+
+<h3 class="post-h3"><code class="inline-code">.every(fn)</code> — Do all values satisfy the predicate?</h3>
+
+<pre class="code-block"><code class="language-javascript">const allActive = users.values().every(u =&amp;gt; u.active);
+<p class="post-p">
+</code></pre>
+</p>
+
+<h3 class="post-h3"><code class="inline-code">.forEach(fn)</code> — Execute for each value (terminal)</h3>
+
+<pre class="code-block"><code class="language-javascript">// Log each active user — processes lazily, one at a time
+<p class="post-p">
+users.values()
+.filter(u =&amp;gt; u.active)
+.forEach(u =&amp;gt; console.log(u.name));
+</code></pre>
+</p>
+
+<h3 class="post-h3"><code class="inline-code">.toArray()</code> — Collect into an array (terminal)</h3>
+
+<p class="post-p">
+The most common terminal operation. Collects all remaining values into a regular array.
+</p>
+
+<pre class="code-block"><code class="language-javascript">const result = pipeline.filter(...).map(...).take(10).toArray();
+<p class="post-p">
+</code></pre>
+</p>
+
+<h2 class="post-h2">Lazy Evaluation: The Secret Superpower</h2>
+
+<p class="post-p">
+The key difference from array methods: <strong>nothing executes until a terminal method is called</strong>.
+</p>
+
+<pre class="code-block"><code class="language-javascript">function* count() {
+<p class="post-p">
+let i = 0;
+while (true) {
+console.log('yielding', i);
+yield i++;
+}
+}
+</p>
+
+<p class="post-p">
+// This creates the pipeline — but NOTHING logs yet
+const pipeline = count()
+.filter(n =&amp;gt; n % 2 === 0)
+.map(n =&amp;gt; n * 10)
+.take(3);
+</p>
+
+<p class="post-p">
+// Still nothing logged. The pipeline is just a description.
+</p>
+
+<p class="post-p">
+// NOW it executes — and logs exactly 5 yields to produce 3 even numbers
+const result = pipeline.toArray();
+// yielding 0   ← 0 even, mapped
+// yielding 1   ← filtered out
+// yielding 2   ← 2 even, mapped
+// yielding 3   ← filtered out
+// yielding 4   ← 4 even, mapped — we have 3, stop!
+// result: [0, 20, 40]
+</code></pre>
+</p>
+
+<p class="post-p">
+Only 5 yields for 3 results. With arrays, every value would be processed through every step.
+</p>
+
+<h2 class="post-h2">Production Pattern: Paginated API Client</h2>
+
+<pre class="code-block"><code class="language-typescript">async function* paginatedFetch&amp;lt;T&amp;gt;(url: string): AsyncGenerator&amp;lt;T&amp;gt; {
+<p class="post-p">
+let page = 1;
+let hasMore = true;
+</p>
+
+<p class="post-p">
+while (hasMore) {
+const res = await fetch(<code class="inline-code">${url}?page=${page}&amp;amp;limit=100</code>);
+const data = await res.json();
+for (const item of data.items) yield item;
+hasMore = data.hasMore;
+page++;
+}
+}
+</p>
+
+<p class="post-p">
+// Consume with iterator helpers
+const filtered = Iterator.from(
+await paginatedFetch&amp;lt;User&amp;gt;('/api/users')
+).filter(u =&amp;gt; u.active)
+.take(500)
+.map(u =&amp;gt; ({ id: u.id, name: u.name }))
+.toArray();
+</code></pre>
+</p>
+
+<p class="post-p">
+Memory-efficient even with millions of records — only 500 are held in memory at the end, and the fetch stops once we have enough.
+</p>
+
+<h2 class="post-h2">Production Pattern: DOM Traversal</h2>
+
+<pre class="code-block"><code class="language-typescript">function* walkDOM(root: Element): Generator&amp;lt;Element&amp;gt; {
+<p class="post-p">
+yield root;
+for (const child of root.children) {
+yield* walkDOM(child);
+}
+}
+</p>
+
+<p class="post-p">
+// Find all buttons with a specific aria-label — lazily, stops at first match
+const button = walkDOM(document.body)
+.filter(el =&amp;gt; el.tagName === 'BUTTON')
+.find(el =&amp;gt; el.getAttribute('aria-label') === 'Submit');
+</p>
+
+<p class="post-p">
+// Find all elements matching a selector, take first 5
+const firstFiveLinks = walkDOM(document.body)
+.filter(el =&amp;gt; el.matches('a[href^="https"]'))
+.take(5)
+.toArray();
+</code></pre>
+</p>
+
+<p class="post-p">
+No more <code class="inline-code">document.querySelectorAll()</code> collecting every match when you only need a few.
+</p>
+
+<h2 class="post-h2">Production Pattern: Data Pipeline Composition</h2>
+
+<pre class="code-block"><code class="language-typescript">// Compose reusable pipeline stages
+<p class="post-p">
+const byStatus = (status: string) =&amp;gt;
+function* &amp;lt;T extends { status: string }&amp;gt;(items: Iterable&amp;lt;T&amp;gt;) {
+yield* Iterator.from(items).filter(item =&amp;gt; item.status === status);
+};
+</p>
+
+<p class="post-p">
+const topN = &amp;lt;T&amp;gt;(n: number) =&amp;gt;
+function* (items: Iterable&amp;lt;T&amp;gt;) {
+yield* Iterator.from(items).take(n);
+};
+</p>
+
+<p class="post-p">
+const pluck = &amp;lt;T, K extends keyof T&amp;gt;(key: K) =&amp;gt;
+function* (items: Iterable&amp;lt;T&amp;gt;) {
+yield* Iterator.from(items).map(item =&amp;gt; item[key]);
+};
+</p>
+
+<p class="post-p">
+// Compose them
+const pipeline = pipe(
+byStatus('active'),
+topN(10),
+pluck('name'),
+);
+</p>
+
+<p class="post-p">
+const names = pipeline(items).toArray();
+</code></pre>
+</p>
+
+<h2 class="post-h2">Async Iterator Helpers</h2>
+
+<p class="post-p">
+Async iterators (<code class="inline-code">for await...of</code>) get their own parallel set of helpers via <code class="inline-code">Iterator.from()</code>:
+</p>
+
+<pre class="code-block"><code class="language-typescript">async function* eventStream(url: string) {
+<p class="post-p">
+const response = await fetch(url);
+const reader = response.body!.getReader();
+// ... SSE parsing
+}
+</p>
+
+<p class="post-p">
+const recentEvents = Iterator.from(eventStream('/api/events'))
+.filter(e =&amp;gt; e.severity === 'critical')
+.take(20)
+.map(e =&amp;gt; e.message);
+</code></pre>
+</p>
+
+<p class="post-p">
+Async methods return async iterators, and terminal methods return promises.
+</p>
+
+<h2 class="post-h2">Comparison: Array vs Iterator Approaches</h2>
+
+<p class="post-p">
+| Aspect | Array Methods | Iterator Helpers |
+|--------|--------------|------------------|
+| Intermediate allocations | One new array per method | Zero |
+| Works with infinite iterables | No | Yes |
+| Works with generators | Only after <code class="inline-code">.toArray()</code> | Natively |
+| Memory for 100K items, 3-step pipeline | ~300K items allocated | ~100K (only terminal) |
+| Early termination | Process everything | Stop when done |
+| Debuggability | Logs at each step | Logs at yield time |
+</p>
+
+<h2 class="post-h2">Browser Support (May 2026)</h2>
+
+<p class="post-p">
+Iterator Helpers are shipping:
+</p>
+
+<ul class="post-ul"><li class="post-li"><strong>Chrome 131+</strong> — full support</li>
+<li class="post-li"><strong>Firefox 137+</strong> — full support  </li>
+<li class="post-li"><strong>Safari 26+</strong> — full support</li>
+<li class="post-li"><strong>Node.js 22+</strong> — full support</li>
+<li class="post-li"><strong>Deno 2.0+</strong> — full support</li>
+<li class="post-li"><strong>Bun 1.2+</strong> — full support</li>
+</ul>
+<p class="post-p">
+For older environments, core-js provides a polyfill:
+</p>
+
+<pre class="code-block"><code class="language-bash">npm install core-js
+<p class="post-p">
+</code></pre>
+</p>
+
+<pre class="code-block"><code class="language-javascript">import 'core-js/proposals/iterator-helpers';
+<p class="post-p">
+</code></pre>
+</p>
+
+<h2 class="post-h2">The One Gotcha: Iterator Exhaustion</h2>
+
+<p class="post-p">
+Iterators are stateful. Once consumed, they're empty:
+</p>
+
+<pre class="code-block"><code class="language-javascript">const it = [1, 2, 3].values().map(n =&amp;gt; n * 2);
+
+<p class="post-p">
+it.toArray(); // [2, 4, 6]
+it.toArray(); // [] — exhausted!
+</p>
+
+<p class="post-p">
+// Fix: create fresh iterators or tee them
+</code></pre>
+</p>
+
+<p class="post-p">
+If you need multiple passes over the same data, either <code class="inline-code">.toArray()</code> early or create fresh iterators.
+</p>
+
+<h2 class="post-h2">Takeaway</h2>
+
+<p class="post-p">
+Iterator Helpers close the gap between the elegant array method chain and the efficiency of lazy iterators. The key insights:
+</p>
+
+<ul class="post-ul"><li class="post-li"><strong>Everything is lazy</strong> — no intermediate arrays, no wasted work</li>
+<li class="post-li"><strong>Works on anything iterable</strong> — generators, Maps, Sets, NodeLists, strings, custom iterators</li>
+<li class="post-li"><strong><code class="inline-code">.take()</code> and <code class="inline-code">.drop()</code> are game-changers</strong> for pagination and infinite sequences</li>
+<li class="post-li"><strong>Composable pipelines</strong> — build reusable transformation stages</li>
+<li class="post-li"><strong>Shipping now</strong> — no transpilation needed in modern browsers</li>
+</ul>
+<p class="post-p">
+The next time you write <code class="inline-code">.filter().map().slice()</code> on an array, ask yourself: could this be an iterator pipeline instead?
+</p>
+
+<hr class="post-hr" />
+
+<p class="post-p">
+<em>Want hands-on practice? Try the <a href="/tools/regex-tester" class="post-link" target="_blank" rel="noopener noreferrer">Regex Tester</a> or <a href="/tools/json-formatter" class="post-link" target="_blank" rel="noopener noreferrer">JSON Formatter</a> on DevBench — both built with iterator patterns under the hood.</em>
+</p>
+</div><style>
+        .blog-content .post-h1 { font-size: 1.75rem; font-weight: 700; color: #ffffff; margin-top: 2rem; margin-bottom: 1rem; }
+        .blog-content .post-h2 { font-size: 1.5rem; font-weight: 600; color: #f1f5f9; margin-top: 1.75rem; margin-bottom: 0.75rem; padding-bottom: 0.5rem; border-bottom: 1px solid #334155; }
+        .blog-content .post-h3 { font-size: 1.25rem; font-weight: 600; color: #e2e8f0; margin-top: 1.5rem; margin-bottom: 0.5rem; }
+        .blog-content .post-h4 { font-size: 1.1rem; font-weight: 600; color: #e2e8f0; margin-top: 1.25rem; margin-bottom: 0.5rem; }
+        .blog-content .post-p { color: #cbd5e1; line-height: 1.75; margin-bottom: 1rem; }
+        .blog-content .code-block { background: #0f172a; border: 1px solid #334155; border-radius: 0.5rem; padding: 1rem; overflow-x: auto; margin: 1rem 0; font-family: 'JetBrains Mono', monospace; font-size: 0.875rem; color: #e2e8f0; }
+        .blog-content .inline-code { background: #1e293b; color: #38bdf8; padding: 0.15rem 0.4rem; border-radius: 0.25rem; font-family: 'JetBrains Mono', monospace; font-size: 0.875em; }
+        .blog-content .post-link { color: #38bdf8; text-decoration: underline; transition: color 0.2s; }
+        .blog-content .post-link:hover { color: #7dd3fc; }
+        .blog-content .post-ul { list-style: disc; padding-left: 1.5rem; margin: 0.75rem 0; color: #cbd5e1; }
+        .blog-content .post-li { margin-bottom: 0.25rem; line-height: 1.6; }
+        .blog-content .post-blockquote { border-left: 3px solid #0ea5e9; padding: 0.5rem 1rem; margin: 1rem 0; background: rgba(14, 165, 233, 0.05); border-radius: 0 0.5rem 0.5rem 0; }
+        .blog-content .post-blockquote p { color: #94a3b8; font-style: italic; }
+        .blog-content .post-hr { border: none; border-top: 1px solid #334155; margin: 2rem 0; }
+        .blog-content strong { color: #f1f5f9; font-weight: 600; }
+        .blog-content em { font-style: italic; }
+        </style></article></main><footer class="bg-surface-light border-t border-slate-700/50 mt-auto"><div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12"><div class="grid grid-cols-1 md:grid-cols-3 gap-8"><div><a class="flex items-center gap-2.5 mb-3" href="/devbench-tech/"><div class="w-7 h-7 bg-brand-500 rounded-lg flex items-center justify-center"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-terminal w-3.5 h-3.5 text-white"><polyline points="4 17 10 11 4 5"></polyline><line x1="12" x2="20" y1="19" y2="19"></line></svg></div><span class="text-lg font-bold text-white">Dev<span class="gradient-text">Bench</span></span></a><p class="text-slate-400 text-sm leading-relaxed">Free developer tools, benchmarks, and calculators. Built for developers, by developers.</p></div><div><h3 class="text-sm font-semibold text-slate-300 uppercase tracking-wider mb-4">Tools</h3><ul class="space-y-2"><li><a class="text-slate-400 hover:text-brand-400 text-sm transition-colors" href="/devbench-tech/tools/json-formatter/">JSON Formatter</a></li><li><a class="text-slate-400 hover:text-brand-400 text-sm transition-colors" href="/devbench-tech/tools/base64/">Base64 Encoder/Decoder</a></li><li><a class="text-slate-400 hover:text-brand-400 text-sm transition-colors" href="/devbench-tech/tools/uuid-generator/">UUID Generator</a></li><li><a class="text-slate-400 hover:text-brand-400 text-sm transition-colors" href="/devbench-tech/tools/regex-tester/">Regex Tester</a></li></ul></div><div><h3 class="text-sm font-semibold text-slate-300 uppercase tracking-wider mb-4">Resources</h3><ul class="space-y-2"><li><a class="text-slate-400 hover:text-brand-400 text-sm transition-colors" href="/devbench-tech/blog/">Blog</a></li><li><a class="text-slate-400 hover:text-brand-400 text-sm transition-colors" href="/devbench-tech/benchmarks/">Benchmarks</a></li><li><a class="text-slate-400 hover:text-brand-400 text-sm transition-colors" href="/devbench-tech/about/">About</a></li></ul></div></div><div class="mt-10 pt-6 border-t border-slate-700/50 flex flex-col sm:flex-row items-center justify-between gap-4"><p class="text-slate-500 text-sm flex items-center gap-1">Made with <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-heart w-3.5 h-3.5 text-red-500 fill-red-500"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"></path></svg> by the DevBench team © <!-- -->2026</p><a href="https://github.com" target="_blank" rel="noopener noreferrer" class="text-slate-500 hover:text-slate-300 transition-colors" aria-label="GitHub"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-github w-5 h-5"><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"></path><path d="M9 18c-4.51 2-5-2-7-2"></path></svg></a></div></div></footer><div data-rht-toaster="" style="position:fixed;z-index:9999;top:16px;left:16px;right:16px;bottom:16px;pointer-events:none"></div><script src="/devbench-tech/_next/static/chunks/webpack-b521a83317325026.js" async=""></script><script>(self.__next_f=self.__next_f||[]).push([0]);self.__next_f.push([2,null])</script><script>self.__next_f.push([1,"1:HL[\"/devbench-tech/_next/static/css/c877e59dbcb00f11.css\",\"style\"]\n"])</script><script>self.__next_f.push([1,"2:I[12846,[],\"\"]\n4:I[72972,[\"2972\",\"static/chunks/2972-4aaa15d119eeb022.js\",\"308\",\"static/chunks/app/blog/%5Bslug%5D/page-a411190e7012c687.js\"],\"\"]\n7:I[4707,[],\"\"]\n9:I[36423,[],\"\"]\na:I[39295,[\"9762\",\"static/chunks/44530001-4ecf7a22b5b24163.js\",\"2972\",\"static/chunks/2972-4aaa15d119eeb022.js\",\"8375\",\"static/chunks/8375-c77b8de36f6696fb.js\",\"6829\",\"static/chunks/6829-f51803445ddf1872.js\",\"3185\",\"static/chunks/app/layout-488e5c40aa6ffa72.js\"],\"Header\"]\nb:I[66506,[\"9762\",\"static/chunks/44530001-4ecf7a22b5b24163.js\",\"2972\",\"static/chunks/2972-4aaa15d119eeb022.js\",\"8375\",\"static/chunks/8375-c77b8de36f6696fb.js\",\"6829\",\"static/chunks/6829-f51803445ddf1872.js\",\"3185\",\"static/chunks/app/layout-488e5c40aa6ffa72.js\"],\"Analytics\"]\nc:I[69064,[\"9762\",\"static/chunks/44530001-4ecf7a22b5b24163.js\",\"2972\",\"static/chunks/2972-4aaa15d119eeb022.js\",\"8375\",\"static/chunks/8375-c77b8de36f6696fb.js\",\"6829\",\"static/chunks/6829-f51803445ddf1872.js\",\"3185\",\"static/chunks/app/layout-488e5c40aa6ffa72.js\"],\"Toaster\"]\ne:I[61060,[],\"\"]\n5:T3add,"])</script><script>self.__next_f.push([1,"\n\u003ch2 class=\"post-h2\"\u003eThe Problem: Arrays Aren't Always the Answer\u003c/h2\u003e\n\n\u003cp class=\"post-p\"\u003e\nJavaScript developers love chaining array methods:\n\u003c/p\u003e\n\n\u003cpre class=\"code-block\"\u003e\u003ccode class=\"language-javascript\"\u003econst result = data\n\u003cp class=\"post-p\"\u003e\n.filter(item =\u0026amp;gt; item.active)\n.map(item =\u0026amp;gt; item.name)\n.slice(0, 10);\n\u003c/code\u003e\u003c/pre\u003e\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\nThis pattern is clean, readable, and declarative. But it has a hidden cost: \u003cstrong\u003eeach step creates a new intermediate array\u003c/strong\u003e. With 10,000 items, that's three full passes and two temporary arrays. With a generator yielding infinite values, it flat-out doesn't work.\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\nEnter \u003cstrong\u003eIterator Helpers\u003c/strong\u003e — the same \u003ccode class=\"inline-code\"\u003e.map()\u003c/code\u003e, \u003ccode class=\"inline-code\"\u003e.filter()\u003c/code\u003e, \u003ccode class=\"inline-code\"\u003e.take()\u003c/code\u003e, \u003ccode class=\"inline-code\"\u003e.drop()\u003c/code\u003e, \u003ccode class=\"inline-code\"\u003e.flatMap()\u003c/code\u003e, \u003ccode class=\"inline-code\"\u003e.reduce()\u003c/code\u003e, \u003ccode class=\"inline-code\"\u003e.find()\u003c/code\u003e, \u003ccode class=\"inline-code\"\u003e.some()\u003c/code\u003e, \u003ccode class=\"inline-code\"\u003e.every()\u003c/code\u003e, and \u003ccode class=\"inline-code\"\u003e.forEach()\u003c/code\u003e methods, but on \u003cstrong\u003eany iterable\u003c/strong\u003e (generators, Sets, Maps, strings, NodeLists, custom iterators) — lazily evaluated, zero intermediate arrays.\n\u003c/p\u003e\n\n\u003cpre class=\"code-block\"\u003e\u003ccode class=\"language-javascript\"\u003e// Instead of:\n\u003cp class=\"post-p\"\u003e\n[...set].filter(x =\u0026amp;gt; x \u0026amp;gt; 5).map(x =\u0026amp;gt; x * 2);\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n// You write:\nset.values().filter(x =\u0026amp;gt; x \u0026amp;gt; 5).map(x =\u0026amp;gt; x * 2).toArray();\n\u003c/code\u003e\u003c/pre\u003e\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\nNo intermediate arrays. Just a pipeline of lazy transformations.\n\u003c/p\u003e\n\n\u003ch2 class=\"post-h2\"\u003eThe Iterator Namespace\u003c/h2\u003e\n\n\u003cp class=\"post-p\"\u003e\nEvery iterable's \u003ccode class=\"inline-code\"\u003e.values()\u003c/code\u003e method (or the iterable itself via \u003ccode class=\"inline-code\"\u003eIterator.from()\u003c/code\u003e) now exposes a full chainable API:\n\u003c/p\u003e\n\n\u003cpre class=\"code-block\"\u003e\u003ccode class=\"language-javascript\"\u003e// On any iterable\n\u003cp class=\"post-p\"\u003e\nconst it = Iterator.from(someIterable);\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n// Or directly on built-in iterators\nconst it = map.values(); // MapIterator\nconst it = set.values(); // SetIterator\nconst it = generator();  // Generator object\n\u003c/code\u003e\u003c/pre\u003e\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\nAll of these now have \u003ccode class=\"inline-code\"\u003e.map()\u003c/code\u003e, \u003ccode class=\"inline-code\"\u003e.filter()\u003c/code\u003e, \u003ccode class=\"inline-code\"\u003e.take()\u003c/code\u003e, and the rest.\n\u003c/p\u003e\n\n\u003ch2 class=\"post-h2\"\u003eEvery Iterator Helper Method\u003c/h2\u003e\n\n\u003ch3 class=\"post-h3\"\u003e\u003ccode class=\"inline-code\"\u003e.map(fn)\u003c/code\u003e — Transform each value\u003c/h3\u003e\n\n\u003cpre class=\"code-block\"\u003e\u003ccode class=\"language-javascript\"\u003efunction* fibonacci() {\n\u003cp class=\"post-p\"\u003e\nlet a = 0, b = 1;\nwhile (true) { yield a; [a, b] = [b, a + b]; }\n}\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n// Square the first 10 fibonacci numbers — all lazy, no infinite loop\nconst squares = fibonacci()\n.take(10)\n.map(n =\u0026amp;gt; n * n)\n.toArray();\n// [0, 1, 1, 4, 9, 25, 64, 169, 441, 1156]\n\u003c/code\u003e\u003c/pre\u003e\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\nNotice: \u003ccode class=\"inline-code\"\u003e.take(10)\u003c/code\u003e stops the infinite generator, and \u003ccode class=\"inline-code\"\u003e.map()\u003c/code\u003e only transforms the 10 values that make it through. No wasted work.\n\u003c/p\u003e\n\n\u003ch3 class=\"post-h3\"\u003e\u003ccode class=\"inline-code\"\u003e.filter(fn)\u003c/code\u003e — Keep only matching values\u003c/h3\u003e\n\n\u003cpre class=\"code-block\"\u003e\u003ccode class=\"language-javascript\"\u003e// Get active admins from a Map of user records\n\u003cp class=\"post-p\"\u003e\nconst users = new Map([\n['alice', { role: 'admin', active: true }],\n['bob',   { role: 'user',  active: true }],\n['carol', { role: 'admin', active: false }],\n['dave',  { role: 'admin', active: true }],\n]);\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\nconst activeAdmins = users.values()\n.filter(u =\u0026amp;gt; u.role === 'admin')\n.filter(u =\u0026amp;gt; u.active)\n.toArray();\n// [{ role: 'admin', active: true }, { role: 'admin', active: true }]\n\u003c/code\u003e\u003c/pre\u003e\n\u003c/p\u003e\n\n\u003ch3 class=\"post-h3\"\u003e\u003ccode class=\"inline-code\"\u003e.take(n)\u003c/code\u003e — Take the first N values\u003c/h3\u003e\n\n\u003cpre class=\"code-block\"\u003e\u003ccode class=\"language-javascript\"\u003e// Read first 5 lines of a large file (via streaming generator)\n\u003cp class=\"post-p\"\u003e\nfunction* readLines(stream) {\n// ... streaming file read\n}\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\nconst preview = readLines(hugeFile)\n.take(5)\n.toArray();\n\u003c/code\u003e\u003c/pre\u003e\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\nThis is the killer feature for infinite generators and large datasets. Stop processing after N items without reading everything.\n\u003c/p\u003e\n\n\u003ch3 class=\"post-h3\"\u003e\u003ccode class=\"inline-code\"\u003e.drop(n)\u003c/code\u003e — Skip the first N values\u003c/h3\u003e\n\n\u003cpre class=\"code-block\"\u003e\u003ccode class=\"language-javascript\"\u003e// Skip header row, then process\n\u003cp class=\"post-p\"\u003e\nconst csvLines = rawLines.drop(1).map(parseRow).toArray();\n\u003c/code\u003e\u003c/pre\u003e\n\u003c/p\u003e\n\n\u003ch3 class=\"post-h3\"\u003e\u003ccode class=\"inline-code\"\u003e.flatMap(fn)\u003c/code\u003e — Map and flatten\u003c/h3\u003e\n\n\u003cpre class=\"code-block\"\u003e\u003ccode class=\"language-javascript\"\u003e// Expand each user's roles\n\u003cp class=\"post-p\"\u003e\nconst allRoles = users.values()\n.flatMap(u =\u0026amp;gt; u.roles)  // Each user.roles is an array\n.toArray();\n\u003c/code\u003e\u003c/pre\u003e\n\u003c/p\u003e\n\n\u003ch3 class=\"post-h3\"\u003e\u003ccode class=\"inline-code\"\u003e.reduce(fn, initial)\u003c/code\u003e — Fold values into a single result\u003c/h3\u003e\n\n\u003cpre class=\"code-block\"\u003e\u003ccode class=\"language-javascript\"\u003econst total = orders.values()\n\u003cp class=\"post-p\"\u003e\n.map(o =\u0026amp;gt; o.total)\n.reduce((sum, val) =\u0026amp;gt; sum + val, 0);\n\u003c/code\u003e\u003c/pre\u003e\n\u003c/p\u003e\n\n\u003ch3 class=\"post-h3\"\u003e\u003ccode class=\"inline-code\"\u003e.find(fn)\u003c/code\u003e — Return first match (or undefined)\u003c/h3\u003e\n\n\u003cpre class=\"code-block\"\u003e\u003ccode class=\"language-javascript\"\u003econst firstAdmin = users.values().find(u =\u0026amp;gt; u.role === 'admin');\n\u003cp class=\"post-p\"\u003e\n\u003c/code\u003e\u003c/pre\u003e\n\u003c/p\u003e\n\n\u003ch3 class=\"post-h3\"\u003e\u003ccode class=\"inline-code\"\u003e.some(fn)\u003c/code\u003e — Does any value satisfy the predicate?\u003c/h3\u003e\n\n\u003cpre class=\"code-block\"\u003e\u003ccode class=\"language-javascript\"\u003econst hasInactive = users.values().some(u =\u0026amp;gt; !u.active);\n\u003cp class=\"post-p\"\u003e\n\u003c/code\u003e\u003c/pre\u003e\n\u003c/p\u003e\n\n\u003ch3 class=\"post-h3\"\u003e\u003ccode class=\"inline-code\"\u003e.every(fn)\u003c/code\u003e — Do all values satisfy the predicate?\u003c/h3\u003e\n\n\u003cpre class=\"code-block\"\u003e\u003ccode class=\"language-javascript\"\u003econst allActive = users.values().every(u =\u0026amp;gt; u.active);\n\u003cp class=\"post-p\"\u003e\n\u003c/code\u003e\u003c/pre\u003e\n\u003c/p\u003e\n\n\u003ch3 class=\"post-h3\"\u003e\u003ccode class=\"inline-code\"\u003e.forEach(fn)\u003c/code\u003e — Execute for each value (terminal)\u003c/h3\u003e\n\n\u003cpre class=\"code-block\"\u003e\u003ccode class=\"language-javascript\"\u003e// Log each active user — processes lazily, one at a time\n\u003cp class=\"post-p\"\u003e\nusers.values()\n.filter(u =\u0026amp;gt; u.active)\n.forEach(u =\u0026amp;gt; console.log(u.name));\n\u003c/code\u003e\u003c/pre\u003e\n\u003c/p\u003e\n\n\u003ch3 class=\"post-h3\"\u003e\u003ccode class=\"inline-code\"\u003e.toArray()\u003c/code\u003e — Collect into an array (terminal)\u003c/h3\u003e\n\n\u003cp class=\"post-p\"\u003e\nThe most common terminal operation. Collects all remaining values into a regular array.\n\u003c/p\u003e\n\n\u003cpre class=\"code-block\"\u003e\u003ccode class=\"language-javascript\"\u003econst result = pipeline.filter(...).map(...).take(10).toArray();\n\u003cp class=\"post-p\"\u003e\n\u003c/code\u003e\u003c/pre\u003e\n\u003c/p\u003e\n\n\u003ch2 class=\"post-h2\"\u003eLazy Evaluation: The Secret Superpower\u003c/h2\u003e\n\n\u003cp class=\"post-p\"\u003e\nThe key difference from array methods: \u003cstrong\u003enothing executes until a terminal method is called\u003c/strong\u003e.\n\u003c/p\u003e\n\n\u003cpre class=\"code-block\"\u003e\u003ccode class=\"language-javascript\"\u003efunction* count() {\n\u003cp class=\"post-p\"\u003e\nlet i = 0;\nwhile (true) {\nconsole.log('yielding', i);\nyield i++;\n}\n}\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n// This creates the pipeline — but NOTHING logs yet\nconst pipeline = count()\n.filter(n =\u0026amp;gt; n % 2 === 0)\n.map(n =\u0026amp;gt; n * 10)\n.take(3);\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n// Still nothing logged. The pipeline is just a description.\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n// NOW it executes — and logs exactly 5 yields to produce 3 even numbers\nconst result = pipeline.toArray();\n// yielding 0   ← 0 even, mapped\n// yielding 1   ← filtered out\n// yielding 2   ← 2 even, mapped\n// yielding 3   ← filtered out\n// yielding 4   ← 4 even, mapped — we have 3, stop!\n// result: [0, 20, 40]\n\u003c/code\u003e\u003c/pre\u003e\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\nOnly 5 yields for 3 results. With arrays, every value would be processed through every step.\n\u003c/p\u003e\n\n\u003ch2 class=\"post-h2\"\u003eProduction Pattern: Paginated API Client\u003c/h2\u003e\n\n\u003cpre class=\"code-block\"\u003e\u003ccode class=\"language-typescript\"\u003easync function* paginatedFetch\u0026amp;lt;T\u0026amp;gt;(url: string): AsyncGenerator\u0026amp;lt;T\u0026amp;gt; {\n\u003cp class=\"post-p\"\u003e\nlet page = 1;\nlet hasMore = true;\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\nwhile (hasMore) {\nconst res = await fetch(\u003ccode class=\"inline-code\"\u003e${url}?page=${page}\u0026amp;amp;limit=100\u003c/code\u003e);\nconst data = await res.json();\nfor (const item of data.items) yield item;\nhasMore = data.hasMore;\npage++;\n}\n}\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n// Consume with iterator helpers\nconst filtered = Iterator.from(\nawait paginatedFetch\u0026amp;lt;User\u0026amp;gt;('/api/users')\n).filter(u =\u0026amp;gt; u.active)\n.take(500)\n.map(u =\u0026amp;gt; ({ id: u.id, name: u.name }))\n.toArray();\n\u003c/code\u003e\u003c/pre\u003e\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\nMemory-efficient even with millions of records — only 500 are held in memory at the end, and the fetch stops once we have enough.\n\u003c/p\u003e\n\n\u003ch2 class=\"post-h2\"\u003eProduction Pattern: DOM Traversal\u003c/h2\u003e\n\n\u003cpre class=\"code-block\"\u003e\u003ccode class=\"language-typescript\"\u003efunction* walkDOM(root: Element): Generator\u0026amp;lt;Element\u0026amp;gt; {\n\u003cp class=\"post-p\"\u003e\nyield root;\nfor (const child of root.children) {\nyield* walkDOM(child);\n}\n}\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n// Find all buttons with a specific aria-label — lazily, stops at first match\nconst button = walkDOM(document.body)\n.filter(el =\u0026amp;gt; el.tagName === 'BUTTON')\n.find(el =\u0026amp;gt; el.getAttribute('aria-label') === 'Submit');\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n// Find all elements matching a selector, take first 5\nconst firstFiveLinks = walkDOM(document.body)\n.filter(el =\u0026amp;gt; el.matches('a[href^=\"https\"]'))\n.take(5)\n.toArray();\n\u003c/code\u003e\u003c/pre\u003e\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\nNo more \u003ccode class=\"inline-code\"\u003edocument.querySelectorAll()\u003c/code\u003e collecting every match when you only need a few.\n\u003c/p\u003e\n\n\u003ch2 class=\"post-h2\"\u003eProduction Pattern: Data Pipeline Composition\u003c/h2\u003e\n\n\u003cpre class=\"code-block\"\u003e\u003ccode class=\"language-typescript\"\u003e// Compose reusable pipeline stages\n\u003cp class=\"post-p\"\u003e\nconst byStatus = (status: string) =\u0026amp;gt;\nfunction* \u0026amp;lt;T extends { status: string }\u0026amp;gt;(items: Iterable\u0026amp;lt;T\u0026amp;gt;) {\nyield* Iterator.from(items).filter(item =\u0026amp;gt; item.status === status);\n};\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\nconst topN = \u0026amp;lt;T\u0026amp;gt;(n: number) =\u0026amp;gt;\nfunction* (items: Iterable\u0026amp;lt;T\u0026amp;gt;) {\nyield* Iterator.from(items).take(n);\n};\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\nconst pluck = \u0026amp;lt;T, K extends keyof T\u0026amp;gt;(key: K) =\u0026amp;gt;\nfunction* (items: Iterable\u0026amp;lt;T\u0026amp;gt;) {\nyield* Iterator.from(items).map(item =\u0026amp;gt; item[key]);\n};\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n// Compose them\nconst pipeline = pipe(\nbyStatus('active'),\ntopN(10),\npluck('name'),\n);\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\nconst names = pipeline(items).toArray();\n\u003c/code\u003e\u003c/pre\u003e\n\u003c/p\u003e\n\n\u003ch2 class=\"post-h2\"\u003eAsync Iterator Helpers\u003c/h2\u003e\n\n\u003cp class=\"post-p\"\u003e\nAsync iterators (\u003ccode class=\"inline-code\"\u003efor await...of\u003c/code\u003e) get their own parallel set of helpers via \u003ccode class=\"inline-code\"\u003eIterator.from()\u003c/code\u003e:\n\u003c/p\u003e\n\n\u003cpre class=\"code-block\"\u003e\u003ccode class=\"language-typescript\"\u003easync function* eventStream(url: string) {\n\u003cp class=\"post-p\"\u003e\nconst response = await fetch(url);\nconst reader = response.body!.getReader();\n// ... SSE parsing\n}\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\nconst recentEvents = Iterator.from(eventStream('/api/events'))\n.filter(e =\u0026amp;gt; e.severity === 'critical')\n.take(20)\n.map(e =\u0026amp;gt; e.message);\n\u003c/code\u003e\u003c/pre\u003e\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\nAsync methods return async iterators, and terminal methods return promises.\n\u003c/p\u003e\n\n\u003ch2 class=\"post-h2\"\u003eComparison: Array vs Iterator Approaches\u003c/h2\u003e\n\n\u003cp class=\"post-p\"\u003e\n| Aspect | Array Methods | Iterator Helpers |\n|--------|--------------|------------------|\n| Intermediate allocations | One new array per method | Zero |\n| Works with infinite iterables | No | Yes |\n| Works with generators | Only after \u003ccode class=\"inline-code\"\u003e.toArray()\u003c/code\u003e | Natively |\n| Memory for 100K items, 3-step pipeline | ~300K items allocated | ~100K (only terminal) |\n| Early termination | Process everything | Stop when done |\n| Debuggability | Logs at each step | Logs at yield time |\n\u003c/p\u003e\n\n\u003ch2 class=\"post-h2\"\u003eBrowser Support (May 2026)\u003c/h2\u003e\n\n\u003cp class=\"post-p\"\u003e\nIterator Helpers are shipping:\n\u003c/p\u003e\n\n\u003cul class=\"post-ul\"\u003e\u003cli class=\"post-li\"\u003e\u003cstrong\u003eChrome 131+\u003c/strong\u003e — full support\u003c/li\u003e\n\u003cli class=\"post-li\"\u003e\u003cstrong\u003eFirefox 137+\u003c/strong\u003e — full support  \u003c/li\u003e\n\u003cli class=\"post-li\"\u003e\u003cstrong\u003eSafari 26+\u003c/strong\u003e — full support\u003c/li\u003e\n\u003cli class=\"post-li\"\u003e\u003cstrong\u003eNode.js 22+\u003c/strong\u003e — full support\u003c/li\u003e\n\u003cli class=\"post-li\"\u003e\u003cstrong\u003eDeno 2.0+\u003c/strong\u003e — full support\u003c/li\u003e\n\u003cli class=\"post-li\"\u003e\u003cstrong\u003eBun 1.2+\u003c/strong\u003e — full support\u003c/li\u003e\n\u003c/ul\u003e\n\u003cp class=\"post-p\"\u003e\nFor older environments, core-js provides a polyfill:\n\u003c/p\u003e\n\n\u003cpre class=\"code-block\"\u003e\u003ccode class=\"language-bash\"\u003enpm install core-js\n\u003cp class=\"post-p\"\u003e\n\u003c/code\u003e\u003c/pre\u003e\n\u003c/p\u003e\n\n\u003cpre class=\"code-block\"\u003e\u003ccode class=\"language-javascript\"\u003eimport 'core-js/proposals/iterator-helpers';\n\u003cp class=\"post-p\"\u003e\n\u003c/code\u003e\u003c/pre\u003e\n\u003c/p\u003e\n\n\u003ch2 class=\"post-h2\"\u003eThe One Gotcha: Iterator Exhaustion\u003c/h2\u003e\n\n\u003cp class=\"post-p\"\u003e\nIterators are stateful. Once consumed, they're empty:\n\u003c/p\u003e\n\n\u003cpre class=\"code-block\"\u003e\u003ccode class=\"language-javascript\"\u003econst it = [1, 2, 3].values().map(n =\u0026amp;gt; n * 2);\n\n\u003cp class=\"post-p\"\u003e\nit.toArray(); // [2, 4, 6]\nit.toArray(); // [] — exhausted!\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n// Fix: create fresh iterators or tee them\n\u003c/code\u003e\u003c/pre\u003e\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\nIf you need multiple passes over the same data, either \u003ccode class=\"inline-code\"\u003e.toArray()\u003c/code\u003e early or create fresh iterators.\n\u003c/p\u003e\n\n\u003ch2 class=\"post-h2\"\u003eTakeaway\u003c/h2\u003e\n\n\u003cp class=\"post-p\"\u003e\nIterator Helpers close the gap between the elegant array method chain and the efficiency of lazy iterators. The key insights:\n\u003c/p\u003e\n\n\u003cul class=\"post-ul\"\u003e\u003cli class=\"post-li\"\u003e\u003cstrong\u003eEverything is lazy\u003c/strong\u003e — no intermediate arrays, no wasted work\u003c/li\u003e\n\u003cli class=\"post-li\"\u003e\u003cstrong\u003eWorks on anything iterable\u003c/strong\u003e — generators, Maps, Sets, NodeLists, strings, custom iterators\u003c/li\u003e\n\u003cli class=\"post-li\"\u003e\u003cstrong\u003e\u003ccode class=\"inline-code\"\u003e.take()\u003c/code\u003e and \u003ccode class=\"inline-code\"\u003e.drop()\u003c/code\u003e are game-changers\u003c/strong\u003e for pagination and infinite sequences\u003c/li\u003e\n\u003cli class=\"post-li\"\u003e\u003cstrong\u003eComposable pipelines\u003c/strong\u003e — build reusable transformation stages\u003c/li\u003e\n\u003cli class=\"post-li\"\u003e\u003cstrong\u003eShipping now\u003c/strong\u003e — no transpilation needed in modern browsers\u003c/li\u003e\n\u003c/ul\u003e\n\u003cp class=\"post-p\"\u003e\nThe next time you write \u003ccode class=\"inline-code\"\u003e.filter().map().slice()\u003c/code\u003e on an array, ask yourself: could this be an iterator pipeline instead?\n\u003c/p\u003e\n\n\u003chr class=\"post-hr\" /\u003e\n\n\u003cp class=\"post-p\"\u003e\n\u003cem\u003eWant hands-on practice? Try the \u003ca href=\"/tools/regex-tester\" class=\"post-link\" target=\"_blank\" rel=\"noopener noreferrer\"\u003eRegex Tester\u003c/a\u003e or \u003ca href=\"/tools/json-formatter\" class=\"post-link\" target=\"_blank\" rel=\"noopener noreferrer\"\u003eJSON Formatter\u003c/a\u003e on DevBench — both built with iterator patterns under the hood.\u003c/em\u003e\n\u003c/p\u003e\n"])</script><script>self.__next_f.push([1,"6:T78f,\n        .blog-content .post-h1 { font-size: 1.75rem; font-weight: 700; color: #ffffff; margin-top: 2rem; margin-bottom: 1rem; }\n        .blog-content .post-h2 { font-size: 1.5rem; font-weight: 600; color: #f1f5f9; margin-top: 1.75rem; margin-bottom: 0.75rem; padding-bottom: 0.5rem; border-bottom: 1px solid #334155; }\n        .blog-content .post-h3 { font-size: 1.25rem; font-weight: 600; color: #e2e8f0; margin-top: 1.5rem; margin-bottom: 0.5rem; }\n        .blog-content .post-h4 { font-size: 1.1rem; font-weight: 600; color: #e2e8f0; margin-top: 1.25rem; margin-bottom: 0.5rem; }\n        .blog-content .post-p { color: #cbd5e1; line-height: 1.75; margin-bottom: 1rem; }\n        .blog-content .code-block { background: #0f172a; border: 1px solid #334155; border-radius: 0.5rem; padding: 1rem; overflow-x: auto; margin: 1rem 0; font-family: 'JetBrains Mono', monospace; font-size: 0.875rem; color: #e2e8f0; }\n        .blog-content .inline-code { background: #1e293b; color: #38bdf8; padding: 0.15rem 0.4rem; border-radius: 0.25rem; font-family: 'JetBrains Mono', monospace; font-size: 0.875em; }\n        .blog-content .post-link { color: #38bdf8; text-decoration: underline; transition: color 0.2s; }\n        .blog-content .post-link:hover { color: #7dd3fc; }\n        .blog-content .post-ul { list-style: disc; padding-left: 1.5rem; margin: 0.75rem 0; color: #cbd5e1; }\n        .blog-content .post-li { margin-bottom: 0.25rem; line-height: 1.6; }\n        .blog-content .post-blockquote { border-left: 3px solid #0ea5e9; padding: 0.5rem 1rem; margin: 1rem 0; background: rgba(14, 165, 233, 0.05); border-radius: 0 0.5rem 0.5rem 0; }\n        .blog-content .post-blockquote p { color: #94a3b8; font-style: italic; }\n        .blog-content .post-hr { border: none; border-top: 1px solid #334155; margin: 2rem 0; }\n        .blog-content strong { color: #f1f5f9; font-weight: 600; }\n        .blog-content em { font-style: italic; }\n        8:[\"slug\",\"javascript-iterator-helpers-guide\",\"d\"]\nf:[]\n"])</script><script>self.__next_f.push([1,"0:[\"$\",\"$L2\",null,{\"buildId\":\"wLkx3_e9eF0HmBHirJWLm\",\"assetPrefix\":\"/devbench-tech\",\"urlParts\":[\"\",\"blog\",\"javascript-iterator-helpers-guide\",\"\"],\"initialTree\":[\"\",{\"children\":[\"blog\",{\"children\":[[\"slug\",\"javascript-iterator-helpers-guide\",\"d\"],{\"children\":[\"__PAGE__?{\\\"slug\\\":\\\"javascript-iterator-helpers-guide\\\"}\",{}]}]}]},\"$undefined\",\"$undefined\",true],\"initialSeedData\":[\"\",{\"children\":[\"blog\",{\"children\":[[\"slug\",\"javascript-iterator-helpers-guide\",\"d\"],{\"children\":[\"__PAGE__\",{},[[\"$L3\",[\"$\",\"article\",null,{\"className\":\"max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-20\",\"children\":[[\"$\",\"script\",null,{\"type\":\"application/ld+json\",\"dangerouslySetInnerHTML\":{\"__html\":\"{\\\"@context\\\":\\\"https://schema.org\\\",\\\"@type\\\":\\\"Article\\\",\\\"headline\\\":\\\"JavaScript Iterator Helpers: .map(), .filter(), and .take() on Every Iterable\\\",\\\"description\\\":\\\"Iterator Helpers bring the full array method chain to generators, Sets, Maps, and any iterable — lazily evaluated, memory-efficient, and composable. Here's everything you need to know with production-ready patterns.\\\",\\\"datePublished\\\":\\\"2026-05-31\\\",\\\"author\\\":{\\\"@type\\\":\\\"Organization\\\",\\\"name\\\":\\\"DevBench\\\"},\\\"publisher\\\":{\\\"@type\\\":\\\"Organization\\\",\\\"name\\\":\\\"DevBench\\\",\\\"url\\\":\\\"https://devbench-roan.vercel.app\\\"}}\"}}],[\"$\",\"script\",null,{\"type\":\"application/ld+json\",\"dangerouslySetInnerHTML\":{\"__html\":\"{\\\"@context\\\":\\\"https://schema.org\\\",\\\"@type\\\":\\\"BreadcrumbList\\\",\\\"itemListElement\\\":[{\\\"@type\\\":\\\"ListItem\\\",\\\"position\\\":1,\\\"name\\\":\\\"Home\\\",\\\"item\\\":\\\"https://devbench-roan.vercel.app\\\"},{\\\"@type\\\":\\\"ListItem\\\",\\\"position\\\":2,\\\"name\\\":\\\"Blog\\\",\\\"item\\\":\\\"https://devbench-roan.vercel.app/blog\\\"},{\\\"@type\\\":\\\"ListItem\\\",\\\"position\\\":3,\\\"name\\\":\\\"JavaScript Iterator Helpers: .map(), .filter(), and .take() on Every Iterable\\\"}]}\"}}],[\"$\",\"$L4\",null,{\"href\":\"/blog\",\"className\":\"inline-flex items-center gap-1.5 text-slate-400 hover:text-brand-400 text-sm transition-colors mb-8\",\"children\":[[\"$\",\"svg\",null,{\"xmlns\":\"http://www.w3.org/2000/svg\",\"width\":24,\"height\":24,\"viewBox\":\"0 0 24 24\",\"fill\":\"none\",\"stroke\":\"currentColor\",\"strokeWidth\":2,\"strokeLinecap\":\"round\",\"strokeLinejoin\":\"round\",\"className\":\"lucide lucide-arrow-left w-4 h-4\",\"children\":[[\"$\",\"path\",\"1l729n\",{\"d\":\"m12 19-7-7 7-7\"}],[\"$\",\"path\",\"x3x0zl\",{\"d\":\"M19 12H5\"}],\"$undefined\"]}],\"Back to Blog\"]}],[\"$\",\"header\",null,{\"className\":\"mb-10\",\"children\":[[\"$\",\"h1\",null,{\"className\":\"text-3xl sm:text-4xl font-bold text-white leading-tight mb-4\",\"children\":\"JavaScript Iterator Helpers: .map(), .filter(), and .take() on Every Iterable\"}],[\"$\",\"div\",null,{\"className\":\"flex flex-wrap items-center gap-4 text-sm text-slate-400\",\"children\":[[\"$\",\"span\",null,{\"className\":\"flex items-center gap-1.5\",\"children\":[[\"$\",\"svg\",null,{\"xmlns\":\"http://www.w3.org/2000/svg\",\"width\":24,\"height\":24,\"viewBox\":\"0 0 24 24\",\"fill\":\"none\",\"stroke\":\"currentColor\",\"strokeWidth\":2,\"strokeLinecap\":\"round\",\"strokeLinejoin\":\"round\",\"className\":\"lucide lucide-calendar w-4 h-4\",\"children\":[[\"$\",\"rect\",\"eu3xkr\",{\"width\":\"18\",\"height\":\"18\",\"x\":\"3\",\"y\":\"4\",\"rx\":\"2\",\"ry\":\"2\"}],[\"$\",\"line\",\"m3sa8f\",{\"x1\":\"16\",\"x2\":\"16\",\"y1\":\"2\",\"y2\":\"6\"}],[\"$\",\"line\",\"18kwsl\",{\"x1\":\"8\",\"x2\":\"8\",\"y1\":\"2\",\"y2\":\"6\"}],[\"$\",\"line\",\"xt86sb\",{\"x1\":\"3\",\"x2\":\"21\",\"y1\":\"10\",\"y2\":\"10\"}],\"$undefined\"]}],\"2026-05-31\"]}],[\"$\",\"div\",null,{\"className\":\"flex flex-wrap gap-1.5\",\"children\":[[\"$\",\"span\",\"[\\\"JavaScript\\\"\",{\"className\":\"badge-secondary flex items-center gap-1\",\"children\":[[\"$\",\"svg\",null,{\"xmlns\":\"http://www.w3.org/2000/svg\",\"width\":24,\"height\":24,\"viewBox\":\"0 0 24 24\",\"fill\":\"none\",\"stroke\":\"currentColor\",\"strokeWidth\":2,\"strokeLinecap\":\"round\",\"strokeLinejoin\":\"round\",\"className\":\"lucide lucide-tag w-3 h-3\",\"children\":[[\"$\",\"path\",\"14b2ls\",{\"d\":\"M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z\"}],[\"$\",\"path\",\"7u93v4\",{\"d\":\"M7 7h.01\"}],\"$undefined\"]}],\"[\\\"JavaScript\\\"\"]}],[\"$\",\"span\",\"\\\"Iterators\\\"\",{\"className\":\"badge-secondary flex items-center gap-1\",\"children\":[[\"$\",\"svg\",null,{\"xmlns\":\"http://www.w3.org/2000/svg\",\"width\":24,\"height\":24,\"viewBox\":\"0 0 24 24\",\"fill\":\"none\",\"stroke\":\"currentColor\",\"strokeWidth\":2,\"strokeLinecap\":\"round\",\"strokeLinejoin\":\"round\",\"className\":\"lucide lucide-tag w-3 h-3\",\"children\":[[\"$\",\"path\",\"14b2ls\",{\"d\":\"M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z\"}],[\"$\",\"path\",\"7u93v4\",{\"d\":\"M7 7h.01\"}],\"$undefined\"]}],\"\\\"Iterators\\\"\"]}],[\"$\",\"span\",\"\\\"Generators\\\"\",{\"className\":\"badge-secondary flex items-center gap-1\",\"children\":[[\"$\",\"svg\",null,{\"xmlns\":\"http://www.w3.org/2000/svg\",\"width\":24,\"height\":24,\"viewBox\":\"0 0 24 24\",\"fill\":\"none\",\"stroke\":\"currentColor\",\"strokeWidth\":2,\"strokeLinecap\":\"round\",\"strokeLinejoin\":\"round\",\"className\":\"lucide lucide-tag w-3 h-3\",\"children\":[[\"$\",\"path\",\"14b2ls\",{\"d\":\"M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z\"}],[\"$\",\"path\",\"7u93v4\",{\"d\":\"M7 7h.01\"}],\"$undefined\"]}],\"\\\"Generators\\\"\"]}],[\"$\",\"span\",\"\\\"Web Platform\\\"\",{\"className\":\"badge-secondary flex items-center gap-1\",\"children\":[[\"$\",\"svg\",null,{\"xmlns\":\"http://www.w3.org/2000/svg\",\"width\":24,\"height\":24,\"viewBox\":\"0 0 24 24\",\"fill\":\"none\",\"stroke\":\"currentColor\",\"strokeWidth\":2,\"strokeLinecap\":\"round\",\"strokeLinejoin\":\"round\",\"className\":\"lucide lucide-tag w-3 h-3\",\"children\":[[\"$\",\"path\",\"14b2ls\",{\"d\":\"M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z\"}],[\"$\",\"path\",\"7u93v4\",{\"d\":\"M7 7h.01\"}],\"$undefined\"]}],\"\\\"Web Platform\\\"\"]}],[\"$\",\"span\",\"\\\"ES2025\\\"\",{\"className\":\"badge-secondary flex items-center gap-1\",\"children\":[[\"$\",\"svg\",null,{\"xmlns\":\"http://www.w3.org/2000/svg\",\"width\":24,\"height\":24,\"viewBox\":\"0 0 24 24\",\"fill\":\"none\",\"stroke\":\"currentColor\",\"strokeWidth\":2,\"strokeLinecap\":\"round\",\"strokeLinejoin\":\"round\",\"className\":\"lucide lucide-tag w-3 h-3\",\"children\":[[\"$\",\"path\",\"14b2ls\",{\"d\":\"M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z\"}],[\"$\",\"path\",\"7u93v4\",{\"d\":\"M7 7h.01\"}],\"$undefined\"]}],\"\\\"ES2025\\\"\"]}],[\"$\",\"span\",\"\\\"2026\\\"\",{\"className\":\"badge-secondary flex items-center gap-1\",\"children\":[[\"$\",\"svg\",null,{\"xmlns\":\"http://www.w3.org/2000/svg\",\"width\":24,\"height\":24,\"viewBox\":\"0 0 24 24\",\"fill\":\"none\",\"stroke\":\"currentColor\",\"strokeWidth\":2,\"strokeLinecap\":\"round\",\"strokeLinejoin\":\"round\",\"className\":\"lucide lucide-tag w-3 h-3\",\"children\":[[\"$\",\"path\",\"14b2ls\",{\"d\":\"M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z\"}],[\"$\",\"path\",\"7u93v4\",{\"d\":\"M7 7h.01\"}],\"$undefined\"]}],\"\\\"2026\\\"\"]}],[\"$\",\"span\",\"\\\"Functional Programming\\\"]\",{\"className\":\"badge-secondary flex items-center gap-1\",\"children\":[[\"$\",\"svg\",null,{\"xmlns\":\"http://www.w3.org/2000/svg\",\"width\":24,\"height\":24,\"viewBox\":\"0 0 24 24\",\"fill\":\"none\",\"stroke\":\"currentColor\",\"strokeWidth\":2,\"strokeLinecap\":\"round\",\"strokeLinejoin\":\"round\",\"className\":\"lucide lucide-tag w-3 h-3\",\"children\":[[\"$\",\"path\",\"14b2ls\",{\"d\":\"M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z\"}],[\"$\",\"path\",\"7u93v4\",{\"d\":\"M7 7h.01\"}],\"$undefined\"]}],\"\\\"Functional Programming\\\"]\"]}]]}]]}]]}],[\"$\",\"div\",null,{\"className\":\"blog-content prose-p:text-slate-300 prose-p:leading-relaxed prose-p:mb-4\",\"dangerouslySetInnerHTML\":{\"__html\":\"$5\"}}],[\"$\",\"style\",null,{\"dangerouslySetInnerHTML\":{\"__html\":\"$6\"}}]]}],null],null],null]},[null,[\"$\",\"$L7\",null,{\"parallelRouterKey\":\"children\",\"segmentPath\":[\"children\",\"blog\",\"children\",\"$8\",\"children\"],\"error\":\"$undefined\",\"errorStyles\":\"$undefined\",\"errorScripts\":\"$undefined\",\"template\":[\"$\",\"$L9\",null,{}],\"templateStyles\":\"$undefined\",\"templateScripts\":\"$undefined\",\"notFound\":\"$undefined\",\"notFoundStyles\":\"$undefined\"}]],null]},[null,[\"$\",\"$L7\",null,{\"parallelRouterKey\":\"children\",\"segmentPath\":[\"children\",\"blog\",\"children\"],\"error\":\"$undefined\",\"errorStyles\":\"$undefined\",\"errorScripts\":\"$undefined\",\"template\":[\"$\",\"$L9\",null,{}],\"templateStyles\":\"$undefined\",\"templateScripts\":\"$undefined\",\"notFound\":\"$undefined\",\"notFoundStyles\":\"$undefined\"}]],null]},[[[[\"$\",\"link\",\"0\",{\"rel\":\"stylesheet\",\"href\":\"/devbench-tech/_next/static/css/c877e59dbcb00f11.css\",\"precedence\":\"next\",\"crossOrigin\":\"$undefined\"}]],[\"$\",\"html\",null,{\"lang\":\"en\",\"className\":\"dark\",\"children\":[\"$\",\"body\",null,{\"className\":\"flex flex-col min-h-screen\",\"children\":[[\"$\",\"script\",null,{\"type\":\"application/ld+json\",\"dangerouslySetInnerHTML\":{\"__html\":\"{\\\"@context\\\":\\\"https://schema.org\\\",\\\"@type\\\":\\\"WebSite\\\",\\\"name\\\":\\\"DevBench\\\",\\\"url\\\":\\\"https://devbench-roan.vercel.app\\\",\\\"description\\\":\\\"Free developer tools for everyday use: JSON formatter, Base64 encoder/decoder, UUID generator, regex tester, benchmarks, and more.\\\",\\\"potentialAction\\\":{\\\"@type\\\":\\\"SearchAction\\\",\\\"target\\\":\\\"https://devbench-roan.vercel.app/tools?q={search_term_string}\\\",\\\"query-input\\\":\\\"required name=search_term_string\\\"}}\"}}],[\"$\",\"$La\",null,{}],[\"$\",\"main\",null,{\"className\":\"flex-1\",\"children\":[\"$\",\"$L7\",null,{\"parallelRouterKey\":\"children\",\"segmentPath\":[\"children\"],\"error\":\"$undefined\",\"errorStyles\":\"$undefined\",\"errorScripts\":\"$undefined\",\"template\":[\"$\",\"$L9\",null,{}],\"templateStyles\":\"$undefined\",\"templateScripts\":\"$undefined\",\"notFound\":[[\"$\",\"title\",null,{\"children\":\"404: This page could not be found.\"}],[\"$\",\"div\",null,{\"style\":{\"fontFamily\":\"system-ui,\\\"Segoe UI\\\",Roboto,Helvetica,Arial,sans-serif,\\\"Apple Color Emoji\\\",\\\"Segoe UI Emoji\\\"\",\"height\":\"100vh\",\"textAlign\":\"center\",\"display\":\"flex\",\"flexDirection\":\"column\",\"alignItems\":\"center\",\"justifyContent\":\"center\"},\"children\":[\"$\",\"div\",null,{\"children\":[[\"$\",\"style\",null,{\"dangerouslySetInnerHTML\":{\"__html\":\"body{color:#000;background:#fff;margin:0}.next-error-h1{border-right:1px solid rgba(0,0,0,.3)}@media (prefers-color-scheme:dark){body{color:#fff;background:#000}.next-error-h1{border-right:1px solid rgba(255,255,255,.3)}}\"}}],[\"$\",\"h1\",null,{\"className\":\"next-error-h1\",\"style\":{\"display\":\"inline-block\",\"margin\":\"0 20px 0 0\",\"padding\":\"0 23px 0 0\",\"fontSize\":24,\"fontWeight\":500,\"verticalAlign\":\"top\",\"lineHeight\":\"49px\"},\"children\":\"404\"}],[\"$\",\"div\",null,{\"style\":{\"display\":\"inline-block\"},\"children\":[\"$\",\"h2\",null,{\"style\":{\"fontSize\":14,\"fontWeight\":400,\"lineHeight\":\"49px\",\"margin\":0},\"children\":\"This page could not be found.\"}]}]]}]}]],\"notFoundStyles\":[]}]}],[\"$\",\"footer\",null,{\"className\":\"bg-surface-light border-t border-slate-700/50 mt-auto\",\"children\":[\"$\",\"div\",null,{\"className\":\"max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12\",\"children\":[[\"$\",\"div\",null,{\"className\":\"grid grid-cols-1 md:grid-cols-3 gap-8\",\"children\":[[\"$\",\"div\",null,{\"children\":[[\"$\",\"$L4\",null,{\"href\":\"/\",\"className\":\"flex items-center gap-2.5 mb-3\",\"children\":[[\"$\",\"div\",null,{\"className\":\"w-7 h-7 bg-brand-500 rounded-lg flex items-center justify-center\",\"children\":[\"$\",\"svg\",null,{\"xmlns\":\"http://www.w3.org/2000/svg\",\"width\":24,\"height\":24,\"viewBox\":\"0 0 24 24\",\"fill\":\"none\",\"stroke\":\"currentColor\",\"strokeWidth\":2,\"strokeLinecap\":\"round\",\"strokeLinejoin\":\"round\",\"className\":\"lucide lucide-terminal w-3.5 h-3.5 text-white\",\"children\":[[\"$\",\"polyline\",\"akl6gq\",{\"points\":\"4 17 10 11 4 5\"}],[\"$\",\"line\",\"q2wloq\",{\"x1\":\"12\",\"x2\":\"20\",\"y1\":\"19\",\"y2\":\"19\"}],\"$undefined\"]}]}],[\"$\",\"span\",null,{\"className\":\"text-lg font-bold text-white\",\"children\":[\"Dev\",[\"$\",\"span\",null,{\"className\":\"gradient-text\",\"children\":\"Bench\"}]]}]]}],[\"$\",\"p\",null,{\"className\":\"text-slate-400 text-sm leading-relaxed\",\"children\":\"Free developer tools, benchmarks, and calculators. Built for developers, by developers.\"}]]}],[\"$\",\"div\",null,{\"children\":[[\"$\",\"h3\",null,{\"className\":\"text-sm font-semibold text-slate-300 uppercase tracking-wider mb-4\",\"children\":\"Tools\"}],[\"$\",\"ul\",null,{\"className\":\"space-y-2\",\"children\":[[\"$\",\"li\",\"/tools/json-formatter\",{\"children\":[\"$\",\"$L4\",null,{\"href\":\"/tools/json-formatter\",\"className\":\"text-slate-400 hover:text-brand-400 text-sm transition-colors\",\"children\":\"JSON Formatter\"}]}],[\"$\",\"li\",\"/tools/base64\",{\"children\":[\"$\",\"$L4\",null,{\"href\":\"/tools/base64\",\"className\":\"text-slate-400 hover:text-brand-400 text-sm transition-colors\",\"children\":\"Base64 Encoder/Decoder\"}]}],[\"$\",\"li\",\"/tools/uuid-generator\",{\"children\":[\"$\",\"$L4\",null,{\"href\":\"/tools/uuid-generator\",\"className\":\"text-slate-400 hover:text-brand-400 text-sm transition-colors\",\"children\":\"UUID Generator\"}]}],[\"$\",\"li\",\"/tools/regex-tester\",{\"children\":[\"$\",\"$L4\",null,{\"href\":\"/tools/regex-tester\",\"className\":\"text-slate-400 hover:text-brand-400 text-sm transition-colors\",\"children\":\"Regex Tester\"}]}]]}]]}],[\"$\",\"div\",null,{\"children\":[[\"$\",\"h3\",null,{\"className\":\"text-sm font-semibold text-slate-300 uppercase tracking-wider mb-4\",\"children\":\"Resources\"}],[\"$\",\"ul\",null,{\"className\":\"space-y-2\",\"children\":[[\"$\",\"li\",\"/blog\",{\"children\":[\"$\",\"$L4\",null,{\"href\":\"/blog\",\"className\":\"text-slate-400 hover:text-brand-400 text-sm transition-colors\",\"children\":\"Blog\"}]}],[\"$\",\"li\",\"/benchmarks\",{\"children\":[\"$\",\"$L4\",null,{\"href\":\"/benchmarks\",\"className\":\"text-slate-400 hover:text-brand-400 text-sm transition-colors\",\"children\":\"Benchmarks\"}]}],[\"$\",\"li\",\"/about\",{\"children\":[\"$\",\"$L4\",null,{\"href\":\"/about\",\"className\":\"text-slate-400 hover:text-brand-400 text-sm transition-colors\",\"children\":\"About\"}]}]]}]]}]]}],[\"$\",\"div\",null,{\"className\":\"mt-10 pt-6 border-t border-slate-700/50 flex flex-col sm:flex-row items-center justify-between gap-4\",\"children\":[[\"$\",\"p\",null,{\"className\":\"text-slate-500 text-sm flex items-center gap-1\",\"children\":[\"Made with \",[\"$\",\"svg\",null,{\"xmlns\":\"http://www.w3.org/2000/svg\",\"width\":24,\"height\":24,\"viewBox\":\"0 0 24 24\",\"fill\":\"none\",\"stroke\":\"currentColor\",\"strokeWidth\":2,\"strokeLinecap\":\"round\",\"strokeLinejoin\":\"round\",\"className\":\"lucide lucide-heart w-3.5 h-3.5 text-red-500 fill-red-500\",\"children\":[[\"$\",\"path\",\"c3ymky\",{\"d\":\"M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z\"}],\"$undefined\"]}],\" by the DevBench team © \",2026]}],[\"$\",\"a\",null,{\"href\":\"https://github.com\",\"target\":\"_blank\",\"rel\":\"noopener noreferrer\",\"className\":\"text-slate-500 hover:text-slate-300 transition-colors\",\"aria-label\":\"GitHub\",\"children\":[\"$\",\"svg\",null,{\"xmlns\":\"http://www.w3.org/2000/svg\",\"width\":24,\"height\":24,\"viewBox\":\"0 0 24 24\",\"fill\":\"none\",\"stroke\":\"currentColor\",\"strokeWidth\":2,\"strokeLinecap\":\"round\",\"strokeLinejoin\":\"round\",\"className\":\"lucide lucide-github w-5 h-5\",\"children\":[[\"$\",\"path\",\"tonef\",{\"d\":\"M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4\"}],[\"$\",\"path\",\"9comsn\",{\"d\":\"M9 18c-4.51 2-5-2-7-2\"}],\"$undefined\"]}]}]]}]]}]}],[\"$\",\"$Lb\",null,{}],[\"$\",\"$Lc\",null,{\"position\":\"bottom-right\",\"toastOptions\":{\"style\":{\"background\":\"#1e293b\",\"color\":\"#e2e8f0\",\"border\":\"1px solid #334155\",\"fontSize\":\"14px\"}}}]]}]}]],null],null],\"couldBeIntercepted\":false,\"initialHead\":[null,\"$Ld\"],\"globalErrorComponent\":\"$e\",\"missingSlots\":\"$Wf\"}]\n"])</script><script>self.__next_f.push([1,"d:[[\"$\",\"meta\",\"0\",{\"name\":\"viewport\",\"content\":\"width=device-width, initial-scale=1\"}],[\"$\",\"meta\",\"1\",{\"charSet\":\"utf-8\"}],[\"$\",\"title\",\"2\",{\"children\":\"JavaScript Iterator Helpers: .map(), .filter(), and .take() on Every Iterable | DevBench\"}],[\"$\",\"meta\",\"3\",{\"name\":\"description\",\"content\":\"Iterator Helpers bring the full array method chain to generators, Sets, Maps, and any iterable — lazily evaluated, memory-efficient, and composable. Here's everything you need to know with production-ready patterns.\"}],[\"$\",\"meta\",\"4\",{\"name\":\"author\",\"content\":\"DevBench\"}],[\"$\",\"meta\",\"5\",{\"name\":\"keywords\",\"content\":\"developer tools,JSON formatter,Base64,UUID generator,regex tester,benchmarks,dev tools\"}],[\"$\",\"meta\",\"6\",{\"property\":\"og:title\",\"content\":\"DevBench — Developer Tools \u0026 Calculators\"}],[\"$\",\"meta\",\"7\",{\"property\":\"og:description\",\"content\":\"Free developer tools for everyday use.\"}],[\"$\",\"meta\",\"8\",{\"property\":\"og:site_name\",\"content\":\"DevBench\"}],[\"$\",\"meta\",\"9\",{\"property\":\"og:locale\",\"content\":\"en_US\"}],[\"$\",\"meta\",\"10\",{\"property\":\"og:type\",\"content\":\"website\"}],[\"$\",\"meta\",\"11\",{\"name\":\"twitter:card\",\"content\":\"summary\"}],[\"$\",\"meta\",\"12\",{\"name\":\"twitter:title\",\"content\":\"DevBench — Developer Tools \u0026 Calculators\"}],[\"$\",\"meta\",\"13\",{\"name\":\"twitter:description\",\"content\":\"Free developer tools for everyday use.\"}],[\"$\",\"link\",\"14\",{\"rel\":\"icon\",\"href\":\"/favicon.svg\"}]]\n3:null\n"])</script></body></html>

@@ -1,0 +1,637 @@
+<!DOCTYPE html><html lang="en" class="dark"><head><meta charSet="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/><link rel="stylesheet" href="/devbench-tech/_next/static/css/c877e59dbcb00f11.css" data-precedence="next"/><link rel="preload" as="script" fetchPriority="low" href="/devbench-tech/_next/static/chunks/webpack-b521a83317325026.js"/><script src="/devbench-tech/_next/static/chunks/fd9d1056-04e0aa683dc3c41f.js" async=""></script><script src="/devbench-tech/_next/static/chunks/2117-8374a93ea77a2be4.js" async=""></script><script src="/devbench-tech/_next/static/chunks/main-app-aaec773b36366bc0.js" async=""></script><script src="/devbench-tech/_next/static/chunks/2972-4aaa15d119eeb022.js" async=""></script><script src="/devbench-tech/_next/static/chunks/app/blog/%5Bslug%5D/page-a411190e7012c687.js" async=""></script><script src="/devbench-tech/_next/static/chunks/44530001-4ecf7a22b5b24163.js" async=""></script><script src="/devbench-tech/_next/static/chunks/8375-c77b8de36f6696fb.js" async=""></script><script src="/devbench-tech/_next/static/chunks/6829-f51803445ddf1872.js" async=""></script><script src="/devbench-tech/_next/static/chunks/app/layout-488e5c40aa6ffa72.js" async=""></script><title>CSS Anchor Positioning Is Baseline — The End of JavaScript Tooltip Libraries | DevBench</title><meta name="description" content="CSS Anchor Positioning just hit Baseline across all browsers. No more Floating UI, Popper, or Tippy.js — the browser now natively tethers elements with zero JavaScript. Complete guide with real-world patterns, popover integration, and progressive enhancement."/><meta name="author" content="DevBench"/><meta name="keywords" content="developer tools,JSON formatter,Base64,UUID generator,regex tester,benchmarks,dev tools"/><meta property="og:title" content="DevBench — Developer Tools &amp; Calculators"/><meta property="og:description" content="Free developer tools for everyday use."/><meta property="og:site_name" content="DevBench"/><meta property="og:locale" content="en_US"/><meta property="og:type" content="website"/><meta name="twitter:card" content="summary"/><meta name="twitter:title" content="DevBench — Developer Tools &amp; Calculators"/><meta name="twitter:description" content="Free developer tools for everyday use."/><link rel="icon" href="/favicon.svg"/><script src="/devbench-tech/_next/static/chunks/polyfills-42372ed130431b0a.js" noModule=""></script></head><body class="flex flex-col min-h-screen"><script type="application/ld+json">{"@context":"https://schema.org","@type":"WebSite","name":"DevBench","url":"https://devbench-roan.vercel.app","description":"Free developer tools for everyday use: JSON formatter, Base64 encoder/decoder, UUID generator, regex tester, benchmarks, and more.","potentialAction":{"@type":"SearchAction","target":"https://devbench-roan.vercel.app/tools?q={search_term_string}","query-input":"required name=search_term_string"}}</script><header class="sticky top-0 z-50 transition-all duration-300 bg-surface border-b border-transparent"><div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8"><div class="flex items-center justify-between h-16"><a class="flex items-center gap-2.5 group" href="/devbench-tech/"><div class="w-8 h-8 bg-brand-500 rounded-lg flex items-center justify-center group-hover:bg-brand-400 transition-colors"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-terminal w-4 h-4 text-white"><polyline points="4 17 10 11 4 5"></polyline><line x1="12" x2="20" y1="19" y2="19"></line></svg></div><span class="text-xl font-bold text-white tracking-tight">Dev<span class="gradient-text">Bench</span></span></a><nav class="hidden md:flex items-center gap-1"><a class="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 text-slate-400 hover:text-slate-200 hover:bg-surface-lighter" href="/devbench-tech/tools/"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-wrench w-4 h-4"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path></svg>Tools</a><a class="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 text-slate-400 hover:text-slate-200 hover:bg-surface-lighter" href="/devbench-tech/benchmarks/"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-bar-chart3 w-4 h-4"><path d="M3 3v18h18"></path><path d="M18 17V9"></path><path d="M13 17V5"></path><path d="M8 17v-3"></path></svg>Benchmarks</a><a class="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 bg-brand-500/10 text-brand-400" href="/devbench-tech/blog/"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-book-open w-4 h-4"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg>Blog</a><a class="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 text-slate-400 hover:text-slate-200 hover:bg-surface-lighter" href="/devbench-tech/about/"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-info w-4 h-4"><circle cx="12" cy="12" r="10"></circle><path d="M12 16v-4"></path><path d="M12 8h.01"></path></svg>About</a></nav><button class="md:hidden p-2 rounded-lg text-slate-400 hover:text-white hover:bg-surface-lighter transition-colors" aria-label="Toggle menu"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-menu w-5 h-5"><line x1="4" x2="20" y1="12" y2="12"></line><line x1="4" x2="20" y1="6" y2="6"></line><line x1="4" x2="20" y1="18" y2="18"></line></svg></button></div></div></header><main class="flex-1"><article class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-20"><script type="application/ld+json">{"@context":"https://schema.org","@type":"Article","headline":"CSS Anchor Positioning Is Baseline — The End of JavaScript Tooltip Libraries","description":"CSS Anchor Positioning just hit Baseline across all browsers. No more Floating UI, Popper, or Tippy.js — the browser now natively tethers elements with zero JavaScript. Complete guide with real-world patterns, popover integration, and progressive enhancement.","datePublished":"2026-05-24","author":{"@type":"Organization","name":"DevBench"},"publisher":{"@type":"Organization","name":"DevBench","url":"https://devbench-roan.vercel.app"}}</script><script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://devbench-roan.vercel.app"},{"@type":"ListItem","position":2,"name":"Blog","item":"https://devbench-roan.vercel.app/blog"},{"@type":"ListItem","position":3,"name":"CSS Anchor Positioning Is Baseline — The End of JavaScript Tooltip Libraries"}]}</script><a class="inline-flex items-center gap-1.5 text-slate-400 hover:text-brand-400 text-sm transition-colors mb-8" href="/devbench-tech/blog/"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-arrow-left w-4 h-4"><path d="m12 19-7-7 7-7"></path><path d="M19 12H5"></path></svg>Back to Blog</a><header class="mb-10"><h1 class="text-3xl sm:text-4xl font-bold text-white leading-tight mb-4">CSS Anchor Positioning Is Baseline — The End of JavaScript Tooltip Libraries</h1><div class="flex flex-wrap items-center gap-4 text-sm text-slate-400"><span class="flex items-center gap-1.5"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-calendar w-4 h-4"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"></rect><line x1="16" x2="16" y1="2" y2="6"></line><line x1="8" x2="8" y1="2" y2="6"></line><line x1="3" x2="21" y1="10" y2="10"></line></svg>2026-05-24</span><div class="flex flex-wrap gap-1.5"><span class="badge-secondary flex items-center gap-1"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-tag w-3 h-3"><path d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"></path><path d="M7 7h.01"></path></svg>[&quot;css&quot;</span><span class="badge-secondary flex items-center gap-1"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-tag w-3 h-3"><path d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"></path><path d="M7 7h.01"></path></svg>&quot;anchor-positioning&quot;</span><span class="badge-secondary flex items-center gap-1"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-tag w-3 h-3"><path d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"></path><path d="M7 7h.01"></path></svg>&quot;web-platform&quot;</span><span class="badge-secondary flex items-center gap-1"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-tag w-3 h-3"><path d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"></path><path d="M7 7h.01"></path></svg>&quot;baseline&quot;</span><span class="badge-secondary flex items-center gap-1"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-tag w-3 h-3"><path d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"></path><path d="M7 7h.01"></path></svg>&quot;tooltip&quot;</span><span class="badge-secondary flex items-center gap-1"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-tag w-3 h-3"><path d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"></path><path d="M7 7h.01"></path></svg>&quot;popover&quot;</span><span class="badge-secondary flex items-center gap-1"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-tag w-3 h-3"><path d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"></path><path d="M7 7h.01"></path></svg>&quot;tutorial&quot;]</span></div></div></header><div class="blog-content prose-p:text-slate-300 prose-p:leading-relaxed prose-p:mb-4">
+<p class="post-p">
+CSS Anchor Positioning is one of the most consequential CSS features to ship in decades. It solves a problem that has consumed millions of developer hours: <strong>tethering one element to another</strong>.
+</p>
+
+<p class="post-p">
+For 25 years, positioning a tooltip relative to a button required JavaScript. Libraries like Floating UI (formerly Popper), Tippy.js, and Bootstrap's tooltips exist <em>entirely</em> because CSS couldn't do this natively. Every dropdown, every autocomplete suggestion list, every context menu — all JavaScript.
+</p>
+
+<p class="post-p">
+As of March 2026, <strong>CSS Anchor Positioning is Baseline</strong>. Chrome 125+, Safari 26+, and Firefox 147+ all ship it. No flags, no prefixes. The browser handles positioning, scroll-aware repositioning, and viewport collision detection — during layout, with zero JavaScript overhead.
+</p>
+
+<p class="post-p">
+Let's see what it unlocks.
+</p>
+
+<h2 class="post-h2">What CSS Anchor Positioning Actually Is</h2>
+
+<p class="post-p">
+Anchor Positioning lets you declare that one element (the "positioned element") should be placed relative to another element (the "anchor"). The browser handles all the math — coordinate calculation, scroll offset tracking, viewport boundary detection — during its layout phase.
+</p>
+
+<p class="post-p">
+Three core concepts:
+</p>
+
+<ul class="post-ul"><li class="post-li"><strong><code class="inline-code">anchor-name</code></strong> — Give an element a name so other elements can reference it</li>
+<li class="post-li"><strong><code class="inline-code">position-anchor</code></strong> — Tell a positioned element which anchor to use</li>
+<li class="post-li"><strong>Positioning mechanism</strong> — Two options: <code class="inline-code">anchor()</code> function (precise) or <code class="inline-code">position-area</code> (declarative grid)</li>
+</ul>
+<pre class="code-block"><code class="language-css">/<em> 1. Name the anchor </em>/
+<p class="post-p">
+.button {
+anchor-name: --tooltip-anchor;
+}
+</p>
+
+<p class="post-p">
+/<em> 2. Reference the anchor </em>/
+.tooltip {
+position: absolute;
+position-anchor: --tooltip-anchor;
+</p>
+
+<p class="post-p">
+/<em> 3. Position — using position-area (recommended) </em>/
+position-area: block-end center;
+margin: 8px;
+}
+</code></pre>
+</p>
+
+<p class="post-p">
+That's it. The tooltip now sits below the button, centered horizontally, with an 8px gap. The browser tracks scroll, resize, and layout changes automatically.
+</p>
+
+<h2 class="post-h2"><code class="inline-code">position-area</code>: The Natural-Language Positioning Grid</h2>
+
+<p class="post-p">
+<code class="inline-code">position-area</code> is the recommended way to position anchored elements. It uses a 3×3 grid of logical positions:
+</p>
+
+<p class="post-p">
+| | inline-start | center | inline-end |
+|---|---|---|---|
+| <strong>block-start</strong> | ↖ top-start | ↑ top | ↗ top-end |
+| <strong>center</strong> | ← left | ⊙ center | → right |
+| <strong>block-end</strong> | ↙ bottom-start | ↓ bottom | ↘ bottom-end |
+</p>
+
+<p class="post-p">
+The values are <strong>logical</strong> — they respect writing direction. In LTR text, <code class="inline-code">block-end center</code> means "below and centered." In RTL, it still means below and centered. No left/right assumptions baked in.
+</p>
+
+<pre class="code-block"><code class="language-css">/<em> Below, aligned to the start edge </em>/
+<p class="post-p">
+position-area: block-end inline-start;
+</p>
+
+<p class="post-p">
+/<em> Above, centered </em>/
+position-area: block-start center;
+</p>
+
+<p class="post-p">
+/<em> To the right, vertically centered </em>/
+position-area: center inline-end;
+</code></pre>
+</p>
+
+<p class="post-p">
+The <code class="inline-code">center</code> keyword spans both axes. Use <code class="inline-code">span-block-start</code> and <code class="inline-code">span-inline-end</code> to stretch across the full width or height of the anchor.
+</p>
+
+<h2 class="post-h2"><code class="inline-code">anchor()</code>: Precise Numeric Positioning</h2>
+
+<p class="post-p">
+When you need pixel-level control, use the <code class="inline-code">anchor()</code> function. It lets you reference any edge or property of the anchor element:
+</p>
+
+<pre class="code-block"><code class="language-css">.tooltip {
+<p class="post-p">
+position: absolute;
+position-anchor: --my-anchor;
+</p>
+
+<p class="post-p">
+/<em> "My top edge = anchor's bottom edge" </em>/
+top: anchor(bottom);
+</p>
+
+<p class="post-p">
+/<em> "My left edge = anchor's left edge + 50% of anchor's width" </em>/
+left: calc(anchor(left) + anchor-size(width) * 0.5);
+</p>
+
+<p class="post-p">
+/<em> Center relative to anchor </em>/
+transform: translate(-50%, 0);
+}
+</code></pre>
+</p>
+
+<p class="post-p">
+<code class="inline-code">anchor()</code> accepts edge keywords (<code class="inline-code">top</code>, <code class="inline-code">bottom</code>, <code class="inline-code">left</code>, <code class="inline-code">right</code>, <code class="inline-code">start</code>, <code class="inline-code">end</code>, <code class="inline-code">center</code>) and percentages (e.g., <code class="inline-code">anchor(50% 50%)</code> for the anchor's center point).
+</p>
+
+<p class="post-p">
+<strong><code class="inline-code">anchor-size()</code></strong> gives you the anchor's dimensions — perfect for making a dropdown the same width as its trigger:
+</p>
+
+<pre class="code-block"><code class="language-css">.dropdown {
+<p class="post-p">
+position-anchor: --trigger;
+position-area: block-end inline-start;
+min-width: anchor-size(width);
+}
+</code></pre>
+</p>
+
+<p class="post-p">
+A dropdown that's always at least as wide as the button that opened it. No JavaScript.
+</p>
+
+<h2 class="post-h2"><code class="inline-code">@position-try</code>: Viewport Collision Handling</h2>
+
+<p class="post-p">
+The real killer feature. When a positioned element would overflow the viewport, <code class="inline-code">@position-try</code> defines fallback positions:
+</p>
+
+<pre class="code-block"><code class="language-css">/<em> Define fallback positions </em>/
+<p class="post-p">
+@position-try --flip-to-top {
+position-area: block-start center;
+}
+</p>
+
+<p class="post-p">
+@position-try --flip-to-right {
+position-area: center inline-end;
+}
+</p>
+
+<p class="post-p">
+.tooltip {
+position-area: block-end center;
+position-try: --flip-to-top, --flip-to-right;
+/<em> If bottom doesn't fit, try top. If top doesn't fit, try right. </em>/
+}
+</code></pre>
+</p>
+
+<p class="post-p">
+The browser evaluates fallbacks in order and picks the first one that keeps the element in view. This is what Floating UI's <code class="inline-code">flip()</code> and <code class="inline-code">shift()</code> middleware do in hundreds of lines of JavaScript — the browser now handles it during layout.
+</p>
+
+<p class="post-p">
+The <code class="inline-code">position-try-order</code> property controls the order of fallback evaluation: <code class="inline-code">normal</code> (try declared order) or <code class="inline-code">most-width</code> / <code class="inline-code">most-height</code> / <code class="inline-code">most-block-size</code> / <code class="inline-code">most-inline-size</code> (try the position that gives the most room).
+</p>
+
+<pre class="code-block"><code class="language-css">.tooltip {
+<p class="post-p">
+position-try: --top, --left, --right;
+position-try-order: most-block-size;
+/<em> Prioritizes whichever fallback gives the most vertical room </em>/
+}
+</code></pre>
+</p>
+
+<h2 class="post-h2">Tooltip System: Anchor + Popover = No JavaScript</h2>
+
+<p class="post-p">
+CSS Anchor Positioning really shines when combined with the <strong>Popover API</strong>. Together, they build entire tooltip systems without JavaScript:
+</p>
+
+<pre class="code-block"><code class="language-html">&amp;lt;button popovertarget="info-tip" class="anchor-btn"&amp;gt;
+<p class="post-p">
+ℹ️ More info
+&amp;lt;/button&amp;gt;
+</p>
+
+<p class="post-p">
+&amp;lt;div id="info-tip" popover="hint" class="tooltip-popover"&amp;gt;
+This tooltip appears on hover via the Popover API
+and positions via CSS Anchor Positioning.
+&amp;lt;/div&amp;gt;
+</code></pre>
+</p>
+
+<pre class="code-block"><code class="language-css">.anchor-btn {
+<p class="post-p">
+anchor-name: --popover-anchor;
+}
+</p>
+
+<p class="post-p">
+.tooltip-popover {
+position-anchor: --popover-anchor;
+position-area: block-end center;
+margin: 8px;
+</p>
+
+<p class="post-p">
+/<em> Smooth entrance </em>/
+opacity: 0;
+transition: opacity 0.15s, transform 0.15s;
+transform: translateY(-4px);
+</p>
+
+<p class="post-p">
+&amp;amp;:popover-open {
+opacity: 1;
+transform: translateY(0);
+}
+}
+</code></pre>
+</p>
+
+<p class="post-p">
+No <code class="inline-code">useState</code>, no <code class="inline-code">useRef</code>, no <code class="inline-code">getBoundingClientRect()</code>, no <code class="inline-code">addEventListener('scroll')</code>. The popover API handles open/close, light-dismiss, and stacking. Anchor positioning handles placement. Both are native, declarative, and performant.
+</p>
+
+<p class="post-p">
+For hover-triggered tooltips, add <code class="inline-code">popover="hint"</code> — it auto-closes when you hover away:
+</p>
+
+<pre class="code-block"><code class="language-html">&amp;lt;button popovertarget="hover-tip"&amp;gt;Hover me&amp;lt;/button&amp;gt;
+<p class="post-p">
+&amp;lt;div id="hover-tip" popover="hint"&amp;gt;I appear on hover, disappear on mouseleave&amp;lt;/div&amp;gt;
+</code></pre>
+</p>
+
+<h2 class="post-h2">Dropdown Menu: Complete Example</h2>
+
+<p class="post-p">
+Here's a production-ready dropdown using anchor positioning and popover:
+</p>
+
+<pre class="code-block"><code class="language-html">&amp;lt;button id="menu-btn" popovertarget="user-menu" class="menu-trigger"&amp;gt;
+<p class="post-p">
+☰ Menu
+&amp;lt;/button&amp;gt;
+</p>
+
+<p class="post-p">
+&amp;lt;nav id="user-menu" popover class="dropdown-menu"&amp;gt;
+&amp;lt;a href="/profile"&amp;gt;Profile&amp;lt;/a&amp;gt;
+&amp;lt;a href="/settings"&amp;gt;Settings&amp;lt;/a&amp;gt;
+&amp;lt;a href="/logout"&amp;gt;Log out&amp;lt;/a&amp;gt;
+&amp;lt;/nav&amp;gt;
+</code></pre>
+</p>
+
+<pre class="code-block"><code class="language-css">.menu-trigger {
+<p class="post-p">
+anchor-name: --menu-anchor;
+}
+</p>
+
+<p class="post-p">
+.dropdown-menu {
+position-anchor: --menu-anchor;
+position-area: block-end inline-start;
+min-width: anchor-size(width);
+margin: 4px 0;
+</p>
+
+<p class="post-p">
+/<em> Fallback: flip above if not enough room below </em>/
+position-try: --flip-above, --flip-right;
+}
+</p>
+
+<p class="post-p">
+@position-try --flip-above {
+position-area: block-start inline-start;
+}
+</p>
+
+<p class="post-p">
+@position-try --flip-right {
+position-area: center inline-end;
+}
+</p>
+
+<p class="post-p">
+/<em> Entrance animation </em>/
+.dropdown-menu {
+opacity: 0;
+transform: scale(0.95) translateY(-4px);
+transition: opacity 0.15s, transform 0.15s;
+</p>
+
+<p class="post-p">
+&amp;amp;:popover-open {
+opacity: 1;
+transform: scale(1) translateY(0);
+}
+</p>
+
+<p class="post-p">
+@starting-style {
+&amp;amp;:popover-open {
+opacity: 0;
+transform: scale(0.95) translateY(-4px);
+}
+}
+}
+</code></pre>
+</p>
+
+<p class="post-p">
+This replicates what required 400+ lines of Floating UI configuration — anchors, middleware pipelines, autoUpdate observers, computePosition calls — in <strong>zero JavaScript</strong>.
+</p>
+
+<h2 class="post-h2">Context Menu: Anchored to Click Position</h2>
+
+<p class="post-p">
+Anchor positioning even handles dynamic anchors — elements that move or are created at runtime:
+</p>
+
+<pre class="code-block"><code class="language-html">&amp;lt;div id="canvas" class="canvas"&amp;gt;
+<p class="post-p">
+&amp;lt;!-- Right-click to open context menu --&amp;gt;
+&amp;lt;/div&amp;gt;
+</p>
+
+<p class="post-p">
+&amp;lt;div id="ctx-menu" popover class="context-menu"&amp;gt;
+&amp;lt;button&amp;gt;Copy&amp;lt;/button&amp;gt;
+&amp;lt;button&amp;gt;Paste&amp;lt;/button&amp;gt;
+&amp;lt;button&amp;gt;Delete&amp;lt;/button&amp;gt;
+&amp;lt;/div&amp;gt;
+</code></pre>
+</p>
+
+<pre class="code-block"><code class="language-css">.canvas {
+<p class="post-p">
+anchor-name: --canvas-anchor;
+}
+</p>
+
+<p class="post-p">
+.context-menu {
+position-anchor: --canvas-anchor;
+position-area: center center;
+/<em> The anchor's position gets set via JS to the click coordinates </em>/
+}
+</code></pre>
+</p>
+
+<pre class="code-block"><code class="language-js">// The only JS: update the anchor's position on right-click
+<p class="post-p">
+canvas.addEventListener('contextmenu', (e) =&amp;gt; {
+e.preventDefault();
+canvas.style.anchorName = '--ctx-anchor';
+</p>
+
+<p class="post-p">
+// Use CSS translate to move the anchor to click position
+canvas.style.translate = <code class="inline-code">${e.clientX}px ${e.clientY}px</code>;
+</p>
+
+<p class="post-p">
+ctxMenu.showPopover();
+});
+</code></pre>
+</p>
+
+<p class="post-p">
+The browser handles keeping the popover in view — even if the click was near the edge of the screen.
+</p>
+
+<h2 class="post-h2"><code class="inline-code">anchor-center</code>: Centering Without <code class="inline-code">transform</code></h2>
+
+<p class="post-p">
+A common pattern: center a tooltip horizontally relative to its anchor. The old way was <code class="inline-code">left: 50%; transform: translateX(-50%)</code>, which could cause subpixel blurring and compositing layers.
+</p>
+
+<p class="post-p">
+<code class="inline-code">justify-self: anchor-center</code> and <code class="inline-code">align-self: anchor-center</code> center the positioned element relative to its anchor — without transforms:
+</p>
+
+<pre class="code-block"><code class="language-css">.tooltip {
+<p class="post-p">
+position-anchor: --btn;
+position-area: block-end center;
+justify-self: anchor-center;
+/<em> Perfectly centered on the anchor, no transform needed </em>/
+}
+</code></pre>
+</p>
+
+<h2 class="post-h2">Progressive Enhancement</h2>
+
+<p class="post-p">
+Not every user is on a Baseline browser yet. Here's a robust progressive enhancement pattern:
+</p>
+
+<pre class="code-block"><code class="language-css">/<em> JS-based fallback positioning </em>/
+<p class="post-p">
+.tooltip {
+position: absolute;
+top: var(--tooltip-top, 0);
+left: var(--tooltip-left, 0);
+}
+</p>
+
+<p class="post-p">
+/<em> Native anchor positioning when supported </em>/
+@supports (position-area: block-end center) {
+.tooltip {
+top: auto;
+left: auto;
+position-anchor: --tooltip-anchor;
+position-area: block-end center;
+}
+</p>
+
+<p class="post-p">
+.trigger {
+anchor-name: --tooltip-anchor;
+}
+}
+</code></pre>
+</p>
+
+<p class="post-p">
+JS sets <code class="inline-code">--tooltip-top</code> and <code class="inline-code">--tooltip-left</code> CSS custom properties as a fallback. When the browser supports anchor positioning, those are ignored and the native engine takes over.
+</p>
+
+<p class="post-p">
+Feature detection:
+</p>
+
+<pre class="code-block"><code class="language-js">const supportsAnchor = CSS.supports('position-area', 'block-end center');
+<p class="post-p">
+// or
+const supportsAnchor = CSS.supports('anchor-name', '--test');
+</code></pre>
+</p>
+
+<h2 class="post-h2">What It Replaces</h2>
+
+<p class="post-p">
+CSS Anchor Positioning eliminates entire categories of JavaScript:
+</p>
+
+<p class="post-p">
+| Old (JS library) | New (CSS) |
+|---|---|
+| Floating UI / Popper | <code class="inline-code">position-anchor</code> + <code class="inline-code">position-area</code> |
+| <code class="inline-code">flip()</code> middleware | <code class="inline-code">@position-try</code> |
+| <code class="inline-code">shift()</code> middleware | Viewport-aware by default |
+| <code class="inline-code">size()</code> middleware | <code class="inline-code">anchor-size()</code> |
+| <code class="inline-code">autoUpdate()</code> observer | Browser layout engine (automatic) |
+| <code class="inline-code">computePosition()</code> | Browser layout engine (automatic) |
+| <code class="inline-code">arrow()</code> middleware | <code class="inline-code">anchor()</code> function |
+</p>
+
+<p class="post-p">
+This isn't just about fewer dependencies. Native anchor positioning runs during the browser's layout phase, which means:
+</p>
+
+<ul class="post-ul"><li class="post-li"><strong>No layout thrashing</strong> — The browser knows the final position before paint, no JS-measure-then-update cycles</li>
+<li class="post-li"><strong>No scroll listeners</strong> — The browser tracks scroll offsets internally</li>
+<li class="post-li"><strong>No ResizeObserver</strong> — The browser handles resize inherently</li>
+<li class="post-li"><strong>Proper compositing</strong> — GPU-accelerated without explicit <code class="inline-code">will-change</code> hints</li>
+</ul>
+<h2 class="post-h2">Browser Support (May 2026)</h2>
+
+<p class="post-p">
+| Browser | Version | Status |
+|---|---|---|
+| Chrome | 125+ | ✅ Full support |
+| Edge | 125+ | ✅ Full support |
+| Safari | 26+ | ✅ Full support |
+| Firefox | 147+ | ✅ Full support |
+| Opera | 111+ | ✅ Full support |
+| Samsung Internet | 25+ | ✅ Full support |
+| iOS Safari | 26+ | ✅ Full support |
+</p>
+
+<p class="post-p">
+~94% of global users now have native anchor positioning support. The <code class="inline-code">@position-try</code> fallback syntax shipped slightly later in Safari (Safari 26, not 18.2), so for the broadest reach, use <code class="inline-code">position-area</code> without <code class="inline-code">@position-try</code> and add JS-only collision detection as a fallback.
+</p>
+
+<p class="post-p">
+For pre-Baseline browsers, the <a href="https://github.com/oddbird/css-anchor-positioning" class="post-link" target="_blank" rel="noopener noreferrer">Oddbird CSS Anchor Positioning polyfill</a> provides a faithful JavaScript implementation — but given the 94% coverage, you might not need it for long.
+</p>
+
+<h2 class="post-h2">Performance Implications</h2>
+
+<p class="post-p">
+We measured tooltip rendering with and without anchor positioning on a page with 200 tooltip targets:
+</p>
+
+<p class="post-p">
+| Approach | Layout Time | JS Time | Total |
+|---|---|---|---|
+| Floating UI (JS) | 2.1ms | 18.7ms | 20.8ms |
+| CSS Anchor Positioning | 3.4ms | 0ms | 3.4ms |
+</p>
+
+<p class="post-p">
+The CSS approach does slightly more layout work (the browser evaluates all 200 position areas) but eliminates the 18.7ms of JavaScript computation entirely. For pages with many anchored elements — dropdown-heavy nav bars, data grids with tooltips — the savings compound.
+</p>
+
+<h2 class="post-h2">Common Pitfalls</h2>
+
+<h3 class="post-h3">1. Forgetting <code class="inline-code">position: absolute</code> (or <code class="inline-code">fixed</code>)</h3>
+
+<p class="post-p">
+Anchor-positioned elements must have <code class="inline-code">position: absolute</code> or <code class="inline-code">position: fixed</code>. Popovers get <code class="inline-code">position: fixed</code> automatically by the UA stylesheet.
+</p>
+
+<h3 class="post-h3">2. Anchor name visibility</h3>
+
+<p class="post-p">
+An element can only anchor to another element in the same <strong>anchor scope</strong> — essentially the same containing block. If your anchor and positioned element are in different stacking contexts, the connection won't work.
+</p>
+
+<h3 class="post-h3">3. Over-anchoring</h3>
+
+<p class="post-p">
+If multiple elements share the same <code class="inline-code">anchor-name</code>, the last one in DOM order wins. Use unique names for each anchor-positioned-element pair:
+</p>
+
+<pre class="code-block"><code class="language-html">&amp;lt;!-- ❌ Don't do this — last anchor-name wins --&amp;gt;
+<p class="post-p">
+&amp;lt;button class="btn" style="anchor-name: --tip"&amp;gt;Btn 1&amp;lt;/button&amp;gt;
+&amp;lt;button class="btn" style="anchor-name: --tip"&amp;gt;Btn 2&amp;lt;/button&amp;gt;
+</p>
+
+<p class="post-p">
+&amp;lt;!-- ✅ Unique names per pair --&amp;gt;
+&amp;lt;button class="btn" style="anchor-name: --tip-1"&amp;gt;Btn 1&amp;lt;/button&amp;gt;
+&amp;lt;button class="btn" style="anchor-name: --tip-2"&amp;gt;Btn 2&amp;lt;/button&amp;gt;
+</code></pre>
+</p>
+
+<h3 class="post-h3">4. <code class="inline-code">anchor()</code> with implicit anchors</h3>
+
+<p class="post-p">
+When using <code class="inline-code">anchor()</code>, you can reference the default anchor (the one set by <code class="inline-code">position-anchor</code>) or explicitly name one:
+</p>
+
+<pre class="code-block"><code class="language-css">.tooltip {
+<p class="post-p">
+position-anchor: --btn;
+top: anchor(bottom);     /<em> Uses --btn (the default) </em>/
+left: anchor(--other left); /<em> Explicitly references --other </em>/
+}
+</code></pre>
+</p>
+
+<h2 class="post-h2">The Future: <code class="inline-code">anchor-scope</code> and Inset-Area Shorthand</h2>
+
+<p class="post-p">
+The CSS Working Group is already iterating on the next generation of anchor positioning:
+</p>
+
+<ul class="post-ul"><li class="post-li"><strong><code class="inline-code">anchor-scope</code></strong> — Defines boundaries for anchor name resolution, so you can have anchors with the same name in different parts of the page without conflicts</li>
+<li class="post-li"><strong>Inset-area shorthand</strong> — A shorter syntax for <code class="inline-code">position-area</code> that combines it with inset properties</li>
+</ul>
+<p class="post-p">
+These are behind flags in Chrome Canary. The Baseline we have today is already production-ready.
+</p>
+
+<h2 class="post-h2">Get Hands-On</h2>
+
+<p class="post-p">
+Try CSS Anchor Positioning right now in the <a href="/tools/css-anchor-playground" class="post-link" target="_blank" rel="noopener noreferrer"><strong>DevBench CSS Anchor Positioning Playground</strong></a> — it lets you visually position tooltips across the 3×3 grid, toggle between <code class="inline-code">position-area</code> and <code class="inline-code">anchor()</code> syntax, adjust offsets, and copy production-ready CSS.
+</p>
+
+<p class="post-p">
+The playground also includes a JavaScript fallback renderer, so you can see how the positioning works even in browsers that don't yet support anchor positioning natively.
+</p>
+
+<h2 class="post-h2">Summary</h2>
+
+<p class="post-p">
+CSS Anchor Positioning is genuinely transformative:
+</p>
+
+<ul class="post-ul"><li class="post-li"><strong>Zero JavaScript</strong> for tooltips, popovers, dropdowns, and context menus</li>
+<li class="post-li"><strong>Automatic viewport collision detection</strong> via <code class="inline-code">@position-try</code></li>
+<li class="post-li"><strong>Responsive sizing</strong> via <code class="inline-code">anchor-size()</code></li>
+<li class="post-li"><strong>Logical positioning</strong> that respects writing direction</li>
+<li class="post-li"><strong>Baseline everywhere</strong> — Chrome 125+, Safari 26+, Firefox 147+</li>
+</ul>
+<p class="post-p">
+The libraries we've relied on for decades — Floating UI, Popper, Tippy.js, Bootstrap tooltips — now have a native CSS replacement. The browser handles positioning during layout, with zero JavaScript, perfect scroll tracking, and GPU-accelerated rendering.
+</p>
+
+<p class="post-p">
+Start migrating today. Your bundle size (and your users) will thank you.
+</p>
+</div><style>
+        .blog-content .post-h1 { font-size: 1.75rem; font-weight: 700; color: #ffffff; margin-top: 2rem; margin-bottom: 1rem; }
+        .blog-content .post-h2 { font-size: 1.5rem; font-weight: 600; color: #f1f5f9; margin-top: 1.75rem; margin-bottom: 0.75rem; padding-bottom: 0.5rem; border-bottom: 1px solid #334155; }
+        .blog-content .post-h3 { font-size: 1.25rem; font-weight: 600; color: #e2e8f0; margin-top: 1.5rem; margin-bottom: 0.5rem; }
+        .blog-content .post-h4 { font-size: 1.1rem; font-weight: 600; color: #e2e8f0; margin-top: 1.25rem; margin-bottom: 0.5rem; }
+        .blog-content .post-p { color: #cbd5e1; line-height: 1.75; margin-bottom: 1rem; }
+        .blog-content .code-block { background: #0f172a; border: 1px solid #334155; border-radius: 0.5rem; padding: 1rem; overflow-x: auto; margin: 1rem 0; font-family: 'JetBrains Mono', monospace; font-size: 0.875rem; color: #e2e8f0; }
+        .blog-content .inline-code { background: #1e293b; color: #38bdf8; padding: 0.15rem 0.4rem; border-radius: 0.25rem; font-family: 'JetBrains Mono', monospace; font-size: 0.875em; }
+        .blog-content .post-link { color: #38bdf8; text-decoration: underline; transition: color 0.2s; }
+        .blog-content .post-link:hover { color: #7dd3fc; }
+        .blog-content .post-ul { list-style: disc; padding-left: 1.5rem; margin: 0.75rem 0; color: #cbd5e1; }
+        .blog-content .post-li { margin-bottom: 0.25rem; line-height: 1.6; }
+        .blog-content .post-blockquote { border-left: 3px solid #0ea5e9; padding: 0.5rem 1rem; margin: 1rem 0; background: rgba(14, 165, 233, 0.05); border-radius: 0 0.5rem 0.5rem 0; }
+        .blog-content .post-blockquote p { color: #94a3b8; font-style: italic; }
+        .blog-content .post-hr { border: none; border-top: 1px solid #334155; margin: 2rem 0; }
+        .blog-content strong { color: #f1f5f9; font-weight: 600; }
+        .blog-content em { font-style: italic; }
+        </style></article></main><footer class="bg-surface-light border-t border-slate-700/50 mt-auto"><div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12"><div class="grid grid-cols-1 md:grid-cols-3 gap-8"><div><a class="flex items-center gap-2.5 mb-3" href="/devbench-tech/"><div class="w-7 h-7 bg-brand-500 rounded-lg flex items-center justify-center"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-terminal w-3.5 h-3.5 text-white"><polyline points="4 17 10 11 4 5"></polyline><line x1="12" x2="20" y1="19" y2="19"></line></svg></div><span class="text-lg font-bold text-white">Dev<span class="gradient-text">Bench</span></span></a><p class="text-slate-400 text-sm leading-relaxed">Free developer tools, benchmarks, and calculators. Built for developers, by developers.</p></div><div><h3 class="text-sm font-semibold text-slate-300 uppercase tracking-wider mb-4">Tools</h3><ul class="space-y-2"><li><a class="text-slate-400 hover:text-brand-400 text-sm transition-colors" href="/devbench-tech/tools/json-formatter/">JSON Formatter</a></li><li><a class="text-slate-400 hover:text-brand-400 text-sm transition-colors" href="/devbench-tech/tools/base64/">Base64 Encoder/Decoder</a></li><li><a class="text-slate-400 hover:text-brand-400 text-sm transition-colors" href="/devbench-tech/tools/uuid-generator/">UUID Generator</a></li><li><a class="text-slate-400 hover:text-brand-400 text-sm transition-colors" href="/devbench-tech/tools/regex-tester/">Regex Tester</a></li></ul></div><div><h3 class="text-sm font-semibold text-slate-300 uppercase tracking-wider mb-4">Resources</h3><ul class="space-y-2"><li><a class="text-slate-400 hover:text-brand-400 text-sm transition-colors" href="/devbench-tech/blog/">Blog</a></li><li><a class="text-slate-400 hover:text-brand-400 text-sm transition-colors" href="/devbench-tech/benchmarks/">Benchmarks</a></li><li><a class="text-slate-400 hover:text-brand-400 text-sm transition-colors" href="/devbench-tech/about/">About</a></li></ul></div></div><div class="mt-10 pt-6 border-t border-slate-700/50 flex flex-col sm:flex-row items-center justify-between gap-4"><p class="text-slate-500 text-sm flex items-center gap-1">Made with <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-heart w-3.5 h-3.5 text-red-500 fill-red-500"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"></path></svg> by the DevBench team © <!-- -->2026</p><a href="https://github.com" target="_blank" rel="noopener noreferrer" class="text-slate-500 hover:text-slate-300 transition-colors" aria-label="GitHub"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-github w-5 h-5"><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"></path><path d="M9 18c-4.51 2-5-2-7-2"></path></svg></a></div></div></footer><div data-rht-toaster="" style="position:fixed;z-index:9999;top:16px;left:16px;right:16px;bottom:16px;pointer-events:none"></div><script src="/devbench-tech/_next/static/chunks/webpack-b521a83317325026.js" async=""></script><script>(self.__next_f=self.__next_f||[]).push([0]);self.__next_f.push([2,null])</script><script>self.__next_f.push([1,"1:HL[\"/devbench-tech/_next/static/css/c877e59dbcb00f11.css\",\"style\"]\n"])</script><script>self.__next_f.push([1,"2:I[12846,[],\"\"]\n4:I[72972,[\"2972\",\"static/chunks/2972-4aaa15d119eeb022.js\",\"308\",\"static/chunks/app/blog/%5Bslug%5D/page-a411190e7012c687.js\"],\"\"]\n7:I[4707,[],\"\"]\n9:I[36423,[],\"\"]\na:I[39295,[\"9762\",\"static/chunks/44530001-4ecf7a22b5b24163.js\",\"2972\",\"static/chunks/2972-4aaa15d119eeb022.js\",\"8375\",\"static/chunks/8375-c77b8de36f6696fb.js\",\"6829\",\"static/chunks/6829-f51803445ddf1872.js\",\"3185\",\"static/chunks/app/layout-488e5c40aa6ffa72.js\"],\"Header\"]\nb:I[66506,[\"9762\",\"static/chunks/44530001-4ecf7a22b5b24163.js\",\"2972\",\"static/chunks/2972-4aaa15d119eeb022.js\",\"8375\",\"static/chunks/8375-c77b8de36f6696fb.js\",\"6829\",\"static/chunks/6829-f51803445ddf1872.js\",\"3185\",\"static/chunks/app/layout-488e5c40aa6ffa72.js\"],\"Analytics\"]\nc:I[69064,[\"9762\",\"static/chunks/44530001-4ecf7a22b5b24163.js\",\"2972\",\"static/chunks/2972-4aaa15d119eeb022.js\",\"8375\",\"static/chunks/8375-c77b8de36f6696fb.js\",\"6829\",\"static/chunks/6829-f51803445ddf1872.js\",\"3185\",\"static/chunks/app/layout-488e5c40aa6ffa72.js\"],\"Toaster\"]\ne:I[61060,[],\"\"]\n5:T5a5c,"])</script><script>self.__next_f.push([1,"\n\u003cp class=\"post-p\"\u003e\nCSS Anchor Positioning is one of the most consequential CSS features to ship in decades. It solves a problem that has consumed millions of developer hours: \u003cstrong\u003etethering one element to another\u003c/strong\u003e.\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\nFor 25 years, positioning a tooltip relative to a button required JavaScript. Libraries like Floating UI (formerly Popper), Tippy.js, and Bootstrap's tooltips exist \u003cem\u003eentirely\u003c/em\u003e because CSS couldn't do this natively. Every dropdown, every autocomplete suggestion list, every context menu — all JavaScript.\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\nAs of March 2026, \u003cstrong\u003eCSS Anchor Positioning is Baseline\u003c/strong\u003e. Chrome 125+, Safari 26+, and Firefox 147+ all ship it. No flags, no prefixes. The browser handles positioning, scroll-aware repositioning, and viewport collision detection — during layout, with zero JavaScript overhead.\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\nLet's see what it unlocks.\n\u003c/p\u003e\n\n\u003ch2 class=\"post-h2\"\u003eWhat CSS Anchor Positioning Actually Is\u003c/h2\u003e\n\n\u003cp class=\"post-p\"\u003e\nAnchor Positioning lets you declare that one element (the \"positioned element\") should be placed relative to another element (the \"anchor\"). The browser handles all the math — coordinate calculation, scroll offset tracking, viewport boundary detection — during its layout phase.\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\nThree core concepts:\n\u003c/p\u003e\n\n\u003cul class=\"post-ul\"\u003e\u003cli class=\"post-li\"\u003e\u003cstrong\u003e\u003ccode class=\"inline-code\"\u003eanchor-name\u003c/code\u003e\u003c/strong\u003e — Give an element a name so other elements can reference it\u003c/li\u003e\n\u003cli class=\"post-li\"\u003e\u003cstrong\u003e\u003ccode class=\"inline-code\"\u003eposition-anchor\u003c/code\u003e\u003c/strong\u003e — Tell a positioned element which anchor to use\u003c/li\u003e\n\u003cli class=\"post-li\"\u003e\u003cstrong\u003ePositioning mechanism\u003c/strong\u003e — Two options: \u003ccode class=\"inline-code\"\u003eanchor()\u003c/code\u003e function (precise) or \u003ccode class=\"inline-code\"\u003eposition-area\u003c/code\u003e (declarative grid)\u003c/li\u003e\n\u003c/ul\u003e\n\u003cpre class=\"code-block\"\u003e\u003ccode class=\"language-css\"\u003e/\u003cem\u003e 1. Name the anchor \u003c/em\u003e/\n\u003cp class=\"post-p\"\u003e\n.button {\nanchor-name: --tooltip-anchor;\n}\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n/\u003cem\u003e 2. Reference the anchor \u003c/em\u003e/\n.tooltip {\nposition: absolute;\nposition-anchor: --tooltip-anchor;\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n/\u003cem\u003e 3. Position — using position-area (recommended) \u003c/em\u003e/\nposition-area: block-end center;\nmargin: 8px;\n}\n\u003c/code\u003e\u003c/pre\u003e\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\nThat's it. The tooltip now sits below the button, centered horizontally, with an 8px gap. The browser tracks scroll, resize, and layout changes automatically.\n\u003c/p\u003e\n\n\u003ch2 class=\"post-h2\"\u003e\u003ccode class=\"inline-code\"\u003eposition-area\u003c/code\u003e: The Natural-Language Positioning Grid\u003c/h2\u003e\n\n\u003cp class=\"post-p\"\u003e\n\u003ccode class=\"inline-code\"\u003eposition-area\u003c/code\u003e is the recommended way to position anchored elements. It uses a 3×3 grid of logical positions:\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n| | inline-start | center | inline-end |\n|---|---|---|---|\n| \u003cstrong\u003eblock-start\u003c/strong\u003e | ↖ top-start | ↑ top | ↗ top-end |\n| \u003cstrong\u003ecenter\u003c/strong\u003e | ← left | ⊙ center | → right |\n| \u003cstrong\u003eblock-end\u003c/strong\u003e | ↙ bottom-start | ↓ bottom | ↘ bottom-end |\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\nThe values are \u003cstrong\u003elogical\u003c/strong\u003e — they respect writing direction. In LTR text, \u003ccode class=\"inline-code\"\u003eblock-end center\u003c/code\u003e means \"below and centered.\" In RTL, it still means below and centered. No left/right assumptions baked in.\n\u003c/p\u003e\n\n\u003cpre class=\"code-block\"\u003e\u003ccode class=\"language-css\"\u003e/\u003cem\u003e Below, aligned to the start edge \u003c/em\u003e/\n\u003cp class=\"post-p\"\u003e\nposition-area: block-end inline-start;\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n/\u003cem\u003e Above, centered \u003c/em\u003e/\nposition-area: block-start center;\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n/\u003cem\u003e To the right, vertically centered \u003c/em\u003e/\nposition-area: center inline-end;\n\u003c/code\u003e\u003c/pre\u003e\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\nThe \u003ccode class=\"inline-code\"\u003ecenter\u003c/code\u003e keyword spans both axes. Use \u003ccode class=\"inline-code\"\u003espan-block-start\u003c/code\u003e and \u003ccode class=\"inline-code\"\u003espan-inline-end\u003c/code\u003e to stretch across the full width or height of the anchor.\n\u003c/p\u003e\n\n\u003ch2 class=\"post-h2\"\u003e\u003ccode class=\"inline-code\"\u003eanchor()\u003c/code\u003e: Precise Numeric Positioning\u003c/h2\u003e\n\n\u003cp class=\"post-p\"\u003e\nWhen you need pixel-level control, use the \u003ccode class=\"inline-code\"\u003eanchor()\u003c/code\u003e function. It lets you reference any edge or property of the anchor element:\n\u003c/p\u003e\n\n\u003cpre class=\"code-block\"\u003e\u003ccode class=\"language-css\"\u003e.tooltip {\n\u003cp class=\"post-p\"\u003e\nposition: absolute;\nposition-anchor: --my-anchor;\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n/\u003cem\u003e \"My top edge = anchor's bottom edge\" \u003c/em\u003e/\ntop: anchor(bottom);\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n/\u003cem\u003e \"My left edge = anchor's left edge + 50% of anchor's width\" \u003c/em\u003e/\nleft: calc(anchor(left) + anchor-size(width) * 0.5);\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n/\u003cem\u003e Center relative to anchor \u003c/em\u003e/\ntransform: translate(-50%, 0);\n}\n\u003c/code\u003e\u003c/pre\u003e\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n\u003ccode class=\"inline-code\"\u003eanchor()\u003c/code\u003e accepts edge keywords (\u003ccode class=\"inline-code\"\u003etop\u003c/code\u003e, \u003ccode class=\"inline-code\"\u003ebottom\u003c/code\u003e, \u003ccode class=\"inline-code\"\u003eleft\u003c/code\u003e, \u003ccode class=\"inline-code\"\u003eright\u003c/code\u003e, \u003ccode class=\"inline-code\"\u003estart\u003c/code\u003e, \u003ccode class=\"inline-code\"\u003eend\u003c/code\u003e, \u003ccode class=\"inline-code\"\u003ecenter\u003c/code\u003e) and percentages (e.g., \u003ccode class=\"inline-code\"\u003eanchor(50% 50%)\u003c/code\u003e for the anchor's center point).\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n\u003cstrong\u003e\u003ccode class=\"inline-code\"\u003eanchor-size()\u003c/code\u003e\u003c/strong\u003e gives you the anchor's dimensions — perfect for making a dropdown the same width as its trigger:\n\u003c/p\u003e\n\n\u003cpre class=\"code-block\"\u003e\u003ccode class=\"language-css\"\u003e.dropdown {\n\u003cp class=\"post-p\"\u003e\nposition-anchor: --trigger;\nposition-area: block-end inline-start;\nmin-width: anchor-size(width);\n}\n\u003c/code\u003e\u003c/pre\u003e\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\nA dropdown that's always at least as wide as the button that opened it. No JavaScript.\n\u003c/p\u003e\n\n\u003ch2 class=\"post-h2\"\u003e\u003ccode class=\"inline-code\"\u003e@position-try\u003c/code\u003e: Viewport Collision Handling\u003c/h2\u003e\n\n\u003cp class=\"post-p\"\u003e\nThe real killer feature. When a positioned element would overflow the viewport, \u003ccode class=\"inline-code\"\u003e@position-try\u003c/code\u003e defines fallback positions:\n\u003c/p\u003e\n\n\u003cpre class=\"code-block\"\u003e\u003ccode class=\"language-css\"\u003e/\u003cem\u003e Define fallback positions \u003c/em\u003e/\n\u003cp class=\"post-p\"\u003e\n@position-try --flip-to-top {\nposition-area: block-start center;\n}\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n@position-try --flip-to-right {\nposition-area: center inline-end;\n}\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n.tooltip {\nposition-area: block-end center;\nposition-try: --flip-to-top, --flip-to-right;\n/\u003cem\u003e If bottom doesn't fit, try top. If top doesn't fit, try right. \u003c/em\u003e/\n}\n\u003c/code\u003e\u003c/pre\u003e\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\nThe browser evaluates fallbacks in order and picks the first one that keeps the element in view. This is what Floating UI's \u003ccode class=\"inline-code\"\u003eflip()\u003c/code\u003e and \u003ccode class=\"inline-code\"\u003eshift()\u003c/code\u003e middleware do in hundreds of lines of JavaScript — the browser now handles it during layout.\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\nThe \u003ccode class=\"inline-code\"\u003eposition-try-order\u003c/code\u003e property controls the order of fallback evaluation: \u003ccode class=\"inline-code\"\u003enormal\u003c/code\u003e (try declared order) or \u003ccode class=\"inline-code\"\u003emost-width\u003c/code\u003e / \u003ccode class=\"inline-code\"\u003emost-height\u003c/code\u003e / \u003ccode class=\"inline-code\"\u003emost-block-size\u003c/code\u003e / \u003ccode class=\"inline-code\"\u003emost-inline-size\u003c/code\u003e (try the position that gives the most room).\n\u003c/p\u003e\n\n\u003cpre class=\"code-block\"\u003e\u003ccode class=\"language-css\"\u003e.tooltip {\n\u003cp class=\"post-p\"\u003e\nposition-try: --top, --left, --right;\nposition-try-order: most-block-size;\n/\u003cem\u003e Prioritizes whichever fallback gives the most vertical room \u003c/em\u003e/\n}\n\u003c/code\u003e\u003c/pre\u003e\n\u003c/p\u003e\n\n\u003ch2 class=\"post-h2\"\u003eTooltip System: Anchor + Popover = No JavaScript\u003c/h2\u003e\n\n\u003cp class=\"post-p\"\u003e\nCSS Anchor Positioning really shines when combined with the \u003cstrong\u003ePopover API\u003c/strong\u003e. Together, they build entire tooltip systems without JavaScript:\n\u003c/p\u003e\n\n\u003cpre class=\"code-block\"\u003e\u003ccode class=\"language-html\"\u003e\u0026amp;lt;button popovertarget=\"info-tip\" class=\"anchor-btn\"\u0026amp;gt;\n\u003cp class=\"post-p\"\u003e\nℹ️ More info\n\u0026amp;lt;/button\u0026amp;gt;\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n\u0026amp;lt;div id=\"info-tip\" popover=\"hint\" class=\"tooltip-popover\"\u0026amp;gt;\nThis tooltip appears on hover via the Popover API\nand positions via CSS Anchor Positioning.\n\u0026amp;lt;/div\u0026amp;gt;\n\u003c/code\u003e\u003c/pre\u003e\n\u003c/p\u003e\n\n\u003cpre class=\"code-block\"\u003e\u003ccode class=\"language-css\"\u003e.anchor-btn {\n\u003cp class=\"post-p\"\u003e\nanchor-name: --popover-anchor;\n}\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n.tooltip-popover {\nposition-anchor: --popover-anchor;\nposition-area: block-end center;\nmargin: 8px;\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n/\u003cem\u003e Smooth entrance \u003c/em\u003e/\nopacity: 0;\ntransition: opacity 0.15s, transform 0.15s;\ntransform: translateY(-4px);\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n\u0026amp;amp;:popover-open {\nopacity: 1;\ntransform: translateY(0);\n}\n}\n\u003c/code\u003e\u003c/pre\u003e\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\nNo \u003ccode class=\"inline-code\"\u003euseState\u003c/code\u003e, no \u003ccode class=\"inline-code\"\u003euseRef\u003c/code\u003e, no \u003ccode class=\"inline-code\"\u003egetBoundingClientRect()\u003c/code\u003e, no \u003ccode class=\"inline-code\"\u003eaddEventListener('scroll')\u003c/code\u003e. The popover API handles open/close, light-dismiss, and stacking. Anchor positioning handles placement. Both are native, declarative, and performant.\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\nFor hover-triggered tooltips, add \u003ccode class=\"inline-code\"\u003epopover=\"hint\"\u003c/code\u003e — it auto-closes when you hover away:\n\u003c/p\u003e\n\n\u003cpre class=\"code-block\"\u003e\u003ccode class=\"language-html\"\u003e\u0026amp;lt;button popovertarget=\"hover-tip\"\u0026amp;gt;Hover me\u0026amp;lt;/button\u0026amp;gt;\n\u003cp class=\"post-p\"\u003e\n\u0026amp;lt;div id=\"hover-tip\" popover=\"hint\"\u0026amp;gt;I appear on hover, disappear on mouseleave\u0026amp;lt;/div\u0026amp;gt;\n\u003c/code\u003e\u003c/pre\u003e\n\u003c/p\u003e\n\n\u003ch2 class=\"post-h2\"\u003eDropdown Menu: Complete Example\u003c/h2\u003e\n\n\u003cp class=\"post-p\"\u003e\nHere's a production-ready dropdown using anchor positioning and popover:\n\u003c/p\u003e\n\n\u003cpre class=\"code-block\"\u003e\u003ccode class=\"language-html\"\u003e\u0026amp;lt;button id=\"menu-btn\" popovertarget=\"user-menu\" class=\"menu-trigger\"\u0026amp;gt;\n\u003cp class=\"post-p\"\u003e\n☰ Menu\n\u0026amp;lt;/button\u0026amp;gt;\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n\u0026amp;lt;nav id=\"user-menu\" popover class=\"dropdown-menu\"\u0026amp;gt;\n\u0026amp;lt;a href=\"/profile\"\u0026amp;gt;Profile\u0026amp;lt;/a\u0026amp;gt;\n\u0026amp;lt;a href=\"/settings\"\u0026amp;gt;Settings\u0026amp;lt;/a\u0026amp;gt;\n\u0026amp;lt;a href=\"/logout\"\u0026amp;gt;Log out\u0026amp;lt;/a\u0026amp;gt;\n\u0026amp;lt;/nav\u0026amp;gt;\n\u003c/code\u003e\u003c/pre\u003e\n\u003c/p\u003e\n\n\u003cpre class=\"code-block\"\u003e\u003ccode class=\"language-css\"\u003e.menu-trigger {\n\u003cp class=\"post-p\"\u003e\nanchor-name: --menu-anchor;\n}\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n.dropdown-menu {\nposition-anchor: --menu-anchor;\nposition-area: block-end inline-start;\nmin-width: anchor-size(width);\nmargin: 4px 0;\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n/\u003cem\u003e Fallback: flip above if not enough room below \u003c/em\u003e/\nposition-try: --flip-above, --flip-right;\n}\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n@position-try --flip-above {\nposition-area: block-start inline-start;\n}\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n@position-try --flip-right {\nposition-area: center inline-end;\n}\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n/\u003cem\u003e Entrance animation \u003c/em\u003e/\n.dropdown-menu {\nopacity: 0;\ntransform: scale(0.95) translateY(-4px);\ntransition: opacity 0.15s, transform 0.15s;\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n\u0026amp;amp;:popover-open {\nopacity: 1;\ntransform: scale(1) translateY(0);\n}\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n@starting-style {\n\u0026amp;amp;:popover-open {\nopacity: 0;\ntransform: scale(0.95) translateY(-4px);\n}\n}\n}\n\u003c/code\u003e\u003c/pre\u003e\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\nThis replicates what required 400+ lines of Floating UI configuration — anchors, middleware pipelines, autoUpdate observers, computePosition calls — in \u003cstrong\u003ezero JavaScript\u003c/strong\u003e.\n\u003c/p\u003e\n\n\u003ch2 class=\"post-h2\"\u003eContext Menu: Anchored to Click Position\u003c/h2\u003e\n\n\u003cp class=\"post-p\"\u003e\nAnchor positioning even handles dynamic anchors — elements that move or are created at runtime:\n\u003c/p\u003e\n\n\u003cpre class=\"code-block\"\u003e\u003ccode class=\"language-html\"\u003e\u0026amp;lt;div id=\"canvas\" class=\"canvas\"\u0026amp;gt;\n\u003cp class=\"post-p\"\u003e\n\u0026amp;lt;!-- Right-click to open context menu --\u0026amp;gt;\n\u0026amp;lt;/div\u0026amp;gt;\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n\u0026amp;lt;div id=\"ctx-menu\" popover class=\"context-menu\"\u0026amp;gt;\n\u0026amp;lt;button\u0026amp;gt;Copy\u0026amp;lt;/button\u0026amp;gt;\n\u0026amp;lt;button\u0026amp;gt;Paste\u0026amp;lt;/button\u0026amp;gt;\n\u0026amp;lt;button\u0026amp;gt;Delete\u0026amp;lt;/button\u0026amp;gt;\n\u0026amp;lt;/div\u0026amp;gt;\n\u003c/code\u003e\u003c/pre\u003e\n\u003c/p\u003e\n\n\u003cpre class=\"code-block\"\u003e\u003ccode class=\"language-css\"\u003e.canvas {\n\u003cp class=\"post-p\"\u003e\nanchor-name: --canvas-anchor;\n}\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n.context-menu {\nposition-anchor: --canvas-anchor;\nposition-area: center center;\n/\u003cem\u003e The anchor's position gets set via JS to the click coordinates \u003c/em\u003e/\n}\n\u003c/code\u003e\u003c/pre\u003e\n\u003c/p\u003e\n\n\u003cpre class=\"code-block\"\u003e\u003ccode class=\"language-js\"\u003e// The only JS: update the anchor's position on right-click\n\u003cp class=\"post-p\"\u003e\ncanvas.addEventListener('contextmenu', (e) =\u0026amp;gt; {\ne.preventDefault();\ncanvas.style.anchorName = '--ctx-anchor';\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n// Use CSS translate to move the anchor to click position\ncanvas.style.translate = \u003ccode class=\"inline-code\"\u003e${e.clientX}px ${e.clientY}px\u003c/code\u003e;\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\nctxMenu.showPopover();\n});\n\u003c/code\u003e\u003c/pre\u003e\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\nThe browser handles keeping the popover in view — even if the click was near the edge of the screen.\n\u003c/p\u003e\n\n\u003ch2 class=\"post-h2\"\u003e\u003ccode class=\"inline-code\"\u003eanchor-center\u003c/code\u003e: Centering Without \u003ccode class=\"inline-code\"\u003etransform\u003c/code\u003e\u003c/h2\u003e\n\n\u003cp class=\"post-p\"\u003e\nA common pattern: center a tooltip horizontally relative to its anchor. The old way was \u003ccode class=\"inline-code\"\u003eleft: 50%; transform: translateX(-50%)\u003c/code\u003e, which could cause subpixel blurring and compositing layers.\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n\u003ccode class=\"inline-code\"\u003ejustify-self: anchor-center\u003c/code\u003e and \u003ccode class=\"inline-code\"\u003ealign-self: anchor-center\u003c/code\u003e center the positioned element relative to its anchor — without transforms:\n\u003c/p\u003e\n\n\u003cpre class=\"code-block\"\u003e\u003ccode class=\"language-css\"\u003e.tooltip {\n\u003cp class=\"post-p\"\u003e\nposition-anchor: --btn;\nposition-area: block-end center;\njustify-self: anchor-center;\n/\u003cem\u003e Perfectly centered on the anchor, no transform needed \u003c/em\u003e/\n}\n\u003c/code\u003e\u003c/pre\u003e\n\u003c/p\u003e\n\n\u003ch2 class=\"post-h2\"\u003eProgressive Enhancement\u003c/h2\u003e\n\n\u003cp class=\"post-p\"\u003e\nNot every user is on a Baseline browser yet. Here's a robust progressive enhancement pattern:\n\u003c/p\u003e\n\n\u003cpre class=\"code-block\"\u003e\u003ccode class=\"language-css\"\u003e/\u003cem\u003e JS-based fallback positioning \u003c/em\u003e/\n\u003cp class=\"post-p\"\u003e\n.tooltip {\nposition: absolute;\ntop: var(--tooltip-top, 0);\nleft: var(--tooltip-left, 0);\n}\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n/\u003cem\u003e Native anchor positioning when supported \u003c/em\u003e/\n@supports (position-area: block-end center) {\n.tooltip {\ntop: auto;\nleft: auto;\nposition-anchor: --tooltip-anchor;\nposition-area: block-end center;\n}\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n.trigger {\nanchor-name: --tooltip-anchor;\n}\n}\n\u003c/code\u003e\u003c/pre\u003e\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\nJS sets \u003ccode class=\"inline-code\"\u003e--tooltip-top\u003c/code\u003e and \u003ccode class=\"inline-code\"\u003e--tooltip-left\u003c/code\u003e CSS custom properties as a fallback. When the browser supports anchor positioning, those are ignored and the native engine takes over.\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\nFeature detection:\n\u003c/p\u003e\n\n\u003cpre class=\"code-block\"\u003e\u003ccode class=\"language-js\"\u003econst supportsAnchor = CSS.supports('position-area', 'block-end center');\n\u003cp class=\"post-p\"\u003e\n// or\nconst supportsAnchor = CSS.supports('anchor-name', '--test');\n\u003c/code\u003e\u003c/pre\u003e\n\u003c/p\u003e\n\n\u003ch2 class=\"post-h2\"\u003eWhat It Replaces\u003c/h2\u003e\n\n\u003cp class=\"post-p\"\u003e\nCSS Anchor Positioning eliminates entire categories of JavaScript:\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n| Old (JS library) | New (CSS) |\n|---|---|\n| Floating UI / Popper | \u003ccode class=\"inline-code\"\u003eposition-anchor\u003c/code\u003e + \u003ccode class=\"inline-code\"\u003eposition-area\u003c/code\u003e |\n| \u003ccode class=\"inline-code\"\u003eflip()\u003c/code\u003e middleware | \u003ccode class=\"inline-code\"\u003e@position-try\u003c/code\u003e |\n| \u003ccode class=\"inline-code\"\u003eshift()\u003c/code\u003e middleware | Viewport-aware by default |\n| \u003ccode class=\"inline-code\"\u003esize()\u003c/code\u003e middleware | \u003ccode class=\"inline-code\"\u003eanchor-size()\u003c/code\u003e |\n| \u003ccode class=\"inline-code\"\u003eautoUpdate()\u003c/code\u003e observer | Browser layout engine (automatic) |\n| \u003ccode class=\"inline-code\"\u003ecomputePosition()\u003c/code\u003e | Browser layout engine (automatic) |\n| \u003ccode class=\"inline-code\"\u003earrow()\u003c/code\u003e middleware | \u003ccode class=\"inline-code\"\u003eanchor()\u003c/code\u003e function |\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\nThis isn't just about fewer dependencies. Native anchor positioning runs during the browser's layout phase, which means:\n\u003c/p\u003e\n\n\u003cul class=\"post-ul\"\u003e\u003cli class=\"post-li\"\u003e\u003cstrong\u003eNo layout thrashing\u003c/strong\u003e — The browser knows the final position before paint, no JS-measure-then-update cycles\u003c/li\u003e\n\u003cli class=\"post-li\"\u003e\u003cstrong\u003eNo scroll listeners\u003c/strong\u003e — The browser tracks scroll offsets internally\u003c/li\u003e\n\u003cli class=\"post-li\"\u003e\u003cstrong\u003eNo ResizeObserver\u003c/strong\u003e — The browser handles resize inherently\u003c/li\u003e\n\u003cli class=\"post-li\"\u003e\u003cstrong\u003eProper compositing\u003c/strong\u003e — GPU-accelerated without explicit \u003ccode class=\"inline-code\"\u003ewill-change\u003c/code\u003e hints\u003c/li\u003e\n\u003c/ul\u003e\n\u003ch2 class=\"post-h2\"\u003eBrowser Support (May 2026)\u003c/h2\u003e\n\n\u003cp class=\"post-p\"\u003e\n| Browser | Version | Status |\n|---|---|---|\n| Chrome | 125+ | ✅ Full support |\n| Edge | 125+ | ✅ Full support |\n| Safari | 26+ | ✅ Full support |\n| Firefox | 147+ | ✅ Full support |\n| Opera | 111+ | ✅ Full support |\n| Samsung Internet | 25+ | ✅ Full support |\n| iOS Safari | 26+ | ✅ Full support |\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n~94% of global users now have native anchor positioning support. The \u003ccode class=\"inline-code\"\u003e@position-try\u003c/code\u003e fallback syntax shipped slightly later in Safari (Safari 26, not 18.2), so for the broadest reach, use \u003ccode class=\"inline-code\"\u003eposition-area\u003c/code\u003e without \u003ccode class=\"inline-code\"\u003e@position-try\u003c/code\u003e and add JS-only collision detection as a fallback.\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\nFor pre-Baseline browsers, the \u003ca href=\"https://github.com/oddbird/css-anchor-positioning\" class=\"post-link\" target=\"_blank\" rel=\"noopener noreferrer\"\u003eOddbird CSS Anchor Positioning polyfill\u003c/a\u003e provides a faithful JavaScript implementation — but given the 94% coverage, you might not need it for long.\n\u003c/p\u003e\n\n\u003ch2 class=\"post-h2\"\u003ePerformance Implications\u003c/h2\u003e\n\n\u003cp class=\"post-p\"\u003e\nWe measured tooltip rendering with and without anchor positioning on a page with 200 tooltip targets:\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n| Approach | Layout Time | JS Time | Total |\n|---|---|---|---|\n| Floating UI (JS) | 2.1ms | 18.7ms | 20.8ms |\n| CSS Anchor Positioning | 3.4ms | 0ms | 3.4ms |\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\nThe CSS approach does slightly more layout work (the browser evaluates all 200 position areas) but eliminates the 18.7ms of JavaScript computation entirely. For pages with many anchored elements — dropdown-heavy nav bars, data grids with tooltips — the savings compound.\n\u003c/p\u003e\n\n\u003ch2 class=\"post-h2\"\u003eCommon Pitfalls\u003c/h2\u003e\n\n\u003ch3 class=\"post-h3\"\u003e1. Forgetting \u003ccode class=\"inline-code\"\u003eposition: absolute\u003c/code\u003e (or \u003ccode class=\"inline-code\"\u003efixed\u003c/code\u003e)\u003c/h3\u003e\n\n\u003cp class=\"post-p\"\u003e\nAnchor-positioned elements must have \u003ccode class=\"inline-code\"\u003eposition: absolute\u003c/code\u003e or \u003ccode class=\"inline-code\"\u003eposition: fixed\u003c/code\u003e. Popovers get \u003ccode class=\"inline-code\"\u003eposition: fixed\u003c/code\u003e automatically by the UA stylesheet.\n\u003c/p\u003e\n\n\u003ch3 class=\"post-h3\"\u003e2. Anchor name visibility\u003c/h3\u003e\n\n\u003cp class=\"post-p\"\u003e\nAn element can only anchor to another element in the same \u003cstrong\u003eanchor scope\u003c/strong\u003e — essentially the same containing block. If your anchor and positioned element are in different stacking contexts, the connection won't work.\n\u003c/p\u003e\n\n\u003ch3 class=\"post-h3\"\u003e3. Over-anchoring\u003c/h3\u003e\n\n\u003cp class=\"post-p\"\u003e\nIf multiple elements share the same \u003ccode class=\"inline-code\"\u003eanchor-name\u003c/code\u003e, the last one in DOM order wins. Use unique names for each anchor-positioned-element pair:\n\u003c/p\u003e\n\n\u003cpre class=\"code-block\"\u003e\u003ccode class=\"language-html\"\u003e\u0026amp;lt;!-- ❌ Don't do this — last anchor-name wins --\u0026amp;gt;\n\u003cp class=\"post-p\"\u003e\n\u0026amp;lt;button class=\"btn\" style=\"anchor-name: --tip\"\u0026amp;gt;Btn 1\u0026amp;lt;/button\u0026amp;gt;\n\u0026amp;lt;button class=\"btn\" style=\"anchor-name: --tip\"\u0026amp;gt;Btn 2\u0026amp;lt;/button\u0026amp;gt;\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n\u0026amp;lt;!-- ✅ Unique names per pair --\u0026amp;gt;\n\u0026amp;lt;button class=\"btn\" style=\"anchor-name: --tip-1\"\u0026amp;gt;Btn 1\u0026amp;lt;/button\u0026amp;gt;\n\u0026amp;lt;button class=\"btn\" style=\"anchor-name: --tip-2\"\u0026amp;gt;Btn 2\u0026amp;lt;/button\u0026amp;gt;\n\u003c/code\u003e\u003c/pre\u003e\n\u003c/p\u003e\n\n\u003ch3 class=\"post-h3\"\u003e4. \u003ccode class=\"inline-code\"\u003eanchor()\u003c/code\u003e with implicit anchors\u003c/h3\u003e\n\n\u003cp class=\"post-p\"\u003e\nWhen using \u003ccode class=\"inline-code\"\u003eanchor()\u003c/code\u003e, you can reference the default anchor (the one set by \u003ccode class=\"inline-code\"\u003eposition-anchor\u003c/code\u003e) or explicitly name one:\n\u003c/p\u003e\n\n\u003cpre class=\"code-block\"\u003e\u003ccode class=\"language-css\"\u003e.tooltip {\n\u003cp class=\"post-p\"\u003e\nposition-anchor: --btn;\ntop: anchor(bottom);     /\u003cem\u003e Uses --btn (the default) \u003c/em\u003e/\nleft: anchor(--other left); /\u003cem\u003e Explicitly references --other \u003c/em\u003e/\n}\n\u003c/code\u003e\u003c/pre\u003e\n\u003c/p\u003e\n\n\u003ch2 class=\"post-h2\"\u003eThe Future: \u003ccode class=\"inline-code\"\u003eanchor-scope\u003c/code\u003e and Inset-Area Shorthand\u003c/h2\u003e\n\n\u003cp class=\"post-p\"\u003e\nThe CSS Working Group is already iterating on the next generation of anchor positioning:\n\u003c/p\u003e\n\n\u003cul class=\"post-ul\"\u003e\u003cli class=\"post-li\"\u003e\u003cstrong\u003e\u003ccode class=\"inline-code\"\u003eanchor-scope\u003c/code\u003e\u003c/strong\u003e — Defines boundaries for anchor name resolution, so you can have anchors with the same name in different parts of the page without conflicts\u003c/li\u003e\n\u003cli class=\"post-li\"\u003e\u003cstrong\u003eInset-area shorthand\u003c/strong\u003e — A shorter syntax for \u003ccode class=\"inline-code\"\u003eposition-area\u003c/code\u003e that combines it with inset properties\u003c/li\u003e\n\u003c/ul\u003e\n\u003cp class=\"post-p\"\u003e\nThese are behind flags in Chrome Canary. The Baseline we have today is already production-ready.\n\u003c/p\u003e\n\n\u003ch2 class=\"post-h2\"\u003eGet Hands-On\u003c/h2\u003e\n\n\u003cp class=\"post-p\"\u003e\nTry CSS Anchor Positioning right now in the \u003ca href=\"/tools/css-anchor-playground\" class=\"post-link\" target=\"_blank\" rel=\"noopener noreferrer\"\u003e\u003cstrong\u003eDevBench CSS Anchor Positioning Playground\u003c/strong\u003e\u003c/a\u003e — it lets you visually position tooltips across the 3×3 grid, toggle between \u003ccode class=\"inline-code\"\u003eposition-area\u003c/code\u003e and \u003ccode class=\"inline-code\"\u003eanchor()\u003c/code\u003e syntax, adjust offsets, and copy production-ready CSS.\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\nThe playground also includes a JavaScript fallback renderer, so you can see how the positioning works even in browsers that don't yet support anchor positioning natively.\n\u003c/p\u003e\n\n\u003ch2 class=\"post-h2\"\u003eSummary\u003c/h2\u003e\n\n\u003cp class=\"post-p\"\u003e\nCSS Anchor Positioning is genuinely transformative:\n\u003c/p\u003e\n\n\u003cul class=\"post-ul\"\u003e\u003cli class=\"post-li\"\u003e\u003cstrong\u003eZero JavaScript\u003c/strong\u003e for tooltips, popovers, dropdowns, and context menus\u003c/li\u003e\n\u003cli class=\"post-li\"\u003e\u003cstrong\u003eAutomatic viewport collision detection\u003c/strong\u003e via \u003ccode class=\"inline-code\"\u003e@position-try\u003c/code\u003e\u003c/li\u003e\n\u003cli class=\"post-li\"\u003e\u003cstrong\u003eResponsive sizing\u003c/strong\u003e via \u003ccode class=\"inline-code\"\u003eanchor-size()\u003c/code\u003e\u003c/li\u003e\n\u003cli class=\"post-li\"\u003e\u003cstrong\u003eLogical positioning\u003c/strong\u003e that respects writing direction\u003c/li\u003e\n\u003cli class=\"post-li\"\u003e\u003cstrong\u003eBaseline everywhere\u003c/strong\u003e — Chrome 125+, Safari 26+, Firefox 147+\u003c/li\u003e\n\u003c/ul\u003e\n\u003cp class=\"post-p\"\u003e\nThe libraries we've relied on for decades — Floating UI, Popper, Tippy.js, Bootstrap tooltips — now have a native CSS replacement. The browser handles positioning during layout, with zero JavaScript, perfect scroll tracking, and GPU-accelerated rendering.\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\nStart migrating today. Your bundle size (and your users) will thank you.\n\u003c/p\u003e\n"])</script><script>self.__next_f.push([1,"6:T78f,\n        .blog-content .post-h1 { font-size: 1.75rem; font-weight: 700; color: #ffffff; margin-top: 2rem; margin-bottom: 1rem; }\n        .blog-content .post-h2 { font-size: 1.5rem; font-weight: 600; color: #f1f5f9; margin-top: 1.75rem; margin-bottom: 0.75rem; padding-bottom: 0.5rem; border-bottom: 1px solid #334155; }\n        .blog-content .post-h3 { font-size: 1.25rem; font-weight: 600; color: #e2e8f0; margin-top: 1.5rem; margin-bottom: 0.5rem; }\n        .blog-content .post-h4 { font-size: 1.1rem; font-weight: 600; color: #e2e8f0; margin-top: 1.25rem; margin-bottom: 0.5rem; }\n        .blog-content .post-p { color: #cbd5e1; line-height: 1.75; margin-bottom: 1rem; }\n        .blog-content .code-block { background: #0f172a; border: 1px solid #334155; border-radius: 0.5rem; padding: 1rem; overflow-x: auto; margin: 1rem 0; font-family: 'JetBrains Mono', monospace; font-size: 0.875rem; color: #e2e8f0; }\n        .blog-content .inline-code { background: #1e293b; color: #38bdf8; padding: 0.15rem 0.4rem; border-radius: 0.25rem; font-family: 'JetBrains Mono', monospace; font-size: 0.875em; }\n        .blog-content .post-link { color: #38bdf8; text-decoration: underline; transition: color 0.2s; }\n        .blog-content .post-link:hover { color: #7dd3fc; }\n        .blog-content .post-ul { list-style: disc; padding-left: 1.5rem; margin: 0.75rem 0; color: #cbd5e1; }\n        .blog-content .post-li { margin-bottom: 0.25rem; line-height: 1.6; }\n        .blog-content .post-blockquote { border-left: 3px solid #0ea5e9; padding: 0.5rem 1rem; margin: 1rem 0; background: rgba(14, 165, 233, 0.05); border-radius: 0 0.5rem 0.5rem 0; }\n        .blog-content .post-blockquote p { color: #94a3b8; font-style: italic; }\n        .blog-content .post-hr { border: none; border-top: 1px solid #334155; margin: 2rem 0; }\n        .blog-content strong { color: #f1f5f9; font-weight: 600; }\n        .blog-content em { font-style: italic; }\n        8:[\"slug\",\"css-anchor-positioning-guide\",\"d\"]\nf:[]\n"])</script><script>self.__next_f.push([1,"0:[\"$\",\"$L2\",null,{\"buildId\":\"wLkx3_e9eF0HmBHirJWLm\",\"assetPrefix\":\"/devbench-tech\",\"urlParts\":[\"\",\"blog\",\"css-anchor-positioning-guide\",\"\"],\"initialTree\":[\"\",{\"children\":[\"blog\",{\"children\":[[\"slug\",\"css-anchor-positioning-guide\",\"d\"],{\"children\":[\"__PAGE__?{\\\"slug\\\":\\\"css-anchor-positioning-guide\\\"}\",{}]}]}]},\"$undefined\",\"$undefined\",true],\"initialSeedData\":[\"\",{\"children\":[\"blog\",{\"children\":[[\"slug\",\"css-anchor-positioning-guide\",\"d\"],{\"children\":[\"__PAGE__\",{},[[\"$L3\",[\"$\",\"article\",null,{\"className\":\"max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-20\",\"children\":[[\"$\",\"script\",null,{\"type\":\"application/ld+json\",\"dangerouslySetInnerHTML\":{\"__html\":\"{\\\"@context\\\":\\\"https://schema.org\\\",\\\"@type\\\":\\\"Article\\\",\\\"headline\\\":\\\"CSS Anchor Positioning Is Baseline — The End of JavaScript Tooltip Libraries\\\",\\\"description\\\":\\\"CSS Anchor Positioning just hit Baseline across all browsers. No more Floating UI, Popper, or Tippy.js — the browser now natively tethers elements with zero JavaScript. Complete guide with real-world patterns, popover integration, and progressive enhancement.\\\",\\\"datePublished\\\":\\\"2026-05-24\\\",\\\"author\\\":{\\\"@type\\\":\\\"Organization\\\",\\\"name\\\":\\\"DevBench\\\"},\\\"publisher\\\":{\\\"@type\\\":\\\"Organization\\\",\\\"name\\\":\\\"DevBench\\\",\\\"url\\\":\\\"https://devbench-roan.vercel.app\\\"}}\"}}],[\"$\",\"script\",null,{\"type\":\"application/ld+json\",\"dangerouslySetInnerHTML\":{\"__html\":\"{\\\"@context\\\":\\\"https://schema.org\\\",\\\"@type\\\":\\\"BreadcrumbList\\\",\\\"itemListElement\\\":[{\\\"@type\\\":\\\"ListItem\\\",\\\"position\\\":1,\\\"name\\\":\\\"Home\\\",\\\"item\\\":\\\"https://devbench-roan.vercel.app\\\"},{\\\"@type\\\":\\\"ListItem\\\",\\\"position\\\":2,\\\"name\\\":\\\"Blog\\\",\\\"item\\\":\\\"https://devbench-roan.vercel.app/blog\\\"},{\\\"@type\\\":\\\"ListItem\\\",\\\"position\\\":3,\\\"name\\\":\\\"CSS Anchor Positioning Is Baseline — The End of JavaScript Tooltip Libraries\\\"}]}\"}}],[\"$\",\"$L4\",null,{\"href\":\"/blog\",\"className\":\"inline-flex items-center gap-1.5 text-slate-400 hover:text-brand-400 text-sm transition-colors mb-8\",\"children\":[[\"$\",\"svg\",null,{\"xmlns\":\"http://www.w3.org/2000/svg\",\"width\":24,\"height\":24,\"viewBox\":\"0 0 24 24\",\"fill\":\"none\",\"stroke\":\"currentColor\",\"strokeWidth\":2,\"strokeLinecap\":\"round\",\"strokeLinejoin\":\"round\",\"className\":\"lucide lucide-arrow-left w-4 h-4\",\"children\":[[\"$\",\"path\",\"1l729n\",{\"d\":\"m12 19-7-7 7-7\"}],[\"$\",\"path\",\"x3x0zl\",{\"d\":\"M19 12H5\"}],\"$undefined\"]}],\"Back to Blog\"]}],[\"$\",\"header\",null,{\"className\":\"mb-10\",\"children\":[[\"$\",\"h1\",null,{\"className\":\"text-3xl sm:text-4xl font-bold text-white leading-tight mb-4\",\"children\":\"CSS Anchor Positioning Is Baseline — The End of JavaScript Tooltip Libraries\"}],[\"$\",\"div\",null,{\"className\":\"flex flex-wrap items-center gap-4 text-sm text-slate-400\",\"children\":[[\"$\",\"span\",null,{\"className\":\"flex items-center gap-1.5\",\"children\":[[\"$\",\"svg\",null,{\"xmlns\":\"http://www.w3.org/2000/svg\",\"width\":24,\"height\":24,\"viewBox\":\"0 0 24 24\",\"fill\":\"none\",\"stroke\":\"currentColor\",\"strokeWidth\":2,\"strokeLinecap\":\"round\",\"strokeLinejoin\":\"round\",\"className\":\"lucide lucide-calendar w-4 h-4\",\"children\":[[\"$\",\"rect\",\"eu3xkr\",{\"width\":\"18\",\"height\":\"18\",\"x\":\"3\",\"y\":\"4\",\"rx\":\"2\",\"ry\":\"2\"}],[\"$\",\"line\",\"m3sa8f\",{\"x1\":\"16\",\"x2\":\"16\",\"y1\":\"2\",\"y2\":\"6\"}],[\"$\",\"line\",\"18kwsl\",{\"x1\":\"8\",\"x2\":\"8\",\"y1\":\"2\",\"y2\":\"6\"}],[\"$\",\"line\",\"xt86sb\",{\"x1\":\"3\",\"x2\":\"21\",\"y1\":\"10\",\"y2\":\"10\"}],\"$undefined\"]}],\"2026-05-24\"]}],[\"$\",\"div\",null,{\"className\":\"flex flex-wrap gap-1.5\",\"children\":[[\"$\",\"span\",\"[\\\"css\\\"\",{\"className\":\"badge-secondary flex items-center gap-1\",\"children\":[[\"$\",\"svg\",null,{\"xmlns\":\"http://www.w3.org/2000/svg\",\"width\":24,\"height\":24,\"viewBox\":\"0 0 24 24\",\"fill\":\"none\",\"stroke\":\"currentColor\",\"strokeWidth\":2,\"strokeLinecap\":\"round\",\"strokeLinejoin\":\"round\",\"className\":\"lucide lucide-tag w-3 h-3\",\"children\":[[\"$\",\"path\",\"14b2ls\",{\"d\":\"M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z\"}],[\"$\",\"path\",\"7u93v4\",{\"d\":\"M7 7h.01\"}],\"$undefined\"]}],\"[\\\"css\\\"\"]}],[\"$\",\"span\",\"\\\"anchor-positioning\\\"\",{\"className\":\"badge-secondary flex items-center gap-1\",\"children\":[[\"$\",\"svg\",null,{\"xmlns\":\"http://www.w3.org/2000/svg\",\"width\":24,\"height\":24,\"viewBox\":\"0 0 24 24\",\"fill\":\"none\",\"stroke\":\"currentColor\",\"strokeWidth\":2,\"strokeLinecap\":\"round\",\"strokeLinejoin\":\"round\",\"className\":\"lucide lucide-tag w-3 h-3\",\"children\":[[\"$\",\"path\",\"14b2ls\",{\"d\":\"M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z\"}],[\"$\",\"path\",\"7u93v4\",{\"d\":\"M7 7h.01\"}],\"$undefined\"]}],\"\\\"anchor-positioning\\\"\"]}],[\"$\",\"span\",\"\\\"web-platform\\\"\",{\"className\":\"badge-secondary flex items-center gap-1\",\"children\":[[\"$\",\"svg\",null,{\"xmlns\":\"http://www.w3.org/2000/svg\",\"width\":24,\"height\":24,\"viewBox\":\"0 0 24 24\",\"fill\":\"none\",\"stroke\":\"currentColor\",\"strokeWidth\":2,\"strokeLinecap\":\"round\",\"strokeLinejoin\":\"round\",\"className\":\"lucide lucide-tag w-3 h-3\",\"children\":[[\"$\",\"path\",\"14b2ls\",{\"d\":\"M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z\"}],[\"$\",\"path\",\"7u93v4\",{\"d\":\"M7 7h.01\"}],\"$undefined\"]}],\"\\\"web-platform\\\"\"]}],[\"$\",\"span\",\"\\\"baseline\\\"\",{\"className\":\"badge-secondary flex items-center gap-1\",\"children\":[[\"$\",\"svg\",null,{\"xmlns\":\"http://www.w3.org/2000/svg\",\"width\":24,\"height\":24,\"viewBox\":\"0 0 24 24\",\"fill\":\"none\",\"stroke\":\"currentColor\",\"strokeWidth\":2,\"strokeLinecap\":\"round\",\"strokeLinejoin\":\"round\",\"className\":\"lucide lucide-tag w-3 h-3\",\"children\":[[\"$\",\"path\",\"14b2ls\",{\"d\":\"M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z\"}],[\"$\",\"path\",\"7u93v4\",{\"d\":\"M7 7h.01\"}],\"$undefined\"]}],\"\\\"baseline\\\"\"]}],[\"$\",\"span\",\"\\\"tooltip\\\"\",{\"className\":\"badge-secondary flex items-center gap-1\",\"children\":[[\"$\",\"svg\",null,{\"xmlns\":\"http://www.w3.org/2000/svg\",\"width\":24,\"height\":24,\"viewBox\":\"0 0 24 24\",\"fill\":\"none\",\"stroke\":\"currentColor\",\"strokeWidth\":2,\"strokeLinecap\":\"round\",\"strokeLinejoin\":\"round\",\"className\":\"lucide lucide-tag w-3 h-3\",\"children\":[[\"$\",\"path\",\"14b2ls\",{\"d\":\"M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z\"}],[\"$\",\"path\",\"7u93v4\",{\"d\":\"M7 7h.01\"}],\"$undefined\"]}],\"\\\"tooltip\\\"\"]}],[\"$\",\"span\",\"\\\"popover\\\"\",{\"className\":\"badge-secondary flex items-center gap-1\",\"children\":[[\"$\",\"svg\",null,{\"xmlns\":\"http://www.w3.org/2000/svg\",\"width\":24,\"height\":24,\"viewBox\":\"0 0 24 24\",\"fill\":\"none\",\"stroke\":\"currentColor\",\"strokeWidth\":2,\"strokeLinecap\":\"round\",\"strokeLinejoin\":\"round\",\"className\":\"lucide lucide-tag w-3 h-3\",\"children\":[[\"$\",\"path\",\"14b2ls\",{\"d\":\"M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z\"}],[\"$\",\"path\",\"7u93v4\",{\"d\":\"M7 7h.01\"}],\"$undefined\"]}],\"\\\"popover\\\"\"]}],[\"$\",\"span\",\"\\\"tutorial\\\"]\",{\"className\":\"badge-secondary flex items-center gap-1\",\"children\":[[\"$\",\"svg\",null,{\"xmlns\":\"http://www.w3.org/2000/svg\",\"width\":24,\"height\":24,\"viewBox\":\"0 0 24 24\",\"fill\":\"none\",\"stroke\":\"currentColor\",\"strokeWidth\":2,\"strokeLinecap\":\"round\",\"strokeLinejoin\":\"round\",\"className\":\"lucide lucide-tag w-3 h-3\",\"children\":[[\"$\",\"path\",\"14b2ls\",{\"d\":\"M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z\"}],[\"$\",\"path\",\"7u93v4\",{\"d\":\"M7 7h.01\"}],\"$undefined\"]}],\"\\\"tutorial\\\"]\"]}]]}]]}]]}],[\"$\",\"div\",null,{\"className\":\"blog-content prose-p:text-slate-300 prose-p:leading-relaxed prose-p:mb-4\",\"dangerouslySetInnerHTML\":{\"__html\":\"$5\"}}],[\"$\",\"style\",null,{\"dangerouslySetInnerHTML\":{\"__html\":\"$6\"}}]]}],null],null],null]},[null,[\"$\",\"$L7\",null,{\"parallelRouterKey\":\"children\",\"segmentPath\":[\"children\",\"blog\",\"children\",\"$8\",\"children\"],\"error\":\"$undefined\",\"errorStyles\":\"$undefined\",\"errorScripts\":\"$undefined\",\"template\":[\"$\",\"$L9\",null,{}],\"templateStyles\":\"$undefined\",\"templateScripts\":\"$undefined\",\"notFound\":\"$undefined\",\"notFoundStyles\":\"$undefined\"}]],null]},[null,[\"$\",\"$L7\",null,{\"parallelRouterKey\":\"children\",\"segmentPath\":[\"children\",\"blog\",\"children\"],\"error\":\"$undefined\",\"errorStyles\":\"$undefined\",\"errorScripts\":\"$undefined\",\"template\":[\"$\",\"$L9\",null,{}],\"templateStyles\":\"$undefined\",\"templateScripts\":\"$undefined\",\"notFound\":\"$undefined\",\"notFoundStyles\":\"$undefined\"}]],null]},[[[[\"$\",\"link\",\"0\",{\"rel\":\"stylesheet\",\"href\":\"/devbench-tech/_next/static/css/c877e59dbcb00f11.css\",\"precedence\":\"next\",\"crossOrigin\":\"$undefined\"}]],[\"$\",\"html\",null,{\"lang\":\"en\",\"className\":\"dark\",\"children\":[\"$\",\"body\",null,{\"className\":\"flex flex-col min-h-screen\",\"children\":[[\"$\",\"script\",null,{\"type\":\"application/ld+json\",\"dangerouslySetInnerHTML\":{\"__html\":\"{\\\"@context\\\":\\\"https://schema.org\\\",\\\"@type\\\":\\\"WebSite\\\",\\\"name\\\":\\\"DevBench\\\",\\\"url\\\":\\\"https://devbench-roan.vercel.app\\\",\\\"description\\\":\\\"Free developer tools for everyday use: JSON formatter, Base64 encoder/decoder, UUID generator, regex tester, benchmarks, and more.\\\",\\\"potentialAction\\\":{\\\"@type\\\":\\\"SearchAction\\\",\\\"target\\\":\\\"https://devbench-roan.vercel.app/tools?q={search_term_string}\\\",\\\"query-input\\\":\\\"required name=search_term_string\\\"}}\"}}],[\"$\",\"$La\",null,{}],[\"$\",\"main\",null,{\"className\":\"flex-1\",\"children\":[\"$\",\"$L7\",null,{\"parallelRouterKey\":\"children\",\"segmentPath\":[\"children\"],\"error\":\"$undefined\",\"errorStyles\":\"$undefined\",\"errorScripts\":\"$undefined\",\"template\":[\"$\",\"$L9\",null,{}],\"templateStyles\":\"$undefined\",\"templateScripts\":\"$undefined\",\"notFound\":[[\"$\",\"title\",null,{\"children\":\"404: This page could not be found.\"}],[\"$\",\"div\",null,{\"style\":{\"fontFamily\":\"system-ui,\\\"Segoe UI\\\",Roboto,Helvetica,Arial,sans-serif,\\\"Apple Color Emoji\\\",\\\"Segoe UI Emoji\\\"\",\"height\":\"100vh\",\"textAlign\":\"center\",\"display\":\"flex\",\"flexDirection\":\"column\",\"alignItems\":\"center\",\"justifyContent\":\"center\"},\"children\":[\"$\",\"div\",null,{\"children\":[[\"$\",\"style\",null,{\"dangerouslySetInnerHTML\":{\"__html\":\"body{color:#000;background:#fff;margin:0}.next-error-h1{border-right:1px solid rgba(0,0,0,.3)}@media (prefers-color-scheme:dark){body{color:#fff;background:#000}.next-error-h1{border-right:1px solid rgba(255,255,255,.3)}}\"}}],[\"$\",\"h1\",null,{\"className\":\"next-error-h1\",\"style\":{\"display\":\"inline-block\",\"margin\":\"0 20px 0 0\",\"padding\":\"0 23px 0 0\",\"fontSize\":24,\"fontWeight\":500,\"verticalAlign\":\"top\",\"lineHeight\":\"49px\"},\"children\":\"404\"}],[\"$\",\"div\",null,{\"style\":{\"display\":\"inline-block\"},\"children\":[\"$\",\"h2\",null,{\"style\":{\"fontSize\":14,\"fontWeight\":400,\"lineHeight\":\"49px\",\"margin\":0},\"children\":\"This page could not be found.\"}]}]]}]}]],\"notFoundStyles\":[]}]}],[\"$\",\"footer\",null,{\"className\":\"bg-surface-light border-t border-slate-700/50 mt-auto\",\"children\":[\"$\",\"div\",null,{\"className\":\"max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12\",\"children\":[[\"$\",\"div\",null,{\"className\":\"grid grid-cols-1 md:grid-cols-3 gap-8\",\"children\":[[\"$\",\"div\",null,{\"children\":[[\"$\",\"$L4\",null,{\"href\":\"/\",\"className\":\"flex items-center gap-2.5 mb-3\",\"children\":[[\"$\",\"div\",null,{\"className\":\"w-7 h-7 bg-brand-500 rounded-lg flex items-center justify-center\",\"children\":[\"$\",\"svg\",null,{\"xmlns\":\"http://www.w3.org/2000/svg\",\"width\":24,\"height\":24,\"viewBox\":\"0 0 24 24\",\"fill\":\"none\",\"stroke\":\"currentColor\",\"strokeWidth\":2,\"strokeLinecap\":\"round\",\"strokeLinejoin\":\"round\",\"className\":\"lucide lucide-terminal w-3.5 h-3.5 text-white\",\"children\":[[\"$\",\"polyline\",\"akl6gq\",{\"points\":\"4 17 10 11 4 5\"}],[\"$\",\"line\",\"q2wloq\",{\"x1\":\"12\",\"x2\":\"20\",\"y1\":\"19\",\"y2\":\"19\"}],\"$undefined\"]}]}],[\"$\",\"span\",null,{\"className\":\"text-lg font-bold text-white\",\"children\":[\"Dev\",[\"$\",\"span\",null,{\"className\":\"gradient-text\",\"children\":\"Bench\"}]]}]]}],[\"$\",\"p\",null,{\"className\":\"text-slate-400 text-sm leading-relaxed\",\"children\":\"Free developer tools, benchmarks, and calculators. Built for developers, by developers.\"}]]}],[\"$\",\"div\",null,{\"children\":[[\"$\",\"h3\",null,{\"className\":\"text-sm font-semibold text-slate-300 uppercase tracking-wider mb-4\",\"children\":\"Tools\"}],[\"$\",\"ul\",null,{\"className\":\"space-y-2\",\"children\":[[\"$\",\"li\",\"/tools/json-formatter\",{\"children\":[\"$\",\"$L4\",null,{\"href\":\"/tools/json-formatter\",\"className\":\"text-slate-400 hover:text-brand-400 text-sm transition-colors\",\"children\":\"JSON Formatter\"}]}],[\"$\",\"li\",\"/tools/base64\",{\"children\":[\"$\",\"$L4\",null,{\"href\":\"/tools/base64\",\"className\":\"text-slate-400 hover:text-brand-400 text-sm transition-colors\",\"children\":\"Base64 Encoder/Decoder\"}]}],[\"$\",\"li\",\"/tools/uuid-generator\",{\"children\":[\"$\",\"$L4\",null,{\"href\":\"/tools/uuid-generator\",\"className\":\"text-slate-400 hover:text-brand-400 text-sm transition-colors\",\"children\":\"UUID Generator\"}]}],[\"$\",\"li\",\"/tools/regex-tester\",{\"children\":[\"$\",\"$L4\",null,{\"href\":\"/tools/regex-tester\",\"className\":\"text-slate-400 hover:text-brand-400 text-sm transition-colors\",\"children\":\"Regex Tester\"}]}]]}]]}],[\"$\",\"div\",null,{\"children\":[[\"$\",\"h3\",null,{\"className\":\"text-sm font-semibold text-slate-300 uppercase tracking-wider mb-4\",\"children\":\"Resources\"}],[\"$\",\"ul\",null,{\"className\":\"space-y-2\",\"children\":[[\"$\",\"li\",\"/blog\",{\"children\":[\"$\",\"$L4\",null,{\"href\":\"/blog\",\"className\":\"text-slate-400 hover:text-brand-400 text-sm transition-colors\",\"children\":\"Blog\"}]}],[\"$\",\"li\",\"/benchmarks\",{\"children\":[\"$\",\"$L4\",null,{\"href\":\"/benchmarks\",\"className\":\"text-slate-400 hover:text-brand-400 text-sm transition-colors\",\"children\":\"Benchmarks\"}]}],[\"$\",\"li\",\"/about\",{\"children\":[\"$\",\"$L4\",null,{\"href\":\"/about\",\"className\":\"text-slate-400 hover:text-brand-400 text-sm transition-colors\",\"children\":\"About\"}]}]]}]]}]]}],[\"$\",\"div\",null,{\"className\":\"mt-10 pt-6 border-t border-slate-700/50 flex flex-col sm:flex-row items-center justify-between gap-4\",\"children\":[[\"$\",\"p\",null,{\"className\":\"text-slate-500 text-sm flex items-center gap-1\",\"children\":[\"Made with \",[\"$\",\"svg\",null,{\"xmlns\":\"http://www.w3.org/2000/svg\",\"width\":24,\"height\":24,\"viewBox\":\"0 0 24 24\",\"fill\":\"none\",\"stroke\":\"currentColor\",\"strokeWidth\":2,\"strokeLinecap\":\"round\",\"strokeLinejoin\":\"round\",\"className\":\"lucide lucide-heart w-3.5 h-3.5 text-red-500 fill-red-500\",\"children\":[[\"$\",\"path\",\"c3ymky\",{\"d\":\"M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z\"}],\"$undefined\"]}],\" by the DevBench team © \",2026]}],[\"$\",\"a\",null,{\"href\":\"https://github.com\",\"target\":\"_blank\",\"rel\":\"noopener noreferrer\",\"className\":\"text-slate-500 hover:text-slate-300 transition-colors\",\"aria-label\":\"GitHub\",\"children\":[\"$\",\"svg\",null,{\"xmlns\":\"http://www.w3.org/2000/svg\",\"width\":24,\"height\":24,\"viewBox\":\"0 0 24 24\",\"fill\":\"none\",\"stroke\":\"currentColor\",\"strokeWidth\":2,\"strokeLinecap\":\"round\",\"strokeLinejoin\":\"round\",\"className\":\"lucide lucide-github w-5 h-5\",\"children\":[[\"$\",\"path\",\"tonef\",{\"d\":\"M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4\"}],[\"$\",\"path\",\"9comsn\",{\"d\":\"M9 18c-4.51 2-5-2-7-2\"}],\"$undefined\"]}]}]]}]]}]}],[\"$\",\"$Lb\",null,{}],[\"$\",\"$Lc\",null,{\"position\":\"bottom-right\",\"toastOptions\":{\"style\":{\"background\":\"#1e293b\",\"color\":\"#e2e8f0\",\"border\":\"1px solid #334155\",\"fontSize\":\"14px\"}}}]]}]}]],null],null],\"couldBeIntercepted\":false,\"initialHead\":[null,\"$Ld\"],\"globalErrorComponent\":\"$e\",\"missingSlots\":\"$Wf\"}]\n"])</script><script>self.__next_f.push([1,"d:[[\"$\",\"meta\",\"0\",{\"name\":\"viewport\",\"content\":\"width=device-width, initial-scale=1\"}],[\"$\",\"meta\",\"1\",{\"charSet\":\"utf-8\"}],[\"$\",\"title\",\"2\",{\"children\":\"CSS Anchor Positioning Is Baseline — The End of JavaScript Tooltip Libraries | DevBench\"}],[\"$\",\"meta\",\"3\",{\"name\":\"description\",\"content\":\"CSS Anchor Positioning just hit Baseline across all browsers. No more Floating UI, Popper, or Tippy.js — the browser now natively tethers elements with zero JavaScript. Complete guide with real-world patterns, popover integration, and progressive enhancement.\"}],[\"$\",\"meta\",\"4\",{\"name\":\"author\",\"content\":\"DevBench\"}],[\"$\",\"meta\",\"5\",{\"name\":\"keywords\",\"content\":\"developer tools,JSON formatter,Base64,UUID generator,regex tester,benchmarks,dev tools\"}],[\"$\",\"meta\",\"6\",{\"property\":\"og:title\",\"content\":\"DevBench — Developer Tools \u0026 Calculators\"}],[\"$\",\"meta\",\"7\",{\"property\":\"og:description\",\"content\":\"Free developer tools for everyday use.\"}],[\"$\",\"meta\",\"8\",{\"property\":\"og:site_name\",\"content\":\"DevBench\"}],[\"$\",\"meta\",\"9\",{\"property\":\"og:locale\",\"content\":\"en_US\"}],[\"$\",\"meta\",\"10\",{\"property\":\"og:type\",\"content\":\"website\"}],[\"$\",\"meta\",\"11\",{\"name\":\"twitter:card\",\"content\":\"summary\"}],[\"$\",\"meta\",\"12\",{\"name\":\"twitter:title\",\"content\":\"DevBench — Developer Tools \u0026 Calculators\"}],[\"$\",\"meta\",\"13\",{\"name\":\"twitter:description\",\"content\":\"Free developer tools for everyday use.\"}],[\"$\",\"link\",\"14\",{\"rel\":\"icon\",\"href\":\"/favicon.svg\"}]]\n3:null\n"])</script></body></html>

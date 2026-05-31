@@ -1,0 +1,452 @@
+2:I[72972,["2972","static/chunks/2972-4aaa15d119eeb022.js","308","static/chunks/app/blog/%5Bslug%5D/page-a411190e7012c687.js"],""]
+5:I[4707,[],""]
+7:I[36423,[],""]
+8:I[39295,["9762","static/chunks/44530001-4ecf7a22b5b24163.js","2972","static/chunks/2972-4aaa15d119eeb022.js","8375","static/chunks/8375-c77b8de36f6696fb.js","6829","static/chunks/6829-f51803445ddf1872.js","3185","static/chunks/app/layout-488e5c40aa6ffa72.js"],"Header"]
+9:I[66506,["9762","static/chunks/44530001-4ecf7a22b5b24163.js","2972","static/chunks/2972-4aaa15d119eeb022.js","8375","static/chunks/8375-c77b8de36f6696fb.js","6829","static/chunks/6829-f51803445ddf1872.js","3185","static/chunks/app/layout-488e5c40aa6ffa72.js"],"Analytics"]
+a:I[69064,["9762","static/chunks/44530001-4ecf7a22b5b24163.js","2972","static/chunks/2972-4aaa15d119eeb022.js","8375","static/chunks/8375-c77b8de36f6696fb.js","6829","static/chunks/6829-f51803445ddf1872.js","3185","static/chunks/app/layout-488e5c40aa6ffa72.js"],"Toaster"]
+3:T3bb5,
+<h2 class="post-h2">The Input Sizing Problem</h2>
+
+<p class="post-p">
+Since the dawn of the web, there's been an awkward mismatch: <code class="inline-code">&lt;input&gt;</code> and <code class="inline-code">&lt;textarea&gt;</code> elements have fixed sizes, but users type variable-length content. A credit card field is always 16 characters, but a title? A bio? A comment? Those vary wildly.
+</p>
+
+<p class="post-p">
+The classic workarounds are all ugly:
+</p>
+
+<ul class="post-ul"><li class="post-li"><strong>Oversized inputs</strong> — waste space and look sloppy</li>
+<li class="post-li"><strong>JavaScript resize listeners</strong> — add complexity, break with <code class="inline-code">font-size</code> changes, and lag behind typing</li>
+<li class="post-li"><strong><code class="inline-code">contenteditable</code> divs</strong> — lose native form semantics, accessibility, and validation</li>
+<li class="post-li"><strong>The <code class="inline-code">input</code> event + <code class="inline-code">scrollWidth</code> hack</strong> — brittle, font-dependent, and slow</li>
+</ul>
+<p class="post-p">
+None of these are good. Enter <code class="inline-code">field-sizing: content</code>.
+</p>
+
+<h2 class="post-h2">What <code class="inline-code">field-sizing</code> Does</h2>
+
+<pre class="code-block"><code class="language-css">input[type="text"],
+<p class="post-p">
+textarea {
+field-sizing: content;
+}
+</code></pre>
+</p>
+
+<p class="post-p">
+That's it. The input now grows and shrinks automatically to fit whatever the user types. The browser handles this natively — no JavaScript, no layout thrashing, no accessibility regressions.
+</p>
+
+<p class="post-p">
+It works on: <code class="inline-code">&lt;input type="text"&gt;</code>, <code class="inline-code">&lt;input type="email"&gt;</code>, <code class="inline-code">&lt;input type="url"&gt;</code>, <code class="inline-code">&lt;input type="number"&gt;</code>, <code class="inline-code">&lt;input type="search"&gt;</code>, <code class="inline-code">&lt;input type="password"&gt;</code>, <code class="inline-code">&lt;textarea&gt;</code>, and <code class="inline-code">&lt;select&gt;</code> (experimental in some engines). Notably does <strong>not</strong> work on <code class="inline-code">type="date"</code>, <code class="inline-code">type="color"</code>, <code class="inline-code">type="range"</code>, or <code class="inline-code">type="file"</code> — those have widget-defined widths.
+</p>
+
+<h2 class="post-h2">The Two Values</h2>
+
+<pre class="code-block"><code class="language-css">/<em> Default behavior — size is determined by CSS/size attribute </em>/
+<p class="post-p">
+field-sizing: fixed;
+</p>
+
+<p class="post-p">
+/<em> Auto-grow and auto-shrink to fit content </em>/
+field-sizing: content;
+</code></pre>
+</p>
+
+<p class="post-p">
+<code class="inline-code">fixed</code> is the default and preserves existing behavior. <code class="inline-code">content</code> enables the magic.
+</p>
+
+<h2 class="post-h2">Production-Ready Patterns</h2>
+
+<h3 class="post-h3">Pattern 1: Auto-Growing Single-Line Inputs</h3>
+
+<pre class="code-block"><code class="language-css">.token-input,
+<p class="post-p">
+.tag-input,
+.search-input {
+field-sizing: content;
+min-inline-size: 8ch;
+max-inline-size: 100%;
+padding: 0.5rem 0.75rem;
+border: 1px solid #d1d5db;
+border-radius: 0.5rem;
+font: inherit;
+}
+</code></pre>
+</p>
+
+<p class="post-p">
+The <code class="inline-code">min-inline-size</code> ensures tiny values don't collapse to nothing. The <code class="inline-code">max-inline-size</code> prevents the input from overflowing its container.
+</p>
+
+<h3 class="post-h3">Pattern 2: Textareas That Grow to Fit</h3>
+
+<pre class="code-block"><code class="language-css">textarea {
+<p class="post-p">
+field-sizing: content;
+min-block-size: 3lh;
+max-block-size: 20lh;
+resize: none; /<em> Let field-sizing handle it </em>/
+padding: 0.75rem;
+border: 1px solid #d1d5db;
+border-radius: 0.5rem;
+font: inherit;
+line-height: 1.5;
+}
+</code></pre>
+</p>
+
+<p class="post-p">
+The <code class="inline-code">min-block-size: 3lh</code> gives you a three-line minimum height using the <code class="inline-code">lh</code> unit. <code class="inline-code">max-block-size: 20lh</code> caps the growth at 20 lines. No more scrollbars inside 2-line textareas.
+</p>
+
+<h3 class="post-h3">Pattern 3: Inline Editable Fields</h3>
+
+<pre class="code-block"><code class="language-css">.editable-heading {
+<p class="post-p">
+field-sizing: content;
+min-inline-size: 4ch;
+font-size: 2rem;
+font-weight: 700;
+border: none;
+border-bottom: 2px dashed transparent;
+background: transparent;
+outline: none;
+transition: border-color 0.15s;
+}
+</p>
+
+<p class="post-p">
+.editable-heading:hover,
+.editable-heading:focus {
+border-bottom-color: #3b82f6;
+}
+</code></pre>
+</p>
+
+<p class="post-p">
+Now you can have <code class="inline-code">&lt;h1&gt;</code>-sized inputs that grow to fit their content — perfect for document titles, form headers, or inline editing UIs.
+</p>
+
+<h3 class="post-h3">Pattern 4: Comma-Separated Tag Inputs</h3>
+
+<pre class="code-block"><code class="language-css">.tag-field {
+<p class="post-p">
+field-sizing: content;
+min-inline-size: 6ch;
+padding: 0.375rem 0.625rem;
+border: 1px solid #d1d5db;
+border-radius: 1.5rem;
+font-size: 0.875rem;
+}
+</code></pre>
+</p>
+
+<p class="post-p">
+As users type tags separated by commas, the input grows. When they delete tags, it shrinks. No JavaScript required.
+</p>
+
+<h3 class="post-h3">Pattern 5: Auto-Sizing Search Bar</h3>
+
+<pre class="code-block"><code class="language-css">.search-bar {
+<p class="post-p">
+field-sizing: content;
+min-inline-size: 12ch;
+max-inline-size: 40ch;
+padding: 0.625rem 1rem 0.625rem 2.5rem;
+border: 1px solid #e5e7eb;
+border-radius: 2rem;
+background: #f9fafb url('search-icon.svg') 0.875rem center no-repeat;
+background-size: 1.25rem;
+font-size: 0.9375rem;
+transition: max-inline-size 0.2s ease;
+}
+</p>
+
+<p class="post-p">
+.search-bar:focus {
+max-inline-size: 60ch;
+background-color: #ffffff;
+border-color: #3b82f6;
+box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+}
+</code></pre>
+</p>
+
+<p class="post-p">
+Combine <code class="inline-code">field-sizing</code> with a <code class="inline-code">:focus</code> transition to get an expanding search bar that also grows to fit your query — double the fluidity.
+</p>
+
+<h2 class="post-h2">The Baseline Story</h2>
+
+<p class="post-p">
+As of May 2026, <code class="inline-code">field-sizing</code> is <strong>Baseline 2026</strong> — supported in all modern browsers:
+</p>
+
+<p class="post-p">
+| Browser | Since | Status |
+|---------|-------|--------|
+| Chrome  | 123   | ✅ Supported |
+| Edge    | 123   | ✅ Supported |
+| Firefox | 128   | ✅ Supported |
+| Safari  | 17.4  | ✅ Supported |
+| Opera   | 109   | ✅ Supported |
+| Samsung Internet | 25 | ✅ Supported |
+</p>
+
+<p class="post-p">
+This is rare — a genuinely useful form primitive that hit cross-browser support within a single year.
+</p>
+
+<h2 class="post-h2">Graceful Degradation</h2>
+
+<p class="post-p">
+If you need to support older browsers, you can use <code class="inline-code">@supports</code>:
+</p>
+
+<pre class="code-block"><code class="language-css">input[type="text"],
+<p class="post-p">
+textarea {
+/<em> Fallback: reasonable fixed size </em>/
+inline-size: 20ch;
+}
+</p>
+
+<p class="post-p">
+@supports (field-sizing: content) {
+input[type="text"],
+textarea {
+field-sizing: content;
+inline-size: auto;
+min-inline-size: 8ch;
+max-inline-size: 100%;
+}
+}
+</code></pre>
+</p>
+
+<p class="post-p">
+Older browsers get a fixed but reasonable width. Modern browsers get full auto-sizing. No polyfill needed.
+</p>
+
+<pre class="code-block"><code class="language-js">const supportsFieldSizing = CSS.supports('field-sizing', 'content');
+<p class="post-p">
+if (!supportsFieldSizing) {
+// Optional: load a lightweight JS polyfill
+import('./field-sizing-polyfill.js');
+}
+</code></pre>
+</p>
+
+<h2 class="post-h2">Performance Implications</h2>
+
+<p class="post-p">
+Because <code class="inline-code">field-sizing</code> is implemented in the browser's layout engine, it's dramatically faster than JavaScript-based solutions:
+</p>
+
+<p class="post-p">
+| Approach | Operations per Resize | Layout Thrashing |
+|----------|----------------------|-------------------|
+| <code class="inline-code">field-sizing: content</code> | 0 JS operations | No |
+| <code class="inline-code">input</code> event + <code class="inline-code">scrollWidth</code> | Force layout + style write | Yes |
+| <code class="inline-code">contenteditable</code> div | Full re-render | Sometimes |
+| <code class="inline-code">ResizeObserver</code> polyfill | Observer callback + DOM write | Often |
+</p>
+
+<p class="post-p">
+Every JavaScript-based solution forces at least one synchronous layout recalculation per keystroke. <code class="inline-code">field-sizing</code> avoids this entirely — the browser handles it as part of its normal layout pass.
+</p>
+
+<h2 class="post-h2">Combining with Other Modern CSS</h2>
+
+<p class="post-p">
+<code class="inline-code">field-sizing</code> pairs beautifully with other recent CSS additions:
+</p>
+
+<pre class="code-block"><code class="language-css">.modern-input {
+<p class="post-p">
+field-sizing: content;
+min-inline-size: 10ch;
+</p>
+
+<p class="post-p">
+/<em> Smooth entry animations </em>/
+@starting-style {
+opacity: 0;
+transform: translateY(-4px);
+}
+opacity: 1;
+transform: translateY(0);
+transition: opacity 0.2s, transform 0.2s;
+</p>
+
+<p class="post-p">
+/<em> Container query for responsive context </em>/
+container-type: inline-size;
+}
+</p>
+
+<p class="post-p">
+@container (inline-size &amp;lt; 20rem) {
+.modern-input {
+font-size: 0.875rem;
+padding: 0.375rem 0.5rem;
+}
+}
+</code></pre>
+</p>
+
+<h2 class="post-h2">Design System Integration</h2>
+
+<p class="post-p">
+If you're using a design system or component library, <code class="inline-code">field-sizing</code> slots in cleanly:
+</p>
+
+<pre class="code-block"><code class="language-css">/<em> Tailwind utility (once browser support is confirmed) </em>/
+<p class="post-p">
+.input-auto {
+field-sizing: content;
+min-inline-size: 6ch;
+}
+</p>
+
+<p class="post-p">
+/<em> Or as a Tailwind plugin </em>/
+plugin(function({ addUtilities }) {
+addUtilities({
+'.field-sizing-content': {
+'field-sizing': 'content',
+},
+'.field-sizing-fixed': {
+'field-sizing': 'fixed',
+},
+});
+});
+</code></pre>
+</p>
+
+<h2 class="post-h2">When NOT to Use <code class="inline-code">field-sizing</code></h2>
+
+<p class="post-p">
+Despite its power, there are cases where fixed sizing is better:
+</p>
+
+<ul class="post-ul"><li class="post-li"><strong>Layout grids</strong> — inputs inside a CSS Grid with <code class="inline-code">grid-template-columns: 1fr</code> should stay fixed so the grid doesn't shift</li>
+<li class="post-li"><strong>Numeric fields</strong> — credit card numbers, ZIP codes, phone numbers have known lengths</li>
+<li class="post-li"><strong>Forms with labels above</strong> — inline-size changes can misalign stacked label-input pairs</li>
+<li class="post-li"><strong>Tightly spaced UIs</strong> — growing inputs could overflow constrained spaces</li>
+</ul>
+<p class="post-p">
+The rule of thumb: use <code class="inline-code">field-sizing: content</code> when the content length is unpredictable and the layout can accommodate growth. Use <code class="inline-code">fixed</code> when layout stability matters more than content-fit.
+</p>
+
+<h2 class="post-h2">Accessibility Notes</h2>
+
+<p class="post-p">
+One of the best things about <code class="inline-code">field-sizing</code> is that it preserves <strong>all</strong> native accessibility:
+</p>
+
+<ul class="post-ul"><li class="post-li">✅ Screen readers still announce the element as an input</li>
+<li class="post-li">✅ <code class="inline-code">aria-label</code> and <code class="inline-code">aria-describedby</code> work normally</li>
+<li class="post-li">✅ Tab order is unaffected</li>
+<li class="post-li">✅ Form validation (<code class="inline-code">required</code>, <code class="inline-code">pattern</code>, <code class="inline-code">minlength</code>) still fires</li>
+<li class="post-li">✅ Autofill and password managers work correctly</li>
+</ul>
+<p class="post-p">
+Compare this to <code class="inline-code">contenteditable</code> divs, which break all of these unless you carefully re-implement each one with ARIA.
+</p>
+
+<h2 class="post-h2">Real-World Example: Comment Form</h2>
+
+<p class="post-p">
+Here's a complete comment form using <code class="inline-code">field-sizing</code>:
+</p>
+
+<pre class="code-block"><code class="language-html">&amp;lt;form class="comment-form"&amp;gt;
+<p class="post-p">
+&amp;lt;div class="field-group"&amp;gt;
+&amp;lt;label for="name"&amp;gt;Name&amp;lt;/label&amp;gt;
+&amp;lt;input id="name" type="text" class="auto-size" placeholder="Your name" required /&amp;gt;
+&amp;lt;/div&amp;gt;
+&amp;lt;div class="field-group"&amp;gt;
+&amp;lt;label for="email"&amp;gt;Email&amp;lt;/label&amp;gt;
+&amp;lt;input id="email" type="email" class="auto-size" placeholder="you@example.com" /&amp;gt;
+&amp;lt;/div&amp;gt;
+&amp;lt;div class="field-group"&amp;gt;
+&amp;lt;label for="comment"&amp;gt;Comment&amp;lt;/label&amp;gt;
+&amp;lt;textarea id="comment" class="auto-size" placeholder="Write your comment..." rows="3" required&amp;gt;&amp;lt;/textarea&amp;gt;
+&amp;lt;/div&amp;gt;
+&amp;lt;button type="submit"&amp;gt;Post Comment&amp;lt;/button&amp;gt;
+&amp;lt;/form&amp;gt;
+</p>
+
+<p class="post-p">
+&amp;lt;style&amp;gt;
+.auto-size {
+field-sizing: content;
+min-inline-size: 100%;
+max-inline-size: 100%;
+padding: 0.625rem 0.75rem;
+border: 1px solid #d1d5db;
+border-radius: 0.5rem;
+font: inherit;
+transition: border-color 0.15s;
+}
+.auto-size:focus {
+border-color: #3b82f6;
+outline: none;
+box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+}
+textarea.auto-size {
+min-block-size: 4lh;
+max-block-size: 15lh;
+resize: none;
+line-height: 1.5;
+}
+&amp;lt;/style&amp;gt;
+</code></pre>
+</p>
+
+<p class="post-p">
+The text inputs grow as the user types their name, email, and comment. The textarea expands from 4 lines to up to 15 lines. No JavaScript. No layout bugs. Just clean, semantic HTML with modern CSS.
+</p>
+
+<h2 class="post-h2">Summary</h2>
+
+<p class="post-p">
+<code class="inline-code">field-sizing: content</code> is one of those rare CSS features that's simultaneously simple to use, broadly supported, and genuinely improves the user experience. It eliminates a whole category of JavaScript hacks and makes forms feel more fluid and responsive.
+</p>
+
+<p class="post-p">
+<strong>Key takeaways:</strong>
+</p>
+<ul class="post-ul"><li class="post-li">Add <code class="inline-code">field-sizing: content</code> to any text input or textarea whose content length is unpredictable</li>
+<li class="post-li">Always set <code class="inline-code">min-inline-size</code> (to prevent collapse) and <code class="inline-code">max-inline-size</code> (to prevent overflow)</li>
+<li class="post-li">Use <code class="inline-code">min-block-size</code> / <code class="inline-code">max-block-size</code> on textareas for height boundaries</li>
+<li class="post-li">Pair with <code class="inline-code">@supports</code> for graceful degradation</li>
+<li class="post-li">It's fully accessible — no ARIA gymnastics needed</li>
+<li class="post-li">It's Baseline 2026 — ship it today</li>
+</ul>4:T78f,
+        .blog-content .post-h1 { font-size: 1.75rem; font-weight: 700; color: #ffffff; margin-top: 2rem; margin-bottom: 1rem; }
+        .blog-content .post-h2 { font-size: 1.5rem; font-weight: 600; color: #f1f5f9; margin-top: 1.75rem; margin-bottom: 0.75rem; padding-bottom: 0.5rem; border-bottom: 1px solid #334155; }
+        .blog-content .post-h3 { font-size: 1.25rem; font-weight: 600; color: #e2e8f0; margin-top: 1.5rem; margin-bottom: 0.5rem; }
+        .blog-content .post-h4 { font-size: 1.1rem; font-weight: 600; color: #e2e8f0; margin-top: 1.25rem; margin-bottom: 0.5rem; }
+        .blog-content .post-p { color: #cbd5e1; line-height: 1.75; margin-bottom: 1rem; }
+        .blog-content .code-block { background: #0f172a; border: 1px solid #334155; border-radius: 0.5rem; padding: 1rem; overflow-x: auto; margin: 1rem 0; font-family: 'JetBrains Mono', monospace; font-size: 0.875rem; color: #e2e8f0; }
+        .blog-content .inline-code { background: #1e293b; color: #38bdf8; padding: 0.15rem 0.4rem; border-radius: 0.25rem; font-family: 'JetBrains Mono', monospace; font-size: 0.875em; }
+        .blog-content .post-link { color: #38bdf8; text-decoration: underline; transition: color 0.2s; }
+        .blog-content .post-link:hover { color: #7dd3fc; }
+        .blog-content .post-ul { list-style: disc; padding-left: 1.5rem; margin: 0.75rem 0; color: #cbd5e1; }
+        .blog-content .post-li { margin-bottom: 0.25rem; line-height: 1.6; }
+        .blog-content .post-blockquote { border-left: 3px solid #0ea5e9; padding: 0.5rem 1rem; margin: 1rem 0; background: rgba(14, 165, 233, 0.05); border-radius: 0 0.5rem 0.5rem 0; }
+        .blog-content .post-blockquote p { color: #94a3b8; font-style: italic; }
+        .blog-content .post-hr { border: none; border-top: 1px solid #334155; margin: 2rem 0; }
+        .blog-content strong { color: #f1f5f9; font-weight: 600; }
+        .blog-content em { font-style: italic; }
+        6:["slug","css-field-sizing-2026","d"]
+0:["wLkx3_e9eF0HmBHirJWLm",[[["",{"children":["blog",{"children":[["slug","css-field-sizing-2026","d"],{"children":["__PAGE__?{\"slug\":\"css-field-sizing-2026\"}",{}]}]}]},"$undefined","$undefined",true],["",{"children":["blog",{"children":[["slug","css-field-sizing-2026","d"],{"children":["__PAGE__",{},[["$L1",["$","article",null,{"className":"max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-20","children":[["$","script",null,{"type":"application/ld+json","dangerouslySetInnerHTML":{"__html":"{\"@context\":\"https://schema.org\",\"@type\":\"Article\",\"headline\":\"CSS field-sizing in 2026: Auto-Resizing Form Inputs Without JavaScript\",\"description\":\"The field-sizing: content CSS property lets text inputs and textareas auto-resize to fit their content — no JS, no hacks, no contenteditable divs. Learn every pattern with production-ready code and fallback strategies.\",\"datePublished\":\"2026-05-28\",\"author\":{\"@type\":\"Organization\",\"name\":\"DevBench\"},\"publisher\":{\"@type\":\"Organization\",\"name\":\"DevBench\",\"url\":\"https://devbench-roan.vercel.app\"}}"}}],["$","script",null,{"type":"application/ld+json","dangerouslySetInnerHTML":{"__html":"{\"@context\":\"https://schema.org\",\"@type\":\"BreadcrumbList\",\"itemListElement\":[{\"@type\":\"ListItem\",\"position\":1,\"name\":\"Home\",\"item\":\"https://devbench-roan.vercel.app\"},{\"@type\":\"ListItem\",\"position\":2,\"name\":\"Blog\",\"item\":\"https://devbench-roan.vercel.app/blog\"},{\"@type\":\"ListItem\",\"position\":3,\"name\":\"CSS field-sizing in 2026: Auto-Resizing Form Inputs Without JavaScript\"}]}"}}],["$","$L2",null,{"href":"/blog","className":"inline-flex items-center gap-1.5 text-slate-400 hover:text-brand-400 text-sm transition-colors mb-8","children":[["$","svg",null,{"xmlns":"http://www.w3.org/2000/svg","width":24,"height":24,"viewBox":"0 0 24 24","fill":"none","stroke":"currentColor","strokeWidth":2,"strokeLinecap":"round","strokeLinejoin":"round","className":"lucide lucide-arrow-left w-4 h-4","children":[["$","path","1l729n",{"d":"m12 19-7-7 7-7"}],["$","path","x3x0zl",{"d":"M19 12H5"}],"$undefined"]}],"Back to Blog"]}],["$","header",null,{"className":"mb-10","children":[["$","h1",null,{"className":"text-3xl sm:text-4xl font-bold text-white leading-tight mb-4","children":"CSS field-sizing in 2026: Auto-Resizing Form Inputs Without JavaScript"}],["$","div",null,{"className":"flex flex-wrap items-center gap-4 text-sm text-slate-400","children":[["$","span",null,{"className":"flex items-center gap-1.5","children":[["$","svg",null,{"xmlns":"http://www.w3.org/2000/svg","width":24,"height":24,"viewBox":"0 0 24 24","fill":"none","stroke":"currentColor","strokeWidth":2,"strokeLinecap":"round","strokeLinejoin":"round","className":"lucide lucide-calendar w-4 h-4","children":[["$","rect","eu3xkr",{"width":"18","height":"18","x":"3","y":"4","rx":"2","ry":"2"}],["$","line","m3sa8f",{"x1":"16","x2":"16","y1":"2","y2":"6"}],["$","line","18kwsl",{"x1":"8","x2":"8","y1":"2","y2":"6"}],["$","line","xt86sb",{"x1":"3","x2":"21","y1":"10","y2":"10"}],"$undefined"]}],"2026-05-28"]}],["$","div",null,{"className":"flex flex-wrap gap-1.5","children":[["$","span","[\"CSS\"",{"className":"badge-secondary flex items-center gap-1","children":[["$","svg",null,{"xmlns":"http://www.w3.org/2000/svg","width":24,"height":24,"viewBox":"0 0 24 24","fill":"none","stroke":"currentColor","strokeWidth":2,"strokeLinecap":"round","strokeLinejoin":"round","className":"lucide lucide-tag w-3 h-3","children":[["$","path","14b2ls",{"d":"M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"}],["$","path","7u93v4",{"d":"M7 7h.01"}],"$undefined"]}],"[\"CSS\""]}],["$","span","\"field-sizing\"",{"className":"badge-secondary flex items-center gap-1","children":[["$","svg",null,{"xmlns":"http://www.w3.org/2000/svg","width":24,"height":24,"viewBox":"0 0 24 24","fill":"none","stroke":"currentColor","strokeWidth":2,"strokeLinecap":"round","strokeLinejoin":"round","className":"lucide lucide-tag w-3 h-3","children":[["$","path","14b2ls",{"d":"M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"}],["$","path","7u93v4",{"d":"M7 7h.01"}],"$undefined"]}],"\"field-sizing\""]}],["$","span","\"Forms\"",{"className":"badge-secondary flex items-center gap-1","children":[["$","svg",null,{"xmlns":"http://www.w3.org/2000/svg","width":24,"height":24,"viewBox":"0 0 24 24","fill":"none","stroke":"currentColor","strokeWidth":2,"strokeLinecap":"round","strokeLinejoin":"round","className":"lucide lucide-tag w-3 h-3","children":[["$","path","14b2ls",{"d":"M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"}],["$","path","7u93v4",{"d":"M7 7h.01"}],"$undefined"]}],"\"Forms\""]}],["$","span","\"UX\"",{"className":"badge-secondary flex items-center gap-1","children":[["$","svg",null,{"xmlns":"http://www.w3.org/2000/svg","width":24,"height":24,"viewBox":"0 0 24 24","fill":"none","stroke":"currentColor","strokeWidth":2,"strokeLinecap":"round","strokeLinejoin":"round","className":"lucide lucide-tag w-3 h-3","children":[["$","path","14b2ls",{"d":"M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"}],["$","path","7u93v4",{"d":"M7 7h.01"}],"$undefined"]}],"\"UX\""]}],["$","span","\"Input\"",{"className":"badge-secondary flex items-center gap-1","children":[["$","svg",null,{"xmlns":"http://www.w3.org/2000/svg","width":24,"height":24,"viewBox":"0 0 24 24","fill":"none","stroke":"currentColor","strokeWidth":2,"strokeLinecap":"round","strokeLinejoin":"round","className":"lucide lucide-tag w-3 h-3","children":[["$","path","14b2ls",{"d":"M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"}],["$","path","7u93v4",{"d":"M7 7h.01"}],"$undefined"]}],"\"Input\""]}],["$","span","\"Baseline 2026\"",{"className":"badge-secondary flex items-center gap-1","children":[["$","svg",null,{"xmlns":"http://www.w3.org/2000/svg","width":24,"height":24,"viewBox":"0 0 24 24","fill":"none","stroke":"currentColor","strokeWidth":2,"strokeLinecap":"round","strokeLinejoin":"round","className":"lucide lucide-tag w-3 h-3","children":[["$","path","14b2ls",{"d":"M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"}],["$","path","7u93v4",{"d":"M7 7h.01"}],"$undefined"]}],"\"Baseline 2026\""]}],["$","span","\"2026\"]",{"className":"badge-secondary flex items-center gap-1","children":[["$","svg",null,{"xmlns":"http://www.w3.org/2000/svg","width":24,"height":24,"viewBox":"0 0 24 24","fill":"none","stroke":"currentColor","strokeWidth":2,"strokeLinecap":"round","strokeLinejoin":"round","className":"lucide lucide-tag w-3 h-3","children":[["$","path","14b2ls",{"d":"M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"}],["$","path","7u93v4",{"d":"M7 7h.01"}],"$undefined"]}],"\"2026\"]"]}]]}]]}]]}],["$","div",null,{"className":"blog-content prose-p:text-slate-300 prose-p:leading-relaxed prose-p:mb-4","dangerouslySetInnerHTML":{"__html":"$3"}}],["$","style",null,{"dangerouslySetInnerHTML":{"__html":"$4"}}]]}],null],null],null]},[null,["$","$L5",null,{"parallelRouterKey":"children","segmentPath":["children","blog","children","$6","children"],"error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L7",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":"$undefined","notFoundStyles":"$undefined"}]],null]},[null,["$","$L5",null,{"parallelRouterKey":"children","segmentPath":["children","blog","children"],"error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L7",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":"$undefined","notFoundStyles":"$undefined"}]],null]},[[[["$","link","0",{"rel":"stylesheet","href":"/devbench-tech/_next/static/css/c877e59dbcb00f11.css","precedence":"next","crossOrigin":"$undefined"}]],["$","html",null,{"lang":"en","className":"dark","children":["$","body",null,{"className":"flex flex-col min-h-screen","children":[["$","script",null,{"type":"application/ld+json","dangerouslySetInnerHTML":{"__html":"{\"@context\":\"https://schema.org\",\"@type\":\"WebSite\",\"name\":\"DevBench\",\"url\":\"https://devbench-roan.vercel.app\",\"description\":\"Free developer tools for everyday use: JSON formatter, Base64 encoder/decoder, UUID generator, regex tester, benchmarks, and more.\",\"potentialAction\":{\"@type\":\"SearchAction\",\"target\":\"https://devbench-roan.vercel.app/tools?q={search_term_string}\",\"query-input\":\"required name=search_term_string\"}}"}}],["$","$L8",null,{}],["$","main",null,{"className":"flex-1","children":["$","$L5",null,{"parallelRouterKey":"children","segmentPath":["children"],"error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L7",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":[["$","title",null,{"children":"404: This page could not be found."}],["$","div",null,{"style":{"fontFamily":"system-ui,\"Segoe UI\",Roboto,Helvetica,Arial,sans-serif,\"Apple Color Emoji\",\"Segoe UI Emoji\"","height":"100vh","textAlign":"center","display":"flex","flexDirection":"column","alignItems":"center","justifyContent":"center"},"children":["$","div",null,{"children":[["$","style",null,{"dangerouslySetInnerHTML":{"__html":"body{color:#000;background:#fff;margin:0}.next-error-h1{border-right:1px solid rgba(0,0,0,.3)}@media (prefers-color-scheme:dark){body{color:#fff;background:#000}.next-error-h1{border-right:1px solid rgba(255,255,255,.3)}}"}}],["$","h1",null,{"className":"next-error-h1","style":{"display":"inline-block","margin":"0 20px 0 0","padding":"0 23px 0 0","fontSize":24,"fontWeight":500,"verticalAlign":"top","lineHeight":"49px"},"children":"404"}],["$","div",null,{"style":{"display":"inline-block"},"children":["$","h2",null,{"style":{"fontSize":14,"fontWeight":400,"lineHeight":"49px","margin":0},"children":"This page could not be found."}]}]]}]}]],"notFoundStyles":[]}]}],["$","footer",null,{"className":"bg-surface-light border-t border-slate-700/50 mt-auto","children":["$","div",null,{"className":"max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12","children":[["$","div",null,{"className":"grid grid-cols-1 md:grid-cols-3 gap-8","children":[["$","div",null,{"children":[["$","$L2",null,{"href":"/","className":"flex items-center gap-2.5 mb-3","children":[["$","div",null,{"className":"w-7 h-7 bg-brand-500 rounded-lg flex items-center justify-center","children":["$","svg",null,{"xmlns":"http://www.w3.org/2000/svg","width":24,"height":24,"viewBox":"0 0 24 24","fill":"none","stroke":"currentColor","strokeWidth":2,"strokeLinecap":"round","strokeLinejoin":"round","className":"lucide lucide-terminal w-3.5 h-3.5 text-white","children":[["$","polyline","akl6gq",{"points":"4 17 10 11 4 5"}],["$","line","q2wloq",{"x1":"12","x2":"20","y1":"19","y2":"19"}],"$undefined"]}]}],["$","span",null,{"className":"text-lg font-bold text-white","children":["Dev",["$","span",null,{"className":"gradient-text","children":"Bench"}]]}]]}],["$","p",null,{"className":"text-slate-400 text-sm leading-relaxed","children":"Free developer tools, benchmarks, and calculators. Built for developers, by developers."}]]}],["$","div",null,{"children":[["$","h3",null,{"className":"text-sm font-semibold text-slate-300 uppercase tracking-wider mb-4","children":"Tools"}],["$","ul",null,{"className":"space-y-2","children":[["$","li","/tools/json-formatter",{"children":["$","$L2",null,{"href":"/tools/json-formatter","className":"text-slate-400 hover:text-brand-400 text-sm transition-colors","children":"JSON Formatter"}]}],["$","li","/tools/base64",{"children":["$","$L2",null,{"href":"/tools/base64","className":"text-slate-400 hover:text-brand-400 text-sm transition-colors","children":"Base64 Encoder/Decoder"}]}],["$","li","/tools/uuid-generator",{"children":["$","$L2",null,{"href":"/tools/uuid-generator","className":"text-slate-400 hover:text-brand-400 text-sm transition-colors","children":"UUID Generator"}]}],["$","li","/tools/regex-tester",{"children":["$","$L2",null,{"href":"/tools/regex-tester","className":"text-slate-400 hover:text-brand-400 text-sm transition-colors","children":"Regex Tester"}]}]]}]]}],["$","div",null,{"children":[["$","h3",null,{"className":"text-sm font-semibold text-slate-300 uppercase tracking-wider mb-4","children":"Resources"}],["$","ul",null,{"className":"space-y-2","children":[["$","li","/blog",{"children":["$","$L2",null,{"href":"/blog","className":"text-slate-400 hover:text-brand-400 text-sm transition-colors","children":"Blog"}]}],["$","li","/benchmarks",{"children":["$","$L2",null,{"href":"/benchmarks","className":"text-slate-400 hover:text-brand-400 text-sm transition-colors","children":"Benchmarks"}]}],["$","li","/about",{"children":["$","$L2",null,{"href":"/about","className":"text-slate-400 hover:text-brand-400 text-sm transition-colors","children":"About"}]}]]}]]}]]}],["$","div",null,{"className":"mt-10 pt-6 border-t border-slate-700/50 flex flex-col sm:flex-row items-center justify-between gap-4","children":[["$","p",null,{"className":"text-slate-500 text-sm flex items-center gap-1","children":["Made with ",["$","svg",null,{"xmlns":"http://www.w3.org/2000/svg","width":24,"height":24,"viewBox":"0 0 24 24","fill":"none","stroke":"currentColor","strokeWidth":2,"strokeLinecap":"round","strokeLinejoin":"round","className":"lucide lucide-heart w-3.5 h-3.5 text-red-500 fill-red-500","children":[["$","path","c3ymky",{"d":"M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"}],"$undefined"]}]," by the DevBench team © ",2026]}],["$","a",null,{"href":"https://github.com","target":"_blank","rel":"noopener noreferrer","className":"text-slate-500 hover:text-slate-300 transition-colors","aria-label":"GitHub","children":["$","svg",null,{"xmlns":"http://www.w3.org/2000/svg","width":24,"height":24,"viewBox":"0 0 24 24","fill":"none","stroke":"currentColor","strokeWidth":2,"strokeLinecap":"round","strokeLinejoin":"round","className":"lucide lucide-github w-5 h-5","children":[["$","path","tonef",{"d":"M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"}],["$","path","9comsn",{"d":"M9 18c-4.51 2-5-2-7-2"}],"$undefined"]}]}]]}]]}]}],["$","$L9",null,{}],["$","$La",null,{"position":"bottom-right","toastOptions":{"style":{"background":"#1e293b","color":"#e2e8f0","border":"1px solid #334155","fontSize":"14px"}}}]]}]}]],null],null],["$Lb",null]]]]
+b:[["$","meta","0",{"name":"viewport","content":"width=device-width, initial-scale=1"}],["$","meta","1",{"charSet":"utf-8"}],["$","title","2",{"children":"CSS field-sizing in 2026: Auto-Resizing Form Inputs Without JavaScript | DevBench"}],["$","meta","3",{"name":"description","content":"The field-sizing: content CSS property lets text inputs and textareas auto-resize to fit their content — no JS, no hacks, no contenteditable divs. Learn every pattern with production-ready code and fallback strategies."}],["$","meta","4",{"name":"author","content":"DevBench"}],["$","meta","5",{"name":"keywords","content":"developer tools,JSON formatter,Base64,UUID generator,regex tester,benchmarks,dev tools"}],["$","meta","6",{"property":"og:title","content":"DevBench — Developer Tools & Calculators"}],["$","meta","7",{"property":"og:description","content":"Free developer tools for everyday use."}],["$","meta","8",{"property":"og:site_name","content":"DevBench"}],["$","meta","9",{"property":"og:locale","content":"en_US"}],["$","meta","10",{"property":"og:type","content":"website"}],["$","meta","11",{"name":"twitter:card","content":"summary"}],["$","meta","12",{"name":"twitter:title","content":"DevBench — Developer Tools & Calculators"}],["$","meta","13",{"name":"twitter:description","content":"Free developer tools for everyday use."}],["$","link","14",{"rel":"icon","href":"/favicon.svg"}]]
+1:null

@@ -1,0 +1,747 @@
+<!DOCTYPE html><html lang="en" class="dark"><head><meta charSet="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/><link rel="stylesheet" href="/devbench-tech/_next/static/css/c877e59dbcb00f11.css" data-precedence="next"/><link rel="preload" as="script" fetchPriority="low" href="/devbench-tech/_next/static/chunks/webpack-b521a83317325026.js"/><script src="/devbench-tech/_next/static/chunks/fd9d1056-04e0aa683dc3c41f.js" async=""></script><script src="/devbench-tech/_next/static/chunks/2117-8374a93ea77a2be4.js" async=""></script><script src="/devbench-tech/_next/static/chunks/main-app-aaec773b36366bc0.js" async=""></script><script src="/devbench-tech/_next/static/chunks/2972-4aaa15d119eeb022.js" async=""></script><script src="/devbench-tech/_next/static/chunks/app/blog/%5Bslug%5D/page-a411190e7012c687.js" async=""></script><script src="/devbench-tech/_next/static/chunks/44530001-4ecf7a22b5b24163.js" async=""></script><script src="/devbench-tech/_next/static/chunks/8375-c77b8de36f6696fb.js" async=""></script><script src="/devbench-tech/_next/static/chunks/6829-f51803445ddf1872.js" async=""></script><script src="/devbench-tech/_next/static/chunks/app/layout-488e5c40aa6ffa72.js" async=""></script><title>CSS Nesting Is Baseline in 2026 — Say Goodbye to Sass Nesting | DevBench</title><meta name="description" content="Native CSS nesting is now Baseline across all major browsers — Chrome, Firefox, Safari, and Edge. It works exactly like Sass nesting but runs in the browser with zero build step. Learn the syntax rules, gotchas, and how to migrate your preprocessor nesting to native CSS."/><meta name="author" content="DevBench"/><meta name="keywords" content="developer tools,JSON formatter,Base64,UUID generator,regex tester,benchmarks,dev tools"/><meta property="og:title" content="DevBench — Developer Tools &amp; Calculators"/><meta property="og:description" content="Free developer tools for everyday use."/><meta property="og:site_name" content="DevBench"/><meta property="og:locale" content="en_US"/><meta property="og:type" content="website"/><meta name="twitter:card" content="summary"/><meta name="twitter:title" content="DevBench — Developer Tools &amp; Calculators"/><meta name="twitter:description" content="Free developer tools for everyday use."/><link rel="icon" href="/favicon.svg"/><script src="/devbench-tech/_next/static/chunks/polyfills-42372ed130431b0a.js" noModule=""></script></head><body class="flex flex-col min-h-screen"><script type="application/ld+json">{"@context":"https://schema.org","@type":"WebSite","name":"DevBench","url":"https://devbench-roan.vercel.app","description":"Free developer tools for everyday use: JSON formatter, Base64 encoder/decoder, UUID generator, regex tester, benchmarks, and more.","potentialAction":{"@type":"SearchAction","target":"https://devbench-roan.vercel.app/tools?q={search_term_string}","query-input":"required name=search_term_string"}}</script><header class="sticky top-0 z-50 transition-all duration-300 bg-surface border-b border-transparent"><div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8"><div class="flex items-center justify-between h-16"><a class="flex items-center gap-2.5 group" href="/devbench-tech/"><div class="w-8 h-8 bg-brand-500 rounded-lg flex items-center justify-center group-hover:bg-brand-400 transition-colors"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-terminal w-4 h-4 text-white"><polyline points="4 17 10 11 4 5"></polyline><line x1="12" x2="20" y1="19" y2="19"></line></svg></div><span class="text-xl font-bold text-white tracking-tight">Dev<span class="gradient-text">Bench</span></span></a><nav class="hidden md:flex items-center gap-1"><a class="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 text-slate-400 hover:text-slate-200 hover:bg-surface-lighter" href="/devbench-tech/tools/"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-wrench w-4 h-4"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path></svg>Tools</a><a class="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 text-slate-400 hover:text-slate-200 hover:bg-surface-lighter" href="/devbench-tech/benchmarks/"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-bar-chart3 w-4 h-4"><path d="M3 3v18h18"></path><path d="M18 17V9"></path><path d="M13 17V5"></path><path d="M8 17v-3"></path></svg>Benchmarks</a><a class="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 bg-brand-500/10 text-brand-400" href="/devbench-tech/blog/"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-book-open w-4 h-4"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg>Blog</a><a class="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 text-slate-400 hover:text-slate-200 hover:bg-surface-lighter" href="/devbench-tech/about/"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-info w-4 h-4"><circle cx="12" cy="12" r="10"></circle><path d="M12 16v-4"></path><path d="M12 8h.01"></path></svg>About</a></nav><button class="md:hidden p-2 rounded-lg text-slate-400 hover:text-white hover:bg-surface-lighter transition-colors" aria-label="Toggle menu"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-menu w-5 h-5"><line x1="4" x2="20" y1="12" y2="12"></line><line x1="4" x2="20" y1="6" y2="6"></line><line x1="4" x2="20" y1="18" y2="18"></line></svg></button></div></div></header><main class="flex-1"><article class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-20"><script type="application/ld+json">{"@context":"https://schema.org","@type":"Article","headline":"CSS Nesting Is Baseline in 2026 — Say Goodbye to Sass Nesting","description":"Native CSS nesting is now Baseline across all major browsers — Chrome, Firefox, Safari, and Edge. It works exactly like Sass nesting but runs in the browser with zero build step. Learn the syntax rules, gotchas, and how to migrate your preprocessor nesting to native CSS.","datePublished":"2026-05-27","author":{"@type":"Organization","name":"DevBench"},"publisher":{"@type":"Organization","name":"DevBench","url":"https://devbench-roan.vercel.app"}}</script><script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://devbench-roan.vercel.app"},{"@type":"ListItem","position":2,"name":"Blog","item":"https://devbench-roan.vercel.app/blog"},{"@type":"ListItem","position":3,"name":"CSS Nesting Is Baseline in 2026 — Say Goodbye to Sass Nesting"}]}</script><a class="inline-flex items-center gap-1.5 text-slate-400 hover:text-brand-400 text-sm transition-colors mb-8" href="/devbench-tech/blog/"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-arrow-left w-4 h-4"><path d="m12 19-7-7 7-7"></path><path d="M19 12H5"></path></svg>Back to Blog</a><header class="mb-10"><h1 class="text-3xl sm:text-4xl font-bold text-white leading-tight mb-4">CSS Nesting Is Baseline in 2026 — Say Goodbye to Sass Nesting</h1><div class="flex flex-wrap items-center gap-4 text-sm text-slate-400"><span class="flex items-center gap-1.5"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-calendar w-4 h-4"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"></rect><line x1="16" x2="16" y1="2" y2="6"></line><line x1="8" x2="8" y1="2" y2="6"></line><line x1="3" x2="21" y1="10" y2="10"></line></svg>2026-05-27</span><div class="flex flex-wrap gap-1.5"><span class="badge-secondary flex items-center gap-1"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-tag w-3 h-3"><path d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"></path><path d="M7 7h.01"></path></svg>[&quot;CSS&quot;</span><span class="badge-secondary flex items-center gap-1"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-tag w-3 h-3"><path d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"></path><path d="M7 7h.01"></path></svg>&quot;Nesting&quot;</span><span class="badge-secondary flex items-center gap-1"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-tag w-3 h-3"><path d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"></path><path d="M7 7h.01"></path></svg>&quot;Baseline 2026&quot;</span><span class="badge-secondary flex items-center gap-1"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-tag w-3 h-3"><path d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"></path><path d="M7 7h.01"></path></svg>&quot;Web Platform&quot;</span><span class="badge-secondary flex items-center gap-1"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-tag w-3 h-3"><path d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"></path><path d="M7 7h.01"></path></svg>&quot;Sass&quot;</span><span class="badge-secondary flex items-center gap-1"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-tag w-3 h-3"><path d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"></path><path d="M7 7h.01"></path></svg>&quot;Preprocessors&quot;</span><span class="badge-secondary flex items-center gap-1"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-tag w-3 h-3"><path d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"></path><path d="M7 7h.01"></path></svg>&quot;Architecture&quot;]</span></div></div></header><div class="blog-content prose-p:text-slate-300 prose-p:leading-relaxed prose-p:mb-4">
+<h2 class="post-h2">The Last Preprocessor Feature Falls</h2>
+
+<p class="post-p">
+For two decades, one feature kept developers reaching for Sass, Less, and Stylus: <strong>nesting</strong>. The ability to write selectors inside other selectors — mirroring the DOM tree structure — is the single most adopted preprocessor feature in frontend history.
+</p>
+
+<p class="post-p">
+In 2026, native CSS nesting is <strong>Baseline</strong> across all four major browsers. Chrome shipped it in 2023, Safari in 2024, Firefox in 2025, and Edge followed the Chrome timeline. You can now write this in a plain <code class="inline-code">.css</code> file:
+</p>
+
+<pre class="code-block"><code class="language-css">.card {
+<p class="post-p">
+background: white;
+border-radius: 8px;
+</p>
+
+<p class="post-p">
+&amp;amp; .title {
+font-size: 1.5rem;
+font-weight: 700;
+}
+</p>
+
+<p class="post-p">
+&amp;amp; .body {
+padding: 1rem;
+}
+</p>
+
+<p class="post-p">
+&amp;amp;:hover {
+box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+}
+</code></pre>
+</p>
+
+<p class="post-p">
+No compiler. No build step. No <code class="inline-code">node-sass</code> dependency that breaks every time you update Node.js. The browser parses it natively.
+</p>
+
+<p class="post-p">
+This is the final nail in the coffin for preprocessor-only features. CSS Variables replaced Sass variables. <code class="inline-code">@layer</code> replaced file organization hacks. <code class="inline-code">color-mix()</code> and <code class="inline-code">oklch()</code> replaced <code class="inline-code">darken()</code> and <code class="inline-code">lighten()</code>. And now nesting completes the picture.
+</p>
+
+<h2 class="post-h2">The Two Forms of Nesting</h2>
+
+<p class="post-p">
+Native CSS supports two nesting forms, and understanding when to use each is critical.
+</p>
+
+<h3 class="post-h3">1. Simple Nesting (with <code class="inline-code">&amp;</code>)</h3>
+
+<p class="post-p">
+This is the safest, most widely supported form. Every nested selector MUST start with the <code class="inline-code">&amp;</code> combinator:
+</p>
+
+<pre class="code-block"><code class="language-css">.parent {
+<p class="post-p">
+color: blue;
+</p>
+
+<p class="post-p">
+&amp;amp; .child {
+color: red;
+}
+</p>
+
+<p class="post-p">
+&amp;amp;:hover {
+color: green;
+}
+</p>
+
+<p class="post-p">
+&amp;amp; &amp;gt; .direct-child {
+color: purple;
+}
+</p>
+
+<p class="post-p">
+&amp;amp; + .sibling {
+color: orange;
+}
+}
+</code></pre>
+</p>
+
+<p class="post-p">
+The <code class="inline-code">&amp;</code> is replaced with the parent selector at parse time. <code class="inline-code">&amp; .child</code> becomes <code class="inline-code">.parent .child</code>. <code class="inline-code">&amp;:hover</code> becomes <code class="inline-code">.parent:hover</code>. Simple, predictable, and identical to Sass behavior.
+</p>
+
+<h3 class="post-h3">2. Relaxed Nesting (without <code class="inline-code">&amp;</code>)</h3>
+
+<p class="post-p">
+The spec also allows omitting <code class="inline-code">&amp;</code> when the nested selector starts with a letter, <code class="inline-code">[</code>, <code class="inline-code">:</code>, or <code class="inline-code">.</code> — essentially anything that can't be confused with a property declaration:
+</p>
+
+<pre class="code-block"><code class="language-css">.card {
+<p class="post-p">
+background: white;
+</p>
+
+<p class="post-p">
+.title {
+/<em> Equivalent to .card .title </em>/
+font-weight: bold;
+}
+</p>
+
+<p class="post-p">
+:hover {
+/<em> Equivalent to .card:hover </em>/
+transform: scale(1.02);
+}
+</p>
+
+<p class="post-p">
+[data-variant="outline"] {
+/<em> Equivalent to .card[data-variant="outline"] </em>/
+border: 2px solid currentColor;
+}
+}
+</code></pre>
+</p>
+
+<p class="post-p">
+<strong>This is controversial.</strong> Many developers (including the Sass team) argued that relaxed nesting introduces ambiguity. If a browser encounters <code class="inline-code">color</code> inside a nested context, it has to decide: is this a property declaration or a type selector <code class="inline-code">.color</code>? The spec resolves this by always treating valid property names as properties — but edge cases exist. Here's a real ambiguity:
+</p>
+
+<pre class="code-block"><code class="language-css">div {
+<p class="post-p">
+border: 1px solid;
+/<em> Is this the border property or a .border class selector? </em>/
+border {
+/<em> ... </em>/
+}
+}
+</code></pre>
+</p>
+
+<p class="post-p">
+The browser always treats <code class="inline-code">border</code> as a property since it's a valid CSS property name. This means <strong>you can't nest a <code class="inline-code">.border</code> class selector inside <code class="inline-code">div</code> without using <code class="inline-code">&amp;</code></strong>. If you have a class called <code class="inline-code">.border</code>, <code class="inline-code">.padding</code>, <code class="inline-code">.margin</code>, or any other class that matches a CSS property name, you must write <code class="inline-code">&amp; .border</code>, not <code class="inline-code">.border</code>.
+</p>
+
+<p class="post-p">
+<strong>My recommendation:</strong> Always use <code class="inline-code">&amp;</code> explicitly. It's one extra character and eliminates every ambiguity. Code is read far more often than written — make it unmistakable.
+</p>
+
+<h2 class="post-h2">Nesting At-Rules</h2>
+
+<p class="post-p">
+You can nest <code class="inline-code">@media</code>, <code class="inline-code">@container</code>, <code class="inline-code">@supports</code>, and <code class="inline-code">@layer</code> inside any selector:
+</p>
+
+<pre class="code-block"><code class="language-css">.sidebar {
+<p class="post-p">
+display: flex;
+flex-direction: column;
+</p>
+
+<p class="post-p">
+@media (width &amp;lt;= 768px) {
+flex-direction: row;
+overflow-x: auto;
+}
+</p>
+
+<p class="post-p">
+@container (min-width: 400px) {
+padding: 2rem;
+}
+}
+</code></pre>
+</p>
+
+<p class="post-p">
+This is perhaps the single biggest win of native nesting. Instead of repeating the selector inside every media query (and having them scattered across your file), the responsive behavior lives right next to the base styles:
+</p>
+
+<pre class="code-block"><code class="language-css">/<em> Old way — media queries far from their selectors </em>/
+<p class="post-p">
+.sidebar { display: flex; flex-direction: column; }
+.widget { padding: 1rem; }
+</p>
+
+<p class="post-p">
+@media (width &amp;lt;= 768px) {
+.sidebar { flex-direction: row; }
+.widget { padding: 0.5rem; }
+}
+</p>
+
+<p class="post-p">
+/<em> New way — responsive behavior co-located </em>/
+.sidebar {
+display: flex;
+flex-direction: column;
+</p>
+
+<p class="post-p">
+@media (width &amp;lt;= 768px) {
+flex-direction: row;
+}
+}
+</p>
+
+<p class="post-p">
+.widget {
+padding: 1rem;
+</p>
+
+<p class="post-p">
+@media (width &amp;lt;= 768px) {
+padding: 0.5rem;
+}
+}
+</code></pre>
+</p>
+
+<p class="post-p">
+Co-location is a massive maintainability win. When you need to change a component's responsive behavior, everything is in one place.
+</p>
+
+<h2 class="post-h2">Nesting <code class="inline-code">@supports</code> and <code class="inline-code">@layer</code></h2>
+
+<p class="post-p">
+Both work identically:
+</p>
+
+<pre class="code-block"><code class="language-css">.grid-layout {
+<p class="post-p">
+display: grid;
+</p>
+
+<p class="post-p">
+@supports (grid-template-rows: subgrid) {
+grid-template-rows: subgrid;
+}
+}
+</p>
+
+<p class="post-p">
+/<em> Or with @layer for cascade management </em>/
+@layer components {
+.button {
+padding: 0.75rem 1.5rem;
+</p>
+
+<p class="post-p">
+@media (hover: hover) {
+&amp;amp;:hover {
+filter: brightness(1.1);
+}
+}
+}
+}
+</code></pre>
+</p>
+
+<h2 class="post-h2">The <code class="inline-code">&amp;</code> Combinator Rules</h2>
+
+<p class="post-p">
+Understanding exactly how <code class="inline-code">&amp;</code> works prevents 90% of nesting bugs:
+</p>
+
+<p class="post-p">
+| Nested selector | Resolves to | Notes |
+|-----------------|-------------|-------|
+| <code class="inline-code">&amp; .child</code> | <code class="inline-code">.parent .child</code> | Descendant combinator added |
+| <code class="inline-code">&amp; &gt; .child</code> | <code class="inline-code">.parent &gt; .child</code> | Direct child |
+| <code class="inline-code">&amp;.active</code> | <code class="inline-code">.parent.active</code> | Same element, additional class |
+| <code class="inline-code">&amp;:hover</code> | <code class="inline-code">.parent:hover</code> | Pseudo-class on parent |
+| <code class="inline-code">&amp;::before</code> | <code class="inline-code">.parent::before</code> | Pseudo-element on parent |
+| <code class="inline-code">&amp; + p</code> | <code class="inline-code">.parent + p</code> | Adjacent sibling |
+| <code class="inline-code">&amp; ~ p</code> | <code class="inline-code">.parent ~ p</code> | General sibling |
+| <code class="inline-code">&amp;[open]</code> | <code class="inline-code">.parent[open]</code> | Attribute selector |
+| <code class="inline-code">:is(&amp;)</code> | <code class="inline-code">:is(.parent)</code> | Specificity trick (see below) |
+</p>
+
+<h3 class="post-h3">The Specificity Trap</h3>
+
+<p class="post-p">
+This is the most important gotcha. Nesting with <code class="inline-code">&amp;</code> produces the same specificity as writing the selector out flat:
+</p>
+
+<pre class="code-block"><code class="language-css">.article {
+<p class="post-p">
+color: black;
+</p>
+
+<p class="post-p">
+&amp;amp; .highlight {
+color: blue; /<em> specificity: 0,2,0 — .article + .highlight </em>/
+}
+}
+</code></pre>
+</p>
+
+<p class="post-p">
+But relaxed nesting (without <code class="inline-code">&amp;</code>) uses <code class="inline-code">:is()</code> internally, which can change specificity:
+</p>
+
+<pre class="code-block"><code class="language-css">.article {
+<p class="post-p">
+color: black;
+</p>
+
+<p class="post-p">
+.highlight {
+/<em> The browser desugars this to: :is(.article) .highlight </em>/
+/<em> specificity: (0,1,0) from :is() + (0,1,0) from .highlight = 0,2,0 </em>/
+/<em> Same as explicit &amp;amp;, so this case is fine. </em>/
+color: blue;
+}
+}
+</code></pre>
+</p>
+
+<p class="post-p">
+The real trap: if the parent has a complex selector, <code class="inline-code">:is()</code> takes the highest specificity from its argument list:
+</p>
+
+<pre class="code-block"><code class="language-css">#page .article {
+<p class="post-p">
+/<em> specificity: 1,1,0 </em>/
+</p>
+
+<p class="post-p">
+.highlight {
+/<em> Desugars to: :is(#page .article) .highlight </em>/
+/<em> :is() specificity = max(1,0,0,  0,1,0) = 1,1,0 </em>/
+/<em> Total: 1,2,0 — HIGHER than you might expect! </em>/
+color: red;
+}
+}
+</code></pre>
+</p>
+
+<p class="post-p">
+<strong>Rule of thumb:</strong> If you nest under a selector containing an ID or element type, use explicit <code class="inline-code">&amp;</code> to avoid <code class="inline-code">:is()</code> specificity surprises. Better yet, avoid IDs in CSS entirely and the problem disappears.
+</p>
+
+<h2 class="post-h2">Real-World Patterns</h2>
+
+<h3 class="post-h3">Pattern 1: Component with Variants</h3>
+
+<pre class="code-block"><code class="language-css">.alert {
+<p class="post-p">
+padding: 1rem;
+border-radius: 6px;
+border: 1px solid;
+</p>
+
+<p class="post-p">
+&amp;amp;[data-variant="success"] {
+background: oklch(0.95 0.04 150);
+border-color: oklch(0.85 0.08 150);
+color: oklch(0.30 0.06 150);
+}
+</p>
+
+<p class="post-p">
+&amp;amp;[data-variant="error"] {
+background: oklch(0.95 0.04 20);
+border-color: oklch(0.85 0.08 20);
+color: oklch(0.30 0.06 20);
+}
+</p>
+
+<p class="post-p">
+&amp;amp;[data-variant="warning"] {
+background: oklch(0.95 0.08 90);
+border-color: oklch(0.85 0.12 90);
+color: oklch(0.35 0.06 80);
+}
+</p>
+
+<p class="post-p">
+&amp;amp; .icon {
+margin-right: 0.5rem;
+}
+</p>
+
+<p class="post-p">
+&amp;amp; .title {
+font-weight: 600;
+margin-bottom: 0.25rem;
+}
+}
+</code></pre>
+</p>
+
+<h3 class="post-h3">Pattern 2: Card with Responsive Grid</h3>
+
+<pre class="code-block"><code class="language-css">.product-grid {
+<p class="post-p">
+display: grid;
+gap: 1.5rem;
+grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+</p>
+
+<p class="post-p">
+@media (width &amp;gt;= 1024px) {
+grid-template-columns: repeat(3, 1fr);
+}
+</p>
+
+<p class="post-p">
+@media (width &amp;lt;= 640px) {
+grid-template-columns: 1fr;
+gap: 1rem;
+}
+}
+</p>
+
+<p class="post-p">
+.product-card {
+border: 1px solid var(--border);
+border-radius: 12px;
+overflow: hidden;
+transition: box-shadow 0.2s, transform 0.2s;
+</p>
+
+<p class="post-p">
+@media (hover: hover) {
+&amp;amp;:hover {
+box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+transform: translateY(-2px);
+}
+}
+</p>
+
+<p class="post-p">
+&amp;amp; img {
+width: 100%;
+aspect-ratio: 4 / 3;
+object-fit: cover;
+}
+</p>
+
+<p class="post-p">
+&amp;amp; .content {
+padding: 1.25rem;
+</p>
+
+<p class="post-p">
+&amp;amp; h3 {
+font-size: 1.125rem;
+font-weight: 600;
+margin-bottom: 0.5rem;
+}
+</p>
+
+<p class="post-p">
+&amp;amp; p {
+color: var(--text-secondary);
+font-size: 0.875rem;
+line-height: 1.5;
+}
+}
+}
+</code></pre>
+</p>
+
+<h3 class="post-h3">Pattern 3: Navigation with Mobile Toggle</h3>
+
+<pre class="code-block"><code class="language-css">.nav {
+<p class="post-p">
+display: flex;
+align-items: center;
+gap: 1.5rem;
+padding: 1rem 2rem;
+</p>
+
+<p class="post-p">
+@media (width &amp;lt;= 768px) {
+flex-direction: column;
+align-items: stretch;
+padding: 1rem;
+</p>
+
+<p class="post-p">
+&amp;amp;:not(.open) {
+display: none;
+}
+}
+</p>
+
+<p class="post-p">
+&amp;amp; .link {
+text-decoration: none;
+color: inherit;
+padding: 0.5rem 0;
+position: relative;
+</p>
+
+<p class="post-p">
+&amp;amp;::after {
+content: '';
+position: absolute;
+bottom: 0;
+left: 0;
+right: 0;
+height: 2px;
+background: currentColor;
+transform: scaleX(0);
+transition: transform 0.2s;
+}
+</p>
+
+<p class="post-p">
+@media (hover: hover) {
+&amp;amp;:hover::after {
+transform: scaleX(1);
+}
+}
+</p>
+
+<p class="post-p">
+&amp;amp;.active::after {
+transform: scaleX(1);
+}
+}
+}
+</code></pre>
+</p>
+
+<h2 class="post-h2">Migrating from Sass: The Differences That Matter</h2>
+
+<p class="post-p">
+If you're coming from Sass, here are the differences you'll hit:
+</p>
+
+<h3 class="post-h3">1. No <code class="inline-code">@at-root</code></h3>
+
+<p class="post-p">
+Sass lets you break out of nesting with <code class="inline-code">@at-root</code>. CSS Nesting has no equivalent. Instead, use <code class="inline-code">@layer</code> or restructure your selectors:
+</p>
+
+<pre class="code-block"><code class="language-css">/<em> Sass pattern </em>/
+<p class="post-p">
+.component {
+color: blue;
+</p>
+
+<p class="post-p">
+@at-root .global-class {
+color: red;
+}
+}
+</p>
+
+<p class="post-p">
+/<em> Native CSS: just write it flat </em>/
+.component {
+color: blue;
+}
+</p>
+
+<p class="post-p">
+.global-class {
+color: red;
+}
+</code></pre>
+</p>
+
+<h3 class="post-h3">2. BEM Concatenation Still Works</h3>
+
+<p class="post-p">
+Sass lets you concatenate selectors with <code class="inline-code">&amp;__element</code> and <code class="inline-code">&amp;--modifier</code> for BEM naming. <strong>Native CSS can do this too</strong>:
+</p>
+
+<pre class="code-block"><code class="language-css">/<em> Both Sass and Native CSS support this </em>/
+<p class="post-p">
+.block {
+color: blue;
+</p>
+
+<p class="post-p">
+&amp;amp;__element {
+/<em> Sass: .block__element. Native: .block__element. Same! </em>/
+color: red;
+}
+</p>
+
+<p class="post-p">
+&amp;amp;--modifier {
+/<em> .block--modifier </em>/
+color: green;
+}
+}
+</code></pre>
+</p>
+
+<p class="post-p">
+This works! You can keep your BEM naming conventions with native nesting.
+</p>
+
+<h3 class="post-h3">3. No Mixins, Functions, or Control Flow</h3>
+
+<p class="post-p">
+Sass features like <code class="inline-code">@mixin</code>, <code class="inline-code">@function</code>, <code class="inline-code">@if</code>, <code class="inline-code">@for</code>, <code class="inline-code">@each</code>, and <code class="inline-code">@while</code> have no CSS equivalents. That said, CSS Custom Properties + <code class="inline-code">calc()</code> cover many <code class="inline-code">@function</code> use cases, and <code class="inline-code">:has()</code> + <code class="inline-code">@container</code> cover many conditional styling needs.
+</p>
+
+<h3 class="post-h3">4. No Parent Selector in Strings</h3>
+
+<p class="post-p">
+Sass lets you use <code class="inline-code">&amp;</code> in strings for generated content. CSS doesn't support this:
+</p>
+
+<pre class="code-block"><code class="language-css">/<em> Sass only — not possible in native CSS </em>/
+<p class="post-p">
+.element {
+&amp;amp;::after {
+content: "You are hovering .element";
+}
+}
+</code></pre>
+</p>
+
+<h3 class="post-h3">5. No <code class="inline-code">@extend</code></h3>
+
+<p class="post-p">
+Sass <code class="inline-code">@extend</code> has no native equivalent. This is actually fine — <code class="inline-code">@extend</code> was widely considered an anti-pattern due to unpredictable output order and selector bloat. Use CSS Custom Properties or utility classes instead.
+</p>
+
+<h2 class="post-h2">Browser Support and Progressive Enhancement</h2>
+
+<p class="post-p">
+As of May 2026, CSS Nesting is Baseline — meaning it works in all four major browsers:
+</p>
+
+<p class="post-p">
+| Browser | Version | Release |
+|---------|---------|---------|
+| Chrome | 120+ | December 2023 |
+| Safari | 17.2+ | December 2023 |
+| Firefox | 131+ | October 2024 |
+| Edge | 120+ | December 2023 |
+</p>
+
+<p class="post-p">
+Global support is ~94% as of May 2026. If you need to support older browsers, you have two options:
+</p>
+
+<h3 class="post-h3">Option 1: PostCSS with <code class="inline-code">postcss-nesting</code></h3>
+
+<p class="post-p">
+Use the popular <code class="inline-code">postcss-nesting</code> plugin in your build pipeline. It converts native CSS nesting syntax into flat CSS. This gives you native syntax authoring with universal compatibility:
+</p>
+
+<pre class="code-block"><code class="language-bash">npm install -D postcss postcss-nesting
+<p class="post-p">
+</code></pre>
+</p>
+
+<pre class="code-block"><code class="language-js">// postcss.config.js
+<p class="post-p">
+module.exports = {
+plugins: [
+require('postcss-nesting'),
+],
+};
+</code></pre>
+</p>
+
+<h3 class="post-h3">Option 2: Only Nest Non-Critical Styles</h3>
+
+<p class="post-p">
+Nest everything. If an old browser encounters nested CSS, it simply ignores the nested rules and applies the parent styles flat. Your layout still works; it just loses some polish:
+</p>
+
+<pre class="code-block"><code class="language-css">.card {
+<p class="post-p">
+padding: 1rem;
+background: white;
+/<em> This always applies, even in old browsers </em>/
+</p>
+
+<p class="post-p">
+&amp;amp; .title {
+font-weight: bold;
+/<em> Old browsers ignore this — title just won't be bold </em>/
+}
+}
+</code></pre>
+</p>
+
+<h2 class="post-h2">Should You Still Use Sass?</h2>
+
+<p class="post-p">
+Maybe, but for far fewer reasons. Here's a decision framework:
+</p>
+
+<p class="post-p">
+<strong>Drop Sass if:</strong> You only used it for nesting, variables, and color functions. Native CSS now covers all three: nesting for structure, <code class="inline-code">var()</code> + <code class="inline-code">@property</code> for variables, and <code class="inline-code">color-mix()</code> + <code class="inline-code">oklch()</code> for color manipulation.
+</p>
+
+<p class="post-p">
+<strong>Keep Sass if:</strong> You rely heavily on mixins, loops (<code class="inline-code">@for</code>, <code class="inline-code">@each</code>), or functions. These have no native equivalents and likely never will — they're programming constructs, not styling features.
+</p>
+
+<p class="post-p">
+<strong>Hybrid approach:</strong> Keep Sass for your design system tokens, mixins, and utility generation. Write component styles in native CSS with nesting. The two interoperate perfectly since Sass processes to flat CSS before nesting is applied.
+</p>
+
+<h2 class="post-h2">The Bottom Line</h2>
+
+<p class="post-p">
+CSS Nesting becoming Baseline is a watershed moment. For the first time in web history, you can write structured, maintainable CSS without a build step. The syntax is clean. The mental model is identical to Sass. And it works in every browser.
+</p>
+
+<p class="post-p">
+If you haven't tried native nesting yet, here's your starter: pick one component. Rewrite its Sass-flavored CSS using native nesting. Delete the <code class="inline-code">scss</code> extension and rename it <code class="inline-code">.css</code>. Watch it work. It's that simple.
+</p>
+
+<p class="post-p">
+The preprocessor era isn't quite over — but the single biggest reason to use one just disappeared.
+</p>
+
+<h2 class="post-h2">Further Reading</h2>
+
+<ul class="post-ul"><li class="post-li"><strong><a href="https://www.w3.org/TR/css-nesting-1/" class="post-link" target="_blank" rel="noopener noreferrer">CSS Nesting Module (W3C)</a></strong> — The official specification</li>
+<li class="post-li"><strong><a href="https://caniuse.com/css-nesting" class="post-link" target="_blank" rel="noopener noreferrer">Can I Use: CSS Nesting</a></strong> — Live browser support data</li>
+<li class="post-li"><strong><a href="/tools/css-nesting-playground" class="post-link" target="_blank" rel="noopener noreferrer">Try it on DevBench</a></strong> — Interactive nesting playground with live expansion</li>
+<li class="post-li"><strong><a href="https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_nesting" class="post-link" target="_blank" rel="noopener noreferrer">MDN: CSS Nesting</a></strong> — Complete reference with examples</li>
+<li class="post-li"><strong><a href="https://sass-lang.com/documentation/style-rules/#nesting" class="post-link" target="_blank" rel="noopener noreferrer">Sass: Nesting</a></strong> — Compare with the original</li>
+</ul></div><style>
+        .blog-content .post-h1 { font-size: 1.75rem; font-weight: 700; color: #ffffff; margin-top: 2rem; margin-bottom: 1rem; }
+        .blog-content .post-h2 { font-size: 1.5rem; font-weight: 600; color: #f1f5f9; margin-top: 1.75rem; margin-bottom: 0.75rem; padding-bottom: 0.5rem; border-bottom: 1px solid #334155; }
+        .blog-content .post-h3 { font-size: 1.25rem; font-weight: 600; color: #e2e8f0; margin-top: 1.5rem; margin-bottom: 0.5rem; }
+        .blog-content .post-h4 { font-size: 1.1rem; font-weight: 600; color: #e2e8f0; margin-top: 1.25rem; margin-bottom: 0.5rem; }
+        .blog-content .post-p { color: #cbd5e1; line-height: 1.75; margin-bottom: 1rem; }
+        .blog-content .code-block { background: #0f172a; border: 1px solid #334155; border-radius: 0.5rem; padding: 1rem; overflow-x: auto; margin: 1rem 0; font-family: 'JetBrains Mono', monospace; font-size: 0.875rem; color: #e2e8f0; }
+        .blog-content .inline-code { background: #1e293b; color: #38bdf8; padding: 0.15rem 0.4rem; border-radius: 0.25rem; font-family: 'JetBrains Mono', monospace; font-size: 0.875em; }
+        .blog-content .post-link { color: #38bdf8; text-decoration: underline; transition: color 0.2s; }
+        .blog-content .post-link:hover { color: #7dd3fc; }
+        .blog-content .post-ul { list-style: disc; padding-left: 1.5rem; margin: 0.75rem 0; color: #cbd5e1; }
+        .blog-content .post-li { margin-bottom: 0.25rem; line-height: 1.6; }
+        .blog-content .post-blockquote { border-left: 3px solid #0ea5e9; padding: 0.5rem 1rem; margin: 1rem 0; background: rgba(14, 165, 233, 0.05); border-radius: 0 0.5rem 0.5rem 0; }
+        .blog-content .post-blockquote p { color: #94a3b8; font-style: italic; }
+        .blog-content .post-hr { border: none; border-top: 1px solid #334155; margin: 2rem 0; }
+        .blog-content strong { color: #f1f5f9; font-weight: 600; }
+        .blog-content em { font-style: italic; }
+        </style></article></main><footer class="bg-surface-light border-t border-slate-700/50 mt-auto"><div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12"><div class="grid grid-cols-1 md:grid-cols-3 gap-8"><div><a class="flex items-center gap-2.5 mb-3" href="/devbench-tech/"><div class="w-7 h-7 bg-brand-500 rounded-lg flex items-center justify-center"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-terminal w-3.5 h-3.5 text-white"><polyline points="4 17 10 11 4 5"></polyline><line x1="12" x2="20" y1="19" y2="19"></line></svg></div><span class="text-lg font-bold text-white">Dev<span class="gradient-text">Bench</span></span></a><p class="text-slate-400 text-sm leading-relaxed">Free developer tools, benchmarks, and calculators. Built for developers, by developers.</p></div><div><h3 class="text-sm font-semibold text-slate-300 uppercase tracking-wider mb-4">Tools</h3><ul class="space-y-2"><li><a class="text-slate-400 hover:text-brand-400 text-sm transition-colors" href="/devbench-tech/tools/json-formatter/">JSON Formatter</a></li><li><a class="text-slate-400 hover:text-brand-400 text-sm transition-colors" href="/devbench-tech/tools/base64/">Base64 Encoder/Decoder</a></li><li><a class="text-slate-400 hover:text-brand-400 text-sm transition-colors" href="/devbench-tech/tools/uuid-generator/">UUID Generator</a></li><li><a class="text-slate-400 hover:text-brand-400 text-sm transition-colors" href="/devbench-tech/tools/regex-tester/">Regex Tester</a></li></ul></div><div><h3 class="text-sm font-semibold text-slate-300 uppercase tracking-wider mb-4">Resources</h3><ul class="space-y-2"><li><a class="text-slate-400 hover:text-brand-400 text-sm transition-colors" href="/devbench-tech/blog/">Blog</a></li><li><a class="text-slate-400 hover:text-brand-400 text-sm transition-colors" href="/devbench-tech/benchmarks/">Benchmarks</a></li><li><a class="text-slate-400 hover:text-brand-400 text-sm transition-colors" href="/devbench-tech/about/">About</a></li></ul></div></div><div class="mt-10 pt-6 border-t border-slate-700/50 flex flex-col sm:flex-row items-center justify-between gap-4"><p class="text-slate-500 text-sm flex items-center gap-1">Made with <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-heart w-3.5 h-3.5 text-red-500 fill-red-500"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"></path></svg> by the DevBench team © <!-- -->2026</p><a href="https://github.com" target="_blank" rel="noopener noreferrer" class="text-slate-500 hover:text-slate-300 transition-colors" aria-label="GitHub"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-github w-5 h-5"><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"></path><path d="M9 18c-4.51 2-5-2-7-2"></path></svg></a></div></div></footer><div data-rht-toaster="" style="position:fixed;z-index:9999;top:16px;left:16px;right:16px;bottom:16px;pointer-events:none"></div><script src="/devbench-tech/_next/static/chunks/webpack-b521a83317325026.js" async=""></script><script>(self.__next_f=self.__next_f||[]).push([0]);self.__next_f.push([2,null])</script><script>self.__next_f.push([1,"1:HL[\"/devbench-tech/_next/static/css/c877e59dbcb00f11.css\",\"style\"]\n"])</script><script>self.__next_f.push([1,"2:I[12846,[],\"\"]\n4:I[72972,[\"2972\",\"static/chunks/2972-4aaa15d119eeb022.js\",\"308\",\"static/chunks/app/blog/%5Bslug%5D/page-a411190e7012c687.js\"],\"\"]\n7:I[4707,[],\"\"]\n9:I[36423,[],\"\"]\na:I[39295,[\"9762\",\"static/chunks/44530001-4ecf7a22b5b24163.js\",\"2972\",\"static/chunks/2972-4aaa15d119eeb022.js\",\"8375\",\"static/chunks/8375-c77b8de36f6696fb.js\",\"6829\",\"static/chunks/6829-f51803445ddf1872.js\",\"3185\",\"static/chunks/app/layout-488e5c40aa6ffa72.js\"],\"Header\"]\nb:I[66506,[\"9762\",\"static/chunks/44530001-4ecf7a22b5b24163.js\",\"2972\",\"static/chunks/2972-4aaa15d119eeb022.js\",\"8375\",\"static/chunks/8375-c77b8de36f6696fb.js\",\"6829\",\"static/chunks/6829-f51803445ddf1872.js\",\"3185\",\"static/chunks/app/layout-488e5c40aa6ffa72.js\"],\"Analytics\"]\nc:I[69064,[\"9762\",\"static/chunks/44530001-4ecf7a22b5b24163.js\",\"2972\",\"static/chunks/2972-4aaa15d119eeb022.js\",\"8375\",\"static/chunks/8375-c77b8de36f6696fb.js\",\"6829\",\"static/chunks/6829-f51803445ddf1872.js\",\"3185\",\"static/chunks/app/layout-488e5c40aa6ffa72.js\"],\"Toaster\"]\ne:I[61060,[],\"\"]\n5:T54a3,"])</script><script>self.__next_f.push([1,"\n\u003ch2 class=\"post-h2\"\u003eThe Last Preprocessor Feature Falls\u003c/h2\u003e\n\n\u003cp class=\"post-p\"\u003e\nFor two decades, one feature kept developers reaching for Sass, Less, and Stylus: \u003cstrong\u003enesting\u003c/strong\u003e. The ability to write selectors inside other selectors — mirroring the DOM tree structure — is the single most adopted preprocessor feature in frontend history.\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\nIn 2026, native CSS nesting is \u003cstrong\u003eBaseline\u003c/strong\u003e across all four major browsers. Chrome shipped it in 2023, Safari in 2024, Firefox in 2025, and Edge followed the Chrome timeline. You can now write this in a plain \u003ccode class=\"inline-code\"\u003e.css\u003c/code\u003e file:\n\u003c/p\u003e\n\n\u003cpre class=\"code-block\"\u003e\u003ccode class=\"language-css\"\u003e.card {\n\u003cp class=\"post-p\"\u003e\nbackground: white;\nborder-radius: 8px;\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n\u0026amp;amp; .title {\nfont-size: 1.5rem;\nfont-weight: 700;\n}\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n\u0026amp;amp; .body {\npadding: 1rem;\n}\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n\u0026amp;amp;:hover {\nbox-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);\n}\n}\n\u003c/code\u003e\u003c/pre\u003e\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\nNo compiler. No build step. No \u003ccode class=\"inline-code\"\u003enode-sass\u003c/code\u003e dependency that breaks every time you update Node.js. The browser parses it natively.\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\nThis is the final nail in the coffin for preprocessor-only features. CSS Variables replaced Sass variables. \u003ccode class=\"inline-code\"\u003e@layer\u003c/code\u003e replaced file organization hacks. \u003ccode class=\"inline-code\"\u003ecolor-mix()\u003c/code\u003e and \u003ccode class=\"inline-code\"\u003eoklch()\u003c/code\u003e replaced \u003ccode class=\"inline-code\"\u003edarken()\u003c/code\u003e and \u003ccode class=\"inline-code\"\u003elighten()\u003c/code\u003e. And now nesting completes the picture.\n\u003c/p\u003e\n\n\u003ch2 class=\"post-h2\"\u003eThe Two Forms of Nesting\u003c/h2\u003e\n\n\u003cp class=\"post-p\"\u003e\nNative CSS supports two nesting forms, and understanding when to use each is critical.\n\u003c/p\u003e\n\n\u003ch3 class=\"post-h3\"\u003e1. Simple Nesting (with \u003ccode class=\"inline-code\"\u003e\u0026amp;\u003c/code\u003e)\u003c/h3\u003e\n\n\u003cp class=\"post-p\"\u003e\nThis is the safest, most widely supported form. Every nested selector MUST start with the \u003ccode class=\"inline-code\"\u003e\u0026amp;\u003c/code\u003e combinator:\n\u003c/p\u003e\n\n\u003cpre class=\"code-block\"\u003e\u003ccode class=\"language-css\"\u003e.parent {\n\u003cp class=\"post-p\"\u003e\ncolor: blue;\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n\u0026amp;amp; .child {\ncolor: red;\n}\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n\u0026amp;amp;:hover {\ncolor: green;\n}\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n\u0026amp;amp; \u0026amp;gt; .direct-child {\ncolor: purple;\n}\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n\u0026amp;amp; + .sibling {\ncolor: orange;\n}\n}\n\u003c/code\u003e\u003c/pre\u003e\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\nThe \u003ccode class=\"inline-code\"\u003e\u0026amp;\u003c/code\u003e is replaced with the parent selector at parse time. \u003ccode class=\"inline-code\"\u003e\u0026amp; .child\u003c/code\u003e becomes \u003ccode class=\"inline-code\"\u003e.parent .child\u003c/code\u003e. \u003ccode class=\"inline-code\"\u003e\u0026amp;:hover\u003c/code\u003e becomes \u003ccode class=\"inline-code\"\u003e.parent:hover\u003c/code\u003e. Simple, predictable, and identical to Sass behavior.\n\u003c/p\u003e\n\n\u003ch3 class=\"post-h3\"\u003e2. Relaxed Nesting (without \u003ccode class=\"inline-code\"\u003e\u0026amp;\u003c/code\u003e)\u003c/h3\u003e\n\n\u003cp class=\"post-p\"\u003e\nThe spec also allows omitting \u003ccode class=\"inline-code\"\u003e\u0026amp;\u003c/code\u003e when the nested selector starts with a letter, \u003ccode class=\"inline-code\"\u003e[\u003c/code\u003e, \u003ccode class=\"inline-code\"\u003e:\u003c/code\u003e, or \u003ccode class=\"inline-code\"\u003e.\u003c/code\u003e — essentially anything that can't be confused with a property declaration:\n\u003c/p\u003e\n\n\u003cpre class=\"code-block\"\u003e\u003ccode class=\"language-css\"\u003e.card {\n\u003cp class=\"post-p\"\u003e\nbackground: white;\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n.title {\n/\u003cem\u003e Equivalent to .card .title \u003c/em\u003e/\nfont-weight: bold;\n}\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n:hover {\n/\u003cem\u003e Equivalent to .card:hover \u003c/em\u003e/\ntransform: scale(1.02);\n}\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n[data-variant=\"outline\"] {\n/\u003cem\u003e Equivalent to .card[data-variant=\"outline\"] \u003c/em\u003e/\nborder: 2px solid currentColor;\n}\n}\n\u003c/code\u003e\u003c/pre\u003e\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n\u003cstrong\u003eThis is controversial.\u003c/strong\u003e Many developers (including the Sass team) argued that relaxed nesting introduces ambiguity. If a browser encounters \u003ccode class=\"inline-code\"\u003ecolor\u003c/code\u003e inside a nested context, it has to decide: is this a property declaration or a type selector \u003ccode class=\"inline-code\"\u003e.color\u003c/code\u003e? The spec resolves this by always treating valid property names as properties — but edge cases exist. Here's a real ambiguity:\n\u003c/p\u003e\n\n\u003cpre class=\"code-block\"\u003e\u003ccode class=\"language-css\"\u003ediv {\n\u003cp class=\"post-p\"\u003e\nborder: 1px solid;\n/\u003cem\u003e Is this the border property or a .border class selector? \u003c/em\u003e/\nborder {\n/\u003cem\u003e ... \u003c/em\u003e/\n}\n}\n\u003c/code\u003e\u003c/pre\u003e\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\nThe browser always treats \u003ccode class=\"inline-code\"\u003eborder\u003c/code\u003e as a property since it's a valid CSS property name. This means \u003cstrong\u003eyou can't nest a \u003ccode class=\"inline-code\"\u003e.border\u003c/code\u003e class selector inside \u003ccode class=\"inline-code\"\u003ediv\u003c/code\u003e without using \u003ccode class=\"inline-code\"\u003e\u0026amp;\u003c/code\u003e\u003c/strong\u003e. If you have a class called \u003ccode class=\"inline-code\"\u003e.border\u003c/code\u003e, \u003ccode class=\"inline-code\"\u003e.padding\u003c/code\u003e, \u003ccode class=\"inline-code\"\u003e.margin\u003c/code\u003e, or any other class that matches a CSS property name, you must write \u003ccode class=\"inline-code\"\u003e\u0026amp; .border\u003c/code\u003e, not \u003ccode class=\"inline-code\"\u003e.border\u003c/code\u003e.\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n\u003cstrong\u003eMy recommendation:\u003c/strong\u003e Always use \u003ccode class=\"inline-code\"\u003e\u0026amp;\u003c/code\u003e explicitly. It's one extra character and eliminates every ambiguity. Code is read far more often than written — make it unmistakable.\n\u003c/p\u003e\n\n\u003ch2 class=\"post-h2\"\u003eNesting At-Rules\u003c/h2\u003e\n\n\u003cp class=\"post-p\"\u003e\nYou can nest \u003ccode class=\"inline-code\"\u003e@media\u003c/code\u003e, \u003ccode class=\"inline-code\"\u003e@container\u003c/code\u003e, \u003ccode class=\"inline-code\"\u003e@supports\u003c/code\u003e, and \u003ccode class=\"inline-code\"\u003e@layer\u003c/code\u003e inside any selector:\n\u003c/p\u003e\n\n\u003cpre class=\"code-block\"\u003e\u003ccode class=\"language-css\"\u003e.sidebar {\n\u003cp class=\"post-p\"\u003e\ndisplay: flex;\nflex-direction: column;\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n@media (width \u0026amp;lt;= 768px) {\nflex-direction: row;\noverflow-x: auto;\n}\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n@container (min-width: 400px) {\npadding: 2rem;\n}\n}\n\u003c/code\u003e\u003c/pre\u003e\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\nThis is perhaps the single biggest win of native nesting. Instead of repeating the selector inside every media query (and having them scattered across your file), the responsive behavior lives right next to the base styles:\n\u003c/p\u003e\n\n\u003cpre class=\"code-block\"\u003e\u003ccode class=\"language-css\"\u003e/\u003cem\u003e Old way — media queries far from their selectors \u003c/em\u003e/\n\u003cp class=\"post-p\"\u003e\n.sidebar { display: flex; flex-direction: column; }\n.widget { padding: 1rem; }\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n@media (width \u0026amp;lt;= 768px) {\n.sidebar { flex-direction: row; }\n.widget { padding: 0.5rem; }\n}\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n/\u003cem\u003e New way — responsive behavior co-located \u003c/em\u003e/\n.sidebar {\ndisplay: flex;\nflex-direction: column;\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n@media (width \u0026amp;lt;= 768px) {\nflex-direction: row;\n}\n}\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n.widget {\npadding: 1rem;\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n@media (width \u0026amp;lt;= 768px) {\npadding: 0.5rem;\n}\n}\n\u003c/code\u003e\u003c/pre\u003e\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\nCo-location is a massive maintainability win. When you need to change a component's responsive behavior, everything is in one place.\n\u003c/p\u003e\n\n\u003ch2 class=\"post-h2\"\u003eNesting \u003ccode class=\"inline-code\"\u003e@supports\u003c/code\u003e and \u003ccode class=\"inline-code\"\u003e@layer\u003c/code\u003e\u003c/h2\u003e\n\n\u003cp class=\"post-p\"\u003e\nBoth work identically:\n\u003c/p\u003e\n\n\u003cpre class=\"code-block\"\u003e\u003ccode class=\"language-css\"\u003e.grid-layout {\n\u003cp class=\"post-p\"\u003e\ndisplay: grid;\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n@supports (grid-template-rows: subgrid) {\ngrid-template-rows: subgrid;\n}\n}\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n/\u003cem\u003e Or with @layer for cascade management \u003c/em\u003e/\n@layer components {\n.button {\npadding: 0.75rem 1.5rem;\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n@media (hover: hover) {\n\u0026amp;amp;:hover {\nfilter: brightness(1.1);\n}\n}\n}\n}\n\u003c/code\u003e\u003c/pre\u003e\n\u003c/p\u003e\n\n\u003ch2 class=\"post-h2\"\u003eThe \u003ccode class=\"inline-code\"\u003e\u0026amp;\u003c/code\u003e Combinator Rules\u003c/h2\u003e\n\n\u003cp class=\"post-p\"\u003e\nUnderstanding exactly how \u003ccode class=\"inline-code\"\u003e\u0026amp;\u003c/code\u003e works prevents 90% of nesting bugs:\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n| Nested selector | Resolves to | Notes |\n|-----------------|-------------|-------|\n| \u003ccode class=\"inline-code\"\u003e\u0026amp; .child\u003c/code\u003e | \u003ccode class=\"inline-code\"\u003e.parent .child\u003c/code\u003e | Descendant combinator added |\n| \u003ccode class=\"inline-code\"\u003e\u0026amp; \u0026gt; .child\u003c/code\u003e | \u003ccode class=\"inline-code\"\u003e.parent \u0026gt; .child\u003c/code\u003e | Direct child |\n| \u003ccode class=\"inline-code\"\u003e\u0026amp;.active\u003c/code\u003e | \u003ccode class=\"inline-code\"\u003e.parent.active\u003c/code\u003e | Same element, additional class |\n| \u003ccode class=\"inline-code\"\u003e\u0026amp;:hover\u003c/code\u003e | \u003ccode class=\"inline-code\"\u003e.parent:hover\u003c/code\u003e | Pseudo-class on parent |\n| \u003ccode class=\"inline-code\"\u003e\u0026amp;::before\u003c/code\u003e | \u003ccode class=\"inline-code\"\u003e.parent::before\u003c/code\u003e | Pseudo-element on parent |\n| \u003ccode class=\"inline-code\"\u003e\u0026amp; + p\u003c/code\u003e | \u003ccode class=\"inline-code\"\u003e.parent + p\u003c/code\u003e | Adjacent sibling |\n| \u003ccode class=\"inline-code\"\u003e\u0026amp; ~ p\u003c/code\u003e | \u003ccode class=\"inline-code\"\u003e.parent ~ p\u003c/code\u003e | General sibling |\n| \u003ccode class=\"inline-code\"\u003e\u0026amp;[open]\u003c/code\u003e | \u003ccode class=\"inline-code\"\u003e.parent[open]\u003c/code\u003e | Attribute selector |\n| \u003ccode class=\"inline-code\"\u003e:is(\u0026amp;)\u003c/code\u003e | \u003ccode class=\"inline-code\"\u003e:is(.parent)\u003c/code\u003e | Specificity trick (see below) |\n\u003c/p\u003e\n\n\u003ch3 class=\"post-h3\"\u003eThe Specificity Trap\u003c/h3\u003e\n\n\u003cp class=\"post-p\"\u003e\nThis is the most important gotcha. Nesting with \u003ccode class=\"inline-code\"\u003e\u0026amp;\u003c/code\u003e produces the same specificity as writing the selector out flat:\n\u003c/p\u003e\n\n\u003cpre class=\"code-block\"\u003e\u003ccode class=\"language-css\"\u003e.article {\n\u003cp class=\"post-p\"\u003e\ncolor: black;\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n\u0026amp;amp; .highlight {\ncolor: blue; /\u003cem\u003e specificity: 0,2,0 — .article + .highlight \u003c/em\u003e/\n}\n}\n\u003c/code\u003e\u003c/pre\u003e\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\nBut relaxed nesting (without \u003ccode class=\"inline-code\"\u003e\u0026amp;\u003c/code\u003e) uses \u003ccode class=\"inline-code\"\u003e:is()\u003c/code\u003e internally, which can change specificity:\n\u003c/p\u003e\n\n\u003cpre class=\"code-block\"\u003e\u003ccode class=\"language-css\"\u003e.article {\n\u003cp class=\"post-p\"\u003e\ncolor: black;\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n.highlight {\n/\u003cem\u003e The browser desugars this to: :is(.article) .highlight \u003c/em\u003e/\n/\u003cem\u003e specificity: (0,1,0) from :is() + (0,1,0) from .highlight = 0,2,0 \u003c/em\u003e/\n/\u003cem\u003e Same as explicit \u0026amp;amp;, so this case is fine. \u003c/em\u003e/\ncolor: blue;\n}\n}\n\u003c/code\u003e\u003c/pre\u003e\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\nThe real trap: if the parent has a complex selector, \u003ccode class=\"inline-code\"\u003e:is()\u003c/code\u003e takes the highest specificity from its argument list:\n\u003c/p\u003e\n\n\u003cpre class=\"code-block\"\u003e\u003ccode class=\"language-css\"\u003e#page .article {\n\u003cp class=\"post-p\"\u003e\n/\u003cem\u003e specificity: 1,1,0 \u003c/em\u003e/\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n.highlight {\n/\u003cem\u003e Desugars to: :is(#page .article) .highlight \u003c/em\u003e/\n/\u003cem\u003e :is() specificity = max(1,0,0,  0,1,0) = 1,1,0 \u003c/em\u003e/\n/\u003cem\u003e Total: 1,2,0 — HIGHER than you might expect! \u003c/em\u003e/\ncolor: red;\n}\n}\n\u003c/code\u003e\u003c/pre\u003e\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n\u003cstrong\u003eRule of thumb:\u003c/strong\u003e If you nest under a selector containing an ID or element type, use explicit \u003ccode class=\"inline-code\"\u003e\u0026amp;\u003c/code\u003e to avoid \u003ccode class=\"inline-code\"\u003e:is()\u003c/code\u003e specificity surprises. Better yet, avoid IDs in CSS entirely and the problem disappears.\n\u003c/p\u003e\n\n\u003ch2 class=\"post-h2\"\u003eReal-World Patterns\u003c/h2\u003e\n\n\u003ch3 class=\"post-h3\"\u003ePattern 1: Component with Variants\u003c/h3\u003e\n\n\u003cpre class=\"code-block\"\u003e\u003ccode class=\"language-css\"\u003e.alert {\n\u003cp class=\"post-p\"\u003e\npadding: 1rem;\nborder-radius: 6px;\nborder: 1px solid;\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n\u0026amp;amp;[data-variant=\"success\"] {\nbackground: oklch(0.95 0.04 150);\nborder-color: oklch(0.85 0.08 150);\ncolor: oklch(0.30 0.06 150);\n}\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n\u0026amp;amp;[data-variant=\"error\"] {\nbackground: oklch(0.95 0.04 20);\nborder-color: oklch(0.85 0.08 20);\ncolor: oklch(0.30 0.06 20);\n}\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n\u0026amp;amp;[data-variant=\"warning\"] {\nbackground: oklch(0.95 0.08 90);\nborder-color: oklch(0.85 0.12 90);\ncolor: oklch(0.35 0.06 80);\n}\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n\u0026amp;amp; .icon {\nmargin-right: 0.5rem;\n}\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n\u0026amp;amp; .title {\nfont-weight: 600;\nmargin-bottom: 0.25rem;\n}\n}\n\u003c/code\u003e\u003c/pre\u003e\n\u003c/p\u003e\n\n\u003ch3 class=\"post-h3\"\u003ePattern 2: Card with Responsive Grid\u003c/h3\u003e\n\n\u003cpre class=\"code-block\"\u003e\u003ccode class=\"language-css\"\u003e.product-grid {\n\u003cp class=\"post-p\"\u003e\ndisplay: grid;\ngap: 1.5rem;\ngrid-template-columns: repeat(auto-fill, minmax(280px, 1fr));\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n@media (width \u0026amp;gt;= 1024px) {\ngrid-template-columns: repeat(3, 1fr);\n}\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n@media (width \u0026amp;lt;= 640px) {\ngrid-template-columns: 1fr;\ngap: 1rem;\n}\n}\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n.product-card {\nborder: 1px solid var(--border);\nborder-radius: 12px;\noverflow: hidden;\ntransition: box-shadow 0.2s, transform 0.2s;\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n@media (hover: hover) {\n\u0026amp;amp;:hover {\nbox-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);\ntransform: translateY(-2px);\n}\n}\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n\u0026amp;amp; img {\nwidth: 100%;\naspect-ratio: 4 / 3;\nobject-fit: cover;\n}\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n\u0026amp;amp; .content {\npadding: 1.25rem;\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n\u0026amp;amp; h3 {\nfont-size: 1.125rem;\nfont-weight: 600;\nmargin-bottom: 0.5rem;\n}\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n\u0026amp;amp; p {\ncolor: var(--text-secondary);\nfont-size: 0.875rem;\nline-height: 1.5;\n}\n}\n}\n\u003c/code\u003e\u003c/pre\u003e\n\u003c/p\u003e\n\n\u003ch3 class=\"post-h3\"\u003ePattern 3: Navigation with Mobile Toggle\u003c/h3\u003e\n\n\u003cpre class=\"code-block\"\u003e\u003ccode class=\"language-css\"\u003e.nav {\n\u003cp class=\"post-p\"\u003e\ndisplay: flex;\nalign-items: center;\ngap: 1.5rem;\npadding: 1rem 2rem;\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n@media (width \u0026amp;lt;= 768px) {\nflex-direction: column;\nalign-items: stretch;\npadding: 1rem;\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n\u0026amp;amp;:not(.open) {\ndisplay: none;\n}\n}\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n\u0026amp;amp; .link {\ntext-decoration: none;\ncolor: inherit;\npadding: 0.5rem 0;\nposition: relative;\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n\u0026amp;amp;::after {\ncontent: '';\nposition: absolute;\nbottom: 0;\nleft: 0;\nright: 0;\nheight: 2px;\nbackground: currentColor;\ntransform: scaleX(0);\ntransition: transform 0.2s;\n}\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n@media (hover: hover) {\n\u0026amp;amp;:hover::after {\ntransform: scaleX(1);\n}\n}\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n\u0026amp;amp;.active::after {\ntransform: scaleX(1);\n}\n}\n}\n\u003c/code\u003e\u003c/pre\u003e\n\u003c/p\u003e\n\n\u003ch2 class=\"post-h2\"\u003eMigrating from Sass: The Differences That Matter\u003c/h2\u003e\n\n\u003cp class=\"post-p\"\u003e\nIf you're coming from Sass, here are the differences you'll hit:\n\u003c/p\u003e\n\n\u003ch3 class=\"post-h3\"\u003e1. No \u003ccode class=\"inline-code\"\u003e@at-root\u003c/code\u003e\u003c/h3\u003e\n\n\u003cp class=\"post-p\"\u003e\nSass lets you break out of nesting with \u003ccode class=\"inline-code\"\u003e@at-root\u003c/code\u003e. CSS Nesting has no equivalent. Instead, use \u003ccode class=\"inline-code\"\u003e@layer\u003c/code\u003e or restructure your selectors:\n\u003c/p\u003e\n\n\u003cpre class=\"code-block\"\u003e\u003ccode class=\"language-css\"\u003e/\u003cem\u003e Sass pattern \u003c/em\u003e/\n\u003cp class=\"post-p\"\u003e\n.component {\ncolor: blue;\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n@at-root .global-class {\ncolor: red;\n}\n}\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n/\u003cem\u003e Native CSS: just write it flat \u003c/em\u003e/\n.component {\ncolor: blue;\n}\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n.global-class {\ncolor: red;\n}\n\u003c/code\u003e\u003c/pre\u003e\n\u003c/p\u003e\n\n\u003ch3 class=\"post-h3\"\u003e2. BEM Concatenation Still Works\u003c/h3\u003e\n\n\u003cp class=\"post-p\"\u003e\nSass lets you concatenate selectors with \u003ccode class=\"inline-code\"\u003e\u0026amp;__element\u003c/code\u003e and \u003ccode class=\"inline-code\"\u003e\u0026amp;--modifier\u003c/code\u003e for BEM naming. \u003cstrong\u003eNative CSS can do this too\u003c/strong\u003e:\n\u003c/p\u003e\n\n\u003cpre class=\"code-block\"\u003e\u003ccode class=\"language-css\"\u003e/\u003cem\u003e Both Sass and Native CSS support this \u003c/em\u003e/\n\u003cp class=\"post-p\"\u003e\n.block {\ncolor: blue;\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n\u0026amp;amp;__element {\n/\u003cem\u003e Sass: .block__element. Native: .block__element. Same! \u003c/em\u003e/\ncolor: red;\n}\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n\u0026amp;amp;--modifier {\n/\u003cem\u003e .block--modifier \u003c/em\u003e/\ncolor: green;\n}\n}\n\u003c/code\u003e\u003c/pre\u003e\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\nThis works! You can keep your BEM naming conventions with native nesting.\n\u003c/p\u003e\n\n\u003ch3 class=\"post-h3\"\u003e3. No Mixins, Functions, or Control Flow\u003c/h3\u003e\n\n\u003cp class=\"post-p\"\u003e\nSass features like \u003ccode class=\"inline-code\"\u003e@mixin\u003c/code\u003e, \u003ccode class=\"inline-code\"\u003e@function\u003c/code\u003e, \u003ccode class=\"inline-code\"\u003e@if\u003c/code\u003e, \u003ccode class=\"inline-code\"\u003e@for\u003c/code\u003e, \u003ccode class=\"inline-code\"\u003e@each\u003c/code\u003e, and \u003ccode class=\"inline-code\"\u003e@while\u003c/code\u003e have no CSS equivalents. That said, CSS Custom Properties + \u003ccode class=\"inline-code\"\u003ecalc()\u003c/code\u003e cover many \u003ccode class=\"inline-code\"\u003e@function\u003c/code\u003e use cases, and \u003ccode class=\"inline-code\"\u003e:has()\u003c/code\u003e + \u003ccode class=\"inline-code\"\u003e@container\u003c/code\u003e cover many conditional styling needs.\n\u003c/p\u003e\n\n\u003ch3 class=\"post-h3\"\u003e4. No Parent Selector in Strings\u003c/h3\u003e\n\n\u003cp class=\"post-p\"\u003e\nSass lets you use \u003ccode class=\"inline-code\"\u003e\u0026amp;\u003c/code\u003e in strings for generated content. CSS doesn't support this:\n\u003c/p\u003e\n\n\u003cpre class=\"code-block\"\u003e\u003ccode class=\"language-css\"\u003e/\u003cem\u003e Sass only — not possible in native CSS \u003c/em\u003e/\n\u003cp class=\"post-p\"\u003e\n.element {\n\u0026amp;amp;::after {\ncontent: \"You are hovering .element\";\n}\n}\n\u003c/code\u003e\u003c/pre\u003e\n\u003c/p\u003e\n\n\u003ch3 class=\"post-h3\"\u003e5. No \u003ccode class=\"inline-code\"\u003e@extend\u003c/code\u003e\u003c/h3\u003e\n\n\u003cp class=\"post-p\"\u003e\nSass \u003ccode class=\"inline-code\"\u003e@extend\u003c/code\u003e has no native equivalent. This is actually fine — \u003ccode class=\"inline-code\"\u003e@extend\u003c/code\u003e was widely considered an anti-pattern due to unpredictable output order and selector bloat. Use CSS Custom Properties or utility classes instead.\n\u003c/p\u003e\n\n\u003ch2 class=\"post-h2\"\u003eBrowser Support and Progressive Enhancement\u003c/h2\u003e\n\n\u003cp class=\"post-p\"\u003e\nAs of May 2026, CSS Nesting is Baseline — meaning it works in all four major browsers:\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n| Browser | Version | Release |\n|---------|---------|---------|\n| Chrome | 120+ | December 2023 |\n| Safari | 17.2+ | December 2023 |\n| Firefox | 131+ | October 2024 |\n| Edge | 120+ | December 2023 |\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\nGlobal support is ~94% as of May 2026. If you need to support older browsers, you have two options:\n\u003c/p\u003e\n\n\u003ch3 class=\"post-h3\"\u003eOption 1: PostCSS with \u003ccode class=\"inline-code\"\u003epostcss-nesting\u003c/code\u003e\u003c/h3\u003e\n\n\u003cp class=\"post-p\"\u003e\nUse the popular \u003ccode class=\"inline-code\"\u003epostcss-nesting\u003c/code\u003e plugin in your build pipeline. It converts native CSS nesting syntax into flat CSS. This gives you native syntax authoring with universal compatibility:\n\u003c/p\u003e\n\n\u003cpre class=\"code-block\"\u003e\u003ccode class=\"language-bash\"\u003enpm install -D postcss postcss-nesting\n\u003cp class=\"post-p\"\u003e\n\u003c/code\u003e\u003c/pre\u003e\n\u003c/p\u003e\n\n\u003cpre class=\"code-block\"\u003e\u003ccode class=\"language-js\"\u003e// postcss.config.js\n\u003cp class=\"post-p\"\u003e\nmodule.exports = {\nplugins: [\nrequire('postcss-nesting'),\n],\n};\n\u003c/code\u003e\u003c/pre\u003e\n\u003c/p\u003e\n\n\u003ch3 class=\"post-h3\"\u003eOption 2: Only Nest Non-Critical Styles\u003c/h3\u003e\n\n\u003cp class=\"post-p\"\u003e\nNest everything. If an old browser encounters nested CSS, it simply ignores the nested rules and applies the parent styles flat. Your layout still works; it just loses some polish:\n\u003c/p\u003e\n\n\u003cpre class=\"code-block\"\u003e\u003ccode class=\"language-css\"\u003e.card {\n\u003cp class=\"post-p\"\u003e\npadding: 1rem;\nbackground: white;\n/\u003cem\u003e This always applies, even in old browsers \u003c/em\u003e/\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n\u0026amp;amp; .title {\nfont-weight: bold;\n/\u003cem\u003e Old browsers ignore this — title just won't be bold \u003c/em\u003e/\n}\n}\n\u003c/code\u003e\u003c/pre\u003e\n\u003c/p\u003e\n\n\u003ch2 class=\"post-h2\"\u003eShould You Still Use Sass?\u003c/h2\u003e\n\n\u003cp class=\"post-p\"\u003e\nMaybe, but for far fewer reasons. Here's a decision framework:\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n\u003cstrong\u003eDrop Sass if:\u003c/strong\u003e You only used it for nesting, variables, and color functions. Native CSS now covers all three: nesting for structure, \u003ccode class=\"inline-code\"\u003evar()\u003c/code\u003e + \u003ccode class=\"inline-code\"\u003e@property\u003c/code\u003e for variables, and \u003ccode class=\"inline-code\"\u003ecolor-mix()\u003c/code\u003e + \u003ccode class=\"inline-code\"\u003eoklch()\u003c/code\u003e for color manipulation.\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n\u003cstrong\u003eKeep Sass if:\u003c/strong\u003e You rely heavily on mixins, loops (\u003ccode class=\"inline-code\"\u003e@for\u003c/code\u003e, \u003ccode class=\"inline-code\"\u003e@each\u003c/code\u003e), or functions. These have no native equivalents and likely never will — they're programming constructs, not styling features.\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n\u003cstrong\u003eHybrid approach:\u003c/strong\u003e Keep Sass for your design system tokens, mixins, and utility generation. Write component styles in native CSS with nesting. The two interoperate perfectly since Sass processes to flat CSS before nesting is applied.\n\u003c/p\u003e\n\n\u003ch2 class=\"post-h2\"\u003eThe Bottom Line\u003c/h2\u003e\n\n\u003cp class=\"post-p\"\u003e\nCSS Nesting becoming Baseline is a watershed moment. For the first time in web history, you can write structured, maintainable CSS without a build step. The syntax is clean. The mental model is identical to Sass. And it works in every browser.\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\nIf you haven't tried native nesting yet, here's your starter: pick one component. Rewrite its Sass-flavored CSS using native nesting. Delete the \u003ccode class=\"inline-code\"\u003escss\u003c/code\u003e extension and rename it \u003ccode class=\"inline-code\"\u003e.css\u003c/code\u003e. Watch it work. It's that simple.\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\nThe preprocessor era isn't quite over — but the single biggest reason to use one just disappeared.\n\u003c/p\u003e\n\n\u003ch2 class=\"post-h2\"\u003eFurther Reading\u003c/h2\u003e\n\n\u003cul class=\"post-ul\"\u003e\u003cli class=\"post-li\"\u003e\u003cstrong\u003e\u003ca href=\"https://www.w3.org/TR/css-nesting-1/\" class=\"post-link\" target=\"_blank\" rel=\"noopener noreferrer\"\u003eCSS Nesting Module (W3C)\u003c/a\u003e\u003c/strong\u003e — The official specification\u003c/li\u003e\n\u003cli class=\"post-li\"\u003e\u003cstrong\u003e\u003ca href=\"https://caniuse.com/css-nesting\" class=\"post-link\" target=\"_blank\" rel=\"noopener noreferrer\"\u003eCan I Use: CSS Nesting\u003c/a\u003e\u003c/strong\u003e — Live browser support data\u003c/li\u003e\n\u003cli class=\"post-li\"\u003e\u003cstrong\u003e\u003ca href=\"/tools/css-nesting-playground\" class=\"post-link\" target=\"_blank\" rel=\"noopener noreferrer\"\u003eTry it on DevBench\u003c/a\u003e\u003c/strong\u003e — Interactive nesting playground with live expansion\u003c/li\u003e\n\u003cli class=\"post-li\"\u003e\u003cstrong\u003e\u003ca href=\"https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_nesting\" class=\"post-link\" target=\"_blank\" rel=\"noopener noreferrer\"\u003eMDN: CSS Nesting\u003c/a\u003e\u003c/strong\u003e — Complete reference with examples\u003c/li\u003e\n\u003cli class=\"post-li\"\u003e\u003cstrong\u003e\u003ca href=\"https://sass-lang.com/documentation/style-rules/#nesting\" class=\"post-link\" target=\"_blank\" rel=\"noopener noreferrer\"\u003eSass: Nesting\u003c/a\u003e\u003c/strong\u003e — Compare with the original\u003c/li\u003e\n\u003c/ul\u003e"])</script><script>self.__next_f.push([1,"6:T78f,\n        .blog-content .post-h1 { font-size: 1.75rem; font-weight: 700; color: #ffffff; margin-top: 2rem; margin-bottom: 1rem; }\n        .blog-content .post-h2 { font-size: 1.5rem; font-weight: 600; color: #f1f5f9; margin-top: 1.75rem; margin-bottom: 0.75rem; padding-bottom: 0.5rem; border-bottom: 1px solid #334155; }\n        .blog-content .post-h3 { font-size: 1.25rem; font-weight: 600; color: #e2e8f0; margin-top: 1.5rem; margin-bottom: 0.5rem; }\n        .blog-content .post-h4 { font-size: 1.1rem; font-weight: 600; color: #e2e8f0; margin-top: 1.25rem; margin-bottom: 0.5rem; }\n        .blog-content .post-p { color: #cbd5e1; line-height: 1.75; margin-bottom: 1rem; }\n        .blog-content .code-block { background: #0f172a; border: 1px solid #334155; border-radius: 0.5rem; padding: 1rem; overflow-x: auto; margin: 1rem 0; font-family: 'JetBrains Mono', monospace; font-size: 0.875rem; color: #e2e8f0; }\n        .blog-content .inline-code { background: #1e293b; color: #38bdf8; padding: 0.15rem 0.4rem; border-radius: 0.25rem; font-family: 'JetBrains Mono', monospace; font-size: 0.875em; }\n        .blog-content .post-link { color: #38bdf8; text-decoration: underline; transition: color 0.2s; }\n        .blog-content .post-link:hover { color: #7dd3fc; }\n        .blog-content .post-ul { list-style: disc; padding-left: 1.5rem; margin: 0.75rem 0; color: #cbd5e1; }\n        .blog-content .post-li { margin-bottom: 0.25rem; line-height: 1.6; }\n        .blog-content .post-blockquote { border-left: 3px solid #0ea5e9; padding: 0.5rem 1rem; margin: 1rem 0; background: rgba(14, 165, 233, 0.05); border-radius: 0 0.5rem 0.5rem 0; }\n        .blog-content .post-blockquote p { color: #94a3b8; font-style: italic; }\n        .blog-content .post-hr { border: none; border-top: 1px solid #334155; margin: 2rem 0; }\n        .blog-content strong { color: #f1f5f9; font-weight: 600; }\n        .blog-content em { font-style: italic; }\n        8:[\"slug\",\"css-nesting-baseline-2026\",\"d\"]\nf:[]\n"])</script><script>self.__next_f.push([1,"0:[\"$\",\"$L2\",null,{\"buildId\":\"wLkx3_e9eF0HmBHirJWLm\",\"assetPrefix\":\"/devbench-tech\",\"urlParts\":[\"\",\"blog\",\"css-nesting-baseline-2026\",\"\"],\"initialTree\":[\"\",{\"children\":[\"blog\",{\"children\":[[\"slug\",\"css-nesting-baseline-2026\",\"d\"],{\"children\":[\"__PAGE__?{\\\"slug\\\":\\\"css-nesting-baseline-2026\\\"}\",{}]}]}]},\"$undefined\",\"$undefined\",true],\"initialSeedData\":[\"\",{\"children\":[\"blog\",{\"children\":[[\"slug\",\"css-nesting-baseline-2026\",\"d\"],{\"children\":[\"__PAGE__\",{},[[\"$L3\",[\"$\",\"article\",null,{\"className\":\"max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-20\",\"children\":[[\"$\",\"script\",null,{\"type\":\"application/ld+json\",\"dangerouslySetInnerHTML\":{\"__html\":\"{\\\"@context\\\":\\\"https://schema.org\\\",\\\"@type\\\":\\\"Article\\\",\\\"headline\\\":\\\"CSS Nesting Is Baseline in 2026 — Say Goodbye to Sass Nesting\\\",\\\"description\\\":\\\"Native CSS nesting is now Baseline across all major browsers — Chrome, Firefox, Safari, and Edge. It works exactly like Sass nesting but runs in the browser with zero build step. Learn the syntax rules, gotchas, and how to migrate your preprocessor nesting to native CSS.\\\",\\\"datePublished\\\":\\\"2026-05-27\\\",\\\"author\\\":{\\\"@type\\\":\\\"Organization\\\",\\\"name\\\":\\\"DevBench\\\"},\\\"publisher\\\":{\\\"@type\\\":\\\"Organization\\\",\\\"name\\\":\\\"DevBench\\\",\\\"url\\\":\\\"https://devbench-roan.vercel.app\\\"}}\"}}],[\"$\",\"script\",null,{\"type\":\"application/ld+json\",\"dangerouslySetInnerHTML\":{\"__html\":\"{\\\"@context\\\":\\\"https://schema.org\\\",\\\"@type\\\":\\\"BreadcrumbList\\\",\\\"itemListElement\\\":[{\\\"@type\\\":\\\"ListItem\\\",\\\"position\\\":1,\\\"name\\\":\\\"Home\\\",\\\"item\\\":\\\"https://devbench-roan.vercel.app\\\"},{\\\"@type\\\":\\\"ListItem\\\",\\\"position\\\":2,\\\"name\\\":\\\"Blog\\\",\\\"item\\\":\\\"https://devbench-roan.vercel.app/blog\\\"},{\\\"@type\\\":\\\"ListItem\\\",\\\"position\\\":3,\\\"name\\\":\\\"CSS Nesting Is Baseline in 2026 — Say Goodbye to Sass Nesting\\\"}]}\"}}],[\"$\",\"$L4\",null,{\"href\":\"/blog\",\"className\":\"inline-flex items-center gap-1.5 text-slate-400 hover:text-brand-400 text-sm transition-colors mb-8\",\"children\":[[\"$\",\"svg\",null,{\"xmlns\":\"http://www.w3.org/2000/svg\",\"width\":24,\"height\":24,\"viewBox\":\"0 0 24 24\",\"fill\":\"none\",\"stroke\":\"currentColor\",\"strokeWidth\":2,\"strokeLinecap\":\"round\",\"strokeLinejoin\":\"round\",\"className\":\"lucide lucide-arrow-left w-4 h-4\",\"children\":[[\"$\",\"path\",\"1l729n\",{\"d\":\"m12 19-7-7 7-7\"}],[\"$\",\"path\",\"x3x0zl\",{\"d\":\"M19 12H5\"}],\"$undefined\"]}],\"Back to Blog\"]}],[\"$\",\"header\",null,{\"className\":\"mb-10\",\"children\":[[\"$\",\"h1\",null,{\"className\":\"text-3xl sm:text-4xl font-bold text-white leading-tight mb-4\",\"children\":\"CSS Nesting Is Baseline in 2026 — Say Goodbye to Sass Nesting\"}],[\"$\",\"div\",null,{\"className\":\"flex flex-wrap items-center gap-4 text-sm text-slate-400\",\"children\":[[\"$\",\"span\",null,{\"className\":\"flex items-center gap-1.5\",\"children\":[[\"$\",\"svg\",null,{\"xmlns\":\"http://www.w3.org/2000/svg\",\"width\":24,\"height\":24,\"viewBox\":\"0 0 24 24\",\"fill\":\"none\",\"stroke\":\"currentColor\",\"strokeWidth\":2,\"strokeLinecap\":\"round\",\"strokeLinejoin\":\"round\",\"className\":\"lucide lucide-calendar w-4 h-4\",\"children\":[[\"$\",\"rect\",\"eu3xkr\",{\"width\":\"18\",\"height\":\"18\",\"x\":\"3\",\"y\":\"4\",\"rx\":\"2\",\"ry\":\"2\"}],[\"$\",\"line\",\"m3sa8f\",{\"x1\":\"16\",\"x2\":\"16\",\"y1\":\"2\",\"y2\":\"6\"}],[\"$\",\"line\",\"18kwsl\",{\"x1\":\"8\",\"x2\":\"8\",\"y1\":\"2\",\"y2\":\"6\"}],[\"$\",\"line\",\"xt86sb\",{\"x1\":\"3\",\"x2\":\"21\",\"y1\":\"10\",\"y2\":\"10\"}],\"$undefined\"]}],\"2026-05-27\"]}],[\"$\",\"div\",null,{\"className\":\"flex flex-wrap gap-1.5\",\"children\":[[\"$\",\"span\",\"[\\\"CSS\\\"\",{\"className\":\"badge-secondary flex items-center gap-1\",\"children\":[[\"$\",\"svg\",null,{\"xmlns\":\"http://www.w3.org/2000/svg\",\"width\":24,\"height\":24,\"viewBox\":\"0 0 24 24\",\"fill\":\"none\",\"stroke\":\"currentColor\",\"strokeWidth\":2,\"strokeLinecap\":\"round\",\"strokeLinejoin\":\"round\",\"className\":\"lucide lucide-tag w-3 h-3\",\"children\":[[\"$\",\"path\",\"14b2ls\",{\"d\":\"M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z\"}],[\"$\",\"path\",\"7u93v4\",{\"d\":\"M7 7h.01\"}],\"$undefined\"]}],\"[\\\"CSS\\\"\"]}],[\"$\",\"span\",\"\\\"Nesting\\\"\",{\"className\":\"badge-secondary flex items-center gap-1\",\"children\":[[\"$\",\"svg\",null,{\"xmlns\":\"http://www.w3.org/2000/svg\",\"width\":24,\"height\":24,\"viewBox\":\"0 0 24 24\",\"fill\":\"none\",\"stroke\":\"currentColor\",\"strokeWidth\":2,\"strokeLinecap\":\"round\",\"strokeLinejoin\":\"round\",\"className\":\"lucide lucide-tag w-3 h-3\",\"children\":[[\"$\",\"path\",\"14b2ls\",{\"d\":\"M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z\"}],[\"$\",\"path\",\"7u93v4\",{\"d\":\"M7 7h.01\"}],\"$undefined\"]}],\"\\\"Nesting\\\"\"]}],[\"$\",\"span\",\"\\\"Baseline 2026\\\"\",{\"className\":\"badge-secondary flex items-center gap-1\",\"children\":[[\"$\",\"svg\",null,{\"xmlns\":\"http://www.w3.org/2000/svg\",\"width\":24,\"height\":24,\"viewBox\":\"0 0 24 24\",\"fill\":\"none\",\"stroke\":\"currentColor\",\"strokeWidth\":2,\"strokeLinecap\":\"round\",\"strokeLinejoin\":\"round\",\"className\":\"lucide lucide-tag w-3 h-3\",\"children\":[[\"$\",\"path\",\"14b2ls\",{\"d\":\"M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z\"}],[\"$\",\"path\",\"7u93v4\",{\"d\":\"M7 7h.01\"}],\"$undefined\"]}],\"\\\"Baseline 2026\\\"\"]}],[\"$\",\"span\",\"\\\"Web Platform\\\"\",{\"className\":\"badge-secondary flex items-center gap-1\",\"children\":[[\"$\",\"svg\",null,{\"xmlns\":\"http://www.w3.org/2000/svg\",\"width\":24,\"height\":24,\"viewBox\":\"0 0 24 24\",\"fill\":\"none\",\"stroke\":\"currentColor\",\"strokeWidth\":2,\"strokeLinecap\":\"round\",\"strokeLinejoin\":\"round\",\"className\":\"lucide lucide-tag w-3 h-3\",\"children\":[[\"$\",\"path\",\"14b2ls\",{\"d\":\"M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z\"}],[\"$\",\"path\",\"7u93v4\",{\"d\":\"M7 7h.01\"}],\"$undefined\"]}],\"\\\"Web Platform\\\"\"]}],[\"$\",\"span\",\"\\\"Sass\\\"\",{\"className\":\"badge-secondary flex items-center gap-1\",\"children\":[[\"$\",\"svg\",null,{\"xmlns\":\"http://www.w3.org/2000/svg\",\"width\":24,\"height\":24,\"viewBox\":\"0 0 24 24\",\"fill\":\"none\",\"stroke\":\"currentColor\",\"strokeWidth\":2,\"strokeLinecap\":\"round\",\"strokeLinejoin\":\"round\",\"className\":\"lucide lucide-tag w-3 h-3\",\"children\":[[\"$\",\"path\",\"14b2ls\",{\"d\":\"M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z\"}],[\"$\",\"path\",\"7u93v4\",{\"d\":\"M7 7h.01\"}],\"$undefined\"]}],\"\\\"Sass\\\"\"]}],[\"$\",\"span\",\"\\\"Preprocessors\\\"\",{\"className\":\"badge-secondary flex items-center gap-1\",\"children\":[[\"$\",\"svg\",null,{\"xmlns\":\"http://www.w3.org/2000/svg\",\"width\":24,\"height\":24,\"viewBox\":\"0 0 24 24\",\"fill\":\"none\",\"stroke\":\"currentColor\",\"strokeWidth\":2,\"strokeLinecap\":\"round\",\"strokeLinejoin\":\"round\",\"className\":\"lucide lucide-tag w-3 h-3\",\"children\":[[\"$\",\"path\",\"14b2ls\",{\"d\":\"M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z\"}],[\"$\",\"path\",\"7u93v4\",{\"d\":\"M7 7h.01\"}],\"$undefined\"]}],\"\\\"Preprocessors\\\"\"]}],[\"$\",\"span\",\"\\\"Architecture\\\"]\",{\"className\":\"badge-secondary flex items-center gap-1\",\"children\":[[\"$\",\"svg\",null,{\"xmlns\":\"http://www.w3.org/2000/svg\",\"width\":24,\"height\":24,\"viewBox\":\"0 0 24 24\",\"fill\":\"none\",\"stroke\":\"currentColor\",\"strokeWidth\":2,\"strokeLinecap\":\"round\",\"strokeLinejoin\":\"round\",\"className\":\"lucide lucide-tag w-3 h-3\",\"children\":[[\"$\",\"path\",\"14b2ls\",{\"d\":\"M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z\"}],[\"$\",\"path\",\"7u93v4\",{\"d\":\"M7 7h.01\"}],\"$undefined\"]}],\"\\\"Architecture\\\"]\"]}]]}]]}]]}],[\"$\",\"div\",null,{\"className\":\"blog-content prose-p:text-slate-300 prose-p:leading-relaxed prose-p:mb-4\",\"dangerouslySetInnerHTML\":{\"__html\":\"$5\"}}],[\"$\",\"style\",null,{\"dangerouslySetInnerHTML\":{\"__html\":\"$6\"}}]]}],null],null],null]},[null,[\"$\",\"$L7\",null,{\"parallelRouterKey\":\"children\",\"segmentPath\":[\"children\",\"blog\",\"children\",\"$8\",\"children\"],\"error\":\"$undefined\",\"errorStyles\":\"$undefined\",\"errorScripts\":\"$undefined\",\"template\":[\"$\",\"$L9\",null,{}],\"templateStyles\":\"$undefined\",\"templateScripts\":\"$undefined\",\"notFound\":\"$undefined\",\"notFoundStyles\":\"$undefined\"}]],null]},[null,[\"$\",\"$L7\",null,{\"parallelRouterKey\":\"children\",\"segmentPath\":[\"children\",\"blog\",\"children\"],\"error\":\"$undefined\",\"errorStyles\":\"$undefined\",\"errorScripts\":\"$undefined\",\"template\":[\"$\",\"$L9\",null,{}],\"templateStyles\":\"$undefined\",\"templateScripts\":\"$undefined\",\"notFound\":\"$undefined\",\"notFoundStyles\":\"$undefined\"}]],null]},[[[[\"$\",\"link\",\"0\",{\"rel\":\"stylesheet\",\"href\":\"/devbench-tech/_next/static/css/c877e59dbcb00f11.css\",\"precedence\":\"next\",\"crossOrigin\":\"$undefined\"}]],[\"$\",\"html\",null,{\"lang\":\"en\",\"className\":\"dark\",\"children\":[\"$\",\"body\",null,{\"className\":\"flex flex-col min-h-screen\",\"children\":[[\"$\",\"script\",null,{\"type\":\"application/ld+json\",\"dangerouslySetInnerHTML\":{\"__html\":\"{\\\"@context\\\":\\\"https://schema.org\\\",\\\"@type\\\":\\\"WebSite\\\",\\\"name\\\":\\\"DevBench\\\",\\\"url\\\":\\\"https://devbench-roan.vercel.app\\\",\\\"description\\\":\\\"Free developer tools for everyday use: JSON formatter, Base64 encoder/decoder, UUID generator, regex tester, benchmarks, and more.\\\",\\\"potentialAction\\\":{\\\"@type\\\":\\\"SearchAction\\\",\\\"target\\\":\\\"https://devbench-roan.vercel.app/tools?q={search_term_string}\\\",\\\"query-input\\\":\\\"required name=search_term_string\\\"}}\"}}],[\"$\",\"$La\",null,{}],[\"$\",\"main\",null,{\"className\":\"flex-1\",\"children\":[\"$\",\"$L7\",null,{\"parallelRouterKey\":\"children\",\"segmentPath\":[\"children\"],\"error\":\"$undefined\",\"errorStyles\":\"$undefined\",\"errorScripts\":\"$undefined\",\"template\":[\"$\",\"$L9\",null,{}],\"templateStyles\":\"$undefined\",\"templateScripts\":\"$undefined\",\"notFound\":[[\"$\",\"title\",null,{\"children\":\"404: This page could not be found.\"}],[\"$\",\"div\",null,{\"style\":{\"fontFamily\":\"system-ui,\\\"Segoe UI\\\",Roboto,Helvetica,Arial,sans-serif,\\\"Apple Color Emoji\\\",\\\"Segoe UI Emoji\\\"\",\"height\":\"100vh\",\"textAlign\":\"center\",\"display\":\"flex\",\"flexDirection\":\"column\",\"alignItems\":\"center\",\"justifyContent\":\"center\"},\"children\":[\"$\",\"div\",null,{\"children\":[[\"$\",\"style\",null,{\"dangerouslySetInnerHTML\":{\"__html\":\"body{color:#000;background:#fff;margin:0}.next-error-h1{border-right:1px solid rgba(0,0,0,.3)}@media (prefers-color-scheme:dark){body{color:#fff;background:#000}.next-error-h1{border-right:1px solid rgba(255,255,255,.3)}}\"}}],[\"$\",\"h1\",null,{\"className\":\"next-error-h1\",\"style\":{\"display\":\"inline-block\",\"margin\":\"0 20px 0 0\",\"padding\":\"0 23px 0 0\",\"fontSize\":24,\"fontWeight\":500,\"verticalAlign\":\"top\",\"lineHeight\":\"49px\"},\"children\":\"404\"}],[\"$\",\"div\",null,{\"style\":{\"display\":\"inline-block\"},\"children\":[\"$\",\"h2\",null,{\"style\":{\"fontSize\":14,\"fontWeight\":400,\"lineHeight\":\"49px\",\"margin\":0},\"children\":\"This page could not be found.\"}]}]]}]}]],\"notFoundStyles\":[]}]}],[\"$\",\"footer\",null,{\"className\":\"bg-surface-light border-t border-slate-700/50 mt-auto\",\"children\":[\"$\",\"div\",null,{\"className\":\"max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12\",\"children\":[[\"$\",\"div\",null,{\"className\":\"grid grid-cols-1 md:grid-cols-3 gap-8\",\"children\":[[\"$\",\"div\",null,{\"children\":[[\"$\",\"$L4\",null,{\"href\":\"/\",\"className\":\"flex items-center gap-2.5 mb-3\",\"children\":[[\"$\",\"div\",null,{\"className\":\"w-7 h-7 bg-brand-500 rounded-lg flex items-center justify-center\",\"children\":[\"$\",\"svg\",null,{\"xmlns\":\"http://www.w3.org/2000/svg\",\"width\":24,\"height\":24,\"viewBox\":\"0 0 24 24\",\"fill\":\"none\",\"stroke\":\"currentColor\",\"strokeWidth\":2,\"strokeLinecap\":\"round\",\"strokeLinejoin\":\"round\",\"className\":\"lucide lucide-terminal w-3.5 h-3.5 text-white\",\"children\":[[\"$\",\"polyline\",\"akl6gq\",{\"points\":\"4 17 10 11 4 5\"}],[\"$\",\"line\",\"q2wloq\",{\"x1\":\"12\",\"x2\":\"20\",\"y1\":\"19\",\"y2\":\"19\"}],\"$undefined\"]}]}],[\"$\",\"span\",null,{\"className\":\"text-lg font-bold text-white\",\"children\":[\"Dev\",[\"$\",\"span\",null,{\"className\":\"gradient-text\",\"children\":\"Bench\"}]]}]]}],[\"$\",\"p\",null,{\"className\":\"text-slate-400 text-sm leading-relaxed\",\"children\":\"Free developer tools, benchmarks, and calculators. Built for developers, by developers.\"}]]}],[\"$\",\"div\",null,{\"children\":[[\"$\",\"h3\",null,{\"className\":\"text-sm font-semibold text-slate-300 uppercase tracking-wider mb-4\",\"children\":\"Tools\"}],[\"$\",\"ul\",null,{\"className\":\"space-y-2\",\"children\":[[\"$\",\"li\",\"/tools/json-formatter\",{\"children\":[\"$\",\"$L4\",null,{\"href\":\"/tools/json-formatter\",\"className\":\"text-slate-400 hover:text-brand-400 text-sm transition-colors\",\"children\":\"JSON Formatter\"}]}],[\"$\",\"li\",\"/tools/base64\",{\"children\":[\"$\",\"$L4\",null,{\"href\":\"/tools/base64\",\"className\":\"text-slate-400 hover:text-brand-400 text-sm transition-colors\",\"children\":\"Base64 Encoder/Decoder\"}]}],[\"$\",\"li\",\"/tools/uuid-generator\",{\"children\":[\"$\",\"$L4\",null,{\"href\":\"/tools/uuid-generator\",\"className\":\"text-slate-400 hover:text-brand-400 text-sm transition-colors\",\"children\":\"UUID Generator\"}]}],[\"$\",\"li\",\"/tools/regex-tester\",{\"children\":[\"$\",\"$L4\",null,{\"href\":\"/tools/regex-tester\",\"className\":\"text-slate-400 hover:text-brand-400 text-sm transition-colors\",\"children\":\"Regex Tester\"}]}]]}]]}],[\"$\",\"div\",null,{\"children\":[[\"$\",\"h3\",null,{\"className\":\"text-sm font-semibold text-slate-300 uppercase tracking-wider mb-4\",\"children\":\"Resources\"}],[\"$\",\"ul\",null,{\"className\":\"space-y-2\",\"children\":[[\"$\",\"li\",\"/blog\",{\"children\":[\"$\",\"$L4\",null,{\"href\":\"/blog\",\"className\":\"text-slate-400 hover:text-brand-400 text-sm transition-colors\",\"children\":\"Blog\"}]}],[\"$\",\"li\",\"/benchmarks\",{\"children\":[\"$\",\"$L4\",null,{\"href\":\"/benchmarks\",\"className\":\"text-slate-400 hover:text-brand-400 text-sm transition-colors\",\"children\":\"Benchmarks\"}]}],[\"$\",\"li\",\"/about\",{\"children\":[\"$\",\"$L4\",null,{\"href\":\"/about\",\"className\":\"text-slate-400 hover:text-brand-400 text-sm transition-colors\",\"children\":\"About\"}]}]]}]]}]]}],[\"$\",\"div\",null,{\"className\":\"mt-10 pt-6 border-t border-slate-700/50 flex flex-col sm:flex-row items-center justify-between gap-4\",\"children\":[[\"$\",\"p\",null,{\"className\":\"text-slate-500 text-sm flex items-center gap-1\",\"children\":[\"Made with \",[\"$\",\"svg\",null,{\"xmlns\":\"http://www.w3.org/2000/svg\",\"width\":24,\"height\":24,\"viewBox\":\"0 0 24 24\",\"fill\":\"none\",\"stroke\":\"currentColor\",\"strokeWidth\":2,\"strokeLinecap\":\"round\",\"strokeLinejoin\":\"round\",\"className\":\"lucide lucide-heart w-3.5 h-3.5 text-red-500 fill-red-500\",\"children\":[[\"$\",\"path\",\"c3ymky\",{\"d\":\"M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z\"}],\"$undefined\"]}],\" by the DevBench team © \",2026]}],[\"$\",\"a\",null,{\"href\":\"https://github.com\",\"target\":\"_blank\",\"rel\":\"noopener noreferrer\",\"className\":\"text-slate-500 hover:text-slate-300 transition-colors\",\"aria-label\":\"GitHub\",\"children\":[\"$\",\"svg\",null,{\"xmlns\":\"http://www.w3.org/2000/svg\",\"width\":24,\"height\":24,\"viewBox\":\"0 0 24 24\",\"fill\":\"none\",\"stroke\":\"currentColor\",\"strokeWidth\":2,\"strokeLinecap\":\"round\",\"strokeLinejoin\":\"round\",\"className\":\"lucide lucide-github w-5 h-5\",\"children\":[[\"$\",\"path\",\"tonef\",{\"d\":\"M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4\"}],[\"$\",\"path\",\"9comsn\",{\"d\":\"M9 18c-4.51 2-5-2-7-2\"}],\"$undefined\"]}]}]]}]]}]}],[\"$\",\"$Lb\",null,{}],[\"$\",\"$Lc\",null,{\"position\":\"bottom-right\",\"toastOptions\":{\"style\":{\"background\":\"#1e293b\",\"color\":\"#e2e8f0\",\"border\":\"1px solid #334155\",\"fontSize\":\"14px\"}}}]]}]}]],null],null],\"couldBeIntercepted\":false,\"initialHead\":[null,\"$Ld\"],\"globalErrorComponent\":\"$e\",\"missingSlots\":\"$Wf\"}]\n"])</script><script>self.__next_f.push([1,"d:[[\"$\",\"meta\",\"0\",{\"name\":\"viewport\",\"content\":\"width=device-width, initial-scale=1\"}],[\"$\",\"meta\",\"1\",{\"charSet\":\"utf-8\"}],[\"$\",\"title\",\"2\",{\"children\":\"CSS Nesting Is Baseline in 2026 — Say Goodbye to Sass Nesting | DevBench\"}],[\"$\",\"meta\",\"3\",{\"name\":\"description\",\"content\":\"Native CSS nesting is now Baseline across all major browsers — Chrome, Firefox, Safari, and Edge. It works exactly like Sass nesting but runs in the browser with zero build step. Learn the syntax rules, gotchas, and how to migrate your preprocessor nesting to native CSS.\"}],[\"$\",\"meta\",\"4\",{\"name\":\"author\",\"content\":\"DevBench\"}],[\"$\",\"meta\",\"5\",{\"name\":\"keywords\",\"content\":\"developer tools,JSON formatter,Base64,UUID generator,regex tester,benchmarks,dev tools\"}],[\"$\",\"meta\",\"6\",{\"property\":\"og:title\",\"content\":\"DevBench — Developer Tools \u0026 Calculators\"}],[\"$\",\"meta\",\"7\",{\"property\":\"og:description\",\"content\":\"Free developer tools for everyday use.\"}],[\"$\",\"meta\",\"8\",{\"property\":\"og:site_name\",\"content\":\"DevBench\"}],[\"$\",\"meta\",\"9\",{\"property\":\"og:locale\",\"content\":\"en_US\"}],[\"$\",\"meta\",\"10\",{\"property\":\"og:type\",\"content\":\"website\"}],[\"$\",\"meta\",\"11\",{\"name\":\"twitter:card\",\"content\":\"summary\"}],[\"$\",\"meta\",\"12\",{\"name\":\"twitter:title\",\"content\":\"DevBench — Developer Tools \u0026 Calculators\"}],[\"$\",\"meta\",\"13\",{\"name\":\"twitter:description\",\"content\":\"Free developer tools for everyday use.\"}],[\"$\",\"link\",\"14\",{\"rel\":\"icon\",\"href\":\"/favicon.svg\"}]]\n3:null\n"])</script></body></html>

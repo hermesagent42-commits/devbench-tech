@@ -1,0 +1,593 @@
+2:I[72972,["2972","static/chunks/2972-4aaa15d119eeb022.js","308","static/chunks/app/blog/%5Bslug%5D/page-a411190e7012c687.js"],""]
+5:I[4707,[],""]
+7:I[36423,[],""]
+8:I[39295,["9762","static/chunks/44530001-4ecf7a22b5b24163.js","2972","static/chunks/2972-4aaa15d119eeb022.js","8375","static/chunks/8375-c77b8de36f6696fb.js","6829","static/chunks/6829-f51803445ddf1872.js","3185","static/chunks/app/layout-488e5c40aa6ffa72.js"],"Header"]
+9:I[66506,["9762","static/chunks/44530001-4ecf7a22b5b24163.js","2972","static/chunks/2972-4aaa15d119eeb022.js","8375","static/chunks/8375-c77b8de36f6696fb.js","6829","static/chunks/6829-f51803445ddf1872.js","3185","static/chunks/app/layout-488e5c40aa6ffa72.js"],"Analytics"]
+a:I[69064,["9762","static/chunks/44530001-4ecf7a22b5b24163.js","2972","static/chunks/2972-4aaa15d119eeb022.js","8375","static/chunks/8375-c77b8de36f6696fb.js","6829","static/chunks/6829-f51803445ddf1872.js","3185","static/chunks/app/layout-488e5c40aa6ffa72.js"],"Toaster"]
+3:T43c8,
+<p class="post-p">
+JavaScript error handling has quietly gotten <strong>much</strong> better. <code class="inline-code">Error.cause</code> (Baseline 2023), <code class="inline-code">AggregateError</code> (ES2021), and a rich ecosystem of patterns mean you can now build error systems that are traceable, composable, and debuggable — without third-party libraries. Yet most codebases still throw raw strings or use <code class="inline-code">console.error</code> and call it a day.
+</p>
+
+<p class="post-p">
+Let's fix that. Here's everything you need to know about structured error handling in 2026, from the language primitives to production patterns.
+</p>
+
+<h2 class="post-h2">Error.cause: Chaining Errors with Context</h2>
+
+<p class="post-p">
+The <code class="inline-code">cause</code> property on the <code class="inline-code">Error</code> constructor lets you chain errors while preserving the original stack trace and context. If you've ever caught an error, wrapped it, and lost the original — this is for you.
+</p>
+
+<pre class="code-block"><code class="language-javascript">async function fetchUser(id) {
+<p class="post-p">
+try {
+const response = await fetch(<code class="inline-code">/api/users/${id}</code>);
+if (!response.ok) {
+throw new Error(<code class="inline-code">User fetch failed: ${response.status}</code>, {
+cause: { status: response.status, id, endpoint: <code class="inline-code">/api/users/${id}</code> }
+});
+}
+return response.json();
+} catch (err) {
+if (err instanceof TypeError) {
+throw new Error('Network error fetching user', { cause: err });
+}
+throw err;
+}
+}
+</p>
+
+<p class="post-p">
+try {
+await fetchUser('usr_123');
+} catch (err) {
+console.log(err.message);        // "Network error fetching user"
+console.log(err.cause.message);  // "Failed to fetch" (original TypeError)
+// Full chain is preserved in err.stack
+}
+</code></pre>
+</p>
+
+<p class="post-p">
+The <code class="inline-code">cause</code> value can be <strong>any JavaScript value</strong> — another error, an object, a string. The browser/Node.js will include it in the stack trace automatically when it's an <code class="inline-code">Error</code> instance:
+</p>
+
+<pre class="code-block"><code class="language-text">Error: Network error fetching user
+<p class="post-p">
+at fetchUser (api.js:12:13)
+Caused by: TypeError: Failed to fetch
+at fetchUser (api.js:9:17)
+</code></pre>
+</p>
+
+<h3 class="post-h3">Real pattern: API layer error enrichment</h3>
+
+<pre class="code-block"><code class="language-javascript">class APIError extends Error {
+<p class="post-p">
+constructor(message, { status, body, endpoint, cause }) {
+super(message, { cause });
+this.name = 'APIError';
+this.status = status;
+this.body = body;
+this.endpoint = endpoint;
+}
+}
+</p>
+
+<p class="post-p">
+async function apiCall(path, options = {}) {
+const response = await fetch(<code class="inline-code">https://api.example.com${path}</code>, options);
+const body = await response.json().catch(() =&amp;gt; null);
+</p>
+
+<p class="post-p">
+if (!response.ok) {
+throw new APIError(<code class="inline-code">API ${response.status}: ${path}</code>, {
+status: response.status,
+body,
+endpoint: path,
+cause: body?.error ? new Error(body.error) : undefined,
+});
+}
+</p>
+
+<p class="post-p">
+return body;
+}
+</code></pre>
+</p>
+
+<p class="post-p">
+Now every layer in your call stack can inspect the full causal chain without parsing error messages.
+</p>
+
+<h2 class="post-h2">AggregateError: Handling Multiple Failures</h2>
+
+<p class="post-p">
+<code class="inline-code">AggregateError</code> collects multiple errors into one. Essential for batch operations, <code class="inline-code">Promise.allSettled()</code>, and validation.
+</p>
+
+<pre class="code-block"><code class="language-javascript">// Promise.allSettled() naturally pairs with AggregateError
+<p class="post-p">
+async function loadMultipleResources(urls) {
+const results = await Promise.allSettled(urls.map(u =&amp;gt; fetch(u)));
+</p>
+
+<p class="post-p">
+const failures = results
+.filter(r =&amp;gt; r.status === 'rejected')
+.map((r, i) =&amp;gt; new Error(<code class="inline-code">Failed to load ${urls[i]}: ${r.reason.message}</code>, {
+cause: r.reason
+}));
+</p>
+
+<p class="post-p">
+if (failures.length &amp;gt; 0) {
+throw new AggregateError(failures, <code class="inline-code">${failures.length} of ${urls.length} resources failed to load</code>);
+}
+</p>
+
+<p class="post-p">
+return results.map(r =&amp;gt; r.value);
+}
+</p>
+
+<p class="post-p">
+try {
+await loadMultipleResources(['/a.json', '/b.json', '/c.json']);
+} catch (err) {
+if (err instanceof AggregateError) {
+console.log(err.message);          // "2 of 3 resources failed to load"
+for (const e of err.errors) {      // err.errors is the array of sub-errors
+console.log(' -', e.message);
+}
+}
+}
+</code></pre>
+</p>
+
+<h3 class="post-h3">Pattern: Form validation with AggregateError</h3>
+
+<pre class="code-block"><code class="language-javascript">function validateUser(data) {
+<p class="post-p">
+const errors = [];
+</p>
+
+<p class="post-p">
+if (!data.email?.includes('@')) {
+errors.push(new RangeError('Invalid email', { cause: { field: 'email', value: data.email } }));
+}
+if (!data.age || data.age &amp;lt; 13) {
+errors.push(new RangeError('Must be 13 or older', { cause: { field: 'age', value: data.age } }));
+}
+if (!data.username?.match(/^[a-z0-9_]{3,30}$/)) {
+errors.push(new RangeError('Invalid username format', { cause: { field: 'username', value: data.username } }));
+}
+</p>
+
+<p class="post-p">
+if (errors.length &amp;gt; 0) {
+throw new AggregateError(errors, <code class="inline-code">Validation failed: ${errors.length} invalid fields</code>);
+}
+}
+</code></pre>
+</p>
+
+<p class="post-p">
+The frontend can iterate <code class="inline-code">err.errors</code>, highlight specific fields, and show inline messages — without string parsing.
+</p>
+
+<h2 class="post-h2">Custom Error Classes: instanceof Actually Works</h2>
+
+<p class="post-p">
+JavaScript errors have a class hierarchy waiting to be used. Stop throwing raw strings.
+</p>
+
+<pre class="code-block"><code class="language-javascript">class AppError extends Error {
+<p class="post-p">
+constructor(message, options = {}) {
+super(message, options);
+this.name = this.constructor.name;
+this.timestamp = new Date().toISOString();
+this.code = options.code ?? 'UNKNOWN_ERROR';
+this.severity = options.severity ?? 'error';   // 'warn' | 'error' | 'fatal'
+}
+</p>
+
+<p class="post-p">
+toJSON() {
+return {
+name: this.name,
+message: this.message,
+code: this.code,
+severity: this.severity,
+timestamp: this.timestamp,
+cause: this.cause instanceof Error ? this.cause.message : this.cause,
+};
+}
+}
+</p>
+
+<p class="post-p">
+class ValidationError extends AppError {
+constructor(message, { fields, ...rest } = {}) {
+super(message, { code: 'VALIDATION_ERROR', severity: 'warn', ...rest });
+this.fields = fields ?? {};
+}
+}
+</p>
+
+<p class="post-p">
+class DatabaseError extends AppError {
+constructor(message, { query, params, ...rest } = {}) {
+super(message, { code: 'DB_ERROR', severity: 'error', ...rest });
+this.query = query;
+this.params = params;
+}
+}
+</p>
+
+<p class="post-p">
+class AuthError extends AppError {
+constructor(message, options = {}) {
+super(message, { code: 'AUTH_ERROR', severity: 'warn', ...options });
+}
+}
+</code></pre>
+</p>
+
+<p class="post-p">
+Now you can discriminate errors cleanly:
+</p>
+
+<pre class="code-block"><code class="language-javascript">try {
+<p class="post-p">
+await processRequest(req);
+} catch (err) {
+if (err instanceof ValidationError) {
+return res.status(400).json({ errors: err.fields });
+}
+if (err instanceof AuthError) {
+return res.status(401).json({ error: err.message });
+}
+if (err instanceof DatabaseError) {
+logger.error('DB failure', { query: err.query, cause: err.cause });
+return res.status(500).json({ error: 'Internal server error' });
+}
+// Unknown error — don't leak details to client
+logger.fatal('Unhandled error', { error: err });
+return res.status(500).json({ error: 'Internal server error' });
+}
+</code></pre>
+</p>
+
+<h3 class="post-h3">TypeScript bonus: discriminated errors</h3>
+
+<pre class="code-block"><code class="language-typescript">type AppErrorType = ValidationError | DatabaseError | AuthError | AppError;
+
+<p class="post-p">
+function handleError(err: AppErrorType): HTTPResponse {
+switch (err.code) {
+case 'VALIDATION_ERROR': return { status: 400, body: (err as ValidationError).fields };
+case 'DB_ERROR':         return { status: 500, body: 'Internal error' };
+case 'AUTH_ERROR':       return { status: 401, body: err.message };
+default:                return { status: 500, body: 'Internal error' };
+}
+}
+</code></pre>
+</p>
+
+<h2 class="post-h2">Async Error Propagation: The 4 Patterns That Actually Work</h2>
+
+<h3 class="post-h3">1. async/await with try/catch (recommended)</h3>
+
+<pre class="code-block"><code class="language-javascript">async function handler(req, res) {
+<p class="post-p">
+try {
+const user = await getUser(req.params.id);
+const posts = await getPosts(user.id);
+res.json({ user, posts });
+} catch (err) {
+next(err);  // Express-style error middleware
+}
+}
+</code></pre>
+</p>
+
+<h3 class="post-h3">2. .catch() chaining (for pipelines)</h3>
+
+<pre class="code-block"><code class="language-javascript">function processData(input) {
+<p class="post-p">
+return validateInput(input)
+.then(normalizeData)
+.then(enrichData)
+.catch(err =&amp;gt; {
+if (err instanceof ValidationError) {
+return { valid: false, reason: err.fields };
+}
+throw new AppError('Processing pipeline failed', { cause: err });
+});
+}
+</code></pre>
+</p>
+
+<h3 class="post-h3">3. Error boundaries (React-style, but generalizable)</h3>
+
+<pre class="code-block"><code class="language-javascript">function withErrorBoundary(fn, fallback) {
+<p class="post-p">
+return async (...args) =&amp;gt; {
+try {
+return await fn(...args);
+} catch (err) {
+logger.error('Boundary caught error', { fn: fn.name, err });
+return fallback(err, ...args);
+}
+};
+}
+</p>
+
+<p class="post-p">
+const safeFetchUser = withErrorBoundary(
+fetchUser,
+(err, id) =&amp;gt; ({ id, error: true, message: 'User unavailable' })
+);
+</code></pre>
+</p>
+
+<h3 class="post-h3">4. EventEmitter / AbortController patterns</h3>
+
+<pre class="code-block"><code class="language-javascript">const ac = new AbortController();
+
+<p class="post-p">
+async function fetchWithTimeout(url, ms) {
+const timer = setTimeout(() =&amp;gt; ac.abort(new Error(<code class="inline-code">Timeout after ${ms}ms</code>)), ms);
+try {
+const res = await fetch(url, { signal: ac.signal });
+return res.json();
+} catch (err) {
+if (err.name === 'AbortError') {
+throw new AppError('Request aborted', { cause: ac.signal.reason });
+}
+throw err;
+} finally {
+clearTimeout(timer);
+}
+}
+</code></pre>
+</p>
+
+<h2 class="post-h2">Production Error Logging: What to Capture</h2>
+
+<p class="post-p">
+A production error object should carry enough context to debug without reproducing the issue. Here's a structured logging pattern:
+</p>
+
+<pre class="code-block"><code class="language-javascript">function createErrorContext(req) {
+<p class="post-p">
+return {
+requestId: req.headers['x-request-id'] ?? crypto.randomUUID(),
+userId: req.user?.id,
+path: req.path,
+method: req.method,
+userAgent: req.headers['user-agent'],
+timestamp: new Date().toISOString(),
+};
+}
+</p>
+
+<p class="post-p">
+function logError(err, context = {}) {
+const payload = {
+name: err.name,
+message: err.message,
+code: err.code ?? 'UNKNOWN',
+severity: err.severity ?? 'error',
+stack: err.stack,
+cause: err.cause instanceof Error
+? { message: err.cause.message, name: err.cause.name }
+: err.cause,
+...context,
+};
+</p>
+
+<p class="post-p">
+// In production, ship this to your observability platform
+if (typeof window === 'undefined') {
+// Node.js: structured JSON logging
+console.error(JSON.stringify(payload));
+} else {
+// Browser: send to error tracking service
+console.error('[AppError]', payload);
+}
+</p>
+
+<p class="post-p">
+return payload;
+}
+</p>
+
+<p class="post-p">
+// Usage in Express middleware
+app.use((err, req, res, next) =&amp;gt; {
+const context = createErrorContext(req);
+const payload = logError(err, context);
+</p>
+
+<p class="post-p">
+if (err instanceof ValidationError) {
+return res.status(400).json({ errors: err.fields });
+}
+if (err instanceof AuthError) {
+return res.status(401).json({ error: 'Unauthorized' });
+}
+</p>
+
+<p class="post-p">
+// Don't leak internal details
+res.status(500).json({
+error: 'Internal server error',
+requestId: payload.requestId,
+});
+});
+</code></pre>
+</p>
+
+<h2 class="post-h2">The Error Hierarchy Pattern</h2>
+
+<p class="post-p">
+Structure your errors in a tree. This makes catch clauses precise and logging consistent:
+</p>
+
+<pre class="code-block"><code class="language-text">Error
+<p class="post-p">
+└── AppError (base class for your app)
+├── ValidationError (400)
+├── AuthError (401)
+├── ForbiddenError (403)
+├── NotFoundError (404)
+├── ConflictError (409)
+├── RateLimitError (429)
+├── DatabaseError (500)
+└── ExternalServiceError (502/504)
+</code></pre>
+</p>
+
+<pre class="code-block"><code class="language-javascript">class NotFoundError extends AppError {
+<p class="post-p">
+constructor(resource, id) {
+super(<code class="inline-code">${resource} not found: ${id}</code>, {
+code: 'NOT_FOUND',
+severity: 'warn',
+cause: { resource, id },
+});
+}
+}
+</p>
+
+<p class="post-p">
+class RateLimitError extends AppError {
+constructor({ retryAfter, limit, remaining }) {
+super('Rate limit exceeded', {
+code: 'RATE_LIMITED',
+severity: 'warn',
+cause: { retryAfter, limit, remaining },
+});
+this.retryAfter = retryAfter;
+}
+}
+</code></pre>
+</p>
+
+<p class="post-p">
+Now your HTTP layer becomes a straightforward map:
+</p>
+
+<pre class="code-block"><code class="language-javascript">const ERROR_STATUS_MAP = new Map([
+<p class="post-p">
+[ValidationError, 400],
+[AuthError, 401],
+[ForbiddenError, 403],
+[NotFoundError, 404],
+[ConflictError, 409],
+[RateLimitError, 429],
+]);
+</p>
+
+<p class="post-p">
+function errorToResponse(err) {
+for (const [ErrorClass, status] of ERROR_STATUS_MAP) {
+if (err instanceof ErrorClass) {
+return { status, body: err.toJSON() };
+}
+}
+return { status: 500, body: { error: 'Internal server error' } };
+}
+</code></pre>
+</p>
+
+<h2 class="post-h2">The One Thing Most Teams Get Wrong</h2>
+
+<p class="post-p">
+The most common anti-pattern: <strong>catching too broadly and swallowing errors</strong>.
+</p>
+
+<pre class="code-block"><code class="language-javascript">// ❌ BAD: swallows all errors, loses context
+<p class="post-p">
+try {
+await processOrder(order);
+} catch (err) {
+console.log('Order failed');
+// Order is silently dropped. No retry. No alert.
+}
+</p>
+
+<p class="post-p">
+// ✅ GOOD: specific handling with escalation
+try {
+await processOrder(order);
+} catch (err) {
+if (err instanceof ValidationError) {
+notifyCustomer(order.userId, 'Please correct your order', err.fields);
+return;
+}
+if (err instanceof PaymentError) {
+await retryPayment(order, err.cause);
+return;
+}
+// Unknown errors: escalate loudly
+logError(err, { orderId: order.id, severity: 'fatal' });
+await alertOnCall(<code class="inline-code">Order ${order.id} failed with unknown error</code>, err);
+}
+</code></pre>
+</p>
+
+<p class="post-p">
+The rule: <strong>only catch errors you can handle</strong>. If you can't meaningfully recover, let them propagate to a top-level boundary.
+</p>
+
+<h2 class="post-h2">Quick Reference: Error API Cheatsheet</h2>
+
+<p class="post-p">
+| API | When to Use | Example |
+|-----|------------|---------|
+| <code class="inline-code">new Error(msg, { cause })</code> | Wrapping errors with context | <code class="inline-code">throw new Error('API fail', { cause: fetchErr })</code> |
+| <code class="inline-code">AggregateError(errors, msg)</code> | Multiple failures at once | <code class="inline-code">Promise.allSettled()</code> results, batch validation |
+| <code class="inline-code">err.cause</code> | Inspecting the origin error | <code class="inline-code">err.cause.message</code> or <code class="inline-code">err.cause.status</code> |
+| <code class="inline-code">err.stack</code> | Debugging — contains <code class="inline-code">Caused by:</code> chain | Log in development, strip in production |
+| <code class="inline-code">instanceof</code> | Discriminating error types | <code class="inline-code">err instanceof ValidationError</code> |
+| Custom <code class="inline-code">Error</code> subclasses | Domain-specific errors | <code class="inline-code">class PaymentError extends AppError</code> |
+| <code class="inline-code">err.toJSON()</code> | Structured serialization | API responses, payload logging |
+| <code class="inline-code">AbortController.signal.reason</code> | Cancellation reason | <code class="inline-code">err.cause === signal.reason</code> |
+</p>
+
+<h2 class="post-h2">Conclusion</h2>
+
+<p class="post-p">
+JavaScript's error handling primitives have matured. <code class="inline-code">Error.cause</code> gives you causal chains without losing context. <code class="inline-code">AggregateError</code> handles batch failures cleanly. Custom error classes with <code class="inline-code">instanceof</code> eliminate fragile string matching. And a consistent error hierarchy makes your entire stack debuggable.
+</p>
+
+<p class="post-p">
+The key shift: <strong>treat errors as data, not strings</strong>. Structure them, type them, chain them. Your future self debugging a production incident at 3 AM will thank you.
+</p>
+4:T78f,
+        .blog-content .post-h1 { font-size: 1.75rem; font-weight: 700; color: #ffffff; margin-top: 2rem; margin-bottom: 1rem; }
+        .blog-content .post-h2 { font-size: 1.5rem; font-weight: 600; color: #f1f5f9; margin-top: 1.75rem; margin-bottom: 0.75rem; padding-bottom: 0.5rem; border-bottom: 1px solid #334155; }
+        .blog-content .post-h3 { font-size: 1.25rem; font-weight: 600; color: #e2e8f0; margin-top: 1.5rem; margin-bottom: 0.5rem; }
+        .blog-content .post-h4 { font-size: 1.1rem; font-weight: 600; color: #e2e8f0; margin-top: 1.25rem; margin-bottom: 0.5rem; }
+        .blog-content .post-p { color: #cbd5e1; line-height: 1.75; margin-bottom: 1rem; }
+        .blog-content .code-block { background: #0f172a; border: 1px solid #334155; border-radius: 0.5rem; padding: 1rem; overflow-x: auto; margin: 1rem 0; font-family: 'JetBrains Mono', monospace; font-size: 0.875rem; color: #e2e8f0; }
+        .blog-content .inline-code { background: #1e293b; color: #38bdf8; padding: 0.15rem 0.4rem; border-radius: 0.25rem; font-family: 'JetBrains Mono', monospace; font-size: 0.875em; }
+        .blog-content .post-link { color: #38bdf8; text-decoration: underline; transition: color 0.2s; }
+        .blog-content .post-link:hover { color: #7dd3fc; }
+        .blog-content .post-ul { list-style: disc; padding-left: 1.5rem; margin: 0.75rem 0; color: #cbd5e1; }
+        .blog-content .post-li { margin-bottom: 0.25rem; line-height: 1.6; }
+        .blog-content .post-blockquote { border-left: 3px solid #0ea5e9; padding: 0.5rem 1rem; margin: 1rem 0; background: rgba(14, 165, 233, 0.05); border-radius: 0 0.5rem 0.5rem 0; }
+        .blog-content .post-blockquote p { color: #94a3b8; font-style: italic; }
+        .blog-content .post-hr { border: none; border-top: 1px solid #334155; margin: 2rem 0; }
+        .blog-content strong { color: #f1f5f9; font-weight: 600; }
+        .blog-content em { font-style: italic; }
+        6:["slug","javascript-error-handling-2026","d"]
+0:["wLkx3_e9eF0HmBHirJWLm",[[["",{"children":["blog",{"children":[["slug","javascript-error-handling-2026","d"],{"children":["__PAGE__?{\"slug\":\"javascript-error-handling-2026\"}",{}]}]}]},"$undefined","$undefined",true],["",{"children":["blog",{"children":[["slug","javascript-error-handling-2026","d"],{"children":["__PAGE__",{},[["$L1",["$","article",null,{"className":"max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-20","children":[["$","script",null,{"type":"application/ld+json","dangerouslySetInnerHTML":{"__html":"{\"@context\":\"https://schema.org\",\"@type\":\"Article\",\"headline\":\"JavaScript Error Handling in 2026: Error.cause, AggregateError, and Structured Error Patterns\",\"description\":\"Modern JavaScript ships powerful error-handling primitives that most developers aren't using: Error.cause for chaining, AggregateError for batching, custom error subclasses with instanceof, and async error propagation. A complete guide to production-grade error handling in 2026 with real-world patterns for APIs, validation, and background workers.\",\"datePublished\":\"2026-05-31\",\"author\":{\"@type\":\"Organization\",\"name\":\"DevBench\"},\"publisher\":{\"@type\":\"Organization\",\"name\":\"DevBench\",\"url\":\"https://devbench-roan.vercel.app\"}}"}}],["$","script",null,{"type":"application/ld+json","dangerouslySetInnerHTML":{"__html":"{\"@context\":\"https://schema.org\",\"@type\":\"BreadcrumbList\",\"itemListElement\":[{\"@type\":\"ListItem\",\"position\":1,\"name\":\"Home\",\"item\":\"https://devbench-roan.vercel.app\"},{\"@type\":\"ListItem\",\"position\":2,\"name\":\"Blog\",\"item\":\"https://devbench-roan.vercel.app/blog\"},{\"@type\":\"ListItem\",\"position\":3,\"name\":\"JavaScript Error Handling in 2026: Error.cause, AggregateError, and Structured Error Patterns\"}]}"}}],["$","$L2",null,{"href":"/blog","className":"inline-flex items-center gap-1.5 text-slate-400 hover:text-brand-400 text-sm transition-colors mb-8","children":[["$","svg",null,{"xmlns":"http://www.w3.org/2000/svg","width":24,"height":24,"viewBox":"0 0 24 24","fill":"none","stroke":"currentColor","strokeWidth":2,"strokeLinecap":"round","strokeLinejoin":"round","className":"lucide lucide-arrow-left w-4 h-4","children":[["$","path","1l729n",{"d":"m12 19-7-7 7-7"}],["$","path","x3x0zl",{"d":"M19 12H5"}],"$undefined"]}],"Back to Blog"]}],["$","header",null,{"className":"mb-10","children":[["$","h1",null,{"className":"text-3xl sm:text-4xl font-bold text-white leading-tight mb-4","children":"JavaScript Error Handling in 2026: Error.cause, AggregateError, and Structured Error Patterns"}],["$","div",null,{"className":"flex flex-wrap items-center gap-4 text-sm text-slate-400","children":[["$","span",null,{"className":"flex items-center gap-1.5","children":[["$","svg",null,{"xmlns":"http://www.w3.org/2000/svg","width":24,"height":24,"viewBox":"0 0 24 24","fill":"none","stroke":"currentColor","strokeWidth":2,"strokeLinecap":"round","strokeLinejoin":"round","className":"lucide lucide-calendar w-4 h-4","children":[["$","rect","eu3xkr",{"width":"18","height":"18","x":"3","y":"4","rx":"2","ry":"2"}],["$","line","m3sa8f",{"x1":"16","x2":"16","y1":"2","y2":"6"}],["$","line","18kwsl",{"x1":"8","x2":"8","y1":"2","y2":"6"}],["$","line","xt86sb",{"x1":"3","x2":"21","y1":"10","y2":"10"}],"$undefined"]}],"2026-05-31"]}],["$","div",null,{"className":"flex flex-wrap gap-1.5","children":[["$","span","[\"JavaScript\"",{"className":"badge-secondary flex items-center gap-1","children":[["$","svg",null,{"xmlns":"http://www.w3.org/2000/svg","width":24,"height":24,"viewBox":"0 0 24 24","fill":"none","stroke":"currentColor","strokeWidth":2,"strokeLinecap":"round","strokeLinejoin":"round","className":"lucide lucide-tag w-3 h-3","children":[["$","path","14b2ls",{"d":"M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"}],["$","path","7u93v4",{"d":"M7 7h.01"}],"$undefined"]}],"[\"JavaScript\""]}],["$","span","\"Error Handling\"",{"className":"badge-secondary flex items-center gap-1","children":[["$","svg",null,{"xmlns":"http://www.w3.org/2000/svg","width":24,"height":24,"viewBox":"0 0 24 24","fill":"none","stroke":"currentColor","strokeWidth":2,"strokeLinecap":"round","strokeLinejoin":"round","className":"lucide lucide-tag w-3 h-3","children":[["$","path","14b2ls",{"d":"M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"}],["$","path","7u93v4",{"d":"M7 7h.01"}],"$undefined"]}],"\"Error Handling\""]}],["$","span","\"Error.cause\"",{"className":"badge-secondary flex items-center gap-1","children":[["$","svg",null,{"xmlns":"http://www.w3.org/2000/svg","width":24,"height":24,"viewBox":"0 0 24 24","fill":"none","stroke":"currentColor","strokeWidth":2,"strokeLinecap":"round","strokeLinejoin":"round","className":"lucide lucide-tag w-3 h-3","children":[["$","path","14b2ls",{"d":"M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"}],["$","path","7u93v4",{"d":"M7 7h.01"}],"$undefined"]}],"\"Error.cause\""]}],["$","span","\"AggregateError\"",{"className":"badge-secondary flex items-center gap-1","children":[["$","svg",null,{"xmlns":"http://www.w3.org/2000/svg","width":24,"height":24,"viewBox":"0 0 24 24","fill":"none","stroke":"currentColor","strokeWidth":2,"strokeLinecap":"round","strokeLinejoin":"round","className":"lucide lucide-tag w-3 h-3","children":[["$","path","14b2ls",{"d":"M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"}],["$","path","7u93v4",{"d":"M7 7h.01"}],"$undefined"]}],"\"AggregateError\""]}],["$","span","\"Patterns\"",{"className":"badge-secondary flex items-center gap-1","children":[["$","svg",null,{"xmlns":"http://www.w3.org/2000/svg","width":24,"height":24,"viewBox":"0 0 24 24","fill":"none","stroke":"currentColor","strokeWidth":2,"strokeLinecap":"round","strokeLinejoin":"round","className":"lucide lucide-tag w-3 h-3","children":[["$","path","14b2ls",{"d":"M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"}],["$","path","7u93v4",{"d":"M7 7h.01"}],"$undefined"]}],"\"Patterns\""]}],["$","span","\"Async\"",{"className":"badge-secondary flex items-center gap-1","children":[["$","svg",null,{"xmlns":"http://www.w3.org/2000/svg","width":24,"height":24,"viewBox":"0 0 24 24","fill":"none","stroke":"currentColor","strokeWidth":2,"strokeLinecap":"round","strokeLinejoin":"round","className":"lucide lucide-tag w-3 h-3","children":[["$","path","14b2ls",{"d":"M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"}],["$","path","7u93v4",{"d":"M7 7h.01"}],"$undefined"]}],"\"Async\""]}],["$","span","\"Node.js\"",{"className":"badge-secondary flex items-center gap-1","children":[["$","svg",null,{"xmlns":"http://www.w3.org/2000/svg","width":24,"height":24,"viewBox":"0 0 24 24","fill":"none","stroke":"currentColor","strokeWidth":2,"strokeLinecap":"round","strokeLinejoin":"round","className":"lucide lucide-tag w-3 h-3","children":[["$","path","14b2ls",{"d":"M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"}],["$","path","7u93v4",{"d":"M7 7h.01"}],"$undefined"]}],"\"Node.js\""]}],["$","span","\"TypeScript\"",{"className":"badge-secondary flex items-center gap-1","children":[["$","svg",null,{"xmlns":"http://www.w3.org/2000/svg","width":24,"height":24,"viewBox":"0 0 24 24","fill":"none","stroke":"currentColor","strokeWidth":2,"strokeLinecap":"round","strokeLinejoin":"round","className":"lucide lucide-tag w-3 h-3","children":[["$","path","14b2ls",{"d":"M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"}],["$","path","7u93v4",{"d":"M7 7h.01"}],"$undefined"]}],"\"TypeScript\""]}],["$","span","\"Best Practices\"",{"className":"badge-secondary flex items-center gap-1","children":[["$","svg",null,{"xmlns":"http://www.w3.org/2000/svg","width":24,"height":24,"viewBox":"0 0 24 24","fill":"none","stroke":"currentColor","strokeWidth":2,"strokeLinecap":"round","strokeLinejoin":"round","className":"lucide lucide-tag w-3 h-3","children":[["$","path","14b2ls",{"d":"M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"}],["$","path","7u93v4",{"d":"M7 7h.01"}],"$undefined"]}],"\"Best Practices\""]}],["$","span","\"2026\"]",{"className":"badge-secondary flex items-center gap-1","children":[["$","svg",null,{"xmlns":"http://www.w3.org/2000/svg","width":24,"height":24,"viewBox":"0 0 24 24","fill":"none","stroke":"currentColor","strokeWidth":2,"strokeLinecap":"round","strokeLinejoin":"round","className":"lucide lucide-tag w-3 h-3","children":[["$","path","14b2ls",{"d":"M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"}],["$","path","7u93v4",{"d":"M7 7h.01"}],"$undefined"]}],"\"2026\"]"]}]]}]]}]]}],["$","div",null,{"className":"blog-content prose-p:text-slate-300 prose-p:leading-relaxed prose-p:mb-4","dangerouslySetInnerHTML":{"__html":"$3"}}],["$","style",null,{"dangerouslySetInnerHTML":{"__html":"$4"}}]]}],null],null],null]},[null,["$","$L5",null,{"parallelRouterKey":"children","segmentPath":["children","blog","children","$6","children"],"error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L7",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":"$undefined","notFoundStyles":"$undefined"}]],null]},[null,["$","$L5",null,{"parallelRouterKey":"children","segmentPath":["children","blog","children"],"error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L7",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":"$undefined","notFoundStyles":"$undefined"}]],null]},[[[["$","link","0",{"rel":"stylesheet","href":"/devbench-tech/_next/static/css/c877e59dbcb00f11.css","precedence":"next","crossOrigin":"$undefined"}]],["$","html",null,{"lang":"en","className":"dark","children":["$","body",null,{"className":"flex flex-col min-h-screen","children":[["$","script",null,{"type":"application/ld+json","dangerouslySetInnerHTML":{"__html":"{\"@context\":\"https://schema.org\",\"@type\":\"WebSite\",\"name\":\"DevBench\",\"url\":\"https://devbench-roan.vercel.app\",\"description\":\"Free developer tools for everyday use: JSON formatter, Base64 encoder/decoder, UUID generator, regex tester, benchmarks, and more.\",\"potentialAction\":{\"@type\":\"SearchAction\",\"target\":\"https://devbench-roan.vercel.app/tools?q={search_term_string}\",\"query-input\":\"required name=search_term_string\"}}"}}],["$","$L8",null,{}],["$","main",null,{"className":"flex-1","children":["$","$L5",null,{"parallelRouterKey":"children","segmentPath":["children"],"error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L7",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":[["$","title",null,{"children":"404: This page could not be found."}],["$","div",null,{"style":{"fontFamily":"system-ui,\"Segoe UI\",Roboto,Helvetica,Arial,sans-serif,\"Apple Color Emoji\",\"Segoe UI Emoji\"","height":"100vh","textAlign":"center","display":"flex","flexDirection":"column","alignItems":"center","justifyContent":"center"},"children":["$","div",null,{"children":[["$","style",null,{"dangerouslySetInnerHTML":{"__html":"body{color:#000;background:#fff;margin:0}.next-error-h1{border-right:1px solid rgba(0,0,0,.3)}@media (prefers-color-scheme:dark){body{color:#fff;background:#000}.next-error-h1{border-right:1px solid rgba(255,255,255,.3)}}"}}],["$","h1",null,{"className":"next-error-h1","style":{"display":"inline-block","margin":"0 20px 0 0","padding":"0 23px 0 0","fontSize":24,"fontWeight":500,"verticalAlign":"top","lineHeight":"49px"},"children":"404"}],["$","div",null,{"style":{"display":"inline-block"},"children":["$","h2",null,{"style":{"fontSize":14,"fontWeight":400,"lineHeight":"49px","margin":0},"children":"This page could not be found."}]}]]}]}]],"notFoundStyles":[]}]}],["$","footer",null,{"className":"bg-surface-light border-t border-slate-700/50 mt-auto","children":["$","div",null,{"className":"max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12","children":[["$","div",null,{"className":"grid grid-cols-1 md:grid-cols-3 gap-8","children":[["$","div",null,{"children":[["$","$L2",null,{"href":"/","className":"flex items-center gap-2.5 mb-3","children":[["$","div",null,{"className":"w-7 h-7 bg-brand-500 rounded-lg flex items-center justify-center","children":["$","svg",null,{"xmlns":"http://www.w3.org/2000/svg","width":24,"height":24,"viewBox":"0 0 24 24","fill":"none","stroke":"currentColor","strokeWidth":2,"strokeLinecap":"round","strokeLinejoin":"round","className":"lucide lucide-terminal w-3.5 h-3.5 text-white","children":[["$","polyline","akl6gq",{"points":"4 17 10 11 4 5"}],["$","line","q2wloq",{"x1":"12","x2":"20","y1":"19","y2":"19"}],"$undefined"]}]}],["$","span",null,{"className":"text-lg font-bold text-white","children":["Dev",["$","span",null,{"className":"gradient-text","children":"Bench"}]]}]]}],["$","p",null,{"className":"text-slate-400 text-sm leading-relaxed","children":"Free developer tools, benchmarks, and calculators. Built for developers, by developers."}]]}],["$","div",null,{"children":[["$","h3",null,{"className":"text-sm font-semibold text-slate-300 uppercase tracking-wider mb-4","children":"Tools"}],["$","ul",null,{"className":"space-y-2","children":[["$","li","/tools/json-formatter",{"children":["$","$L2",null,{"href":"/tools/json-formatter","className":"text-slate-400 hover:text-brand-400 text-sm transition-colors","children":"JSON Formatter"}]}],["$","li","/tools/base64",{"children":["$","$L2",null,{"href":"/tools/base64","className":"text-slate-400 hover:text-brand-400 text-sm transition-colors","children":"Base64 Encoder/Decoder"}]}],["$","li","/tools/uuid-generator",{"children":["$","$L2",null,{"href":"/tools/uuid-generator","className":"text-slate-400 hover:text-brand-400 text-sm transition-colors","children":"UUID Generator"}]}],["$","li","/tools/regex-tester",{"children":["$","$L2",null,{"href":"/tools/regex-tester","className":"text-slate-400 hover:text-brand-400 text-sm transition-colors","children":"Regex Tester"}]}]]}]]}],["$","div",null,{"children":[["$","h3",null,{"className":"text-sm font-semibold text-slate-300 uppercase tracking-wider mb-4","children":"Resources"}],["$","ul",null,{"className":"space-y-2","children":[["$","li","/blog",{"children":["$","$L2",null,{"href":"/blog","className":"text-slate-400 hover:text-brand-400 text-sm transition-colors","children":"Blog"}]}],["$","li","/benchmarks",{"children":["$","$L2",null,{"href":"/benchmarks","className":"text-slate-400 hover:text-brand-400 text-sm transition-colors","children":"Benchmarks"}]}],["$","li","/about",{"children":["$","$L2",null,{"href":"/about","className":"text-slate-400 hover:text-brand-400 text-sm transition-colors","children":"About"}]}]]}]]}]]}],["$","div",null,{"className":"mt-10 pt-6 border-t border-slate-700/50 flex flex-col sm:flex-row items-center justify-between gap-4","children":[["$","p",null,{"className":"text-slate-500 text-sm flex items-center gap-1","children":["Made with ",["$","svg",null,{"xmlns":"http://www.w3.org/2000/svg","width":24,"height":24,"viewBox":"0 0 24 24","fill":"none","stroke":"currentColor","strokeWidth":2,"strokeLinecap":"round","strokeLinejoin":"round","className":"lucide lucide-heart w-3.5 h-3.5 text-red-500 fill-red-500","children":[["$","path","c3ymky",{"d":"M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"}],"$undefined"]}]," by the DevBench team © ",2026]}],["$","a",null,{"href":"https://github.com","target":"_blank","rel":"noopener noreferrer","className":"text-slate-500 hover:text-slate-300 transition-colors","aria-label":"GitHub","children":["$","svg",null,{"xmlns":"http://www.w3.org/2000/svg","width":24,"height":24,"viewBox":"0 0 24 24","fill":"none","stroke":"currentColor","strokeWidth":2,"strokeLinecap":"round","strokeLinejoin":"round","className":"lucide lucide-github w-5 h-5","children":[["$","path","tonef",{"d":"M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"}],["$","path","9comsn",{"d":"M9 18c-4.51 2-5-2-7-2"}],"$undefined"]}]}]]}]]}]}],["$","$L9",null,{}],["$","$La",null,{"position":"bottom-right","toastOptions":{"style":{"background":"#1e293b","color":"#e2e8f0","border":"1px solid #334155","fontSize":"14px"}}}]]}]}]],null],null],["$Lb",null]]]]
+b:[["$","meta","0",{"name":"viewport","content":"width=device-width, initial-scale=1"}],["$","meta","1",{"charSet":"utf-8"}],["$","title","2",{"children":"JavaScript Error Handling in 2026: Error.cause, AggregateError, and Structured Error Patterns | DevBench"}],["$","meta","3",{"name":"description","content":"Modern JavaScript ships powerful error-handling primitives that most developers aren't using: Error.cause for chaining, AggregateError for batching, custom error subclasses with instanceof, and async error propagation. A complete guide to production-grade error handling in 2026 with real-world patterns for APIs, validation, and background workers."}],["$","meta","4",{"name":"author","content":"DevBench"}],["$","meta","5",{"name":"keywords","content":"developer tools,JSON formatter,Base64,UUID generator,regex tester,benchmarks,dev tools"}],["$","meta","6",{"property":"og:title","content":"DevBench — Developer Tools & Calculators"}],["$","meta","7",{"property":"og:description","content":"Free developer tools for everyday use."}],["$","meta","8",{"property":"og:site_name","content":"DevBench"}],["$","meta","9",{"property":"og:locale","content":"en_US"}],["$","meta","10",{"property":"og:type","content":"website"}],["$","meta","11",{"name":"twitter:card","content":"summary"}],["$","meta","12",{"name":"twitter:title","content":"DevBench — Developer Tools & Calculators"}],["$","meta","13",{"name":"twitter:description","content":"Free developer tools for everyday use."}],["$","link","14",{"rel":"icon","href":"/favicon.svg"}]]
+1:null

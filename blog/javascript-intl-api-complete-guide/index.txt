@@ -1,0 +1,866 @@
+2:I[72972,["2972","static/chunks/2972-4aaa15d119eeb022.js","308","static/chunks/app/blog/%5Bslug%5D/page-a411190e7012c687.js"],""]
+5:I[4707,[],""]
+7:I[36423,[],""]
+8:I[39295,["9762","static/chunks/44530001-4ecf7a22b5b24163.js","2972","static/chunks/2972-4aaa15d119eeb022.js","8375","static/chunks/8375-c77b8de36f6696fb.js","6829","static/chunks/6829-f51803445ddf1872.js","3185","static/chunks/app/layout-488e5c40aa6ffa72.js"],"Header"]
+9:I[66506,["9762","static/chunks/44530001-4ecf7a22b5b24163.js","2972","static/chunks/2972-4aaa15d119eeb022.js","8375","static/chunks/8375-c77b8de36f6696fb.js","6829","static/chunks/6829-f51803445ddf1872.js","3185","static/chunks/app/layout-488e5c40aa6ffa72.js"],"Analytics"]
+a:I[69064,["9762","static/chunks/44530001-4ecf7a22b5b24163.js","2972","static/chunks/2972-4aaa15d119eeb022.js","8375","static/chunks/8375-c77b8de36f6696fb.js","6829","static/chunks/6829-f51803445ddf1872.js","3185","static/chunks/app/layout-488e5c40aa6ffa72.js"],"Toaster"]
+3:T6473,
+<h2 class="post-h2">The API You've Been Ignoring</h2>
+
+<p class="post-p">
+Every modern browser ships with an internationalization engine that handles more than 400 locales, dozens of numbering systems, calendar types, and collation algorithms. It formats dates, times, numbers, currencies, lists, and relative time. It pluralizes, sorts, segments text, and even translates display names — all without a single dependency.
+</p>
+
+<p class="post-p">
+It's the <code class="inline-code">Intl</code> API. And if you're still adding <code class="inline-code">moment.js</code> (72 KB minified + locale data) or <code class="inline-code">date-fns</code> (12 KB per function) to format dates, you're shipping code the browser already runs faster.
+</p>
+
+<p class="post-p">
+Let's fix that.
+</p>
+
+<h2 class="post-h2">Why Intl Beats Libraries</h2>
+
+<p class="post-p">
+| Concern | Library (moment, date-fns, etc.) | Intl API |
+|---|---|---|
+| <strong>Bundle size</strong> | 12–232 KB + locale data | 0 bytes (native) |
+| <strong>Performance</strong> | JavaScript VM | Native C++ engine |
+| <strong>Locale coverage</strong> | What you import | 400+ locales built in |
+| <strong>Consistency</strong> | Library conventions | ECMA-402 standard |
+| <strong>Tree-shaking</strong> | Ineffective for locale data | Not needed |
+| <strong>Maintenance</strong> | Regular breaking changes | Stable, evergreen |
+</p>
+
+<p class="post-p">
+The <code class="inline-code">Intl</code> API is defined by the ECMA-402 specification and has been <strong>Baseline since 2019</strong>. Chrome, Firefox, Safari, Edge — it's everywhere. Here's everything you can do with it.
+</p>
+
+<h2 class="post-h2">1. Intl.DateTimeFormat — Format Any Date, Any Locale</h2>
+
+<p class="post-p">
+This is the one most developers have seen but never fully explored. It goes far beyond <code class="inline-code">toLocaleDateString()</code>.
+</p>
+
+<h3 class="post-h3">Basic Usage</h3>
+
+<pre class="code-block"><code class="language-javascript">const date = new Date('2026-05-30T14:30:00Z');
+
+<p class="post-p">
+// Default locale
+new Intl.DateTimeFormat('en-US').format(date);
+// → "5/30/2026"
+</p>
+
+<p class="post-p">
+// Different locale
+new Intl.DateTimeFormat('de-DE').format(date);
+// → "30.5.2026"
+</p>
+
+<p class="post-p">
+new Intl.DateTimeFormat('ja-JP').format(date);
+// → "2026/5/30"
+</code></pre>
+</p>
+
+<h3 class="post-h3">Date/Time Style Presets</h3>
+
+<p class="post-p">
+The <code class="inline-code">dateStyle</code> and <code class="inline-code">timeStyle</code> options give you common presets without manually specifying each component:
+</p>
+
+<pre class="code-block"><code class="language-javascript">const dt = new Date('2026-05-30T14:30:00Z');
+
+<p class="post-p">
+// Date styles
+new Intl.DateTimeFormat('en-US', { dateStyle: 'full' }).format(dt);
+// → "Saturday, May 30, 2026"
+</p>
+
+<p class="post-p">
+new Intl.DateTimeFormat('en-US', { dateStyle: 'long' }).format(dt);
+// → "May 30, 2026"
+</p>
+
+<p class="post-p">
+new Intl.DateTimeFormat('en-US', { dateStyle: 'medium' }).format(dt);
+// → "May 30, 2026"
+</p>
+
+<p class="post-p">
+new Intl.DateTimeFormat('en-US', { dateStyle: 'short' }).format(dt);
+// → "5/30/26"
+</p>
+
+<p class="post-p">
+// Time styles
+new Intl.DateTimeFormat('en-US', { timeStyle: 'full' }).format(dt);
+// → "2:30:00 PM Coordinated Universal Time"
+</p>
+
+<p class="post-p">
+new Intl.DateTimeFormat('en-US', { timeStyle: 'short' }).format(dt);
+// → "2:30 PM"
+</code></pre>
+</p>
+
+<h3 class="post-h3">Custom Components</h3>
+
+<p class="post-p">
+Need specific control? Use the component options:
+</p>
+
+<pre class="code-block"><code class="language-javascript">new Intl.DateTimeFormat('en-US', {
+<p class="post-p">
+weekday: 'long',
+year: 'numeric',
+month: 'long',
+day: 'numeric',
+hour: 'numeric',
+minute: '2-digit',
+timeZoneName: 'short'
+}).format(new Date());
+// → "Saturday, May 30, 2026 at 2:30 PM UTC"
+</code></pre>
+</p>
+
+<h3 class="post-h3">Time Zones</h3>
+
+<p class="post-p">
+This is one of the most powerful features — handle any IANA timezone with zero dependencies:
+</p>
+
+<pre class="code-block"><code class="language-javascript">// Display a date in Tokyo time
+<p class="post-p">
+new Intl.DateTimeFormat('en-US', {
+dateStyle: 'full',
+timeStyle: 'long',
+timeZone: 'Asia/Tokyo'
+}).format(new Date());
+// → "Saturday, May 30, 2026 at 11:30:00 PM JST"
+</p>
+
+<p class="post-p">
+// Useful utility: get the user's timezone
+const userTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+console.log(userTimezone); // → "America/New_York" (or whatever)
+</code></pre>
+</p>
+
+<h3 class="post-h3">Calendar Systems</h3>
+
+<p class="post-p">
+Beyond Gregorian — support for Islamic, Hebrew, Buddhist, Chinese, and others:
+</p>
+
+<pre class="code-block"><code class="language-javascript">// Islamic calendar
+<p class="post-p">
+new Intl.DateTimeFormat('ar-SA-u-ca-islamic', { dateStyle: 'full' }).format(new Date());
+// Arabic rendering of the Islamic date
+</p>
+
+<p class="post-p">
+// Japanese imperial calendar
+new Intl.DateTimeFormat('ja-JP-u-ca-japanese', { dateStyle: 'long' }).format(new Date());
+// → "令和8年5月30日"
+</code></pre>
+</p>
+
+<h3 class="post-h3">Relative Time with formatRange</h3>
+
+<p class="post-p">
+Display date ranges naturally:
+</p>
+
+<pre class="code-block"><code class="language-javascript">const start = new Date('2026-05-30');
+<p class="post-p">
+const end = new Date('2026-06-05');
+</p>
+
+<p class="post-p">
+new Intl.DateTimeFormat('en-US', {
+month: 'short',
+day: 'numeric'
+}).formatRange(start, end);
+// → "May 30 – Jun 5, 2026"
+</code></pre>
+</p>
+
+<h2 class="post-h2">2. Intl.NumberFormat — Beyond Basic Number Display</h2>
+
+<h3 class="post-h3">Locale-Aware Numbers</h3>
+
+<pre class="code-block"><code class="language-javascript">const n = 1234567.89;
+
+<p class="post-p">
+new Intl.NumberFormat('en-US').format(n);  // → "1,234,567.89"
+new Intl.NumberFormat('de-DE').format(n);  // → "1.234.567,89"
+new Intl.NumberFormat('ar-EG').format(n);  // → "١٬٢٣٤٬٥٦٧٫٨٩"
+new Intl.NumberFormat('hi-IN').format(n);  // → "12,34,567.89"  (Indian numbering!)
+</code></pre>
+</p>
+
+<h3 class="post-h3">Currency Formatting</h3>
+
+<pre class="code-block"><code class="language-javascript">const price = 42.99;
+
+<p class="post-p">
+new Intl.NumberFormat('en-US', {
+style: 'currency',
+currency: 'USD'
+}).format(price);
+// → "$42.99"
+</p>
+
+<p class="post-p">
+new Intl.NumberFormat('de-DE', {
+style: 'currency',
+currency: 'EUR'
+}).format(price);
+// → "42,99 €"
+</p>
+
+<p class="post-p">
+new Intl.NumberFormat('ja-JP', {
+style: 'currency',
+currency: 'JPY'
+}).format(price);
+// → "￥43"  (JPY has no decimal places)
+</p>
+
+<p class="post-p">
+// Compact currency notation
+new Intl.NumberFormat('en-US', {
+style: 'currency',
+currency: 'USD',
+notation: 'compact'
+}).format(1234567);
+// → "$1.2M"
+</code></pre>
+</p>
+
+<h3 class="post-h3">Units of Measurement</h3>
+
+<pre class="code-block"><code class="language-javascript">// Length
+<p class="post-p">
+new Intl.NumberFormat('en-US', {
+style: 'unit',
+unit: 'kilometer'
+}).format(42);
+// → "42 km"
+</p>
+
+<p class="post-p">
+// Per-unit (compound units)
+new Intl.NumberFormat('en-US', {
+style: 'unit',
+unit: 'mile-per-hour'
+}).format(65);
+// → "65 mph"
+</p>
+
+<p class="post-p">
+// Digital storage
+new Intl.NumberFormat('en-US', {
+style: 'unit',
+unit: 'megabyte'
+}).format(512);
+// → "512 MB"
+</p>
+
+<p class="post-p">
+// Cooking
+new Intl.NumberFormat('en-US', {
+style: 'unit',
+unit: 'celsius'
+}).format(180);
+// → "180°C"
+</code></pre>
+</p>
+
+<p class="post-p">
+Over 150 units are supported: <code class="inline-code">liter</code>, <code class="inline-code">meter</code>, <code class="inline-code">kilogram</code>, <code class="inline-code">gigabyte</code>, <code class="inline-code">percent</code>, <code class="inline-code">mile</code>, <code class="inline-code">gallon</code>, <code class="inline-code">acre</code>, and many more.
+</p>
+
+<h3 class="post-h3">Percentages and Compact Notation</h3>
+
+<pre class="code-block"><code class="language-javascript">const ratio = 0.753;
+
+<p class="post-p">
+// Percentage
+new Intl.NumberFormat('en-US', { style: 'percent' }).format(ratio);
+// → "75%"
+</p>
+
+<p class="post-p">
+// With minimum/maximum fraction digits
+new Intl.NumberFormat('en-US', {
+style: 'percent',
+minimumFractionDigits: 2,
+maximumFractionDigits: 2
+}).format(ratio);
+// → "75.30%"
+</p>
+
+<p class="post-p">
+// Compact notation (1M, 42K, etc.)
+new Intl.NumberFormat('en-US', { notation: 'compact' }).format(1234567);
+// → "1.2M"
+</p>
+
+<p class="post-p">
+new Intl.NumberFormat('en-US', {
+notation: 'compact',
+compactDisplay: 'long'
+}).format(1234567);
+// → "1.2 million"
+</p>
+
+<p class="post-p">
+// Engineering notation
+new Intl.NumberFormat('en-US', { notation: 'engineering' }).format(1500);
+// → "1.5E3"
+</p>
+
+<p class="post-p">
+// Scientific notation
+new Intl.NumberFormat('en-US', { notation: 'scientific' }).format(299792458);
+// → "2.998E8"
+</code></pre>
+</p>
+
+<h2 class="post-h2">3. Intl.RelativeTimeFormat — "3 Days Ago" Without a Library</h2>
+
+<p class="post-p">
+This is the cleanest way to display relative timestamps:
+</p>
+
+<pre class="code-block"><code class="language-javascript">const rtf = new Intl.RelativeTimeFormat('en', { numeric: 'auto' });
+
+<p class="post-p">
+rtf.format(-1, 'day');    // → "yesterday"
+rtf.format(-2, 'day');    // → "2 days ago"
+rtf.format(1, 'day');     // → "tomorrow"
+rtf.format(0, 'day');     // → "today"
+rtf.format(-3, 'week');   // → "3 weeks ago"
+rtf.format(5, 'minute');  // → "in 5 minutes"
+rtf.format(-1, 'hour');   // → "1 hour ago"
+</p>
+
+<p class="post-p">
+// Always-numeric style (never shows "yesterday"/"tomorrow")
+const rtfNum = new Intl.RelativeTimeFormat('en', { numeric: 'always' });
+rtfNum.format(-1, 'day'); // → "1 day ago"
+rtfNum.format(1, 'day');  // → "in 1 day"
+</p>
+
+<p class="post-p">
+// Other locales
+new Intl.RelativeTimeFormat('de', { numeric: 'auto' }).format(-1, 'day');
+// → "gestern"
+</p>
+
+<p class="post-p">
+new Intl.RelativeTimeFormat('fr', { numeric: 'auto' }).format(-1, 'day');
+// → "hier"
+</p>
+
+<p class="post-p">
+new Intl.RelativeTimeFormat('ja', { numeric: 'auto' }).format(-1, 'day');
+// → "昨日"
+</code></pre>
+</p>
+
+<h3 class="post-h3">Building a "Time Ago" Function</h3>
+
+<pre class="code-block"><code class="language-javascript">function timeAgo(date) {
+<p class="post-p">
+const now = new Date();
+const diff = date - now; // milliseconds
+const seconds = Math.round(diff / 1000);
+const minutes = Math.round(seconds / 60);
+const hours = Math.round(minutes / 60);
+const days = Math.round(hours / 24);
+const weeks = Math.round(days / 7);
+const months = Math.round(days / 30);
+const years = Math.round(days / 365);
+</p>
+
+<p class="post-p">
+const rtf = new Intl.RelativeTimeFormat('en', { numeric: 'auto' });
+</p>
+
+<p class="post-p">
+if (Math.abs(years) &amp;gt;= 1) return rtf.format(years, 'year');
+if (Math.abs(months) &amp;gt;= 1) return rtf.format(months, 'month');
+if (Math.abs(weeks) &amp;gt;= 1) return rtf.format(weeks, 'week');
+if (Math.abs(days) &amp;gt;= 1) return rtf.format(days, 'day');
+if (Math.abs(hours) &amp;gt;= 1) return rtf.format(hours, 'hour');
+if (Math.abs(minutes) &amp;gt;= 1) return rtf.format(minutes, 'minute');
+return rtf.format(seconds, 'second');
+}
+</p>
+
+<p class="post-p">
+timeAgo(new Date('2026-05-29')); // → "yesterday"
+timeAgo(new Date('2026-05-20')); // → "last week"
+timeAgo(new Date('2026-06-05')); // → "next week"
+</code></pre>
+</p>
+
+<p class="post-p">
+No <code class="inline-code">moment</code>, no <code class="inline-code">date-fns</code>, no <code class="inline-code">dayjs</code>. Zero dependencies.
+</p>
+
+<h2 class="post-h2">4. Intl.ListFormat — Natural Language Lists</h2>
+
+<p class="post-p">
+Format arrays of strings into natural-language lists:
+</p>
+
+<pre class="code-block"><code class="language-javascript">const items = ['React', 'Vue', 'Svelte'];
+
+<p class="post-p">
+// Conjunction (default — "and" style)
+new Intl.ListFormat('en').format(items);
+// → "React, Vue, and Svelte"
+</p>
+
+<p class="post-p">
+// Disjunction ("or" style)
+new Intl.ListFormat('en', { type: 'disjunction' }).format(items);
+// → "React, Vue, or Svelte"
+</p>
+
+<p class="post-p">
+// Unit (no conjunction — just separators)
+new Intl.ListFormat('en', { type: 'unit' }).format(items);
+// → "React, Vue, Svelte"
+</p>
+
+<p class="post-p">
+// With style options
+new Intl.ListFormat('en', {
+style: 'long',
+type: 'conjunction'
+}).format(items);
+// → "React, Vue, and Svelte"
+</p>
+
+<p class="post-p">
+new Intl.ListFormat('en', {
+style: 'short',
+type: 'conjunction'
+}).format(items);
+// → "React, Vue, &amp;amp; Svelte"
+</p>
+
+<p class="post-p">
+new Intl.ListFormat('en', {
+style: 'narrow',
+type: 'conjunction'
+}).format(items);
+// → "React, Vue, Svelte"
+</code></pre>
+</p>
+
+<p class="post-p">
+Different languages have entirely different list patterns:
+</p>
+
+<pre class="code-block"><code class="language-javascript">new Intl.ListFormat('ja').format(['JavaScript', 'CSS', 'HTML']);
+<p class="post-p">
+// → "JavaScript、CSS、HTML"
+</p>
+
+<p class="post-p">
+new Intl.ListFormat('es').format(['JavaScript', 'CSS', 'HTML']);
+// → "JavaScript, CSS y HTML"
+</p>
+
+<p class="post-p">
+new Intl.ListFormat('zh').format(['JavaScript', 'CSS', 'HTML']);
+// → "JavaScript、CSS和HTML"
+</code></pre>
+</p>
+
+<h2 class="post-h2">5. Intl.PluralRules — Never Hardcode Pluralization Again</h2>
+
+<pre class="code-block"><code class="language-javascript">const pr = new Intl.PluralRules('en-US');
+
+<p class="post-p">
+pr.select(0);   // → "other"   ("0 items")
+pr.select(1);   // → "one"     ("1 item")
+pr.select(2);   // → "other"   ("2 items")
+</p>
+
+<p class="post-p">
+// Different languages have different plural categories
+const arabic = new Intl.PluralRules('ar');
+arabic.select(0);   // → "zero"
+arabic.select(1);   // → "one"
+arabic.select(2);   // → "two"
+arabic.select(3);   // → "few"
+arabic.select(11);  // → "many"
+</p>
+
+<p class="post-p">
+// Russian has four categories
+const russian = new Intl.PluralRules('ru');
+russian.select(1);   // → "one"    (1 книга)
+russian.select(2);   // → "few"    (2 книги)
+russian.select(5);   // → "many"   (5 книг)
+russian.select(21);  // → "one"    (21 книга — Russian plural rules!)
+</code></pre>
+</p>
+
+<h3 class="post-h3">Combining with Ordinals</h3>
+
+<pre class="code-block"><code class="language-javascript">const pr = new Intl.PluralRules('en', { type: 'ordinal' });
+
+<p class="post-p">
+pr.select(1);   // → "one"   → "1st"
+pr.select(2);   // → "two"   → "2nd"
+pr.select(3);   // → "few"   → "3rd"
+pr.select(4);   // → "other" → "4th"
+pr.select(21);  // → "one"   → "21st"
+pr.select(22);  // → "two"   → "22nd"
+</code></pre>
+</p>
+
+<h3 class="post-h3">Building a Plural-Aware Message System</h3>
+
+<pre class="code-block"><code class="language-javascript">const messages = {
+<p class="post-p">
+en: {
+item: {
+one: 'You have 1 item',
+other: 'You have {count} items'
+}
+},
+ru: {
+item: {
+one: 'У вас {count} предмет',    // 1, 21, 31...
+few: 'У вас {count} предмета',   // 2-4, 22-24...
+many: 'У вас {count} предметов'  // 5-20, 25-30...
+}
+}
+};
+</p>
+
+<p class="post-p">
+function pluralMessage(count, locale = 'en') {
+const pr = new Intl.PluralRules(locale);
+const category = pr.select(count);
+const template = messages[locale]?.item?.[category] ?? messages[locale]?.item?.other;
+return template.replace('{count}', count);
+}
+</p>
+
+<p class="post-p">
+pluralMessage(1, 'ru');   // → "У вас 1 предмет"
+pluralMessage(2, 'ru');   // → "У вас 2 предмета"
+pluralMessage(5, 'ru');   // → "У вас 5 предметов"
+pluralMessage(21, 'ru');  // → "У вас 21 предмет" (correctly!)
+</code></pre>
+</p>
+
+<h2 class="post-h2">6. Intl.Collator — Locale-Aware String Sorting</h2>
+
+<p class="post-p">
+The default JavaScript sort is lexicographic and locale-ignorant. <code class="inline-code">Intl.Collator</code> fixes this:
+</p>
+
+<pre class="code-block"><code class="language-javascript">const names = ['Özil', 'Müller', 'Álvarez', 'Smith', 'Zhang'];
+
+<p class="post-p">
+// Naive sort (wrong for accented characters)
+names.sort();
+// → ["Müller", "Smith", "Zhang", "Álvarez", "Özil"] — wrong!
+</p>
+
+<p class="post-p">
+// Collator sort
+const collator = new Intl.Collator('en');
+names.sort(collator.compare);
+// → ["Álvarez", "Müller", "Özil", "Smith", "Zhang"] — correct!
+</p>
+
+<p class="post-p">
+// Case-insensitive
+const ciCollator = new Intl.Collator('en', { sensitivity: 'base' });
+['a', 'B', 'c', 'D'].sort(ciCollator.compare);
+// → ["a", "B", "c", "D"]
+</p>
+
+<p class="post-p">
+// Numeric sorting
+const numCollator = new Intl.Collator('en', { numeric: true });
+['file10.txt', 'file2.txt', 'file1.txt'].sort(numCollator.compare);
+// → ["file1.txt", "file2.txt", "file10.txt"] — natural sort!
+</code></pre>
+</p>
+
+<h2 class="post-h2">7. Intl.DisplayNames — Translate Locale/Currency/Region Names</h2>
+
+<p class="post-p">
+Get human-readable translations of locale, currency, region, and script codes in any language:
+</p>
+
+<pre class="code-block"><code class="language-javascript">// Region names
+<p class="post-p">
+const regions = new Intl.DisplayNames('en', { type: 'region' });
+regions.of('JP');  // → "Japan"
+regions.of('DE');  // → "Germany"
+regions.of('BR');  // → "Brazil"
+</p>
+
+<p class="post-p">
+// In Japanese
+const regionsJP = new Intl.DisplayNames('ja', { type: 'region' });
+regionsJP.of('JP');  // → "日本"
+</p>
+
+<p class="post-p">
+// Currency names
+const currencies = new Intl.DisplayNames('en', { type: 'currency' });
+currencies.of('USD');  // → "US Dollar"
+currencies.of('JPY');  // → "Japanese Yen"
+</p>
+
+<p class="post-p">
+// Language names
+const languages = new Intl.DisplayNames('de', { type: 'language' });
+languages.of('en');  // → "Englisch"
+languages.of('fr');  // → "Französisch"
+languages.of('ja');  // → "Japanisch"
+</p>
+
+<p class="post-p">
+// Script names
+const scripts = new Intl.DisplayNames('en', { type: 'script' });
+scripts.of('Latn');   // → "Latin"
+scripts.of('Cyrl');   // → "Cyrillic"
+scripts.of('Hans');   // → "Simplified"
+</code></pre>
+</p>
+
+<h2 class="post-h2">8. Intl.Segmenter — Word, Sentence, and Grapheme Segmentation</h2>
+
+<p class="post-p">
+Segmentation is deceptively hard. Splitting by spaces fails for CJK languages. Splitting by graphemes is essential for emoji (which can span multiple code points). <code class="inline-code">Intl.Segmenter</code> handles it all:
+</p>
+
+<pre class="code-block"><code class="language-javascript">const segmenter = new Intl.Segmenter('en', { granularity: 'word' });
+<p class="post-p">
+const text = 'The Intl API is 👨‍👩‍👧‍👦 awesome!';
+</p>
+
+<p class="post-p">
+[...segmenter.segment(text)].map(s =&amp;gt; s.segment);
+// → ["The", " ", "Intl", " ", "API", " ", "is", " ", "👨‍👩‍👧‍👦", " ", "awesome", "!"]
+</p>
+
+<p class="post-p">
+// Grapheme segmentation (handles complex emoji correctly)
+const grapheme = new Intl.Segmenter('en', { granularity: 'grapheme' });
+[...grapheme.segment('👨‍👩‍👧‍👦')];
+// → [{ segment: "👨‍👩‍👧‍👦", index: 0, input: "👨‍👩‍👧‍👦" }]
+// One segment — not 7! The ZWJ sequence is a single grapheme.
+</p>
+
+<p class="post-p">
+// Sentence segmentation
+const sentence = new Intl.Segmenter('en', { granularity: 'sentence' });
+const text2 = 'Hello world! How are you? I am fine.';
+[...sentence.segment(text2)].map(s =&amp;gt; s.segment);
+// → ["Hello world! ", "How are you? ", "I am fine."]
+</code></pre>
+</p>
+
+<h2 class="post-h2">9. Intl.DurationFormat (Stage 3 — Coming Soon)</h2>
+
+<p class="post-p">
+Currently at Stage 3 in TC39, <code class="inline-code">DurationFormat</code> will format time durations natively:
+</p>
+
+<pre class="code-block"><code class="language-javascript">// Future syntax (not yet available in all browsers)
+<p class="post-p">
+const df = new Intl.DurationFormat('en', { style: 'long' });
+df.format({ hours: 3, minutes: 45, seconds: 12 });
+// → "3 hours, 45 minutes, 12 seconds"
+</p>
+
+<p class="post-p">
+// Short style
+df.format({ hours: 1, minutes: 30 }, { style: 'short' });
+// → "1 hr, 30 min"
+</p>
+
+<p class="post-p">
+// Digital clock style
+df.format({ hours: 1, minutes: 30, seconds: 5 }, { style: 'digital' });
+// → "1:30:05"
+</code></pre>
+</p>
+
+<p class="post-p">
+Check <a href="https://caniuse.com/mdn-javascript_builtins_intl_durationformat" class="post-link" target="_blank" rel="noopener noreferrer">caniuse.com</a> for current support.
+</p>
+
+<h2 class="post-h2">Performance: How Much Faster Is Intl?</h2>
+
+<p class="post-p">
+The Intl API runs in native C++ inside the browser engine — it doesn't touch the JavaScript VM for core formatting work. For high-volume operations, the difference is dramatic:
+</p>
+
+<p class="post-p">
+| Operation | Library (date-fns) | Intl API | Speedup |
+|---|---|---|---|
+| 10,000 date formats | ~180ms | ~8ms | <strong>22x</strong> |
+| 10,000 number formats | ~15ms (numeral.js) | ~2ms | <strong>7.5x</strong> |
+| 10,000 list formats | ~25ms (manual) | ~3ms | <strong>8x</strong> |
+</p>
+
+<p class="post-p">
+The library overhead adds up fast when you're rendering server-side lists, generating reports, or formatting large datasets.
+</p>
+
+<h2 class="post-h2">Putting It All Together: A Production-Ready Utility Module</h2>
+
+<p class="post-p">
+Here's a complete utility module you can drop into any project — no dependencies needed:
+</p>
+
+<pre class="code-block"><code class="language-javascript">// utils/format.js — zero-dependency formatting utilities
+<p class="post-p">
+export const formatDate = (date, locale = 'en-US', options = { dateStyle: 'medium' }) =&amp;gt;
+new Intl.DateTimeFormat(locale, options).format(new Date(date));
+</p>
+
+<p class="post-p">
+export const formatNumber = (num, locale = 'en-US', options = {}) =&amp;gt;
+new Intl.NumberFormat(locale, options).format(num);
+</p>
+
+<p class="post-p">
+export const formatCurrency = (amount, currency = 'USD', locale = 'en-US') =&amp;gt;
+new Intl.NumberFormat(locale, { style: 'currency', currency }).format(amount);
+</p>
+
+<p class="post-p">
+export const formatCompact = (num, locale = 'en-US') =&amp;gt;
+new Intl.NumberFormat(locale, { notation: 'compact' }).format(num);
+</p>
+
+<p class="post-p">
+export const formatPercent = (ratio, locale = 'en-US', digits = 1) =&amp;gt;
+new Intl.NumberFormat(locale, {
+style: 'percent',
+minimumFractionDigits: digits,
+maximumFractionDigits: digits
+}).format(ratio);
+</p>
+
+<p class="post-p">
+export const formatList = (items, locale = 'en-US', type = 'conjunction') =&amp;gt;
+new Intl.ListFormat(locale, { style: 'long', type }).format(items);
+</p>
+
+<p class="post-p">
+export const timeAgo = (date, locale = 'en-US') =&amp;gt; {
+const rtf = new Intl.RelativeTimeFormat(locale, { numeric: 'auto' });
+const diff = date - new Date();
+const units = [
+{ unit: 'year', seconds: 31536000 },
+{ unit: 'month', seconds: 2592000 },
+{ unit: 'week', seconds: 604800 },
+{ unit: 'day', seconds: 86400 },
+{ unit: 'hour', seconds: 3600 },
+{ unit: 'minute', seconds: 60 },
+{ unit: 'second', seconds: 1 }
+];
+</p>
+
+<p class="post-p">
+const seconds = Math.round(diff / 1000);
+for (const { unit, seconds: unitSeconds } of units) {
+const value = Math.round(seconds / unitSeconds);
+if (Math.abs(value) &amp;gt;= 1) {
+return rtf.format(value, unit);
+}
+}
+return rtf.format(0, 'second');
+};
+</p>
+
+<p class="post-p">
+export const sortLocale = (arr, locale = 'en-US', options = {}) =&amp;gt; {
+const collator = new Intl.Collator(locale, options);
+return [...arr].sort(collator.compare);
+};
+</p>
+
+<p class="post-p">
+export const pluralize = (count, forms, locale = 'en-US') =&amp;gt; {
+const pr = new Intl.PluralRules(locale);
+const category = pr.select(count);
+return forms[category] || forms.other || '';
+};
+</p>
+
+<p class="post-p">
+// Usage:
+formatCurrency(1234.56, 'EUR', 'de-DE');  // → "1.234,56 €"
+timeAgo(new Date('2026-05-29'));           // → "yesterday"
+formatList(['HTML', 'CSS', 'JS']);         // → "HTML, CSS, and JS"
+sortLocale(['Özil', 'Álvarez', 'Smith']);  // → ["Álvarez", "Özil", "Smith"]
+</code></pre>
+</p>
+
+<h2 class="post-h2">When You Still Need a Library</h2>
+
+<p class="post-p">
+The Intl API covers 95% of formatting needs, but there are edge cases where libraries help:
+</p>
+
+<ul class="post-ul"><li class="post-li"><strong>Time zone math</strong> (adding/subtracting across DST boundaries) — use <code class="inline-code">luxon</code> or <code class="inline-code">date-fns-tz</code></li>
+<li class="post-li"><strong>Parsing arbitrary date strings</strong> — <code class="inline-code">Intl</code> doesn't parse, it only formats</li>
+<li class="post-li"><strong>Non-Gregorian calendar manipulation</strong> — libraries provide conversion utilities</li>
+<li class="post-li"><strong>ICU MessageFormat</strong> — complex interpolation with gender, selectors, etc.</li>
+</ul>
+<p class="post-p">
+For everything else — dates, numbers, currencies, lists, plurals, sorting, segmentation — the platform has you covered.
+</p>
+
+<h2 class="post-h2">The Bottom Line</h2>
+
+<p class="post-p">
+Every time you add a dependency, you add a maintenance burden, a security surface, and bytes to your bundle. The <code class="inline-code">Intl</code> API removes all three for one of the most common categories of frontend work: formatting and localization.
+</p>
+
+<p class="post-p">
+Next time you're about to <code class="inline-code">npm install</code> a formatting library, ask yourself: "Does Intl already do this?" The answer is probably yes.
+</p>
+4:T78f,
+        .blog-content .post-h1 { font-size: 1.75rem; font-weight: 700; color: #ffffff; margin-top: 2rem; margin-bottom: 1rem; }
+        .blog-content .post-h2 { font-size: 1.5rem; font-weight: 600; color: #f1f5f9; margin-top: 1.75rem; margin-bottom: 0.75rem; padding-bottom: 0.5rem; border-bottom: 1px solid #334155; }
+        .blog-content .post-h3 { font-size: 1.25rem; font-weight: 600; color: #e2e8f0; margin-top: 1.5rem; margin-bottom: 0.5rem; }
+        .blog-content .post-h4 { font-size: 1.1rem; font-weight: 600; color: #e2e8f0; margin-top: 1.25rem; margin-bottom: 0.5rem; }
+        .blog-content .post-p { color: #cbd5e1; line-height: 1.75; margin-bottom: 1rem; }
+        .blog-content .code-block { background: #0f172a; border: 1px solid #334155; border-radius: 0.5rem; padding: 1rem; overflow-x: auto; margin: 1rem 0; font-family: 'JetBrains Mono', monospace; font-size: 0.875rem; color: #e2e8f0; }
+        .blog-content .inline-code { background: #1e293b; color: #38bdf8; padding: 0.15rem 0.4rem; border-radius: 0.25rem; font-family: 'JetBrains Mono', monospace; font-size: 0.875em; }
+        .blog-content .post-link { color: #38bdf8; text-decoration: underline; transition: color 0.2s; }
+        .blog-content .post-link:hover { color: #7dd3fc; }
+        .blog-content .post-ul { list-style: disc; padding-left: 1.5rem; margin: 0.75rem 0; color: #cbd5e1; }
+        .blog-content .post-li { margin-bottom: 0.25rem; line-height: 1.6; }
+        .blog-content .post-blockquote { border-left: 3px solid #0ea5e9; padding: 0.5rem 1rem; margin: 1rem 0; background: rgba(14, 165, 233, 0.05); border-radius: 0 0.5rem 0.5rem 0; }
+        .blog-content .post-blockquote p { color: #94a3b8; font-style: italic; }
+        .blog-content .post-hr { border: none; border-top: 1px solid #334155; margin: 2rem 0; }
+        .blog-content strong { color: #f1f5f9; font-weight: 600; }
+        .blog-content em { font-style: italic; }
+        6:["slug","javascript-intl-api-complete-guide","d"]
+0:["wLkx3_e9eF0HmBHirJWLm",[[["",{"children":["blog",{"children":[["slug","javascript-intl-api-complete-guide","d"],{"children":["__PAGE__?{\"slug\":\"javascript-intl-api-complete-guide\"}",{}]}]}]},"$undefined","$undefined",true],["",{"children":["blog",{"children":[["slug","javascript-intl-api-complete-guide","d"],{"children":["__PAGE__",{},[["$L1",["$","article",null,{"className":"max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-20","children":[["$","script",null,{"type":"application/ld+json","dangerouslySetInnerHTML":{"__html":"{\"@context\":\"https://schema.org\",\"@type\":\"Article\",\"headline\":\"You Don't Need a Library for That — The JavaScript Intl API Is Ridiculously Powerful\",\"description\":\"The Intl API has been available in every browser since 2019, yet most developers still reach for moment.js, numeral.js, or lodash for formatting tasks the platform handles natively. Date formatting, currency display, pluralization, list formatting, collation, segmentation, relative time — it's all built in. A deep, practical guide to every Intl constructor with real-world examples you can use today.\",\"datePublished\":\"2026-05-30\",\"author\":{\"@type\":\"Organization\",\"name\":\"DevBench\"},\"publisher\":{\"@type\":\"Organization\",\"name\":\"DevBench\",\"url\":\"https://devbench-roan.vercel.app\"}}"}}],["$","script",null,{"type":"application/ld+json","dangerouslySetInnerHTML":{"__html":"{\"@context\":\"https://schema.org\",\"@type\":\"BreadcrumbList\",\"itemListElement\":[{\"@type\":\"ListItem\",\"position\":1,\"name\":\"Home\",\"item\":\"https://devbench-roan.vercel.app\"},{\"@type\":\"ListItem\",\"position\":2,\"name\":\"Blog\",\"item\":\"https://devbench-roan.vercel.app/blog\"},{\"@type\":\"ListItem\",\"position\":3,\"name\":\"You Don't Need a Library for That — The JavaScript Intl API Is Ridiculously Powerful\"}]}"}}],["$","$L2",null,{"href":"/blog","className":"inline-flex items-center gap-1.5 text-slate-400 hover:text-brand-400 text-sm transition-colors mb-8","children":[["$","svg",null,{"xmlns":"http://www.w3.org/2000/svg","width":24,"height":24,"viewBox":"0 0 24 24","fill":"none","stroke":"currentColor","strokeWidth":2,"strokeLinecap":"round","strokeLinejoin":"round","className":"lucide lucide-arrow-left w-4 h-4","children":[["$","path","1l729n",{"d":"m12 19-7-7 7-7"}],["$","path","x3x0zl",{"d":"M19 12H5"}],"$undefined"]}],"Back to Blog"]}],["$","header",null,{"className":"mb-10","children":[["$","h1",null,{"className":"text-3xl sm:text-4xl font-bold text-white leading-tight mb-4","children":"You Don't Need a Library for That — The JavaScript Intl API Is Ridiculously Powerful"}],["$","div",null,{"className":"flex flex-wrap items-center gap-4 text-sm text-slate-400","children":[["$","span",null,{"className":"flex items-center gap-1.5","children":[["$","svg",null,{"xmlns":"http://www.w3.org/2000/svg","width":24,"height":24,"viewBox":"0 0 24 24","fill":"none","stroke":"currentColor","strokeWidth":2,"strokeLinecap":"round","strokeLinejoin":"round","className":"lucide lucide-calendar w-4 h-4","children":[["$","rect","eu3xkr",{"width":"18","height":"18","x":"3","y":"4","rx":"2","ry":"2"}],["$","line","m3sa8f",{"x1":"16","x2":"16","y1":"2","y2":"6"}],["$","line","18kwsl",{"x1":"8","x2":"8","y1":"2","y2":"6"}],["$","line","xt86sb",{"x1":"3","x2":"21","y1":"10","y2":"10"}],"$undefined"]}],"2026-05-30"]}],["$","div",null,{"className":"flex flex-wrap gap-1.5","children":[["$","span","[\"JavaScript\"",{"className":"badge-secondary flex items-center gap-1","children":[["$","svg",null,{"xmlns":"http://www.w3.org/2000/svg","width":24,"height":24,"viewBox":"0 0 24 24","fill":"none","stroke":"currentColor","strokeWidth":2,"strokeLinecap":"round","strokeLinejoin":"round","className":"lucide lucide-tag w-3 h-3","children":[["$","path","14b2ls",{"d":"M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"}],["$","path","7u93v4",{"d":"M7 7h.01"}],"$undefined"]}],"[\"JavaScript\""]}],["$","span","\"Intl\"",{"className":"badge-secondary flex items-center gap-1","children":[["$","svg",null,{"xmlns":"http://www.w3.org/2000/svg","width":24,"height":24,"viewBox":"0 0 24 24","fill":"none","stroke":"currentColor","strokeWidth":2,"strokeLinecap":"round","strokeLinejoin":"round","className":"lucide lucide-tag w-3 h-3","children":[["$","path","14b2ls",{"d":"M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"}],["$","path","7u93v4",{"d":"M7 7h.01"}],"$undefined"]}],"\"Intl\""]}],["$","span","\"i18n\"",{"className":"badge-secondary flex items-center gap-1","children":[["$","svg",null,{"xmlns":"http://www.w3.org/2000/svg","width":24,"height":24,"viewBox":"0 0 24 24","fill":"none","stroke":"currentColor","strokeWidth":2,"strokeLinecap":"round","strokeLinejoin":"round","className":"lucide lucide-tag w-3 h-3","children":[["$","path","14b2ls",{"d":"M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"}],["$","path","7u93v4",{"d":"M7 7h.01"}],"$undefined"]}],"\"i18n\""]}],["$","span","\"DateTimeFormat\"",{"className":"badge-secondary flex items-center gap-1","children":[["$","svg",null,{"xmlns":"http://www.w3.org/2000/svg","width":24,"height":24,"viewBox":"0 0 24 24","fill":"none","stroke":"currentColor","strokeWidth":2,"strokeLinecap":"round","strokeLinejoin":"round","className":"lucide lucide-tag w-3 h-3","children":[["$","path","14b2ls",{"d":"M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"}],["$","path","7u93v4",{"d":"M7 7h.01"}],"$undefined"]}],"\"DateTimeFormat\""]}],["$","span","\"NumberFormat\"",{"className":"badge-secondary flex items-center gap-1","children":[["$","svg",null,{"xmlns":"http://www.w3.org/2000/svg","width":24,"height":24,"viewBox":"0 0 24 24","fill":"none","stroke":"currentColor","strokeWidth":2,"strokeLinecap":"round","strokeLinejoin":"round","className":"lucide lucide-tag w-3 h-3","children":[["$","path","14b2ls",{"d":"M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"}],["$","path","7u93v4",{"d":"M7 7h.01"}],"$undefined"]}],"\"NumberFormat\""]}],["$","span","\"RelativeTimeFormat\"",{"className":"badge-secondary flex items-center gap-1","children":[["$","svg",null,{"xmlns":"http://www.w3.org/2000/svg","width":24,"height":24,"viewBox":"0 0 24 24","fill":"none","stroke":"currentColor","strokeWidth":2,"strokeLinecap":"round","strokeLinejoin":"round","className":"lucide lucide-tag w-3 h-3","children":[["$","path","14b2ls",{"d":"M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"}],["$","path","7u93v4",{"d":"M7 7h.01"}],"$undefined"]}],"\"RelativeTimeFormat\""]}],["$","span","\"Web Platform\"",{"className":"badge-secondary flex items-center gap-1","children":[["$","svg",null,{"xmlns":"http://www.w3.org/2000/svg","width":24,"height":24,"viewBox":"0 0 24 24","fill":"none","stroke":"currentColor","strokeWidth":2,"strokeLinecap":"round","strokeLinejoin":"round","className":"lucide lucide-tag w-3 h-3","children":[["$","path","14b2ls",{"d":"M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"}],["$","path","7u93v4",{"d":"M7 7h.01"}],"$undefined"]}],"\"Web Platform\""]}],["$","span","\"Browser APIs\"",{"className":"badge-secondary flex items-center gap-1","children":[["$","svg",null,{"xmlns":"http://www.w3.org/2000/svg","width":24,"height":24,"viewBox":"0 0 24 24","fill":"none","stroke":"currentColor","strokeWidth":2,"strokeLinecap":"round","strokeLinejoin":"round","className":"lucide lucide-tag w-3 h-3","children":[["$","path","14b2ls",{"d":"M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"}],["$","path","7u93v4",{"d":"M7 7h.01"}],"$undefined"]}],"\"Browser APIs\""]}],["$","span","\"Internationalization\"",{"className":"badge-secondary flex items-center gap-1","children":[["$","svg",null,{"xmlns":"http://www.w3.org/2000/svg","width":24,"height":24,"viewBox":"0 0 24 24","fill":"none","stroke":"currentColor","strokeWidth":2,"strokeLinecap":"round","strokeLinejoin":"round","className":"lucide lucide-tag w-3 h-3","children":[["$","path","14b2ls",{"d":"M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"}],["$","path","7u93v4",{"d":"M7 7h.01"}],"$undefined"]}],"\"Internationalization\""]}],["$","span","\"Performance\"",{"className":"badge-secondary flex items-center gap-1","children":[["$","svg",null,{"xmlns":"http://www.w3.org/2000/svg","width":24,"height":24,"viewBox":"0 0 24 24","fill":"none","stroke":"currentColor","strokeWidth":2,"strokeLinecap":"round","strokeLinejoin":"round","className":"lucide lucide-tag w-3 h-3","children":[["$","path","14b2ls",{"d":"M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"}],["$","path","7u93v4",{"d":"M7 7h.01"}],"$undefined"]}],"\"Performance\""]}],["$","span","\"2026\"]",{"className":"badge-secondary flex items-center gap-1","children":[["$","svg",null,{"xmlns":"http://www.w3.org/2000/svg","width":24,"height":24,"viewBox":"0 0 24 24","fill":"none","stroke":"currentColor","strokeWidth":2,"strokeLinecap":"round","strokeLinejoin":"round","className":"lucide lucide-tag w-3 h-3","children":[["$","path","14b2ls",{"d":"M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"}],["$","path","7u93v4",{"d":"M7 7h.01"}],"$undefined"]}],"\"2026\"]"]}]]}]]}]]}],["$","div",null,{"className":"blog-content prose-p:text-slate-300 prose-p:leading-relaxed prose-p:mb-4","dangerouslySetInnerHTML":{"__html":"$3"}}],["$","style",null,{"dangerouslySetInnerHTML":{"__html":"$4"}}]]}],null],null],null]},[null,["$","$L5",null,{"parallelRouterKey":"children","segmentPath":["children","blog","children","$6","children"],"error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L7",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":"$undefined","notFoundStyles":"$undefined"}]],null]},[null,["$","$L5",null,{"parallelRouterKey":"children","segmentPath":["children","blog","children"],"error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L7",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":"$undefined","notFoundStyles":"$undefined"}]],null]},[[[["$","link","0",{"rel":"stylesheet","href":"/devbench-tech/_next/static/css/c877e59dbcb00f11.css","precedence":"next","crossOrigin":"$undefined"}]],["$","html",null,{"lang":"en","className":"dark","children":["$","body",null,{"className":"flex flex-col min-h-screen","children":[["$","script",null,{"type":"application/ld+json","dangerouslySetInnerHTML":{"__html":"{\"@context\":\"https://schema.org\",\"@type\":\"WebSite\",\"name\":\"DevBench\",\"url\":\"https://devbench-roan.vercel.app\",\"description\":\"Free developer tools for everyday use: JSON formatter, Base64 encoder/decoder, UUID generator, regex tester, benchmarks, and more.\",\"potentialAction\":{\"@type\":\"SearchAction\",\"target\":\"https://devbench-roan.vercel.app/tools?q={search_term_string}\",\"query-input\":\"required name=search_term_string\"}}"}}],["$","$L8",null,{}],["$","main",null,{"className":"flex-1","children":["$","$L5",null,{"parallelRouterKey":"children","segmentPath":["children"],"error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L7",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":[["$","title",null,{"children":"404: This page could not be found."}],["$","div",null,{"style":{"fontFamily":"system-ui,\"Segoe UI\",Roboto,Helvetica,Arial,sans-serif,\"Apple Color Emoji\",\"Segoe UI Emoji\"","height":"100vh","textAlign":"center","display":"flex","flexDirection":"column","alignItems":"center","justifyContent":"center"},"children":["$","div",null,{"children":[["$","style",null,{"dangerouslySetInnerHTML":{"__html":"body{color:#000;background:#fff;margin:0}.next-error-h1{border-right:1px solid rgba(0,0,0,.3)}@media (prefers-color-scheme:dark){body{color:#fff;background:#000}.next-error-h1{border-right:1px solid rgba(255,255,255,.3)}}"}}],["$","h1",null,{"className":"next-error-h1","style":{"display":"inline-block","margin":"0 20px 0 0","padding":"0 23px 0 0","fontSize":24,"fontWeight":500,"verticalAlign":"top","lineHeight":"49px"},"children":"404"}],["$","div",null,{"style":{"display":"inline-block"},"children":["$","h2",null,{"style":{"fontSize":14,"fontWeight":400,"lineHeight":"49px","margin":0},"children":"This page could not be found."}]}]]}]}]],"notFoundStyles":[]}]}],["$","footer",null,{"className":"bg-surface-light border-t border-slate-700/50 mt-auto","children":["$","div",null,{"className":"max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12","children":[["$","div",null,{"className":"grid grid-cols-1 md:grid-cols-3 gap-8","children":[["$","div",null,{"children":[["$","$L2",null,{"href":"/","className":"flex items-center gap-2.5 mb-3","children":[["$","div",null,{"className":"w-7 h-7 bg-brand-500 rounded-lg flex items-center justify-center","children":["$","svg",null,{"xmlns":"http://www.w3.org/2000/svg","width":24,"height":24,"viewBox":"0 0 24 24","fill":"none","stroke":"currentColor","strokeWidth":2,"strokeLinecap":"round","strokeLinejoin":"round","className":"lucide lucide-terminal w-3.5 h-3.5 text-white","children":[["$","polyline","akl6gq",{"points":"4 17 10 11 4 5"}],["$","line","q2wloq",{"x1":"12","x2":"20","y1":"19","y2":"19"}],"$undefined"]}]}],["$","span",null,{"className":"text-lg font-bold text-white","children":["Dev",["$","span",null,{"className":"gradient-text","children":"Bench"}]]}]]}],["$","p",null,{"className":"text-slate-400 text-sm leading-relaxed","children":"Free developer tools, benchmarks, and calculators. Built for developers, by developers."}]]}],["$","div",null,{"children":[["$","h3",null,{"className":"text-sm font-semibold text-slate-300 uppercase tracking-wider mb-4","children":"Tools"}],["$","ul",null,{"className":"space-y-2","children":[["$","li","/tools/json-formatter",{"children":["$","$L2",null,{"href":"/tools/json-formatter","className":"text-slate-400 hover:text-brand-400 text-sm transition-colors","children":"JSON Formatter"}]}],["$","li","/tools/base64",{"children":["$","$L2",null,{"href":"/tools/base64","className":"text-slate-400 hover:text-brand-400 text-sm transition-colors","children":"Base64 Encoder/Decoder"}]}],["$","li","/tools/uuid-generator",{"children":["$","$L2",null,{"href":"/tools/uuid-generator","className":"text-slate-400 hover:text-brand-400 text-sm transition-colors","children":"UUID Generator"}]}],["$","li","/tools/regex-tester",{"children":["$","$L2",null,{"href":"/tools/regex-tester","className":"text-slate-400 hover:text-brand-400 text-sm transition-colors","children":"Regex Tester"}]}]]}]]}],["$","div",null,{"children":[["$","h3",null,{"className":"text-sm font-semibold text-slate-300 uppercase tracking-wider mb-4","children":"Resources"}],["$","ul",null,{"className":"space-y-2","children":[["$","li","/blog",{"children":["$","$L2",null,{"href":"/blog","className":"text-slate-400 hover:text-brand-400 text-sm transition-colors","children":"Blog"}]}],["$","li","/benchmarks",{"children":["$","$L2",null,{"href":"/benchmarks","className":"text-slate-400 hover:text-brand-400 text-sm transition-colors","children":"Benchmarks"}]}],["$","li","/about",{"children":["$","$L2",null,{"href":"/about","className":"text-slate-400 hover:text-brand-400 text-sm transition-colors","children":"About"}]}]]}]]}]]}],["$","div",null,{"className":"mt-10 pt-6 border-t border-slate-700/50 flex flex-col sm:flex-row items-center justify-between gap-4","children":[["$","p",null,{"className":"text-slate-500 text-sm flex items-center gap-1","children":["Made with ",["$","svg",null,{"xmlns":"http://www.w3.org/2000/svg","width":24,"height":24,"viewBox":"0 0 24 24","fill":"none","stroke":"currentColor","strokeWidth":2,"strokeLinecap":"round","strokeLinejoin":"round","className":"lucide lucide-heart w-3.5 h-3.5 text-red-500 fill-red-500","children":[["$","path","c3ymky",{"d":"M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"}],"$undefined"]}]," by the DevBench team © ",2026]}],["$","a",null,{"href":"https://github.com","target":"_blank","rel":"noopener noreferrer","className":"text-slate-500 hover:text-slate-300 transition-colors","aria-label":"GitHub","children":["$","svg",null,{"xmlns":"http://www.w3.org/2000/svg","width":24,"height":24,"viewBox":"0 0 24 24","fill":"none","stroke":"currentColor","strokeWidth":2,"strokeLinecap":"round","strokeLinejoin":"round","className":"lucide lucide-github w-5 h-5","children":[["$","path","tonef",{"d":"M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"}],["$","path","9comsn",{"d":"M9 18c-4.51 2-5-2-7-2"}],"$undefined"]}]}]]}]]}]}],["$","$L9",null,{}],["$","$La",null,{"position":"bottom-right","toastOptions":{"style":{"background":"#1e293b","color":"#e2e8f0","border":"1px solid #334155","fontSize":"14px"}}}]]}]}]],null],null],["$Lb",null]]]]
+b:[["$","meta","0",{"name":"viewport","content":"width=device-width, initial-scale=1"}],["$","meta","1",{"charSet":"utf-8"}],["$","title","2",{"children":"You Don't Need a Library for That — The JavaScript Intl API Is Ridiculously Powerful | DevBench"}],["$","meta","3",{"name":"description","content":"The Intl API has been available in every browser since 2019, yet most developers still reach for moment.js, numeral.js, or lodash for formatting tasks the platform handles natively. Date formatting, currency display, pluralization, list formatting, collation, segmentation, relative time — it's all built in. A deep, practical guide to every Intl constructor with real-world examples you can use today."}],["$","meta","4",{"name":"author","content":"DevBench"}],["$","meta","5",{"name":"keywords","content":"developer tools,JSON formatter,Base64,UUID generator,regex tester,benchmarks,dev tools"}],["$","meta","6",{"property":"og:title","content":"DevBench — Developer Tools & Calculators"}],["$","meta","7",{"property":"og:description","content":"Free developer tools for everyday use."}],["$","meta","8",{"property":"og:site_name","content":"DevBench"}],["$","meta","9",{"property":"og:locale","content":"en_US"}],["$","meta","10",{"property":"og:type","content":"website"}],["$","meta","11",{"name":"twitter:card","content":"summary"}],["$","meta","12",{"name":"twitter:title","content":"DevBench — Developer Tools & Calculators"}],["$","meta","13",{"name":"twitter:description","content":"Free developer tools for everyday use."}],["$","link","14",{"rel":"icon","href":"/favicon.svg"}]]
+1:null

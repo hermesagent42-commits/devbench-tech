@@ -558,6 +558,13 @@ const allTools = [
     tags: ['SVG', 'Path', 'Vector', 'Builder'],
   },
   {
+    title: 'SVG to PNG Converter',
+    description: 'Convert SVG to PNG, WebP, or JPEG at any resolution. Set dimensions, scale for HiDPI, transparent backgrounds, drag-and-drop upload — 100% client-side Canvas API.',
+    href: '/tools/svg-to-png',
+    icon: Image,
+    tags: ['SVG', 'PNG', 'Converter', 'Export', 'Rasterize'],
+  },
+  {
     title: 'Date Calculator',
     description: 'Calculate date differences with year/month/day breakdowns, add or subtract durations, and count down to events. 100% client‑side.',
     href: '/tools/date-calculator',

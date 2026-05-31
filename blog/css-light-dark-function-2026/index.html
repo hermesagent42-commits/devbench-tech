@@ -1,0 +1,738 @@
+<!DOCTYPE html><html lang="en" class="dark"><head><meta charSet="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/><link rel="stylesheet" href="/devbench-tech/_next/static/css/c877e59dbcb00f11.css" data-precedence="next"/><link rel="preload" as="script" fetchPriority="low" href="/devbench-tech/_next/static/chunks/webpack-b521a83317325026.js"/><script src="/devbench-tech/_next/static/chunks/fd9d1056-04e0aa683dc3c41f.js" async=""></script><script src="/devbench-tech/_next/static/chunks/2117-8374a93ea77a2be4.js" async=""></script><script src="/devbench-tech/_next/static/chunks/main-app-aaec773b36366bc0.js" async=""></script><script src="/devbench-tech/_next/static/chunks/2972-4aaa15d119eeb022.js" async=""></script><script src="/devbench-tech/_next/static/chunks/app/blog/%5Bslug%5D/page-a411190e7012c687.js" async=""></script><script src="/devbench-tech/_next/static/chunks/44530001-4ecf7a22b5b24163.js" async=""></script><script src="/devbench-tech/_next/static/chunks/8375-c77b8de36f6696fb.js" async=""></script><script src="/devbench-tech/_next/static/chunks/6829-f51803445ddf1872.js" async=""></script><script src="/devbench-tech/_next/static/chunks/app/layout-488e5c40aa6ffa72.js" async=""></script><title>CSS light-dark() in 2026: One Function, Complete Theming | DevBench</title><meta name="description" content="The light-dark() CSS function lets you define light and dark mode colors in a single property value — no media queries, no JavaScript, no complex variable systems. Learn every pattern with production-ready code."/><meta name="author" content="DevBench"/><meta name="keywords" content="developer tools,JSON formatter,Base64,UUID generator,regex tester,benchmarks,dev tools"/><meta property="og:title" content="DevBench — Developer Tools &amp; Calculators"/><meta property="og:description" content="Free developer tools for everyday use."/><meta property="og:site_name" content="DevBench"/><meta property="og:locale" content="en_US"/><meta property="og:type" content="website"/><meta name="twitter:card" content="summary"/><meta name="twitter:title" content="DevBench — Developer Tools &amp; Calculators"/><meta name="twitter:description" content="Free developer tools for everyday use."/><link rel="icon" href="/favicon.svg"/><script src="/devbench-tech/_next/static/chunks/polyfills-42372ed130431b0a.js" noModule=""></script></head><body class="flex flex-col min-h-screen"><script type="application/ld+json">{"@context":"https://schema.org","@type":"WebSite","name":"DevBench","url":"https://devbench-roan.vercel.app","description":"Free developer tools for everyday use: JSON formatter, Base64 encoder/decoder, UUID generator, regex tester, benchmarks, and more.","potentialAction":{"@type":"SearchAction","target":"https://devbench-roan.vercel.app/tools?q={search_term_string}","query-input":"required name=search_term_string"}}</script><header class="sticky top-0 z-50 transition-all duration-300 bg-surface border-b border-transparent"><div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8"><div class="flex items-center justify-between h-16"><a class="flex items-center gap-2.5 group" href="/devbench-tech/"><div class="w-8 h-8 bg-brand-500 rounded-lg flex items-center justify-center group-hover:bg-brand-400 transition-colors"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-terminal w-4 h-4 text-white"><polyline points="4 17 10 11 4 5"></polyline><line x1="12" x2="20" y1="19" y2="19"></line></svg></div><span class="text-xl font-bold text-white tracking-tight">Dev<span class="gradient-text">Bench</span></span></a><nav class="hidden md:flex items-center gap-1"><a class="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 text-slate-400 hover:text-slate-200 hover:bg-surface-lighter" href="/devbench-tech/tools/"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-wrench w-4 h-4"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path></svg>Tools</a><a class="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 text-slate-400 hover:text-slate-200 hover:bg-surface-lighter" href="/devbench-tech/benchmarks/"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-bar-chart3 w-4 h-4"><path d="M3 3v18h18"></path><path d="M18 17V9"></path><path d="M13 17V5"></path><path d="M8 17v-3"></path></svg>Benchmarks</a><a class="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 bg-brand-500/10 text-brand-400" href="/devbench-tech/blog/"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-book-open w-4 h-4"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg>Blog</a><a class="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 text-slate-400 hover:text-slate-200 hover:bg-surface-lighter" href="/devbench-tech/about/"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-info w-4 h-4"><circle cx="12" cy="12" r="10"></circle><path d="M12 16v-4"></path><path d="M12 8h.01"></path></svg>About</a></nav><button class="md:hidden p-2 rounded-lg text-slate-400 hover:text-white hover:bg-surface-lighter transition-colors" aria-label="Toggle menu"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-menu w-5 h-5"><line x1="4" x2="20" y1="12" y2="12"></line><line x1="4" x2="20" y1="6" y2="6"></line><line x1="4" x2="20" y1="18" y2="18"></line></svg></button></div></div></header><main class="flex-1"><article class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-20"><script type="application/ld+json">{"@context":"https://schema.org","@type":"Article","headline":"CSS light-dark() in 2026: One Function, Complete Theming","description":"The light-dark() CSS function lets you define light and dark mode colors in a single property value — no media queries, no JavaScript, no complex variable systems. Learn every pattern with production-ready code.","datePublished":"2026-05-28","author":{"@type":"Organization","name":"DevBench"},"publisher":{"@type":"Organization","name":"DevBench","url":"https://devbench-roan.vercel.app"}}</script><script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://devbench-roan.vercel.app"},{"@type":"ListItem","position":2,"name":"Blog","item":"https://devbench-roan.vercel.app/blog"},{"@type":"ListItem","position":3,"name":"CSS light-dark() in 2026: One Function, Complete Theming"}]}</script><a class="inline-flex items-center gap-1.5 text-slate-400 hover:text-brand-400 text-sm transition-colors mb-8" href="/devbench-tech/blog/"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-arrow-left w-4 h-4"><path d="m12 19-7-7 7-7"></path><path d="M19 12H5"></path></svg>Back to Blog</a><header class="mb-10"><h1 class="text-3xl sm:text-4xl font-bold text-white leading-tight mb-4">CSS light-dark() in 2026: One Function, Complete Theming</h1><div class="flex flex-wrap items-center gap-4 text-sm text-slate-400"><span class="flex items-center gap-1.5"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-calendar w-4 h-4"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"></rect><line x1="16" x2="16" y1="2" y2="6"></line><line x1="8" x2="8" y1="2" y2="6"></line><line x1="3" x2="21" y1="10" y2="10"></line></svg>2026-05-28</span><div class="flex flex-wrap gap-1.5"><span class="badge-secondary flex items-center gap-1"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-tag w-3 h-3"><path d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"></path><path d="M7 7h.01"></path></svg>[&quot;CSS&quot;</span><span class="badge-secondary flex items-center gap-1"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-tag w-3 h-3"><path d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"></path><path d="M7 7h.01"></path></svg>&quot;light-dark()&quot;</span><span class="badge-secondary flex items-center gap-1"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-tag w-3 h-3"><path d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"></path><path d="M7 7h.01"></path></svg>&quot;color-scheme&quot;</span><span class="badge-secondary flex items-center gap-1"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-tag w-3 h-3"><path d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"></path><path d="M7 7h.01"></path></svg>&quot;Theming&quot;</span><span class="badge-secondary flex items-center gap-1"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-tag w-3 h-3"><path d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"></path><path d="M7 7h.01"></path></svg>&quot;Dark Mode&quot;</span><span class="badge-secondary flex items-center gap-1"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-tag w-3 h-3"><path d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"></path><path d="M7 7h.01"></path></svg>&quot;2026&quot;</span><span class="badge-secondary flex items-center gap-1"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-tag w-3 h-3"><path d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"></path><path d="M7 7h.01"></path></svg>&quot;Baseline 2026&quot;]</span></div></div></header><div class="blog-content prose-p:text-slate-300 prose-p:leading-relaxed prose-p:mb-4">
+<h2 class="post-h2">The Two-Colors Problem</h2>
+
+<p class="post-p">
+Every web developer knows the pattern:
+</p>
+
+<pre class="code-block"><code class="language-css">:root {
+<p class="post-p">
+--bg: #ffffff;
+--text: #1a1a1a;
+}
+</p>
+
+<p class="post-p">
+@media (prefers-color-scheme: dark) {
+:root {
+--bg: #1a1a1a;
+--text: #ffffff;
+}
+}
+</p>
+
+<p class="post-p">
+body {
+background: var(--bg);
+color: var(--text);
+}
+</code></pre>
+</p>
+
+<p class="post-p">
+Four variables, a media query, and every component needs to remember to use <code class="inline-code">var(--bg)</code> instead of <code class="inline-code">white</code>. At scale, you end up with 30+ variables just to track color pairs. Tailwind's <code class="inline-code">dark:</code> prefix solves the ergonomics but doesn't change the fundamental problem: every color has a dark-mode twin, and CSS had no native way to express that relationship.
+</p>
+
+<p class="post-p">
+In 2026, we now have exactly that: the <code class="inline-code">light-dark()</code> function.
+</p>
+
+<pre class="code-block"><code class="language-css">body {
+<p class="post-p">
+background: light-dark(#ffffff, #1a1a1a);
+color: light-dark(#1a1a1a, #ffffff);
+}
+</code></pre>
+</p>
+
+<p class="post-p">
+Two lines. No media queries. No variables. No JavaScript. The browser handles everything. Here's how it works — and what you can build with it.
+</p>
+
+<h2 class="post-h2">How light-dark() Works</h2>
+
+<p class="post-p">
+<code class="inline-code">light-dark()</code> is a CSS function that accepts two values: the first for light mode, the second for dark mode. The browser picks which one to use based on the <strong>used color scheme</strong> of the element.
+</p>
+
+<pre class="code-block"><code class="language-css">/<em> Syntax </em>/
+<p class="post-p">
+property: light-dark(&amp;lt;light-value&amp;gt;, &amp;lt;dark-value&amp;gt;);
+</code></pre>
+</p>
+
+<p class="post-p">
+The browser determines the color scheme from three sources, in this priority order:
+</p>
+
+<ul class="post-ul"><li class="post-li"><strong><code class="inline-code">color-scheme</code> property</strong> on the element — most explicit</li>
+<li class="post-li"><strong><code class="inline-code">color-scheme</code> meta tag</strong> — <code class="inline-code">&lt;meta name="color-scheme" content="light dark"&gt;</code></li>
+<li class="post-li"><strong><code class="inline-code">prefers-color-scheme</code> user preference</strong> — the OS/system setting</li>
+</ul>
+<p class="post-p">
+The key insight: <code class="inline-code">light-dark()</code> <em>doesn't</em> read <code class="inline-code">prefers-color-scheme</code> directly. It reads the element's <strong>used <code class="inline-code">color-scheme</code></strong>. This distinction is critical because it means you can force a section of the page to use a specific scheme independently.
+</p>
+
+<pre class="code-block"><code class="language-css">/<em> This div is always in dark mode, regardless of system preference </em>/
+<p class="post-p">
+.dark-panel {
+color-scheme: dark;
+background: light-dark(#fff, #111);
+color: light-dark(#111, #eee);
+}
+</code></pre>
+</p>
+
+<h2 class="post-h2">The color-scheme Property: The Missing Piece</h2>
+
+<p class="post-p">
+<code class="inline-code">light-dark()</code> is only half the story. The <code class="inline-code">color-scheme</code> property tells the browser which schemes an element supports — and this feeds directly into <code class="inline-code">light-dark()</code>:
+</p>
+
+<pre class="code-block"><code class="language-css">:root {
+<p class="post-p">
+/<em> Allow both. light-dark() will follow system preference </em>/
+color-scheme: light dark;
+}
+</p>
+
+<p class="post-p">
+.force-light {
+color-scheme: light; /<em> light-dark(light, dark) → always picks light </em>/
+}
+</p>
+
+<p class="post-p">
+.force-dark {
+color-scheme: dark; /<em> light-dark(light, dark) → always picks dark </em>/
+}
+</code></pre>
+</p>
+
+<p class="post-p">
+This is how theme toggles work. When the user clicks a theme toggle:
+</p>
+
+<pre class="code-block"><code class="language-css">/<em> System default — follows OS preference </em>/
+<p class="post-p">
+:root {
+color-scheme: light dark;
+}
+</p>
+
+<p class="post-p">
+/<em> User forced light — overrides OS preference </em>/
+:root.light {
+color-scheme: light;
+}
+</p>
+
+<p class="post-p">
+/<em> User forced dark — overrides OS preference </em>/
+:root.dark {
+color-scheme: dark;
+}
+</code></pre>
+</p>
+
+<p class="post-p">
+Toggle the class on <code class="inline-code">&lt;html&gt;</code> and every <code class="inline-code">light-dark()</code> on the page responds instantly. No CSS variable swaps. No class propagation. One attribute change re-themes the entire site.
+</p>
+
+<h3 class="post-h3">JavaScript Toggle (8 lines)</h3>
+
+<pre class="code-block"><code class="language-javascript">function setTheme(theme) {
+<p class="post-p">
+document.documentElement.className = theme;
+localStorage.setItem('theme', theme);
+}
+</p>
+
+<p class="post-p">
+// Restore on load
+setTheme(localStorage.getItem('theme') || '');
+</code></pre>
+</p>
+
+<p class="post-p">
+That's the entire JavaScript for a theme toggle. No complex CSS variable management, no DOM traversal. One <code class="inline-code">className</code> assignment on <code class="inline-code">&lt;html&gt;</code>.
+</p>
+
+<h2 class="post-h2">Real Patterns</h2>
+
+<h3 class="post-h3">Pattern 1: Design Tokens With light-dark()</h3>
+
+<p class="post-p">
+Instead of the old variable-pair approach:
+</p>
+
+<pre class="code-block"><code class="language-css">/<em> Old way — two variables, media query, manual pairing </em>/
+<p class="post-p">
+:root {
+--color-surface: #ffffff;
+--color-surface-dark: #1a1a1a;
+--color-text: #1a1a1a;
+--color-text-dark: #f0f0f0;
+--color-border: #e0e0e0;
+--color-border-dark: #333333;
+--color-accent: #0066ff;
+--color-accent-dark: #4499ff;
+}
+</p>
+
+<p class="post-p">
+@media (prefers-color-scheme: dark) {
+:root {
+--color-surface: var(--color-surface-dark);
+--color-text: var(--color-text-dark);
+--color-border: var(--color-border-dark);
+--color-accent: var(--color-accent-dark);
+}
+}
+</code></pre>
+</p>
+
+<p class="post-p">
+New way with <code class="inline-code">light-dark()</code>:
+</p>
+
+<pre class="code-block"><code class="language-css">:root {
+<p class="post-p">
+color-scheme: light dark;
+</p>
+
+<p class="post-p">
+--color-surface: light-dark(#ffffff, #1a1a1a);
+--color-text: light-dark(#1a1a1a, #f0f0f0);
+--color-border: light-dark(#e0e0e0, #333333);
+--color-accent: light-dark(#0066ff, #4499ff);
+}
+</code></pre>
+</p>
+
+<p class="post-p">
+Four variables, no media query, no dark-variant variables. Each token encodes its own light/dark pairing. You still use <code class="inline-code">var(--color-surface)</code> everywhere — the variable's value just happens to be a <code class="inline-code">light-dark()</code> expression instead of a static color.
+</p>
+
+<h3 class="post-h3">Pattern 2: Component-Level Overrides</h3>
+
+<p class="post-p">
+A common pattern: a "hero" section that's always dark even when the rest of the page is light.
+</p>
+
+<pre class="code-block"><code class="language-css">.hero {
+<p class="post-p">
+color-scheme: dark;
+background: light-dark(#1a1a2e, #0d0d1a);
+color: light-dark(#e0e0e0, #ffffff);
+}
+</p>
+
+<p class="post-p">
+.hero .cta-button {
+background: light-dark(#0066ff, #3399ff);
+color: light-dark(#ffffff, #1a1a1a);
+}
+</code></pre>
+</p>
+
+<p class="post-p">
+The <code class="inline-code">.hero</code> sets <code class="inline-code">color-scheme: dark</code>, which means <strong>all</strong> <code class="inline-code">light-dark()</code> calls within <code class="inline-code">.hero</code> default to their dark values — even if the rest of the page is in light mode. No class propagation. No BEM modifier chains. No nested overrides.
+</p>
+
+<h3 class="post-h3">Pattern 3: Card That Inverts Its Parent</h3>
+
+<p class="post-p">
+Want a card that's dark on a light background, or light on a dark background? Set its <code class="inline-code">color-scheme</code> opposite to the parent:
+</p>
+
+<pre class="code-block"><code class="language-css">.inverted-card {
+<p class="post-p">
+/<em> This card always reads as the 'opposite' scheme </em>/
+color-scheme: only light; /<em> forces light, regardless of parent </em>/
+}
+</code></pre>
+</p>
+
+<p class="post-p">
+But <code class="inline-code">color-scheme: only light</code> locks it — what if you want it to <em>toggle</em>? Use a custom property:
+</p>
+
+<pre class="code-block"><code class="language-css">:root {
+<p class="post-p">
+--card-scheme: light;
+}
+</p>
+
+<p class="post-p">
+[data-theme="dark"] {
+--card-scheme: dark;
+}
+</p>
+
+<p class="post-p">
+.inverted-card {
+color-scheme: var(--card-scheme);
+}
+</code></pre>
+</p>
+
+<h3 class="post-h3">Pattern 4: Skeleton Loaders</h3>
+
+<p class="post-p">
+Skeleton loaders need to work in both modes. <code class="inline-code">light-dark()</code> makes this trivial:
+</p>
+
+<pre class="code-block"><code class="language-css">.skeleton {
+<p class="post-p">
+background: light-dark(#e0e0e0, #2a2a2a);
+animation: pulse 1.5s ease-in-out infinite;
+}
+</p>
+
+<p class="post-p">
+@keyframes pulse {
+0%, 100% { opacity: 1; }
+50% { opacity: light-dark(0.4, 0.6); }
+}
+</code></pre>
+</p>
+
+<p class="post-p">
+Yes, <code class="inline-code">light-dark()</code> works in <code class="inline-code">@keyframes</code> too. The animation respects the color scheme at the time it runs.
+</p>
+
+<h3 class="post-h3">Pattern 5: System-Level Components (Forms, Scrollbars)</h3>
+
+<p class="post-p">
+Browser form controls (inputs, selects, checkboxes) automatically adapt to <code class="inline-code">color-scheme</code>. But custom-styled inputs need explicit colors:
+</p>
+
+<pre class="code-block"><code class="language-css">input, select, textarea {
+<p class="post-p">
+background: light-dark(#ffffff, #1a1a1a);
+color: light-dark(#1a1a1a, #f0f0f0);
+border: 1px solid light-dark(#d0d0d0, #444444);
+}
+</p>
+
+<p class="post-p">
+input::placeholder {
+color: light-dark(#999999, #666666);
+}
+</p>
+
+<p class="post-p">
+/<em> Focus ring </em>/
+input:focus-visible {
+outline: 2px solid light-dark(#0066ff, #4499ff);
+outline-offset: 2px;
+}
+</code></pre>
+</p>
+
+<p class="post-p">
+Custom scrollbars:
+</p>
+
+<pre class="code-block"><code class="language-css">::-webkit-scrollbar-track {
+<p class="post-p">
+background: light-dark(#f5f5f5, #1a1a1a);
+}
+</p>
+
+<p class="post-p">
+::-webkit-scrollbar-thumb {
+background: light-dark(#c0c0c0, #555555);
+border-radius: 4px;
+}
+</p>
+
+<p class="post-p">
+::-webkit-scrollbar-thumb:hover {
+background: light-dark(#a0a0a0, #777777);
+}
+</code></pre>
+</p>
+
+<h3 class="post-h3">Pattern 6: Syntax Highlighting Themes</h3>
+
+<p class="post-p">
+A code block that respects the page theme without separate CSS files:
+</p>
+
+<pre class="code-block"><code class="language-css">pre {
+<p class="post-p">
+background: light-dark(#f6f8fa, #1e1e2e);
+color: light-dark(#24292e, #cdd6f4);
+}
+</p>
+
+<p class="post-p">
+.token.keyword { color: light-dark(#d73a49, #cba6f7); }
+.token.string  { color: light-dark(#032f62, #a6e3a1); }
+.token.comment { color: light-dark(#6a737d, #6c7086); }
+.token.function { color: light-dark(#6f42c1, #89b4fa); }
+.token.number   { color: light-dark(#005cc5, #fab387); }
+</code></pre>
+</p>
+
+<p class="post-p">
+One CSS file, two themes, zero JavaScript. This is the GitHub/VSCode approach — except instead of maintaining two separate theme files, you maintain one file where every color is a <code class="inline-code">light-dark()</code> pair.
+</p>
+
+<h2 class="post-h2">Combining light-dark() With Custom Properties</h2>
+
+<p class="post-p">
+The real power comes from composing these features:
+</p>
+
+<pre class="code-block"><code class="language-css">:root {
+<p class="post-p">
+color-scheme: light dark;
+</p>
+
+<p class="post-p">
+/<em> Base palette </em>/
+--gray-50: light-dark(#fafafa, #0d0d0d);
+--gray-100: light-dark(#f0f0f0, #1a1a1a);
+--gray-200: light-dark(#e0e0e0, #2a2a2a);
+--gray-500: light-dark(#888888, #666666);
+--gray-700: light-dark(#444444, #aaaaaa);
+--gray-900: light-dark(#1a1a1a, #f0f0f0);
+}
+</p>
+
+<p class="post-p">
+.card {
+background: var(--gray-100);
+border: 1px solid var(--gray-200);
+color: var(--gray-900);
+padding: 1.5rem;
+border-radius: 8px;
+}
+</code></pre>
+</p>
+
+<p class="post-p">
+This is the sweet spot. You define your palette once — each shade is a <code class="inline-code">light-dark()</code> pair — then use the variables everywhere. Theme toggling is instant. No class propagation through component trees. No "dark variant" of every component.
+</p>
+
+<h2 class="post-h2">light-dark() With accent-color</h2>
+
+<p class="post-p">
+The <code class="inline-code">accent-color</code> property controls the color of checkboxes, radio buttons, range sliders, and progress bars. Combine with <code class="inline-code">light-dark()</code>:
+</p>
+
+<pre class="code-block"><code class="language-css">:root {
+<p class="post-p">
+accent-color: light-dark(#0066ff, #4499ff);
+}
+</code></pre>
+</p>
+
+<p class="post-p">
+Now all form controls across your entire site adapt to the color scheme automatically. No per-element styling needed.
+</p>
+
+<h2 class="post-h2">The light-dark() + oklch() Combo</h2>
+
+<p class="post-p">
+<code class="inline-code">oklch()</code> is the perceptually uniform color space that's now Baseline. Combine it with <code class="inline-code">light-dark()</code>:
+</p>
+
+<pre class="code-block"><code class="language-css">:root {
+<p class="post-p">
+color-scheme: light dark;
+</p>
+
+<p class="post-p">
+/<em> Same hue, different lightness — consistent branding across modes </em>/
+--brand: light-dark(oklch(0.55 0.2 260), oklch(0.7 0.2 260));
+--brand-bg: light-dark(oklch(0.95 0.02 260), oklch(0.2 0.02 260));
+</p>
+
+<p class="post-p">
+/<em> Success: green hue, lighter in dark mode for contrast </em>/
+--success: light-dark(oklch(0.5 0.18 145), oklch(0.65 0.15 145));
+</p>
+
+<p class="post-p">
+/<em> Warning: amber hue, adjusted for readability </em>/
+--warning: light-dark(oklch(0.55 0.18 85), oklch(0.7 0.15 85));
+}
+</code></pre>
+</p>
+
+<p class="post-p">
+The <code class="inline-code">oklch(lightness chroma hue)</code> format makes it easy to adjust only lightness while keeping the hue consistent. In dark mode, you typically want slightly higher lightness for text and UI elements to maintain contrast against dark backgrounds.
+</p>
+
+<h2 class="post-h2">Browser Support</h2>
+
+<p class="post-p">
+As of May 2026, <code class="inline-code">light-dark()</code> is <strong>Baseline Newly Available</strong>:
+</p>
+
+<p class="post-p">
+| Browser | Version | Status |
+|---------|---------|--------|
+| Chrome | 123 | ✓ |
+| Safari | 17.5 | ✓ |
+| Firefox | 120 | ✓ |
+| Edge | 123 | ✓ |
+| Samsung Internet | 25 | ✓ |
+| Opera | 109 | ✓ |
+</p>
+
+<p class="post-p">
+<code class="inline-code">color-scheme</code> has even broader support (Chrome 81+, Safari 13+, Firefox 96+).
+</p>
+
+<h3 class="post-h3">Progressive Enhancement</h3>
+
+<p class="post-p">
+If you need to support older browsers, the fallback pattern is straightforward:
+</p>
+
+<pre class="code-block"><code class="language-css">body {
+<p class="post-p">
+/<em> Fallback for browsers without light-dark() </em>/
+background: #ffffff;
+color: #1a1a1a;
+</p>
+
+<p class="post-p">
+/<em> light-dark() for modern browsers </em>/
+background: light-dark(#ffffff, #1a1a1a);
+color: light-dark(#1a1a1a, #ffffff);
+}
+</p>
+
+<p class="post-p">
+@media (prefers-color-scheme: dark) {
+body {
+/<em> Override fallback for dark mode </em>/
+background: #1a1a1a;
+color: #ffffff;
+}
+}
+</code></pre>
+</p>
+
+<p class="post-p">
+Browsers that support <code class="inline-code">light-dark()</code> will use the second declaration (which overrides the first). Browsers without it will use the first fallback and the media query. There's no <code class="inline-code">@supports</code> wrapper needed — CSS cascade handles it.
+</p>
+
+<h2 class="post-h2">Performance Implications</h2>
+
+<p class="post-p">
+<code class="inline-code">light-dark()</code> is a CSS function evaluated at <strong>computed-value time</strong>, not at layout or paint time. This means:
+</p>
+
+<ul class="post-ul"><li class="post-li"><strong>Zero JavaScript overhead</strong> — no <code class="inline-code">matchMedia</code> listeners, no class toggling</li>
+<li class="post-li"><strong>Instant mode switching</strong> — changing <code class="inline-code">color-scheme</code> recalculates computed values synchronously, no repaint delay</li>
+<li class="post-li"><strong>No style recalculation cascade</strong> — unlike CSS variable swaps (which invalidate every dependent element), <code class="inline-code">light-dark()</code> values are self-contained</li>
+<li class="post-li"><strong>GPU-compatible</strong> — <code class="inline-code">light-dark()</code> works inside <code class="inline-code">background</code>, <code class="inline-code">color</code>, <code class="inline-code">border-color</code>, and all properties that can be GPU-accelerated</li>
+</ul>
+<p class="post-p">
+The only cost is the function evaluation at computed-value time — which is essentially free (nanoseconds per call, evaluated once until the color scheme changes).
+</p>
+
+<h2 class="post-h2">Migration Guide</h2>
+
+<h3 class="post-h3">Step 1: Add color-scheme to :root</h3>
+
+<pre class="code-block"><code class="language-css">:root {
+<p class="post-p">
+color-scheme: light dark;
+}
+</code></pre>
+</p>
+
+<h3 class="post-h3">Step 2: Replace variable pairs with light-dark()</h3>
+
+<p class="post-p">
+Before:
+</p>
+<pre class="code-block"><code class="language-css">:root {
+<p class="post-p">
+--bg: #fff;
+--text: #111;
+}
+@media (prefers-color-scheme: dark) {
+:root { --bg: #111; --text: #eee; }
+}
+</code></pre>
+</p>
+
+<p class="post-p">
+After:
+</p>
+<pre class="code-block"><code class="language-css">:root {
+<p class="post-p">
+--bg: light-dark(#fff, #111);
+--text: light-dark(#111, #eee);
+}
+</code></pre>
+</p>
+
+<h3 class="post-h3">Step 3: Remove media queries for colors</h3>
+
+<p class="post-p">
+Once <code class="inline-code">light-dark()</code> covers all your color tokens, delete the <code class="inline-code">@media (prefers-color-scheme: dark)</code> blocks. Keep media queries for non-color adaptations (spacing, shadows, etc.).
+</p>
+
+<h3 class="post-h3">Step 4: Add a theme toggle (optional)</h3>
+
+<pre class="code-block"><code class="language-javascript">const toggle = document.getElementById('theme-toggle');
+<p class="post-p">
+toggle.addEventListener('click', () =&amp;gt; {
+const current = document.documentElement.className;
+const next = current === 'dark' ? 'light' : current === 'light' ? '' : 'dark';
+document.documentElement.className = next;
+localStorage.setItem('theme', next);
+});
+</p>
+
+<p class="post-p">
+// Three states: '' (system), 'light' (forced), 'dark' (forced)
+</code></pre>
+</p>
+
+<h3 class="post-h3">Step 5: Audit remaining hardcoded colors</h3>
+
+<pre class="code-block"><code class="language-bash"># Find colors that aren't using light-dark() or variables
+<p class="post-p">
+grep -rn 'color:\|background:' src/ --include="*.css" | grep -v 'light-dark\|var(--'
+</code></pre>
+</p>
+
+<h2 class="post-h2">Common Pitfalls</h2>
+
+<h3 class="post-h3">Pitfall 1: Forgetting color-scheme</h3>
+
+<p class="post-p">
+<code class="inline-code">light-dark()</code> without <code class="inline-code">color-scheme: light dark</code> will always pick the <strong>first</strong> value (light). This is the most common mistake:
+</p>
+
+<pre class="code-block"><code class="language-css">/<em> Wrong — always picks light value </em>/
+<p class="post-p">
+body {
+background: light-dark(#fff, #111); /<em> Always #fff </em>/
+}
+</p>
+
+<p class="post-p">
+/<em> Right </em>/
+:root {
+color-scheme: light dark;
+}
+body {
+background: light-dark(#fff, #111); /<em> #fff in light, #111 in dark </em>/
+}
+</code></pre>
+</p>
+
+<h3 class="post-h3">Pitfall 2: Using light-dark() for non-color properties</h3>
+
+<p class="post-p">
+<code class="inline-code">light-dark()</code> only works with <code class="inline-code">&lt;color&gt;</code> values. You can't use it for lengths, shadows, or gradients:
+</p>
+
+<pre class="code-block"><code class="language-css">/<em> Won't work — light-dark() only accepts colors </em>/
+<p class="post-p">
+box-shadow: light-dark(0 2px 4px rgba(0,0,0,0.1), 0 2px 4px rgba(0,0,0,0.3));
+</code></pre>
+</p>
+
+<p class="post-p">
+For shadows and other non-color properties, use custom properties with a media query or the <code class="inline-code">color-scheme</code> class toggle.
+</p>
+
+<h3 class="post-h3">Pitfall 3: Nesting light-dark() inside other color functions</h3>
+
+<p class="post-p">
+This works fine:
+</p>
+
+<pre class="code-block"><code class="language-css">color: rgb(light-dark(255 255 255, 26 26 26)); /<em> WRONG — doesn't work </em>/
+<p class="post-p">
+</code></pre>
+</p>
+
+<p class="post-p">
+<code class="inline-code">light-dark()</code> returns a <code class="inline-code">&lt;color&gt;</code>, not a number. You can't nest it inside <code class="inline-code">rgb()</code>, <code class="inline-code">hsl()</code>, or <code class="inline-code">oklch()</code> numeric forms. Use the color form directly:
+</p>
+
+<pre class="code-block"><code class="language-css">color: light-dark(rgb(255 255 255), rgb(26 26 26)); /<em> Correct </em>/
+<p class="post-p">
+color: light-dark(#fff, #1a1a1a); /<em> Correct </em>/
+color: light-dark(white, #1a1a1a); /<em> Correct — named colors work too </em>/
+</code></pre>
+</p>
+
+<h3 class="post-h3">Pitfall 4: Assuming light-dark() reads OS preference directly</h3>
+
+<p class="post-p">
+<code class="inline-code">light-dark()</code> reads the used <code class="inline-code">color-scheme</code>, not <code class="inline-code">prefers-color-scheme</code>. If you set <code class="inline-code">color-scheme: light</code> on an element, <code class="inline-code">light-dark()</code> will always use the light value — even if the user's OS is in dark mode. This is by design and is how component-level overrides work.
+</p>
+
+<h2 class="post-h2">The Future: Beyond Two Colors</h2>
+
+<p class="post-p">
+The CSS Working Group is exploring extensions to the concept:
+</p>
+
+<ul class="post-ul"><li class="post-li"><strong><code class="inline-code">color-mix()</code> with scheme awareness</strong> — dynamically mix scheme-appropriate colors</li>
+<li class="post-li"><strong><code class="inline-code">light-dark()</code> in non-color contexts</strong> — potentially for length values, shadow intensities, and other properties</li>
+<li class="post-li"><strong>Multiple-scheme support</strong> — beyond just "light" and "dark" for high-contrast, sepia, and other accessibility modes</li>
+</ul>
+<p class="post-p">
+For now, <code class="inline-code">light-dark()</code> + <code class="inline-code">color-scheme</code> handles the 95% use case: every website needs a dark mode, and this makes it trivial.
+</p>
+
+<h2 class="post-h2">Summary</h2>
+
+<p class="post-p">
+| Before (2023) | After (2026) |
+|---------------|--------------|
+| <code class="inline-code">@media (prefers-color-scheme: dark)</code> blocks | <code class="inline-code">light-dark(light, dark)</code> inline |
+| Variable pairs (<code class="inline-code">--bg</code>, <code class="inline-code">--bg-dark</code>) | Self-contained tokens |
+| Theme class propagation through components | One <code class="inline-code">color-scheme</code> on <code class="inline-code">:root</code> |
+| ~50 CSS variables for a design system | ~20 variables with <code class="inline-code">light-dark()</code> |
+| JavaScript <code class="inline-code">matchMedia</code> listeners | Browser-native with instant switching |
+| Component-level dark mode = BEM classes | Component-level <code class="inline-code">color-scheme</code> override |
+</p>
+
+<p class="post-p">
+The migration isn't theoretical — it's production-ready today across all modern browsers. A complete design system can drop 50-60% of its CSS variables and media query blocks by adopting <code class="inline-code">light-dark()</code> as the primary token format.
+</p>
+
+<hr class="post-hr" />
+
+<p class="post-p">
+<strong>Try it live</strong>: Open DevTools, paste <code class="inline-code">background: light-dark(#fff, #111)</code> on any element, then toggle your OS dark mode. The element changes instantly — no page reload, no JavaScript.
+</p>
+
+<p class="post-p">
+<em>Check our <a href="/tools/gradient-text-generator" class="post-link" target="_blank" rel="noopener noreferrer">Gradient Text Generator</a>, <a href="/tools/glassmorphism-generator" class="post-link" target="_blank" rel="noopener noreferrer">Glassmorphism Generator</a>, and <a href="/tools/css-custom-properties" class="post-link" target="_blank" rel="noopener noreferrer">CSS Custom Properties Playground</a> for more CSS exploration tools.</em>
+</p>
+</div><style>
+        .blog-content .post-h1 { font-size: 1.75rem; font-weight: 700; color: #ffffff; margin-top: 2rem; margin-bottom: 1rem; }
+        .blog-content .post-h2 { font-size: 1.5rem; font-weight: 600; color: #f1f5f9; margin-top: 1.75rem; margin-bottom: 0.75rem; padding-bottom: 0.5rem; border-bottom: 1px solid #334155; }
+        .blog-content .post-h3 { font-size: 1.25rem; font-weight: 600; color: #e2e8f0; margin-top: 1.5rem; margin-bottom: 0.5rem; }
+        .blog-content .post-h4 { font-size: 1.1rem; font-weight: 600; color: #e2e8f0; margin-top: 1.25rem; margin-bottom: 0.5rem; }
+        .blog-content .post-p { color: #cbd5e1; line-height: 1.75; margin-bottom: 1rem; }
+        .blog-content .code-block { background: #0f172a; border: 1px solid #334155; border-radius: 0.5rem; padding: 1rem; overflow-x: auto; margin: 1rem 0; font-family: 'JetBrains Mono', monospace; font-size: 0.875rem; color: #e2e8f0; }
+        .blog-content .inline-code { background: #1e293b; color: #38bdf8; padding: 0.15rem 0.4rem; border-radius: 0.25rem; font-family: 'JetBrains Mono', monospace; font-size: 0.875em; }
+        .blog-content .post-link { color: #38bdf8; text-decoration: underline; transition: color 0.2s; }
+        .blog-content .post-link:hover { color: #7dd3fc; }
+        .blog-content .post-ul { list-style: disc; padding-left: 1.5rem; margin: 0.75rem 0; color: #cbd5e1; }
+        .blog-content .post-li { margin-bottom: 0.25rem; line-height: 1.6; }
+        .blog-content .post-blockquote { border-left: 3px solid #0ea5e9; padding: 0.5rem 1rem; margin: 1rem 0; background: rgba(14, 165, 233, 0.05); border-radius: 0 0.5rem 0.5rem 0; }
+        .blog-content .post-blockquote p { color: #94a3b8; font-style: italic; }
+        .blog-content .post-hr { border: none; border-top: 1px solid #334155; margin: 2rem 0; }
+        .blog-content strong { color: #f1f5f9; font-weight: 600; }
+        .blog-content em { font-style: italic; }
+        </style></article></main><footer class="bg-surface-light border-t border-slate-700/50 mt-auto"><div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12"><div class="grid grid-cols-1 md:grid-cols-3 gap-8"><div><a class="flex items-center gap-2.5 mb-3" href="/devbench-tech/"><div class="w-7 h-7 bg-brand-500 rounded-lg flex items-center justify-center"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-terminal w-3.5 h-3.5 text-white"><polyline points="4 17 10 11 4 5"></polyline><line x1="12" x2="20" y1="19" y2="19"></line></svg></div><span class="text-lg font-bold text-white">Dev<span class="gradient-text">Bench</span></span></a><p class="text-slate-400 text-sm leading-relaxed">Free developer tools, benchmarks, and calculators. Built for developers, by developers.</p></div><div><h3 class="text-sm font-semibold text-slate-300 uppercase tracking-wider mb-4">Tools</h3><ul class="space-y-2"><li><a class="text-slate-400 hover:text-brand-400 text-sm transition-colors" href="/devbench-tech/tools/json-formatter/">JSON Formatter</a></li><li><a class="text-slate-400 hover:text-brand-400 text-sm transition-colors" href="/devbench-tech/tools/base64/">Base64 Encoder/Decoder</a></li><li><a class="text-slate-400 hover:text-brand-400 text-sm transition-colors" href="/devbench-tech/tools/uuid-generator/">UUID Generator</a></li><li><a class="text-slate-400 hover:text-brand-400 text-sm transition-colors" href="/devbench-tech/tools/regex-tester/">Regex Tester</a></li></ul></div><div><h3 class="text-sm font-semibold text-slate-300 uppercase tracking-wider mb-4">Resources</h3><ul class="space-y-2"><li><a class="text-slate-400 hover:text-brand-400 text-sm transition-colors" href="/devbench-tech/blog/">Blog</a></li><li><a class="text-slate-400 hover:text-brand-400 text-sm transition-colors" href="/devbench-tech/benchmarks/">Benchmarks</a></li><li><a class="text-slate-400 hover:text-brand-400 text-sm transition-colors" href="/devbench-tech/about/">About</a></li></ul></div></div><div class="mt-10 pt-6 border-t border-slate-700/50 flex flex-col sm:flex-row items-center justify-between gap-4"><p class="text-slate-500 text-sm flex items-center gap-1">Made with <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-heart w-3.5 h-3.5 text-red-500 fill-red-500"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"></path></svg> by the DevBench team © <!-- -->2026</p><a href="https://github.com" target="_blank" rel="noopener noreferrer" class="text-slate-500 hover:text-slate-300 transition-colors" aria-label="GitHub"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-github w-5 h-5"><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"></path><path d="M9 18c-4.51 2-5-2-7-2"></path></svg></a></div></div></footer><div data-rht-toaster="" style="position:fixed;z-index:9999;top:16px;left:16px;right:16px;bottom:16px;pointer-events:none"></div><script src="/devbench-tech/_next/static/chunks/webpack-b521a83317325026.js" async=""></script><script>(self.__next_f=self.__next_f||[]).push([0]);self.__next_f.push([2,null])</script><script>self.__next_f.push([1,"1:HL[\"/devbench-tech/_next/static/css/c877e59dbcb00f11.css\",\"style\"]\n"])</script><script>self.__next_f.push([1,"2:I[12846,[],\"\"]\n4:I[72972,[\"2972\",\"static/chunks/2972-4aaa15d119eeb022.js\",\"308\",\"static/chunks/app/blog/%5Bslug%5D/page-a411190e7012c687.js\"],\"\"]\n7:I[4707,[],\"\"]\n9:I[36423,[],\"\"]\na:I[39295,[\"9762\",\"static/chunks/44530001-4ecf7a22b5b24163.js\",\"2972\",\"static/chunks/2972-4aaa15d119eeb022.js\",\"8375\",\"static/chunks/8375-c77b8de36f6696fb.js\",\"6829\",\"static/chunks/6829-f51803445ddf1872.js\",\"3185\",\"static/chunks/app/layout-488e5c40aa6ffa72.js\"],\"Header\"]\nb:I[66506,[\"9762\",\"static/chunks/44530001-4ecf7a22b5b24163.js\",\"2972\",\"static/chunks/2972-4aaa15d119eeb022.js\",\"8375\",\"static/chunks/8375-c77b8de36f6696fb.js\",\"6829\",\"static/chunks/6829-f51803445ddf1872.js\",\"3185\",\"static/chunks/app/layout-488e5c40aa6ffa72.js\"],\"Analytics\"]\nc:I[69064,[\"9762\",\"static/chunks/44530001-4ecf7a22b5b24163.js\",\"2972\",\"static/chunks/2972-4aaa15d119eeb022.js\",\"8375\",\"static/chunks/8375-c77b8de36f6696fb.js\",\"6829\",\"static/chunks/6829-f51803445ddf1872.js\",\"3185\",\"static/chunks/app/layout-488e5c40aa6ffa72.js\"],\"Toaster\"]\ne:I[61060,[],\"\"]\n5:T6071,"])</script><script>self.__next_f.push([1,"\n\u003ch2 class=\"post-h2\"\u003eThe Two-Colors Problem\u003c/h2\u003e\n\n\u003cp class=\"post-p\"\u003e\nEvery web developer knows the pattern:\n\u003c/p\u003e\n\n\u003cpre class=\"code-block\"\u003e\u003ccode class=\"language-css\"\u003e:root {\n\u003cp class=\"post-p\"\u003e\n--bg: #ffffff;\n--text: #1a1a1a;\n}\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n@media (prefers-color-scheme: dark) {\n:root {\n--bg: #1a1a1a;\n--text: #ffffff;\n}\n}\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\nbody {\nbackground: var(--bg);\ncolor: var(--text);\n}\n\u003c/code\u003e\u003c/pre\u003e\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\nFour variables, a media query, and every component needs to remember to use \u003ccode class=\"inline-code\"\u003evar(--bg)\u003c/code\u003e instead of \u003ccode class=\"inline-code\"\u003ewhite\u003c/code\u003e. At scale, you end up with 30+ variables just to track color pairs. Tailwind's \u003ccode class=\"inline-code\"\u003edark:\u003c/code\u003e prefix solves the ergonomics but doesn't change the fundamental problem: every color has a dark-mode twin, and CSS had no native way to express that relationship.\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\nIn 2026, we now have exactly that: the \u003ccode class=\"inline-code\"\u003elight-dark()\u003c/code\u003e function.\n\u003c/p\u003e\n\n\u003cpre class=\"code-block\"\u003e\u003ccode class=\"language-css\"\u003ebody {\n\u003cp class=\"post-p\"\u003e\nbackground: light-dark(#ffffff, #1a1a1a);\ncolor: light-dark(#1a1a1a, #ffffff);\n}\n\u003c/code\u003e\u003c/pre\u003e\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\nTwo lines. No media queries. No variables. No JavaScript. The browser handles everything. Here's how it works — and what you can build with it.\n\u003c/p\u003e\n\n\u003ch2 class=\"post-h2\"\u003eHow light-dark() Works\u003c/h2\u003e\n\n\u003cp class=\"post-p\"\u003e\n\u003ccode class=\"inline-code\"\u003elight-dark()\u003c/code\u003e is a CSS function that accepts two values: the first for light mode, the second for dark mode. The browser picks which one to use based on the \u003cstrong\u003eused color scheme\u003c/strong\u003e of the element.\n\u003c/p\u003e\n\n\u003cpre class=\"code-block\"\u003e\u003ccode class=\"language-css\"\u003e/\u003cem\u003e Syntax \u003c/em\u003e/\n\u003cp class=\"post-p\"\u003e\nproperty: light-dark(\u0026amp;lt;light-value\u0026amp;gt;, \u0026amp;lt;dark-value\u0026amp;gt;);\n\u003c/code\u003e\u003c/pre\u003e\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\nThe browser determines the color scheme from three sources, in this priority order:\n\u003c/p\u003e\n\n\u003cul class=\"post-ul\"\u003e\u003cli class=\"post-li\"\u003e\u003cstrong\u003e\u003ccode class=\"inline-code\"\u003ecolor-scheme\u003c/code\u003e property\u003c/strong\u003e on the element — most explicit\u003c/li\u003e\n\u003cli class=\"post-li\"\u003e\u003cstrong\u003e\u003ccode class=\"inline-code\"\u003ecolor-scheme\u003c/code\u003e meta tag\u003c/strong\u003e — \u003ccode class=\"inline-code\"\u003e\u0026lt;meta name=\"color-scheme\" content=\"light dark\"\u0026gt;\u003c/code\u003e\u003c/li\u003e\n\u003cli class=\"post-li\"\u003e\u003cstrong\u003e\u003ccode class=\"inline-code\"\u003eprefers-color-scheme\u003c/code\u003e user preference\u003c/strong\u003e — the OS/system setting\u003c/li\u003e\n\u003c/ul\u003e\n\u003cp class=\"post-p\"\u003e\nThe key insight: \u003ccode class=\"inline-code\"\u003elight-dark()\u003c/code\u003e \u003cem\u003edoesn't\u003c/em\u003e read \u003ccode class=\"inline-code\"\u003eprefers-color-scheme\u003c/code\u003e directly. It reads the element's \u003cstrong\u003eused \u003ccode class=\"inline-code\"\u003ecolor-scheme\u003c/code\u003e\u003c/strong\u003e. This distinction is critical because it means you can force a section of the page to use a specific scheme independently.\n\u003c/p\u003e\n\n\u003cpre class=\"code-block\"\u003e\u003ccode class=\"language-css\"\u003e/\u003cem\u003e This div is always in dark mode, regardless of system preference \u003c/em\u003e/\n\u003cp class=\"post-p\"\u003e\n.dark-panel {\ncolor-scheme: dark;\nbackground: light-dark(#fff, #111);\ncolor: light-dark(#111, #eee);\n}\n\u003c/code\u003e\u003c/pre\u003e\n\u003c/p\u003e\n\n\u003ch2 class=\"post-h2\"\u003eThe color-scheme Property: The Missing Piece\u003c/h2\u003e\n\n\u003cp class=\"post-p\"\u003e\n\u003ccode class=\"inline-code\"\u003elight-dark()\u003c/code\u003e is only half the story. The \u003ccode class=\"inline-code\"\u003ecolor-scheme\u003c/code\u003e property tells the browser which schemes an element supports — and this feeds directly into \u003ccode class=\"inline-code\"\u003elight-dark()\u003c/code\u003e:\n\u003c/p\u003e\n\n\u003cpre class=\"code-block\"\u003e\u003ccode class=\"language-css\"\u003e:root {\n\u003cp class=\"post-p\"\u003e\n/\u003cem\u003e Allow both. light-dark() will follow system preference \u003c/em\u003e/\ncolor-scheme: light dark;\n}\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n.force-light {\ncolor-scheme: light; /\u003cem\u003e light-dark(light, dark) → always picks light \u003c/em\u003e/\n}\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n.force-dark {\ncolor-scheme: dark; /\u003cem\u003e light-dark(light, dark) → always picks dark \u003c/em\u003e/\n}\n\u003c/code\u003e\u003c/pre\u003e\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\nThis is how theme toggles work. When the user clicks a theme toggle:\n\u003c/p\u003e\n\n\u003cpre class=\"code-block\"\u003e\u003ccode class=\"language-css\"\u003e/\u003cem\u003e System default — follows OS preference \u003c/em\u003e/\n\u003cp class=\"post-p\"\u003e\n:root {\ncolor-scheme: light dark;\n}\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n/\u003cem\u003e User forced light — overrides OS preference \u003c/em\u003e/\n:root.light {\ncolor-scheme: light;\n}\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n/\u003cem\u003e User forced dark — overrides OS preference \u003c/em\u003e/\n:root.dark {\ncolor-scheme: dark;\n}\n\u003c/code\u003e\u003c/pre\u003e\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\nToggle the class on \u003ccode class=\"inline-code\"\u003e\u0026lt;html\u0026gt;\u003c/code\u003e and every \u003ccode class=\"inline-code\"\u003elight-dark()\u003c/code\u003e on the page responds instantly. No CSS variable swaps. No class propagation. One attribute change re-themes the entire site.\n\u003c/p\u003e\n\n\u003ch3 class=\"post-h3\"\u003eJavaScript Toggle (8 lines)\u003c/h3\u003e\n\n\u003cpre class=\"code-block\"\u003e\u003ccode class=\"language-javascript\"\u003efunction setTheme(theme) {\n\u003cp class=\"post-p\"\u003e\ndocument.documentElement.className = theme;\nlocalStorage.setItem('theme', theme);\n}\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n// Restore on load\nsetTheme(localStorage.getItem('theme') || '');\n\u003c/code\u003e\u003c/pre\u003e\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\nThat's the entire JavaScript for a theme toggle. No complex CSS variable management, no DOM traversal. One \u003ccode class=\"inline-code\"\u003eclassName\u003c/code\u003e assignment on \u003ccode class=\"inline-code\"\u003e\u0026lt;html\u0026gt;\u003c/code\u003e.\n\u003c/p\u003e\n\n\u003ch2 class=\"post-h2\"\u003eReal Patterns\u003c/h2\u003e\n\n\u003ch3 class=\"post-h3\"\u003ePattern 1: Design Tokens With light-dark()\u003c/h3\u003e\n\n\u003cp class=\"post-p\"\u003e\nInstead of the old variable-pair approach:\n\u003c/p\u003e\n\n\u003cpre class=\"code-block\"\u003e\u003ccode class=\"language-css\"\u003e/\u003cem\u003e Old way — two variables, media query, manual pairing \u003c/em\u003e/\n\u003cp class=\"post-p\"\u003e\n:root {\n--color-surface: #ffffff;\n--color-surface-dark: #1a1a1a;\n--color-text: #1a1a1a;\n--color-text-dark: #f0f0f0;\n--color-border: #e0e0e0;\n--color-border-dark: #333333;\n--color-accent: #0066ff;\n--color-accent-dark: #4499ff;\n}\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n@media (prefers-color-scheme: dark) {\n:root {\n--color-surface: var(--color-surface-dark);\n--color-text: var(--color-text-dark);\n--color-border: var(--color-border-dark);\n--color-accent: var(--color-accent-dark);\n}\n}\n\u003c/code\u003e\u003c/pre\u003e\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\nNew way with \u003ccode class=\"inline-code\"\u003elight-dark()\u003c/code\u003e:\n\u003c/p\u003e\n\n\u003cpre class=\"code-block\"\u003e\u003ccode class=\"language-css\"\u003e:root {\n\u003cp class=\"post-p\"\u003e\ncolor-scheme: light dark;\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n--color-surface: light-dark(#ffffff, #1a1a1a);\n--color-text: light-dark(#1a1a1a, #f0f0f0);\n--color-border: light-dark(#e0e0e0, #333333);\n--color-accent: light-dark(#0066ff, #4499ff);\n}\n\u003c/code\u003e\u003c/pre\u003e\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\nFour variables, no media query, no dark-variant variables. Each token encodes its own light/dark pairing. You still use \u003ccode class=\"inline-code\"\u003evar(--color-surface)\u003c/code\u003e everywhere — the variable's value just happens to be a \u003ccode class=\"inline-code\"\u003elight-dark()\u003c/code\u003e expression instead of a static color.\n\u003c/p\u003e\n\n\u003ch3 class=\"post-h3\"\u003ePattern 2: Component-Level Overrides\u003c/h3\u003e\n\n\u003cp class=\"post-p\"\u003e\nA common pattern: a \"hero\" section that's always dark even when the rest of the page is light.\n\u003c/p\u003e\n\n\u003cpre class=\"code-block\"\u003e\u003ccode class=\"language-css\"\u003e.hero {\n\u003cp class=\"post-p\"\u003e\ncolor-scheme: dark;\nbackground: light-dark(#1a1a2e, #0d0d1a);\ncolor: light-dark(#e0e0e0, #ffffff);\n}\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n.hero .cta-button {\nbackground: light-dark(#0066ff, #3399ff);\ncolor: light-dark(#ffffff, #1a1a1a);\n}\n\u003c/code\u003e\u003c/pre\u003e\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\nThe \u003ccode class=\"inline-code\"\u003e.hero\u003c/code\u003e sets \u003ccode class=\"inline-code\"\u003ecolor-scheme: dark\u003c/code\u003e, which means \u003cstrong\u003eall\u003c/strong\u003e \u003ccode class=\"inline-code\"\u003elight-dark()\u003c/code\u003e calls within \u003ccode class=\"inline-code\"\u003e.hero\u003c/code\u003e default to their dark values — even if the rest of the page is in light mode. No class propagation. No BEM modifier chains. No nested overrides.\n\u003c/p\u003e\n\n\u003ch3 class=\"post-h3\"\u003ePattern 3: Card That Inverts Its Parent\u003c/h3\u003e\n\n\u003cp class=\"post-p\"\u003e\nWant a card that's dark on a light background, or light on a dark background? Set its \u003ccode class=\"inline-code\"\u003ecolor-scheme\u003c/code\u003e opposite to the parent:\n\u003c/p\u003e\n\n\u003cpre class=\"code-block\"\u003e\u003ccode class=\"language-css\"\u003e.inverted-card {\n\u003cp class=\"post-p\"\u003e\n/\u003cem\u003e This card always reads as the 'opposite' scheme \u003c/em\u003e/\ncolor-scheme: only light; /\u003cem\u003e forces light, regardless of parent \u003c/em\u003e/\n}\n\u003c/code\u003e\u003c/pre\u003e\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\nBut \u003ccode class=\"inline-code\"\u003ecolor-scheme: only light\u003c/code\u003e locks it — what if you want it to \u003cem\u003etoggle\u003c/em\u003e? Use a custom property:\n\u003c/p\u003e\n\n\u003cpre class=\"code-block\"\u003e\u003ccode class=\"language-css\"\u003e:root {\n\u003cp class=\"post-p\"\u003e\n--card-scheme: light;\n}\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n[data-theme=\"dark\"] {\n--card-scheme: dark;\n}\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n.inverted-card {\ncolor-scheme: var(--card-scheme);\n}\n\u003c/code\u003e\u003c/pre\u003e\n\u003c/p\u003e\n\n\u003ch3 class=\"post-h3\"\u003ePattern 4: Skeleton Loaders\u003c/h3\u003e\n\n\u003cp class=\"post-p\"\u003e\nSkeleton loaders need to work in both modes. \u003ccode class=\"inline-code\"\u003elight-dark()\u003c/code\u003e makes this trivial:\n\u003c/p\u003e\n\n\u003cpre class=\"code-block\"\u003e\u003ccode class=\"language-css\"\u003e.skeleton {\n\u003cp class=\"post-p\"\u003e\nbackground: light-dark(#e0e0e0, #2a2a2a);\nanimation: pulse 1.5s ease-in-out infinite;\n}\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n@keyframes pulse {\n0%, 100% { opacity: 1; }\n50% { opacity: light-dark(0.4, 0.6); }\n}\n\u003c/code\u003e\u003c/pre\u003e\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\nYes, \u003ccode class=\"inline-code\"\u003elight-dark()\u003c/code\u003e works in \u003ccode class=\"inline-code\"\u003e@keyframes\u003c/code\u003e too. The animation respects the color scheme at the time it runs.\n\u003c/p\u003e\n\n\u003ch3 class=\"post-h3\"\u003ePattern 5: System-Level Components (Forms, Scrollbars)\u003c/h3\u003e\n\n\u003cp class=\"post-p\"\u003e\nBrowser form controls (inputs, selects, checkboxes) automatically adapt to \u003ccode class=\"inline-code\"\u003ecolor-scheme\u003c/code\u003e. But custom-styled inputs need explicit colors:\n\u003c/p\u003e\n\n\u003cpre class=\"code-block\"\u003e\u003ccode class=\"language-css\"\u003einput, select, textarea {\n\u003cp class=\"post-p\"\u003e\nbackground: light-dark(#ffffff, #1a1a1a);\ncolor: light-dark(#1a1a1a, #f0f0f0);\nborder: 1px solid light-dark(#d0d0d0, #444444);\n}\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\ninput::placeholder {\ncolor: light-dark(#999999, #666666);\n}\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n/\u003cem\u003e Focus ring \u003c/em\u003e/\ninput:focus-visible {\noutline: 2px solid light-dark(#0066ff, #4499ff);\noutline-offset: 2px;\n}\n\u003c/code\u003e\u003c/pre\u003e\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\nCustom scrollbars:\n\u003c/p\u003e\n\n\u003cpre class=\"code-block\"\u003e\u003ccode class=\"language-css\"\u003e::-webkit-scrollbar-track {\n\u003cp class=\"post-p\"\u003e\nbackground: light-dark(#f5f5f5, #1a1a1a);\n}\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n::-webkit-scrollbar-thumb {\nbackground: light-dark(#c0c0c0, #555555);\nborder-radius: 4px;\n}\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n::-webkit-scrollbar-thumb:hover {\nbackground: light-dark(#a0a0a0, #777777);\n}\n\u003c/code\u003e\u003c/pre\u003e\n\u003c/p\u003e\n\n\u003ch3 class=\"post-h3\"\u003ePattern 6: Syntax Highlighting Themes\u003c/h3\u003e\n\n\u003cp class=\"post-p\"\u003e\nA code block that respects the page theme without separate CSS files:\n\u003c/p\u003e\n\n\u003cpre class=\"code-block\"\u003e\u003ccode class=\"language-css\"\u003epre {\n\u003cp class=\"post-p\"\u003e\nbackground: light-dark(#f6f8fa, #1e1e2e);\ncolor: light-dark(#24292e, #cdd6f4);\n}\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n.token.keyword { color: light-dark(#d73a49, #cba6f7); }\n.token.string  { color: light-dark(#032f62, #a6e3a1); }\n.token.comment { color: light-dark(#6a737d, #6c7086); }\n.token.function { color: light-dark(#6f42c1, #89b4fa); }\n.token.number   { color: light-dark(#005cc5, #fab387); }\n\u003c/code\u003e\u003c/pre\u003e\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\nOne CSS file, two themes, zero JavaScript. This is the GitHub/VSCode approach — except instead of maintaining two separate theme files, you maintain one file where every color is a \u003ccode class=\"inline-code\"\u003elight-dark()\u003c/code\u003e pair.\n\u003c/p\u003e\n\n\u003ch2 class=\"post-h2\"\u003eCombining light-dark() With Custom Properties\u003c/h2\u003e\n\n\u003cp class=\"post-p\"\u003e\nThe real power comes from composing these features:\n\u003c/p\u003e\n\n\u003cpre class=\"code-block\"\u003e\u003ccode class=\"language-css\"\u003e:root {\n\u003cp class=\"post-p\"\u003e\ncolor-scheme: light dark;\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n/\u003cem\u003e Base palette \u003c/em\u003e/\n--gray-50: light-dark(#fafafa, #0d0d0d);\n--gray-100: light-dark(#f0f0f0, #1a1a1a);\n--gray-200: light-dark(#e0e0e0, #2a2a2a);\n--gray-500: light-dark(#888888, #666666);\n--gray-700: light-dark(#444444, #aaaaaa);\n--gray-900: light-dark(#1a1a1a, #f0f0f0);\n}\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n.card {\nbackground: var(--gray-100);\nborder: 1px solid var(--gray-200);\ncolor: var(--gray-900);\npadding: 1.5rem;\nborder-radius: 8px;\n}\n\u003c/code\u003e\u003c/pre\u003e\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\nThis is the sweet spot. You define your palette once — each shade is a \u003ccode class=\"inline-code\"\u003elight-dark()\u003c/code\u003e pair — then use the variables everywhere. Theme toggling is instant. No class propagation through component trees. No \"dark variant\" of every component.\n\u003c/p\u003e\n\n\u003ch2 class=\"post-h2\"\u003elight-dark() With accent-color\u003c/h2\u003e\n\n\u003cp class=\"post-p\"\u003e\nThe \u003ccode class=\"inline-code\"\u003eaccent-color\u003c/code\u003e property controls the color of checkboxes, radio buttons, range sliders, and progress bars. Combine with \u003ccode class=\"inline-code\"\u003elight-dark()\u003c/code\u003e:\n\u003c/p\u003e\n\n\u003cpre class=\"code-block\"\u003e\u003ccode class=\"language-css\"\u003e:root {\n\u003cp class=\"post-p\"\u003e\naccent-color: light-dark(#0066ff, #4499ff);\n}\n\u003c/code\u003e\u003c/pre\u003e\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\nNow all form controls across your entire site adapt to the color scheme automatically. No per-element styling needed.\n\u003c/p\u003e\n\n\u003ch2 class=\"post-h2\"\u003eThe light-dark() + oklch() Combo\u003c/h2\u003e\n\n\u003cp class=\"post-p\"\u003e\n\u003ccode class=\"inline-code\"\u003eoklch()\u003c/code\u003e is the perceptually uniform color space that's now Baseline. Combine it with \u003ccode class=\"inline-code\"\u003elight-dark()\u003c/code\u003e:\n\u003c/p\u003e\n\n\u003cpre class=\"code-block\"\u003e\u003ccode class=\"language-css\"\u003e:root {\n\u003cp class=\"post-p\"\u003e\ncolor-scheme: light dark;\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n/\u003cem\u003e Same hue, different lightness — consistent branding across modes \u003c/em\u003e/\n--brand: light-dark(oklch(0.55 0.2 260), oklch(0.7 0.2 260));\n--brand-bg: light-dark(oklch(0.95 0.02 260), oklch(0.2 0.02 260));\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n/\u003cem\u003e Success: green hue, lighter in dark mode for contrast \u003c/em\u003e/\n--success: light-dark(oklch(0.5 0.18 145), oklch(0.65 0.15 145));\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n/\u003cem\u003e Warning: amber hue, adjusted for readability \u003c/em\u003e/\n--warning: light-dark(oklch(0.55 0.18 85), oklch(0.7 0.15 85));\n}\n\u003c/code\u003e\u003c/pre\u003e\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\nThe \u003ccode class=\"inline-code\"\u003eoklch(lightness chroma hue)\u003c/code\u003e format makes it easy to adjust only lightness while keeping the hue consistent. In dark mode, you typically want slightly higher lightness for text and UI elements to maintain contrast against dark backgrounds.\n\u003c/p\u003e\n\n\u003ch2 class=\"post-h2\"\u003eBrowser Support\u003c/h2\u003e\n\n\u003cp class=\"post-p\"\u003e\nAs of May 2026, \u003ccode class=\"inline-code\"\u003elight-dark()\u003c/code\u003e is \u003cstrong\u003eBaseline Newly Available\u003c/strong\u003e:\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n| Browser | Version | Status |\n|---------|---------|--------|\n| Chrome | 123 | ✓ |\n| Safari | 17.5 | ✓ |\n| Firefox | 120 | ✓ |\n| Edge | 123 | ✓ |\n| Samsung Internet | 25 | ✓ |\n| Opera | 109 | ✓ |\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n\u003ccode class=\"inline-code\"\u003ecolor-scheme\u003c/code\u003e has even broader support (Chrome 81+, Safari 13+, Firefox 96+).\n\u003c/p\u003e\n\n\u003ch3 class=\"post-h3\"\u003eProgressive Enhancement\u003c/h3\u003e\n\n\u003cp class=\"post-p\"\u003e\nIf you need to support older browsers, the fallback pattern is straightforward:\n\u003c/p\u003e\n\n\u003cpre class=\"code-block\"\u003e\u003ccode class=\"language-css\"\u003ebody {\n\u003cp class=\"post-p\"\u003e\n/\u003cem\u003e Fallback for browsers without light-dark() \u003c/em\u003e/\nbackground: #ffffff;\ncolor: #1a1a1a;\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n/\u003cem\u003e light-dark() for modern browsers \u003c/em\u003e/\nbackground: light-dark(#ffffff, #1a1a1a);\ncolor: light-dark(#1a1a1a, #ffffff);\n}\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n@media (prefers-color-scheme: dark) {\nbody {\n/\u003cem\u003e Override fallback for dark mode \u003c/em\u003e/\nbackground: #1a1a1a;\ncolor: #ffffff;\n}\n}\n\u003c/code\u003e\u003c/pre\u003e\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\nBrowsers that support \u003ccode class=\"inline-code\"\u003elight-dark()\u003c/code\u003e will use the second declaration (which overrides the first). Browsers without it will use the first fallback and the media query. There's no \u003ccode class=\"inline-code\"\u003e@supports\u003c/code\u003e wrapper needed — CSS cascade handles it.\n\u003c/p\u003e\n\n\u003ch2 class=\"post-h2\"\u003ePerformance Implications\u003c/h2\u003e\n\n\u003cp class=\"post-p\"\u003e\n\u003ccode class=\"inline-code\"\u003elight-dark()\u003c/code\u003e is a CSS function evaluated at \u003cstrong\u003ecomputed-value time\u003c/strong\u003e, not at layout or paint time. This means:\n\u003c/p\u003e\n\n\u003cul class=\"post-ul\"\u003e\u003cli class=\"post-li\"\u003e\u003cstrong\u003eZero JavaScript overhead\u003c/strong\u003e — no \u003ccode class=\"inline-code\"\u003ematchMedia\u003c/code\u003e listeners, no class toggling\u003c/li\u003e\n\u003cli class=\"post-li\"\u003e\u003cstrong\u003eInstant mode switching\u003c/strong\u003e — changing \u003ccode class=\"inline-code\"\u003ecolor-scheme\u003c/code\u003e recalculates computed values synchronously, no repaint delay\u003c/li\u003e\n\u003cli class=\"post-li\"\u003e\u003cstrong\u003eNo style recalculation cascade\u003c/strong\u003e — unlike CSS variable swaps (which invalidate every dependent element), \u003ccode class=\"inline-code\"\u003elight-dark()\u003c/code\u003e values are self-contained\u003c/li\u003e\n\u003cli class=\"post-li\"\u003e\u003cstrong\u003eGPU-compatible\u003c/strong\u003e — \u003ccode class=\"inline-code\"\u003elight-dark()\u003c/code\u003e works inside \u003ccode class=\"inline-code\"\u003ebackground\u003c/code\u003e, \u003ccode class=\"inline-code\"\u003ecolor\u003c/code\u003e, \u003ccode class=\"inline-code\"\u003eborder-color\u003c/code\u003e, and all properties that can be GPU-accelerated\u003c/li\u003e\n\u003c/ul\u003e\n\u003cp class=\"post-p\"\u003e\nThe only cost is the function evaluation at computed-value time — which is essentially free (nanoseconds per call, evaluated once until the color scheme changes).\n\u003c/p\u003e\n\n\u003ch2 class=\"post-h2\"\u003eMigration Guide\u003c/h2\u003e\n\n\u003ch3 class=\"post-h3\"\u003eStep 1: Add color-scheme to :root\u003c/h3\u003e\n\n\u003cpre class=\"code-block\"\u003e\u003ccode class=\"language-css\"\u003e:root {\n\u003cp class=\"post-p\"\u003e\ncolor-scheme: light dark;\n}\n\u003c/code\u003e\u003c/pre\u003e\n\u003c/p\u003e\n\n\u003ch3 class=\"post-h3\"\u003eStep 2: Replace variable pairs with light-dark()\u003c/h3\u003e\n\n\u003cp class=\"post-p\"\u003e\nBefore:\n\u003c/p\u003e\n\u003cpre class=\"code-block\"\u003e\u003ccode class=\"language-css\"\u003e:root {\n\u003cp class=\"post-p\"\u003e\n--bg: #fff;\n--text: #111;\n}\n@media (prefers-color-scheme: dark) {\n:root { --bg: #111; --text: #eee; }\n}\n\u003c/code\u003e\u003c/pre\u003e\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\nAfter:\n\u003c/p\u003e\n\u003cpre class=\"code-block\"\u003e\u003ccode class=\"language-css\"\u003e:root {\n\u003cp class=\"post-p\"\u003e\n--bg: light-dark(#fff, #111);\n--text: light-dark(#111, #eee);\n}\n\u003c/code\u003e\u003c/pre\u003e\n\u003c/p\u003e\n\n\u003ch3 class=\"post-h3\"\u003eStep 3: Remove media queries for colors\u003c/h3\u003e\n\n\u003cp class=\"post-p\"\u003e\nOnce \u003ccode class=\"inline-code\"\u003elight-dark()\u003c/code\u003e covers all your color tokens, delete the \u003ccode class=\"inline-code\"\u003e@media (prefers-color-scheme: dark)\u003c/code\u003e blocks. Keep media queries for non-color adaptations (spacing, shadows, etc.).\n\u003c/p\u003e\n\n\u003ch3 class=\"post-h3\"\u003eStep 4: Add a theme toggle (optional)\u003c/h3\u003e\n\n\u003cpre class=\"code-block\"\u003e\u003ccode class=\"language-javascript\"\u003econst toggle = document.getElementById('theme-toggle');\n\u003cp class=\"post-p\"\u003e\ntoggle.addEventListener('click', () =\u0026amp;gt; {\nconst current = document.documentElement.className;\nconst next = current === 'dark' ? 'light' : current === 'light' ? '' : 'dark';\ndocument.documentElement.className = next;\nlocalStorage.setItem('theme', next);\n});\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n// Three states: '' (system), 'light' (forced), 'dark' (forced)\n\u003c/code\u003e\u003c/pre\u003e\n\u003c/p\u003e\n\n\u003ch3 class=\"post-h3\"\u003eStep 5: Audit remaining hardcoded colors\u003c/h3\u003e\n\n\u003cpre class=\"code-block\"\u003e\u003ccode class=\"language-bash\"\u003e# Find colors that aren't using light-dark() or variables\n\u003cp class=\"post-p\"\u003e\ngrep -rn 'color:\\|background:' src/ --include=\"*.css\" | grep -v 'light-dark\\|var(--'\n\u003c/code\u003e\u003c/pre\u003e\n\u003c/p\u003e\n\n\u003ch2 class=\"post-h2\"\u003eCommon Pitfalls\u003c/h2\u003e\n\n\u003ch3 class=\"post-h3\"\u003ePitfall 1: Forgetting color-scheme\u003c/h3\u003e\n\n\u003cp class=\"post-p\"\u003e\n\u003ccode class=\"inline-code\"\u003elight-dark()\u003c/code\u003e without \u003ccode class=\"inline-code\"\u003ecolor-scheme: light dark\u003c/code\u003e will always pick the \u003cstrong\u003efirst\u003c/strong\u003e value (light). This is the most common mistake:\n\u003c/p\u003e\n\n\u003cpre class=\"code-block\"\u003e\u003ccode class=\"language-css\"\u003e/\u003cem\u003e Wrong — always picks light value \u003c/em\u003e/\n\u003cp class=\"post-p\"\u003e\nbody {\nbackground: light-dark(#fff, #111); /\u003cem\u003e Always #fff \u003c/em\u003e/\n}\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n/\u003cem\u003e Right \u003c/em\u003e/\n:root {\ncolor-scheme: light dark;\n}\nbody {\nbackground: light-dark(#fff, #111); /\u003cem\u003e #fff in light, #111 in dark \u003c/em\u003e/\n}\n\u003c/code\u003e\u003c/pre\u003e\n\u003c/p\u003e\n\n\u003ch3 class=\"post-h3\"\u003ePitfall 2: Using light-dark() for non-color properties\u003c/h3\u003e\n\n\u003cp class=\"post-p\"\u003e\n\u003ccode class=\"inline-code\"\u003elight-dark()\u003c/code\u003e only works with \u003ccode class=\"inline-code\"\u003e\u0026lt;color\u0026gt;\u003c/code\u003e values. You can't use it for lengths, shadows, or gradients:\n\u003c/p\u003e\n\n\u003cpre class=\"code-block\"\u003e\u003ccode class=\"language-css\"\u003e/\u003cem\u003e Won't work — light-dark() only accepts colors \u003c/em\u003e/\n\u003cp class=\"post-p\"\u003e\nbox-shadow: light-dark(0 2px 4px rgba(0,0,0,0.1), 0 2px 4px rgba(0,0,0,0.3));\n\u003c/code\u003e\u003c/pre\u003e\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\nFor shadows and other non-color properties, use custom properties with a media query or the \u003ccode class=\"inline-code\"\u003ecolor-scheme\u003c/code\u003e class toggle.\n\u003c/p\u003e\n\n\u003ch3 class=\"post-h3\"\u003ePitfall 3: Nesting light-dark() inside other color functions\u003c/h3\u003e\n\n\u003cp class=\"post-p\"\u003e\nThis works fine:\n\u003c/p\u003e\n\n\u003cpre class=\"code-block\"\u003e\u003ccode class=\"language-css\"\u003ecolor: rgb(light-dark(255 255 255, 26 26 26)); /\u003cem\u003e WRONG — doesn't work \u003c/em\u003e/\n\u003cp class=\"post-p\"\u003e\n\u003c/code\u003e\u003c/pre\u003e\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n\u003ccode class=\"inline-code\"\u003elight-dark()\u003c/code\u003e returns a \u003ccode class=\"inline-code\"\u003e\u0026lt;color\u0026gt;\u003c/code\u003e, not a number. You can't nest it inside \u003ccode class=\"inline-code\"\u003ergb()\u003c/code\u003e, \u003ccode class=\"inline-code\"\u003ehsl()\u003c/code\u003e, or \u003ccode class=\"inline-code\"\u003eoklch()\u003c/code\u003e numeric forms. Use the color form directly:\n\u003c/p\u003e\n\n\u003cpre class=\"code-block\"\u003e\u003ccode class=\"language-css\"\u003ecolor: light-dark(rgb(255 255 255), rgb(26 26 26)); /\u003cem\u003e Correct \u003c/em\u003e/\n\u003cp class=\"post-p\"\u003e\ncolor: light-dark(#fff, #1a1a1a); /\u003cem\u003e Correct \u003c/em\u003e/\ncolor: light-dark(white, #1a1a1a); /\u003cem\u003e Correct — named colors work too \u003c/em\u003e/\n\u003c/code\u003e\u003c/pre\u003e\n\u003c/p\u003e\n\n\u003ch3 class=\"post-h3\"\u003ePitfall 4: Assuming light-dark() reads OS preference directly\u003c/h3\u003e\n\n\u003cp class=\"post-p\"\u003e\n\u003ccode class=\"inline-code\"\u003elight-dark()\u003c/code\u003e reads the used \u003ccode class=\"inline-code\"\u003ecolor-scheme\u003c/code\u003e, not \u003ccode class=\"inline-code\"\u003eprefers-color-scheme\u003c/code\u003e. If you set \u003ccode class=\"inline-code\"\u003ecolor-scheme: light\u003c/code\u003e on an element, \u003ccode class=\"inline-code\"\u003elight-dark()\u003c/code\u003e will always use the light value — even if the user's OS is in dark mode. This is by design and is how component-level overrides work.\n\u003c/p\u003e\n\n\u003ch2 class=\"post-h2\"\u003eThe Future: Beyond Two Colors\u003c/h2\u003e\n\n\u003cp class=\"post-p\"\u003e\nThe CSS Working Group is exploring extensions to the concept:\n\u003c/p\u003e\n\n\u003cul class=\"post-ul\"\u003e\u003cli class=\"post-li\"\u003e\u003cstrong\u003e\u003ccode class=\"inline-code\"\u003ecolor-mix()\u003c/code\u003e with scheme awareness\u003c/strong\u003e — dynamically mix scheme-appropriate colors\u003c/li\u003e\n\u003cli class=\"post-li\"\u003e\u003cstrong\u003e\u003ccode class=\"inline-code\"\u003elight-dark()\u003c/code\u003e in non-color contexts\u003c/strong\u003e — potentially for length values, shadow intensities, and other properties\u003c/li\u003e\n\u003cli class=\"post-li\"\u003e\u003cstrong\u003eMultiple-scheme support\u003c/strong\u003e — beyond just \"light\" and \"dark\" for high-contrast, sepia, and other accessibility modes\u003c/li\u003e\n\u003c/ul\u003e\n\u003cp class=\"post-p\"\u003e\nFor now, \u003ccode class=\"inline-code\"\u003elight-dark()\u003c/code\u003e + \u003ccode class=\"inline-code\"\u003ecolor-scheme\u003c/code\u003e handles the 95% use case: every website needs a dark mode, and this makes it trivial.\n\u003c/p\u003e\n\n\u003ch2 class=\"post-h2\"\u003eSummary\u003c/h2\u003e\n\n\u003cp class=\"post-p\"\u003e\n| Before (2023) | After (2026) |\n|---------------|--------------|\n| \u003ccode class=\"inline-code\"\u003e@media (prefers-color-scheme: dark)\u003c/code\u003e blocks | \u003ccode class=\"inline-code\"\u003elight-dark(light, dark)\u003c/code\u003e inline |\n| Variable pairs (\u003ccode class=\"inline-code\"\u003e--bg\u003c/code\u003e, \u003ccode class=\"inline-code\"\u003e--bg-dark\u003c/code\u003e) | Self-contained tokens |\n| Theme class propagation through components | One \u003ccode class=\"inline-code\"\u003ecolor-scheme\u003c/code\u003e on \u003ccode class=\"inline-code\"\u003e:root\u003c/code\u003e |\n| ~50 CSS variables for a design system | ~20 variables with \u003ccode class=\"inline-code\"\u003elight-dark()\u003c/code\u003e |\n| JavaScript \u003ccode class=\"inline-code\"\u003ematchMedia\u003c/code\u003e listeners | Browser-native with instant switching |\n| Component-level dark mode = BEM classes | Component-level \u003ccode class=\"inline-code\"\u003ecolor-scheme\u003c/code\u003e override |\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\nThe migration isn't theoretical — it's production-ready today across all modern browsers. A complete design system can drop 50-60% of its CSS variables and media query blocks by adopting \u003ccode class=\"inline-code\"\u003elight-dark()\u003c/code\u003e as the primary token format.\n\u003c/p\u003e\n\n\u003chr class=\"post-hr\" /\u003e\n\n\u003cp class=\"post-p\"\u003e\n\u003cstrong\u003eTry it live\u003c/strong\u003e: Open DevTools, paste \u003ccode class=\"inline-code\"\u003ebackground: light-dark(#fff, #111)\u003c/code\u003e on any element, then toggle your OS dark mode. The element changes instantly — no page reload, no JavaScript.\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n\u003cem\u003eCheck our \u003ca href=\"/tools/gradient-text-generator\" class=\"post-link\" target=\"_blank\" rel=\"noopener noreferrer\"\u003eGradient Text Generator\u003c/a\u003e, \u003ca href=\"/tools/glassmorphism-generator\" class=\"post-link\" target=\"_blank\" rel=\"noopener noreferrer\"\u003eGlassmorphism Generator\u003c/a\u003e, and \u003ca href=\"/tools/css-custom-properties\" class=\"post-link\" target=\"_blank\" rel=\"noopener noreferrer\"\u003eCSS Custom Properties Playground\u003c/a\u003e for more CSS exploration tools.\u003c/em\u003e\n\u003c/p\u003e\n"])</script><script>self.__next_f.push([1,"6:T78f,\n        .blog-content .post-h1 { font-size: 1.75rem; font-weight: 700; color: #ffffff; margin-top: 2rem; margin-bottom: 1rem; }\n        .blog-content .post-h2 { font-size: 1.5rem; font-weight: 600; color: #f1f5f9; margin-top: 1.75rem; margin-bottom: 0.75rem; padding-bottom: 0.5rem; border-bottom: 1px solid #334155; }\n        .blog-content .post-h3 { font-size: 1.25rem; font-weight: 600; color: #e2e8f0; margin-top: 1.5rem; margin-bottom: 0.5rem; }\n        .blog-content .post-h4 { font-size: 1.1rem; font-weight: 600; color: #e2e8f0; margin-top: 1.25rem; margin-bottom: 0.5rem; }\n        .blog-content .post-p { color: #cbd5e1; line-height: 1.75; margin-bottom: 1rem; }\n        .blog-content .code-block { background: #0f172a; border: 1px solid #334155; border-radius: 0.5rem; padding: 1rem; overflow-x: auto; margin: 1rem 0; font-family: 'JetBrains Mono', monospace; font-size: 0.875rem; color: #e2e8f0; }\n        .blog-content .inline-code { background: #1e293b; color: #38bdf8; padding: 0.15rem 0.4rem; border-radius: 0.25rem; font-family: 'JetBrains Mono', monospace; font-size: 0.875em; }\n        .blog-content .post-link { color: #38bdf8; text-decoration: underline; transition: color 0.2s; }\n        .blog-content .post-link:hover { color: #7dd3fc; }\n        .blog-content .post-ul { list-style: disc; padding-left: 1.5rem; margin: 0.75rem 0; color: #cbd5e1; }\n        .blog-content .post-li { margin-bottom: 0.25rem; line-height: 1.6; }\n        .blog-content .post-blockquote { border-left: 3px solid #0ea5e9; padding: 0.5rem 1rem; margin: 1rem 0; background: rgba(14, 165, 233, 0.05); border-radius: 0 0.5rem 0.5rem 0; }\n        .blog-content .post-blockquote p { color: #94a3b8; font-style: italic; }\n        .blog-content .post-hr { border: none; border-top: 1px solid #334155; margin: 2rem 0; }\n        .blog-content strong { color: #f1f5f9; font-weight: 600; }\n        .blog-content em { font-style: italic; }\n        8:[\"slug\",\"css-light-dark-function-2026\",\"d\"]\nf:[]\n"])</script><script>self.__next_f.push([1,"0:[\"$\",\"$L2\",null,{\"buildId\":\"wLkx3_e9eF0HmBHirJWLm\",\"assetPrefix\":\"/devbench-tech\",\"urlParts\":[\"\",\"blog\",\"css-light-dark-function-2026\",\"\"],\"initialTree\":[\"\",{\"children\":[\"blog\",{\"children\":[[\"slug\",\"css-light-dark-function-2026\",\"d\"],{\"children\":[\"__PAGE__?{\\\"slug\\\":\\\"css-light-dark-function-2026\\\"}\",{}]}]}]},\"$undefined\",\"$undefined\",true],\"initialSeedData\":[\"\",{\"children\":[\"blog\",{\"children\":[[\"slug\",\"css-light-dark-function-2026\",\"d\"],{\"children\":[\"__PAGE__\",{},[[\"$L3\",[\"$\",\"article\",null,{\"className\":\"max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-20\",\"children\":[[\"$\",\"script\",null,{\"type\":\"application/ld+json\",\"dangerouslySetInnerHTML\":{\"__html\":\"{\\\"@context\\\":\\\"https://schema.org\\\",\\\"@type\\\":\\\"Article\\\",\\\"headline\\\":\\\"CSS light-dark() in 2026: One Function, Complete Theming\\\",\\\"description\\\":\\\"The light-dark() CSS function lets you define light and dark mode colors in a single property value — no media queries, no JavaScript, no complex variable systems. Learn every pattern with production-ready code.\\\",\\\"datePublished\\\":\\\"2026-05-28\\\",\\\"author\\\":{\\\"@type\\\":\\\"Organization\\\",\\\"name\\\":\\\"DevBench\\\"},\\\"publisher\\\":{\\\"@type\\\":\\\"Organization\\\",\\\"name\\\":\\\"DevBench\\\",\\\"url\\\":\\\"https://devbench-roan.vercel.app\\\"}}\"}}],[\"$\",\"script\",null,{\"type\":\"application/ld+json\",\"dangerouslySetInnerHTML\":{\"__html\":\"{\\\"@context\\\":\\\"https://schema.org\\\",\\\"@type\\\":\\\"BreadcrumbList\\\",\\\"itemListElement\\\":[{\\\"@type\\\":\\\"ListItem\\\",\\\"position\\\":1,\\\"name\\\":\\\"Home\\\",\\\"item\\\":\\\"https://devbench-roan.vercel.app\\\"},{\\\"@type\\\":\\\"ListItem\\\",\\\"position\\\":2,\\\"name\\\":\\\"Blog\\\",\\\"item\\\":\\\"https://devbench-roan.vercel.app/blog\\\"},{\\\"@type\\\":\\\"ListItem\\\",\\\"position\\\":3,\\\"name\\\":\\\"CSS light-dark() in 2026: One Function, Complete Theming\\\"}]}\"}}],[\"$\",\"$L4\",null,{\"href\":\"/blog\",\"className\":\"inline-flex items-center gap-1.5 text-slate-400 hover:text-brand-400 text-sm transition-colors mb-8\",\"children\":[[\"$\",\"svg\",null,{\"xmlns\":\"http://www.w3.org/2000/svg\",\"width\":24,\"height\":24,\"viewBox\":\"0 0 24 24\",\"fill\":\"none\",\"stroke\":\"currentColor\",\"strokeWidth\":2,\"strokeLinecap\":\"round\",\"strokeLinejoin\":\"round\",\"className\":\"lucide lucide-arrow-left w-4 h-4\",\"children\":[[\"$\",\"path\",\"1l729n\",{\"d\":\"m12 19-7-7 7-7\"}],[\"$\",\"path\",\"x3x0zl\",{\"d\":\"M19 12H5\"}],\"$undefined\"]}],\"Back to Blog\"]}],[\"$\",\"header\",null,{\"className\":\"mb-10\",\"children\":[[\"$\",\"h1\",null,{\"className\":\"text-3xl sm:text-4xl font-bold text-white leading-tight mb-4\",\"children\":\"CSS light-dark() in 2026: One Function, Complete Theming\"}],[\"$\",\"div\",null,{\"className\":\"flex flex-wrap items-center gap-4 text-sm text-slate-400\",\"children\":[[\"$\",\"span\",null,{\"className\":\"flex items-center gap-1.5\",\"children\":[[\"$\",\"svg\",null,{\"xmlns\":\"http://www.w3.org/2000/svg\",\"width\":24,\"height\":24,\"viewBox\":\"0 0 24 24\",\"fill\":\"none\",\"stroke\":\"currentColor\",\"strokeWidth\":2,\"strokeLinecap\":\"round\",\"strokeLinejoin\":\"round\",\"className\":\"lucide lucide-calendar w-4 h-4\",\"children\":[[\"$\",\"rect\",\"eu3xkr\",{\"width\":\"18\",\"height\":\"18\",\"x\":\"3\",\"y\":\"4\",\"rx\":\"2\",\"ry\":\"2\"}],[\"$\",\"line\",\"m3sa8f\",{\"x1\":\"16\",\"x2\":\"16\",\"y1\":\"2\",\"y2\":\"6\"}],[\"$\",\"line\",\"18kwsl\",{\"x1\":\"8\",\"x2\":\"8\",\"y1\":\"2\",\"y2\":\"6\"}],[\"$\",\"line\",\"xt86sb\",{\"x1\":\"3\",\"x2\":\"21\",\"y1\":\"10\",\"y2\":\"10\"}],\"$undefined\"]}],\"2026-05-28\"]}],[\"$\",\"div\",null,{\"className\":\"flex flex-wrap gap-1.5\",\"children\":[[\"$\",\"span\",\"[\\\"CSS\\\"\",{\"className\":\"badge-secondary flex items-center gap-1\",\"children\":[[\"$\",\"svg\",null,{\"xmlns\":\"http://www.w3.org/2000/svg\",\"width\":24,\"height\":24,\"viewBox\":\"0 0 24 24\",\"fill\":\"none\",\"stroke\":\"currentColor\",\"strokeWidth\":2,\"strokeLinecap\":\"round\",\"strokeLinejoin\":\"round\",\"className\":\"lucide lucide-tag w-3 h-3\",\"children\":[[\"$\",\"path\",\"14b2ls\",{\"d\":\"M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z\"}],[\"$\",\"path\",\"7u93v4\",{\"d\":\"M7 7h.01\"}],\"$undefined\"]}],\"[\\\"CSS\\\"\"]}],[\"$\",\"span\",\"\\\"light-dark()\\\"\",{\"className\":\"badge-secondary flex items-center gap-1\",\"children\":[[\"$\",\"svg\",null,{\"xmlns\":\"http://www.w3.org/2000/svg\",\"width\":24,\"height\":24,\"viewBox\":\"0 0 24 24\",\"fill\":\"none\",\"stroke\":\"currentColor\",\"strokeWidth\":2,\"strokeLinecap\":\"round\",\"strokeLinejoin\":\"round\",\"className\":\"lucide lucide-tag w-3 h-3\",\"children\":[[\"$\",\"path\",\"14b2ls\",{\"d\":\"M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z\"}],[\"$\",\"path\",\"7u93v4\",{\"d\":\"M7 7h.01\"}],\"$undefined\"]}],\"\\\"light-dark()\\\"\"]}],[\"$\",\"span\",\"\\\"color-scheme\\\"\",{\"className\":\"badge-secondary flex items-center gap-1\",\"children\":[[\"$\",\"svg\",null,{\"xmlns\":\"http://www.w3.org/2000/svg\",\"width\":24,\"height\":24,\"viewBox\":\"0 0 24 24\",\"fill\":\"none\",\"stroke\":\"currentColor\",\"strokeWidth\":2,\"strokeLinecap\":\"round\",\"strokeLinejoin\":\"round\",\"className\":\"lucide lucide-tag w-3 h-3\",\"children\":[[\"$\",\"path\",\"14b2ls\",{\"d\":\"M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z\"}],[\"$\",\"path\",\"7u93v4\",{\"d\":\"M7 7h.01\"}],\"$undefined\"]}],\"\\\"color-scheme\\\"\"]}],[\"$\",\"span\",\"\\\"Theming\\\"\",{\"className\":\"badge-secondary flex items-center gap-1\",\"children\":[[\"$\",\"svg\",null,{\"xmlns\":\"http://www.w3.org/2000/svg\",\"width\":24,\"height\":24,\"viewBox\":\"0 0 24 24\",\"fill\":\"none\",\"stroke\":\"currentColor\",\"strokeWidth\":2,\"strokeLinecap\":\"round\",\"strokeLinejoin\":\"round\",\"className\":\"lucide lucide-tag w-3 h-3\",\"children\":[[\"$\",\"path\",\"14b2ls\",{\"d\":\"M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z\"}],[\"$\",\"path\",\"7u93v4\",{\"d\":\"M7 7h.01\"}],\"$undefined\"]}],\"\\\"Theming\\\"\"]}],[\"$\",\"span\",\"\\\"Dark Mode\\\"\",{\"className\":\"badge-secondary flex items-center gap-1\",\"children\":[[\"$\",\"svg\",null,{\"xmlns\":\"http://www.w3.org/2000/svg\",\"width\":24,\"height\":24,\"viewBox\":\"0 0 24 24\",\"fill\":\"none\",\"stroke\":\"currentColor\",\"strokeWidth\":2,\"strokeLinecap\":\"round\",\"strokeLinejoin\":\"round\",\"className\":\"lucide lucide-tag w-3 h-3\",\"children\":[[\"$\",\"path\",\"14b2ls\",{\"d\":\"M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z\"}],[\"$\",\"path\",\"7u93v4\",{\"d\":\"M7 7h.01\"}],\"$undefined\"]}],\"\\\"Dark Mode\\\"\"]}],[\"$\",\"span\",\"\\\"2026\\\"\",{\"className\":\"badge-secondary flex items-center gap-1\",\"children\":[[\"$\",\"svg\",null,{\"xmlns\":\"http://www.w3.org/2000/svg\",\"width\":24,\"height\":24,\"viewBox\":\"0 0 24 24\",\"fill\":\"none\",\"stroke\":\"currentColor\",\"strokeWidth\":2,\"strokeLinecap\":\"round\",\"strokeLinejoin\":\"round\",\"className\":\"lucide lucide-tag w-3 h-3\",\"children\":[[\"$\",\"path\",\"14b2ls\",{\"d\":\"M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z\"}],[\"$\",\"path\",\"7u93v4\",{\"d\":\"M7 7h.01\"}],\"$undefined\"]}],\"\\\"2026\\\"\"]}],[\"$\",\"span\",\"\\\"Baseline 2026\\\"]\",{\"className\":\"badge-secondary flex items-center gap-1\",\"children\":[[\"$\",\"svg\",null,{\"xmlns\":\"http://www.w3.org/2000/svg\",\"width\":24,\"height\":24,\"viewBox\":\"0 0 24 24\",\"fill\":\"none\",\"stroke\":\"currentColor\",\"strokeWidth\":2,\"strokeLinecap\":\"round\",\"strokeLinejoin\":\"round\",\"className\":\"lucide lucide-tag w-3 h-3\",\"children\":[[\"$\",\"path\",\"14b2ls\",{\"d\":\"M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z\"}],[\"$\",\"path\",\"7u93v4\",{\"d\":\"M7 7h.01\"}],\"$undefined\"]}],\"\\\"Baseline 2026\\\"]\"]}]]}]]}]]}],[\"$\",\"div\",null,{\"className\":\"blog-content prose-p:text-slate-300 prose-p:leading-relaxed prose-p:mb-4\",\"dangerouslySetInnerHTML\":{\"__html\":\"$5\"}}],[\"$\",\"style\",null,{\"dangerouslySetInnerHTML\":{\"__html\":\"$6\"}}]]}],null],null],null]},[null,[\"$\",\"$L7\",null,{\"parallelRouterKey\":\"children\",\"segmentPath\":[\"children\",\"blog\",\"children\",\"$8\",\"children\"],\"error\":\"$undefined\",\"errorStyles\":\"$undefined\",\"errorScripts\":\"$undefined\",\"template\":[\"$\",\"$L9\",null,{}],\"templateStyles\":\"$undefined\",\"templateScripts\":\"$undefined\",\"notFound\":\"$undefined\",\"notFoundStyles\":\"$undefined\"}]],null]},[null,[\"$\",\"$L7\",null,{\"parallelRouterKey\":\"children\",\"segmentPath\":[\"children\",\"blog\",\"children\"],\"error\":\"$undefined\",\"errorStyles\":\"$undefined\",\"errorScripts\":\"$undefined\",\"template\":[\"$\",\"$L9\",null,{}],\"templateStyles\":\"$undefined\",\"templateScripts\":\"$undefined\",\"notFound\":\"$undefined\",\"notFoundStyles\":\"$undefined\"}]],null]},[[[[\"$\",\"link\",\"0\",{\"rel\":\"stylesheet\",\"href\":\"/devbench-tech/_next/static/css/c877e59dbcb00f11.css\",\"precedence\":\"next\",\"crossOrigin\":\"$undefined\"}]],[\"$\",\"html\",null,{\"lang\":\"en\",\"className\":\"dark\",\"children\":[\"$\",\"body\",null,{\"className\":\"flex flex-col min-h-screen\",\"children\":[[\"$\",\"script\",null,{\"type\":\"application/ld+json\",\"dangerouslySetInnerHTML\":{\"__html\":\"{\\\"@context\\\":\\\"https://schema.org\\\",\\\"@type\\\":\\\"WebSite\\\",\\\"name\\\":\\\"DevBench\\\",\\\"url\\\":\\\"https://devbench-roan.vercel.app\\\",\\\"description\\\":\\\"Free developer tools for everyday use: JSON formatter, Base64 encoder/decoder, UUID generator, regex tester, benchmarks, and more.\\\",\\\"potentialAction\\\":{\\\"@type\\\":\\\"SearchAction\\\",\\\"target\\\":\\\"https://devbench-roan.vercel.app/tools?q={search_term_string}\\\",\\\"query-input\\\":\\\"required name=search_term_string\\\"}}\"}}],[\"$\",\"$La\",null,{}],[\"$\",\"main\",null,{\"className\":\"flex-1\",\"children\":[\"$\",\"$L7\",null,{\"parallelRouterKey\":\"children\",\"segmentPath\":[\"children\"],\"error\":\"$undefined\",\"errorStyles\":\"$undefined\",\"errorScripts\":\"$undefined\",\"template\":[\"$\",\"$L9\",null,{}],\"templateStyles\":\"$undefined\",\"templateScripts\":\"$undefined\",\"notFound\":[[\"$\",\"title\",null,{\"children\":\"404: This page could not be found.\"}],[\"$\",\"div\",null,{\"style\":{\"fontFamily\":\"system-ui,\\\"Segoe UI\\\",Roboto,Helvetica,Arial,sans-serif,\\\"Apple Color Emoji\\\",\\\"Segoe UI Emoji\\\"\",\"height\":\"100vh\",\"textAlign\":\"center\",\"display\":\"flex\",\"flexDirection\":\"column\",\"alignItems\":\"center\",\"justifyContent\":\"center\"},\"children\":[\"$\",\"div\",null,{\"children\":[[\"$\",\"style\",null,{\"dangerouslySetInnerHTML\":{\"__html\":\"body{color:#000;background:#fff;margin:0}.next-error-h1{border-right:1px solid rgba(0,0,0,.3)}@media (prefers-color-scheme:dark){body{color:#fff;background:#000}.next-error-h1{border-right:1px solid rgba(255,255,255,.3)}}\"}}],[\"$\",\"h1\",null,{\"className\":\"next-error-h1\",\"style\":{\"display\":\"inline-block\",\"margin\":\"0 20px 0 0\",\"padding\":\"0 23px 0 0\",\"fontSize\":24,\"fontWeight\":500,\"verticalAlign\":\"top\",\"lineHeight\":\"49px\"},\"children\":\"404\"}],[\"$\",\"div\",null,{\"style\":{\"display\":\"inline-block\"},\"children\":[\"$\",\"h2\",null,{\"style\":{\"fontSize\":14,\"fontWeight\":400,\"lineHeight\":\"49px\",\"margin\":0},\"children\":\"This page could not be found.\"}]}]]}]}]],\"notFoundStyles\":[]}]}],[\"$\",\"footer\",null,{\"className\":\"bg-surface-light border-t border-slate-700/50 mt-auto\",\"children\":[\"$\",\"div\",null,{\"className\":\"max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12\",\"children\":[[\"$\",\"div\",null,{\"className\":\"grid grid-cols-1 md:grid-cols-3 gap-8\",\"children\":[[\"$\",\"div\",null,{\"children\":[[\"$\",\"$L4\",null,{\"href\":\"/\",\"className\":\"flex items-center gap-2.5 mb-3\",\"children\":[[\"$\",\"div\",null,{\"className\":\"w-7 h-7 bg-brand-500 rounded-lg flex items-center justify-center\",\"children\":[\"$\",\"svg\",null,{\"xmlns\":\"http://www.w3.org/2000/svg\",\"width\":24,\"height\":24,\"viewBox\":\"0 0 24 24\",\"fill\":\"none\",\"stroke\":\"currentColor\",\"strokeWidth\":2,\"strokeLinecap\":\"round\",\"strokeLinejoin\":\"round\",\"className\":\"lucide lucide-terminal w-3.5 h-3.5 text-white\",\"children\":[[\"$\",\"polyline\",\"akl6gq\",{\"points\":\"4 17 10 11 4 5\"}],[\"$\",\"line\",\"q2wloq\",{\"x1\":\"12\",\"x2\":\"20\",\"y1\":\"19\",\"y2\":\"19\"}],\"$undefined\"]}]}],[\"$\",\"span\",null,{\"className\":\"text-lg font-bold text-white\",\"children\":[\"Dev\",[\"$\",\"span\",null,{\"className\":\"gradient-text\",\"children\":\"Bench\"}]]}]]}],[\"$\",\"p\",null,{\"className\":\"text-slate-400 text-sm leading-relaxed\",\"children\":\"Free developer tools, benchmarks, and calculators. Built for developers, by developers.\"}]]}],[\"$\",\"div\",null,{\"children\":[[\"$\",\"h3\",null,{\"className\":\"text-sm font-semibold text-slate-300 uppercase tracking-wider mb-4\",\"children\":\"Tools\"}],[\"$\",\"ul\",null,{\"className\":\"space-y-2\",\"children\":[[\"$\",\"li\",\"/tools/json-formatter\",{\"children\":[\"$\",\"$L4\",null,{\"href\":\"/tools/json-formatter\",\"className\":\"text-slate-400 hover:text-brand-400 text-sm transition-colors\",\"children\":\"JSON Formatter\"}]}],[\"$\",\"li\",\"/tools/base64\",{\"children\":[\"$\",\"$L4\",null,{\"href\":\"/tools/base64\",\"className\":\"text-slate-400 hover:text-brand-400 text-sm transition-colors\",\"children\":\"Base64 Encoder/Decoder\"}]}],[\"$\",\"li\",\"/tools/uuid-generator\",{\"children\":[\"$\",\"$L4\",null,{\"href\":\"/tools/uuid-generator\",\"className\":\"text-slate-400 hover:text-brand-400 text-sm transition-colors\",\"children\":\"UUID Generator\"}]}],[\"$\",\"li\",\"/tools/regex-tester\",{\"children\":[\"$\",\"$L4\",null,{\"href\":\"/tools/regex-tester\",\"className\":\"text-slate-400 hover:text-brand-400 text-sm transition-colors\",\"children\":\"Regex Tester\"}]}]]}]]}],[\"$\",\"div\",null,{\"children\":[[\"$\",\"h3\",null,{\"className\":\"text-sm font-semibold text-slate-300 uppercase tracking-wider mb-4\",\"children\":\"Resources\"}],[\"$\",\"ul\",null,{\"className\":\"space-y-2\",\"children\":[[\"$\",\"li\",\"/blog\",{\"children\":[\"$\",\"$L4\",null,{\"href\":\"/blog\",\"className\":\"text-slate-400 hover:text-brand-400 text-sm transition-colors\",\"children\":\"Blog\"}]}],[\"$\",\"li\",\"/benchmarks\",{\"children\":[\"$\",\"$L4\",null,{\"href\":\"/benchmarks\",\"className\":\"text-slate-400 hover:text-brand-400 text-sm transition-colors\",\"children\":\"Benchmarks\"}]}],[\"$\",\"li\",\"/about\",{\"children\":[\"$\",\"$L4\",null,{\"href\":\"/about\",\"className\":\"text-slate-400 hover:text-brand-400 text-sm transition-colors\",\"children\":\"About\"}]}]]}]]}]]}],[\"$\",\"div\",null,{\"className\":\"mt-10 pt-6 border-t border-slate-700/50 flex flex-col sm:flex-row items-center justify-between gap-4\",\"children\":[[\"$\",\"p\",null,{\"className\":\"text-slate-500 text-sm flex items-center gap-1\",\"children\":[\"Made with \",[\"$\",\"svg\",null,{\"xmlns\":\"http://www.w3.org/2000/svg\",\"width\":24,\"height\":24,\"viewBox\":\"0 0 24 24\",\"fill\":\"none\",\"stroke\":\"currentColor\",\"strokeWidth\":2,\"strokeLinecap\":\"round\",\"strokeLinejoin\":\"round\",\"className\":\"lucide lucide-heart w-3.5 h-3.5 text-red-500 fill-red-500\",\"children\":[[\"$\",\"path\",\"c3ymky\",{\"d\":\"M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z\"}],\"$undefined\"]}],\" by the DevBench team © \",2026]}],[\"$\",\"a\",null,{\"href\":\"https://github.com\",\"target\":\"_blank\",\"rel\":\"noopener noreferrer\",\"className\":\"text-slate-500 hover:text-slate-300 transition-colors\",\"aria-label\":\"GitHub\",\"children\":[\"$\",\"svg\",null,{\"xmlns\":\"http://www.w3.org/2000/svg\",\"width\":24,\"height\":24,\"viewBox\":\"0 0 24 24\",\"fill\":\"none\",\"stroke\":\"currentColor\",\"strokeWidth\":2,\"strokeLinecap\":\"round\",\"strokeLinejoin\":\"round\",\"className\":\"lucide lucide-github w-5 h-5\",\"children\":[[\"$\",\"path\",\"tonef\",{\"d\":\"M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4\"}],[\"$\",\"path\",\"9comsn\",{\"d\":\"M9 18c-4.51 2-5-2-7-2\"}],\"$undefined\"]}]}]]}]]}]}],[\"$\",\"$Lb\",null,{}],[\"$\",\"$Lc\",null,{\"position\":\"bottom-right\",\"toastOptions\":{\"style\":{\"background\":\"#1e293b\",\"color\":\"#e2e8f0\",\"border\":\"1px solid #334155\",\"fontSize\":\"14px\"}}}]]}]}]],null],null],\"couldBeIntercepted\":false,\"initialHead\":[null,\"$Ld\"],\"globalErrorComponent\":\"$e\",\"missingSlots\":\"$Wf\"}]\n"])</script><script>self.__next_f.push([1,"d:[[\"$\",\"meta\",\"0\",{\"name\":\"viewport\",\"content\":\"width=device-width, initial-scale=1\"}],[\"$\",\"meta\",\"1\",{\"charSet\":\"utf-8\"}],[\"$\",\"title\",\"2\",{\"children\":\"CSS light-dark() in 2026: One Function, Complete Theming | DevBench\"}],[\"$\",\"meta\",\"3\",{\"name\":\"description\",\"content\":\"The light-dark() CSS function lets you define light and dark mode colors in a single property value — no media queries, no JavaScript, no complex variable systems. Learn every pattern with production-ready code.\"}],[\"$\",\"meta\",\"4\",{\"name\":\"author\",\"content\":\"DevBench\"}],[\"$\",\"meta\",\"5\",{\"name\":\"keywords\",\"content\":\"developer tools,JSON formatter,Base64,UUID generator,regex tester,benchmarks,dev tools\"}],[\"$\",\"meta\",\"6\",{\"property\":\"og:title\",\"content\":\"DevBench — Developer Tools \u0026 Calculators\"}],[\"$\",\"meta\",\"7\",{\"property\":\"og:description\",\"content\":\"Free developer tools for everyday use.\"}],[\"$\",\"meta\",\"8\",{\"property\":\"og:site_name\",\"content\":\"DevBench\"}],[\"$\",\"meta\",\"9\",{\"property\":\"og:locale\",\"content\":\"en_US\"}],[\"$\",\"meta\",\"10\",{\"property\":\"og:type\",\"content\":\"website\"}],[\"$\",\"meta\",\"11\",{\"name\":\"twitter:card\",\"content\":\"summary\"}],[\"$\",\"meta\",\"12\",{\"name\":\"twitter:title\",\"content\":\"DevBench — Developer Tools \u0026 Calculators\"}],[\"$\",\"meta\",\"13\",{\"name\":\"twitter:description\",\"content\":\"Free developer tools for everyday use.\"}],[\"$\",\"link\",\"14\",{\"rel\":\"icon\",\"href\":\"/favicon.svg\"}]]\n3:null\n"])</script></body></html>

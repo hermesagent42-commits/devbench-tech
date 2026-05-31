@@ -1,0 +1,369 @@
+2:I[72972,["2972","static/chunks/2972-4aaa15d119eeb022.js","308","static/chunks/app/blog/%5Bslug%5D/page-a411190e7012c687.js"],""]
+5:I[4707,[],""]
+7:I[36423,[],""]
+8:I[39295,["9762","static/chunks/44530001-4ecf7a22b5b24163.js","2972","static/chunks/2972-4aaa15d119eeb022.js","8375","static/chunks/8375-c77b8de36f6696fb.js","6829","static/chunks/6829-f51803445ddf1872.js","3185","static/chunks/app/layout-488e5c40aa6ffa72.js"],"Header"]
+9:I[66506,["9762","static/chunks/44530001-4ecf7a22b5b24163.js","2972","static/chunks/2972-4aaa15d119eeb022.js","8375","static/chunks/8375-c77b8de36f6696fb.js","6829","static/chunks/6829-f51803445ddf1872.js","3185","static/chunks/app/layout-488e5c40aa6ffa72.js"],"Analytics"]
+a:I[69064,["9762","static/chunks/44530001-4ecf7a22b5b24163.js","2972","static/chunks/2972-4aaa15d119eeb022.js","8375","static/chunks/8375-c77b8de36f6696fb.js","6829","static/chunks/6829-f51803445ddf1872.js","3185","static/chunks/app/layout-488e5c40aa6ffa72.js"],"Toaster"]
+3:T311c,
+<h2 class="post-h2">Why Container Queries Change Everything</h2>
+
+<p class="post-p">
+For two decades, we've built responsive layouts using media queries — checking the _viewport_ width and adjusting styles accordingly. The problem? Components don't care about the viewport. A card in a full-width section needs one layout; the same card in a 300px sidebar needs a completely different one. With media queries, you're forced to know the layout context at every nesting level:
+</p>
+
+<pre class="code-block"><code class="language-css">/<em> Fragile — breaks when the card moves </em>/
+<p class="post-p">
+.card { display: grid; grid-template-columns: 1fr 1fr; }
+</p>
+
+<p class="post-p">
+.sidebar .card { display: block; }
+.main-content .card { display: grid; grid-template-columns: 1fr 1fr; }
+.small-section .card { display: block; }
+</code></pre>
+</p>
+
+<p class="post-p">
+This is brittle, verbose, and requires updating every time you restructure your layout. Container queries fix this by letting components respond to their _own_ size:
+</p>
+
+<pre class="code-block"><code class="language-css">.card-container {
+<p class="post-p">
+container-type: inline-size;
+container-name: card;
+}
+</p>
+
+<p class="post-p">
+@container card (min-width: 400px) {
+.card { display: grid; grid-template-columns: 1fr 1fr; }
+}
+</code></pre>
+</p>
+
+<p class="post-p">
+The card now decides its own layout based on how much space it has — regardless of where it lives in the DOM.
+</p>
+
+<h2 class="post-h2">Browser Support: It's Production-Ready</h2>
+
+<p class="post-p">
+Container <strong>size</strong> queries reached Baseline in 2023. Every major browser supports them:
+</p>
+
+<ul class="post-ul"><li class="post-li"><strong>Chrome 105+</strong> (August 2022)</li>
+<li class="post-li"><strong>Safari 16+</strong> (September 2022)</li>
+<li class="post-li"><strong>Firefox 110+</strong> (February 2023)</li>
+<li class="post-li"><strong>Samsung Internet 20+</strong></li>
+<li class="post-li"><strong>Edge 105+</strong></li>
+</ul>
+<p class="post-p">
+You can use container size queries in production today with zero fallbacks. The Interop 2026 initiative is now bringing <strong>style queries</strong> across all browsers — Firefox is the last holdout but should land in 2026.
+</p>
+
+<h2 class="post-h2">Container Size Queries in Practice</h2>
+
+<h3 class="post-h3">The Core Properties</h3>
+
+<pre class="code-block"><code class="language-css">.my-container {
+<p class="post-p">
+/<em> Query the inline dimension (width in horizontal writing modes) </em>/
+container-type: inline-size;
+</p>
+
+<p class="post-p">
+/<em> Optional: give it a name for scoped queries </em>/
+container-name: my-component;
+</p>
+
+<p class="post-p">
+/<em> Shorthand: container: my-component / inline-size; </em>/
+}
+</code></pre>
+</p>
+
+<p class="post-p">
+Then write queries against it:
+</p>
+
+<pre class="code-block"><code class="language-css">@container my-component (min-width: 500px) {
+<p class="post-p">
+.child { flex-direction: row; }
+}
+</p>
+
+<p class="post-p">
+@container my-component (max-width: 499px) {
+.child { flex-direction: column; }
+}
+</code></pre>
+</p>
+
+<h3 class="post-h3"><code class="inline-code">container-type</code> options</h3>
+
+<p class="post-p">
+| Value | Queries |
+|---|---|
+| <code class="inline-code">inline-size</code> | Inline axis only (width). Safest choice — doesn't trigger layout loops. |
+| <code class="inline-code">size</code> | Both inline and block dimensions. Use carefully — can cause infinite layout if children change height. |
+| <code class="inline-code">normal</code> | Not a query container. Explicitly opt-out even if you have <code class="inline-code">container-name</code>. |
+</p>
+
+<p class="post-p">
+<strong>Use <code class="inline-code">inline-size</code> by default.</strong> The <code class="inline-code">size</code> value is powerful for height-aware layouts (like a hero section that changes layout when it's tall enough), but it can introduce cyclic dependencies.
+</p>
+
+<h3 class="post-h3">Real-World Pattern: Responsive Card Grid</h3>
+
+<pre class="code-block"><code class="language-css">/<em> Parent: establish the query context </em>/
+<p class="post-p">
+.card-grid {
+container-type: inline-size;
+display: grid;
+gap: 1rem;
+}
+</p>
+
+<p class="post-p">
+/<em> Single column on narrow containers </em>/
+@container (width &amp;lt; 600px) {
+.card-grid { grid-template-columns: 1fr; }
+}
+</p>
+
+<p class="post-p">
+/<em> Two columns on medium </em>/
+@container (600px &amp;lt;= width &amp;lt; 900px) {
+.card-grid { grid-template-columns: 1fr 1fr; }
+}
+</p>
+
+<p class="post-p">
+/<em> Three columns on wide </em>/
+@container (width &amp;gt;= 900px) {
+.card-grid { grid-template-columns: 1fr 1fr 1fr; }
+}
+</code></pre>
+</p>
+
+<p class="post-p">
+Using the new range syntax (<code class="inline-code">width &lt; 600px</code> instead of <code class="inline-code">max-width: 599px</code>) makes queries far more readable.
+</p>
+
+<h2 class="post-h2">Style Queries: The Next Frontier</h2>
+
+<p class="post-p">
+Container <strong>style</strong> queries let you query computed styles — not just size. They're behind the <code class="inline-code">style()</code> function:
+</p>
+
+<pre class="code-block"><code class="language-css">@container style(--theme: dark) {
+<p class="post-p">
+.card {
+background: #1a1a2e;
+color: #e0e0e0;
+}
+}
+</code></pre>
+</p>
+
+<p class="post-p">
+Style queries can check:
+</p>
+
+<ul class="post-ul"><li class="post-li"><strong>Custom properties</strong>: <code class="inline-code">style(--layout: grid)</code>, <code class="inline-code">style(--density: compact)</code></li>
+<li class="post-li"><strong>Built-in properties</strong>: <code class="inline-code">style(flex-direction: row)</code>, <code class="inline-code">style(writing-mode: vertical-rl)</code></li>
+</ul>
+<p class="post-p">
+This enables design system tokens to control component variants:
+</p>
+
+<pre class="code-block"><code class="language-css">:root {
+<p class="post-p">
+--card-style: elevated;
+}
+</p>
+
+<p class="post-p">
+.card-container {
+container-name: card;
+}
+</p>
+
+<p class="post-p">
+@container card style(--card-style: elevated) {
+.card {
+box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+border-radius: 12px;
+}
+}
+</p>
+
+<p class="post-p">
+@container card style(--card-style: flat) {
+.card {
+box-shadow: none;
+border: 1px solid #e0e0e0;
+border-radius: 8px;
+}
+}
+</code></pre>
+</p>
+
+<p class="post-p">
+Change one custom property and all matching style queries activate — no JavaScript needed.
+</p>
+
+<h3 class="post-h3">Style Query Browser Support (May 2026)</h3>
+
+<p class="post-p">
+| Browser | Style Queries |
+|---|---|
+| Chrome 111+ | ✅ |
+| Safari 18+ | ✅ |
+| Firefox | 🔜 Interop 2026 |
+| Edge 111+ | ✅ |
+</p>
+
+<p class="post-p">
+Progressive enhancement strategy: use style queries for enhanced variants with a CSS fallback that works everywhere.
+</p>
+
+<h2 class="post-h2">The Container Query + Cascade Layers Combo</h2>
+
+<p class="post-p">
+Container queries and <code class="inline-code">@layer</code> work brilliantly together. Put your container query styles in a layer to manage specificity:
+</p>
+
+<pre class="code-block"><code class="language-css">@layer components {
+<p class="post-p">
+.card-container {
+container-type: inline-size;
+}
+</p>
+
+<p class="post-p">
+@container (min-width: 400px) {
+.card { grid-template-columns: 1fr 1fr; }
+}
+}
+</p>
+
+<p class="post-p">
+@layer overrides {
+/<em> These always win regardless of source order </em>/
+.card.compact { container-type: inline-size; }
+@container (max-width: 250px) {
+.card.compact { display: none; }
+}
+}
+</code></pre>
+</p>
+
+<h2 class="post-h2">Performance Considerations</h2>
+
+<p class="post-p">
+Container queries are well-optimized in modern browsers, but there are a few gotchas:
+</p>
+
+<ul class="post-ul"><li class="post-li"><strong>Don't make everything a container.</strong> Each container element adds a small overhead to the layout pass. Only declare <code class="inline-code">container-type</code> on elements that actually need querying.</li>
+</ul>
+<ul class="post-ul"><li class="post-li"><strong>Avoid <code class="inline-code">container-type: size</code> on elements whose children affect their size.</strong> This creates circular dependencies where changing child layout changes the container size, which changes the query match, which changes the child layout... Use <code class="inline-code">inline-size</code> unless you specifically need height/block queries.</li>
+</ul>
+<ul class="post-ul"><li class="post-li"><strong>Named containers are faster than unnamed queries.</strong> Prefer <code class="inline-code">@container my-name (condition)</code> over <code class="inline-code">@container (condition)</code> — it scopes the lookup.</li>
+</ul>
+<ul class="post-ul"><li class="post-li"><strong>Style queries are comparable to size queries in performance</strong>, since both are evaluated during layout/restyle rather than continuously.</li>
+</ul>
+<h2 class="post-h2">Common Pitfalls</h2>
+
+<h3 class="post-h3">"My container query doesn't fire"</h3>
+
+<p class="post-p">
+Check that:
+</p>
+<ul class="post-ul"><li class="post-li">The parent element has <code class="inline-code">container-type: inline-size</code> (or <code class="inline-code">size</code>)</li>
+<li class="post-li">The element you're styling is a _descendant_ of the container (not a sibling or the container itself)</li>
+<li class="post-li">Container query conditions use the right units (<code class="inline-code">px</code>, not <code class="inline-code">rem</code> or <code class="inline-code">em</code> for the actual element size)</li>
+</ul>
+<h3 class="post-h3">"The query works but the layout is wrong"</h3>
+
+<p class="post-p">
+Remember that container queries measure the _content box_ of the container, not including padding. If your container has <code class="inline-code">padding: 20px</code> and is 500px wide, the query sees 460px. Use <code class="inline-code">box-sizing: border-box</code> or account for the padding.
+</p>
+
+<h3 class="post-h3">"Layout shifts when the query toggles"</h3>
+
+<p class="post-p">
+Container query thresholds can cause jarring layout changes. Smooth them with:
+</p>
+
+<pre class="code-block"><code class="language-css">.card {
+<p class="post-p">
+transition: grid-template-columns 0.3s ease;
+}
+</code></pre>
+</p>
+
+<p class="post-p">
+CSS Grid properties _are_ animatable in modern browsers — use <code class="inline-code">transition</code> on <code class="inline-code">grid-template-columns</code>, <code class="inline-code">grid-template-rows</code>, and <code class="inline-code">gap</code>.
+</p>
+
+<h2 class="post-h2">The Future: Container Queries + Anchor Positioning</h2>
+
+<p class="post-p">
+CSS Anchor Positioning (also Baseline 2026) pairs beautifully with container queries. A popover can position itself relative to its anchor, then use container queries to adjust its internal layout:
+</p>
+
+<pre class="code-block"><code class="language-css">.popover {
+<p class="post-p">
+position-anchor: --trigger-btn;
+position-area: bottom span-right;
+container-type: inline-size;
+}
+</p>
+
+<p class="post-p">
+@container (min-width: 300px) {
+.popover-content { flex-direction: row; }
+}
+</code></pre>
+</p>
+
+<p class="post-p">
+For more on Anchor Positioning, try the <a href="/tools/css-anchor-playground" class="post-link" target="_blank" rel="noopener noreferrer">CSS Anchor Playground</a> and build your queries interactively with the <a href="/tools/container-query-builder" class="post-link" target="_blank" rel="noopener noreferrer">Container Query Builder</a>.
+</p>
+
+<h2 class="post-h2">Go Build With Confidence</h2>
+
+<p class="post-p">
+Container size queries are ready for production today — they've been Baseline for over three years. Style queries are right behind them with Interop 2026. The era of context-independent components has arrived. No more <code class="inline-code">.sidebar .card</code> specificity chains — just let components own their responsive behavior.
+</p>
+
+<p class="post-p">
+<strong>Start using container queries today:</strong>
+</p>
+
+<ul class="post-ul"><li class="post-li">Refactor one component (a card, a nav, a grid) to use <code class="inline-code">container-type: inline-size</code></li>
+<li class="post-li">Use range syntax (<code class="inline-code">width &gt;= 500px</code>) for cleaner conditions</li>
+<li class="post-li">Pair with cascade layers for predictable specificity</li>
+<li class="post-li">Preview your breakpoints with the <a href="/tools/container-query-builder" class="post-link" target="_blank" rel="noopener noreferrer">Container Query Builder</a> on DevBench</li>
+</ul>4:T78f,
+        .blog-content .post-h1 { font-size: 1.75rem; font-weight: 700; color: #ffffff; margin-top: 2rem; margin-bottom: 1rem; }
+        .blog-content .post-h2 { font-size: 1.5rem; font-weight: 600; color: #f1f5f9; margin-top: 1.75rem; margin-bottom: 0.75rem; padding-bottom: 0.5rem; border-bottom: 1px solid #334155; }
+        .blog-content .post-h3 { font-size: 1.25rem; font-weight: 600; color: #e2e8f0; margin-top: 1.5rem; margin-bottom: 0.5rem; }
+        .blog-content .post-h4 { font-size: 1.1rem; font-weight: 600; color: #e2e8f0; margin-top: 1.25rem; margin-bottom: 0.5rem; }
+        .blog-content .post-p { color: #cbd5e1; line-height: 1.75; margin-bottom: 1rem; }
+        .blog-content .code-block { background: #0f172a; border: 1px solid #334155; border-radius: 0.5rem; padding: 1rem; overflow-x: auto; margin: 1rem 0; font-family: 'JetBrains Mono', monospace; font-size: 0.875rem; color: #e2e8f0; }
+        .blog-content .inline-code { background: #1e293b; color: #38bdf8; padding: 0.15rem 0.4rem; border-radius: 0.25rem; font-family: 'JetBrains Mono', monospace; font-size: 0.875em; }
+        .blog-content .post-link { color: #38bdf8; text-decoration: underline; transition: color 0.2s; }
+        .blog-content .post-link:hover { color: #7dd3fc; }
+        .blog-content .post-ul { list-style: disc; padding-left: 1.5rem; margin: 0.75rem 0; color: #cbd5e1; }
+        .blog-content .post-li { margin-bottom: 0.25rem; line-height: 1.6; }
+        .blog-content .post-blockquote { border-left: 3px solid #0ea5e9; padding: 0.5rem 1rem; margin: 1rem 0; background: rgba(14, 165, 233, 0.05); border-radius: 0 0.5rem 0.5rem 0; }
+        .blog-content .post-blockquote p { color: #94a3b8; font-style: italic; }
+        .blog-content .post-hr { border: none; border-top: 1px solid #334155; margin: 2rem 0; }
+        .blog-content strong { color: #f1f5f9; font-weight: 600; }
+        .blog-content em { font-style: italic; }
+        6:["slug","container-style-queries-2026","d"]
+0:["wLkx3_e9eF0HmBHirJWLm",[[["",{"children":["blog",{"children":[["slug","container-style-queries-2026","d"],{"children":["__PAGE__?{\"slug\":\"container-style-queries-2026\"}",{}]}]}]},"$undefined","$undefined",true],["",{"children":["blog",{"children":[["slug","container-style-queries-2026","d"],{"children":["__PAGE__",{},[["$L1",["$","article",null,{"className":"max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-20","children":[["$","script",null,{"type":"application/ld+json","dangerouslySetInnerHTML":{"__html":"{\"@context\":\"https://schema.org\",\"@type\":\"Article\",\"headline\":\"Building Resilient Components with Container Queries and Style Queries\",\"description\":\"Container queries are the biggest shift in CSS layout since media queries. Now with style queries landing as part of Interop 2026, you can query not just size but computed styles — custom properties, text direction, and more. Here's how to build truly self-contained components that work in any context.\",\"datePublished\":\"2026-05-24\",\"author\":{\"@type\":\"Organization\",\"name\":\"DevBench\"},\"publisher\":{\"@type\":\"Organization\",\"name\":\"DevBench\",\"url\":\"https://devbench-roan.vercel.app\"}}"}}],["$","script",null,{"type":"application/ld+json","dangerouslySetInnerHTML":{"__html":"{\"@context\":\"https://schema.org\",\"@type\":\"BreadcrumbList\",\"itemListElement\":[{\"@type\":\"ListItem\",\"position\":1,\"name\":\"Home\",\"item\":\"https://devbench-roan.vercel.app\"},{\"@type\":\"ListItem\",\"position\":2,\"name\":\"Blog\",\"item\":\"https://devbench-roan.vercel.app/blog\"},{\"@type\":\"ListItem\",\"position\":3,\"name\":\"Building Resilient Components with Container Queries and Style Queries\"}]}"}}],["$","$L2",null,{"href":"/blog","className":"inline-flex items-center gap-1.5 text-slate-400 hover:text-brand-400 text-sm transition-colors mb-8","children":[["$","svg",null,{"xmlns":"http://www.w3.org/2000/svg","width":24,"height":24,"viewBox":"0 0 24 24","fill":"none","stroke":"currentColor","strokeWidth":2,"strokeLinecap":"round","strokeLinejoin":"round","className":"lucide lucide-arrow-left w-4 h-4","children":[["$","path","1l729n",{"d":"m12 19-7-7 7-7"}],["$","path","x3x0zl",{"d":"M19 12H5"}],"$undefined"]}],"Back to Blog"]}],["$","header",null,{"className":"mb-10","children":[["$","h1",null,{"className":"text-3xl sm:text-4xl font-bold text-white leading-tight mb-4","children":"Building Resilient Components with Container Queries and Style Queries"}],["$","div",null,{"className":"flex flex-wrap items-center gap-4 text-sm text-slate-400","children":[["$","span",null,{"className":"flex items-center gap-1.5","children":[["$","svg",null,{"xmlns":"http://www.w3.org/2000/svg","width":24,"height":24,"viewBox":"0 0 24 24","fill":"none","stroke":"currentColor","strokeWidth":2,"strokeLinecap":"round","strokeLinejoin":"round","className":"lucide lucide-calendar w-4 h-4","children":[["$","rect","eu3xkr",{"width":"18","height":"18","x":"3","y":"4","rx":"2","ry":"2"}],["$","line","m3sa8f",{"x1":"16","x2":"16","y1":"2","y2":"6"}],["$","line","18kwsl",{"x1":"8","x2":"8","y1":"2","y2":"6"}],["$","line","xt86sb",{"x1":"3","x2":"21","y1":"10","y2":"10"}],"$undefined"]}],"2026-05-24"]}],["$","div",null,{"className":"flex flex-wrap gap-1.5","children":[["$","span","CSS",{"className":"badge-secondary flex items-center gap-1","children":[["$","svg",null,{"xmlns":"http://www.w3.org/2000/svg","width":24,"height":24,"viewBox":"0 0 24 24","fill":"none","stroke":"currentColor","strokeWidth":2,"strokeLinecap":"round","strokeLinejoin":"round","className":"lucide lucide-tag w-3 h-3","children":[["$","path","14b2ls",{"d":"M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"}],["$","path","7u93v4",{"d":"M7 7h.01"}],"$undefined"]}],"CSS"]}],["$","span","Container Queries",{"className":"badge-secondary flex items-center gap-1","children":[["$","svg",null,{"xmlns":"http://www.w3.org/2000/svg","width":24,"height":24,"viewBox":"0 0 24 24","fill":"none","stroke":"currentColor","strokeWidth":2,"strokeLinecap":"round","strokeLinejoin":"round","className":"lucide lucide-tag w-3 h-3","children":[["$","path","14b2ls",{"d":"M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"}],["$","path","7u93v4",{"d":"M7 7h.01"}],"$undefined"]}],"Container Queries"]}],["$","span","Style Queries",{"className":"badge-secondary flex items-center gap-1","children":[["$","svg",null,{"xmlns":"http://www.w3.org/2000/svg","width":24,"height":24,"viewBox":"0 0 24 24","fill":"none","stroke":"currentColor","strokeWidth":2,"strokeLinecap":"round","strokeLinejoin":"round","className":"lucide lucide-tag w-3 h-3","children":[["$","path","14b2ls",{"d":"M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"}],["$","path","7u93v4",{"d":"M7 7h.01"}],"$undefined"]}],"Style Queries"]}],["$","span","Responsive",{"className":"badge-secondary flex items-center gap-1","children":[["$","svg",null,{"xmlns":"http://www.w3.org/2000/svg","width":24,"height":24,"viewBox":"0 0 24 24","fill":"none","stroke":"currentColor","strokeWidth":2,"strokeLinecap":"round","strokeLinejoin":"round","className":"lucide lucide-tag w-3 h-3","children":[["$","path","14b2ls",{"d":"M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"}],["$","path","7u93v4",{"d":"M7 7h.01"}],"$undefined"]}],"Responsive"]}],["$","span","Components",{"className":"badge-secondary flex items-center gap-1","children":[["$","svg",null,{"xmlns":"http://www.w3.org/2000/svg","width":24,"height":24,"viewBox":"0 0 24 24","fill":"none","stroke":"currentColor","strokeWidth":2,"strokeLinecap":"round","strokeLinejoin":"round","className":"lucide lucide-tag w-3 h-3","children":[["$","path","14b2ls",{"d":"M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"}],["$","path","7u93v4",{"d":"M7 7h.01"}],"$undefined"]}],"Components"]}],["$","span","Interop 2026",{"className":"badge-secondary flex items-center gap-1","children":[["$","svg",null,{"xmlns":"http://www.w3.org/2000/svg","width":24,"height":24,"viewBox":"0 0 24 24","fill":"none","stroke":"currentColor","strokeWidth":2,"strokeLinecap":"round","strokeLinejoin":"round","className":"lucide lucide-tag w-3 h-3","children":[["$","path","14b2ls",{"d":"M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"}],["$","path","7u93v4",{"d":"M7 7h.01"}],"$undefined"]}],"Interop 2026"]}],["$","span","Web Platform",{"className":"badge-secondary flex items-center gap-1","children":[["$","svg",null,{"xmlns":"http://www.w3.org/2000/svg","width":24,"height":24,"viewBox":"0 0 24 24","fill":"none","stroke":"currentColor","strokeWidth":2,"strokeLinecap":"round","strokeLinejoin":"round","className":"lucide lucide-tag w-3 h-3","children":[["$","path","14b2ls",{"d":"M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"}],["$","path","7u93v4",{"d":"M7 7h.01"}],"$undefined"]}],"Web Platform"]}]]}]]}]]}],["$","div",null,{"className":"blog-content prose-p:text-slate-300 prose-p:leading-relaxed prose-p:mb-4","dangerouslySetInnerHTML":{"__html":"$3"}}],["$","style",null,{"dangerouslySetInnerHTML":{"__html":"$4"}}]]}],null],null],null]},[null,["$","$L5",null,{"parallelRouterKey":"children","segmentPath":["children","blog","children","$6","children"],"error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L7",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":"$undefined","notFoundStyles":"$undefined"}]],null]},[null,["$","$L5",null,{"parallelRouterKey":"children","segmentPath":["children","blog","children"],"error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L7",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":"$undefined","notFoundStyles":"$undefined"}]],null]},[[[["$","link","0",{"rel":"stylesheet","href":"/devbench-tech/_next/static/css/c877e59dbcb00f11.css","precedence":"next","crossOrigin":"$undefined"}]],["$","html",null,{"lang":"en","className":"dark","children":["$","body",null,{"className":"flex flex-col min-h-screen","children":[["$","script",null,{"type":"application/ld+json","dangerouslySetInnerHTML":{"__html":"{\"@context\":\"https://schema.org\",\"@type\":\"WebSite\",\"name\":\"DevBench\",\"url\":\"https://devbench-roan.vercel.app\",\"description\":\"Free developer tools for everyday use: JSON formatter, Base64 encoder/decoder, UUID generator, regex tester, benchmarks, and more.\",\"potentialAction\":{\"@type\":\"SearchAction\",\"target\":\"https://devbench-roan.vercel.app/tools?q={search_term_string}\",\"query-input\":\"required name=search_term_string\"}}"}}],["$","$L8",null,{}],["$","main",null,{"className":"flex-1","children":["$","$L5",null,{"parallelRouterKey":"children","segmentPath":["children"],"error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L7",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":[["$","title",null,{"children":"404: This page could not be found."}],["$","div",null,{"style":{"fontFamily":"system-ui,\"Segoe UI\",Roboto,Helvetica,Arial,sans-serif,\"Apple Color Emoji\",\"Segoe UI Emoji\"","height":"100vh","textAlign":"center","display":"flex","flexDirection":"column","alignItems":"center","justifyContent":"center"},"children":["$","div",null,{"children":[["$","style",null,{"dangerouslySetInnerHTML":{"__html":"body{color:#000;background:#fff;margin:0}.next-error-h1{border-right:1px solid rgba(0,0,0,.3)}@media (prefers-color-scheme:dark){body{color:#fff;background:#000}.next-error-h1{border-right:1px solid rgba(255,255,255,.3)}}"}}],["$","h1",null,{"className":"next-error-h1","style":{"display":"inline-block","margin":"0 20px 0 0","padding":"0 23px 0 0","fontSize":24,"fontWeight":500,"verticalAlign":"top","lineHeight":"49px"},"children":"404"}],["$","div",null,{"style":{"display":"inline-block"},"children":["$","h2",null,{"style":{"fontSize":14,"fontWeight":400,"lineHeight":"49px","margin":0},"children":"This page could not be found."}]}]]}]}]],"notFoundStyles":[]}]}],["$","footer",null,{"className":"bg-surface-light border-t border-slate-700/50 mt-auto","children":["$","div",null,{"className":"max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12","children":[["$","div",null,{"className":"grid grid-cols-1 md:grid-cols-3 gap-8","children":[["$","div",null,{"children":[["$","$L2",null,{"href":"/","className":"flex items-center gap-2.5 mb-3","children":[["$","div",null,{"className":"w-7 h-7 bg-brand-500 rounded-lg flex items-center justify-center","children":["$","svg",null,{"xmlns":"http://www.w3.org/2000/svg","width":24,"height":24,"viewBox":"0 0 24 24","fill":"none","stroke":"currentColor","strokeWidth":2,"strokeLinecap":"round","strokeLinejoin":"round","className":"lucide lucide-terminal w-3.5 h-3.5 text-white","children":[["$","polyline","akl6gq",{"points":"4 17 10 11 4 5"}],["$","line","q2wloq",{"x1":"12","x2":"20","y1":"19","y2":"19"}],"$undefined"]}]}],["$","span",null,{"className":"text-lg font-bold text-white","children":["Dev",["$","span",null,{"className":"gradient-text","children":"Bench"}]]}]]}],["$","p",null,{"className":"text-slate-400 text-sm leading-relaxed","children":"Free developer tools, benchmarks, and calculators. Built for developers, by developers."}]]}],["$","div",null,{"children":[["$","h3",null,{"className":"text-sm font-semibold text-slate-300 uppercase tracking-wider mb-4","children":"Tools"}],["$","ul",null,{"className":"space-y-2","children":[["$","li","/tools/json-formatter",{"children":["$","$L2",null,{"href":"/tools/json-formatter","className":"text-slate-400 hover:text-brand-400 text-sm transition-colors","children":"JSON Formatter"}]}],["$","li","/tools/base64",{"children":["$","$L2",null,{"href":"/tools/base64","className":"text-slate-400 hover:text-brand-400 text-sm transition-colors","children":"Base64 Encoder/Decoder"}]}],["$","li","/tools/uuid-generator",{"children":["$","$L2",null,{"href":"/tools/uuid-generator","className":"text-slate-400 hover:text-brand-400 text-sm transition-colors","children":"UUID Generator"}]}],["$","li","/tools/regex-tester",{"children":["$","$L2",null,{"href":"/tools/regex-tester","className":"text-slate-400 hover:text-brand-400 text-sm transition-colors","children":"Regex Tester"}]}]]}]]}],["$","div",null,{"children":[["$","h3",null,{"className":"text-sm font-semibold text-slate-300 uppercase tracking-wider mb-4","children":"Resources"}],["$","ul",null,{"className":"space-y-2","children":[["$","li","/blog",{"children":["$","$L2",null,{"href":"/blog","className":"text-slate-400 hover:text-brand-400 text-sm transition-colors","children":"Blog"}]}],["$","li","/benchmarks",{"children":["$","$L2",null,{"href":"/benchmarks","className":"text-slate-400 hover:text-brand-400 text-sm transition-colors","children":"Benchmarks"}]}],["$","li","/about",{"children":["$","$L2",null,{"href":"/about","className":"text-slate-400 hover:text-brand-400 text-sm transition-colors","children":"About"}]}]]}]]}]]}],["$","div",null,{"className":"mt-10 pt-6 border-t border-slate-700/50 flex flex-col sm:flex-row items-center justify-between gap-4","children":[["$","p",null,{"className":"text-slate-500 text-sm flex items-center gap-1","children":["Made with ",["$","svg",null,{"xmlns":"http://www.w3.org/2000/svg","width":24,"height":24,"viewBox":"0 0 24 24","fill":"none","stroke":"currentColor","strokeWidth":2,"strokeLinecap":"round","strokeLinejoin":"round","className":"lucide lucide-heart w-3.5 h-3.5 text-red-500 fill-red-500","children":[["$","path","c3ymky",{"d":"M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"}],"$undefined"]}]," by the DevBench team © ",2026]}],["$","a",null,{"href":"https://github.com","target":"_blank","rel":"noopener noreferrer","className":"text-slate-500 hover:text-slate-300 transition-colors","aria-label":"GitHub","children":["$","svg",null,{"xmlns":"http://www.w3.org/2000/svg","width":24,"height":24,"viewBox":"0 0 24 24","fill":"none","stroke":"currentColor","strokeWidth":2,"strokeLinecap":"round","strokeLinejoin":"round","className":"lucide lucide-github w-5 h-5","children":[["$","path","tonef",{"d":"M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"}],["$","path","9comsn",{"d":"M9 18c-4.51 2-5-2-7-2"}],"$undefined"]}]}]]}]]}]}],["$","$L9",null,{}],["$","$La",null,{"position":"bottom-right","toastOptions":{"style":{"background":"#1e293b","color":"#e2e8f0","border":"1px solid #334155","fontSize":"14px"}}}]]}]}]],null],null],["$Lb",null]]]]
+b:[["$","meta","0",{"name":"viewport","content":"width=device-width, initial-scale=1"}],["$","meta","1",{"charSet":"utf-8"}],["$","title","2",{"children":"Building Resilient Components with Container Queries and Style Queries | DevBench"}],["$","meta","3",{"name":"description","content":"Container queries are the biggest shift in CSS layout since media queries. Now with style queries landing as part of Interop 2026, you can query not just size but computed styles — custom properties, text direction, and more. Here's how to build truly self-contained components that work in any context."}],["$","meta","4",{"name":"author","content":"DevBench"}],["$","meta","5",{"name":"keywords","content":"developer tools,JSON formatter,Base64,UUID generator,regex tester,benchmarks,dev tools"}],["$","meta","6",{"property":"og:title","content":"DevBench — Developer Tools & Calculators"}],["$","meta","7",{"property":"og:description","content":"Free developer tools for everyday use."}],["$","meta","8",{"property":"og:site_name","content":"DevBench"}],["$","meta","9",{"property":"og:locale","content":"en_US"}],["$","meta","10",{"property":"og:type","content":"website"}],["$","meta","11",{"name":"twitter:card","content":"summary"}],["$","meta","12",{"name":"twitter:title","content":"DevBench — Developer Tools & Calculators"}],["$","meta","13",{"name":"twitter:description","content":"Free developer tools for everyday use."}],["$","link","14",{"rel":"icon","href":"/favicon.svg"}]]
+1:null

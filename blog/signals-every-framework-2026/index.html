@@ -1,0 +1,532 @@
+<!DOCTYPE html><html lang="en" class="dark"><head><meta charSet="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/><link rel="stylesheet" href="/devbench-tech/_next/static/css/c877e59dbcb00f11.css" data-precedence="next"/><link rel="preload" as="script" fetchPriority="low" href="/devbench-tech/_next/static/chunks/webpack-b521a83317325026.js"/><script src="/devbench-tech/_next/static/chunks/fd9d1056-04e0aa683dc3c41f.js" async=""></script><script src="/devbench-tech/_next/static/chunks/2117-8374a93ea77a2be4.js" async=""></script><script src="/devbench-tech/_next/static/chunks/main-app-aaec773b36366bc0.js" async=""></script><script src="/devbench-tech/_next/static/chunks/2972-4aaa15d119eeb022.js" async=""></script><script src="/devbench-tech/_next/static/chunks/app/blog/%5Bslug%5D/page-a411190e7012c687.js" async=""></script><script src="/devbench-tech/_next/static/chunks/44530001-4ecf7a22b5b24163.js" async=""></script><script src="/devbench-tech/_next/static/chunks/8375-c77b8de36f6696fb.js" async=""></script><script src="/devbench-tech/_next/static/chunks/6829-f51803445ddf1872.js" async=""></script><script src="/devbench-tech/_next/static/chunks/app/layout-488e5c40aa6ffa72.js" async=""></script><title>Signals in 2026: Why Every Framework Is Converging on This One Primitive | DevBench</title><meta name="description" content="Solid, Preact, Vue, Angular, Svelte — every major framework is adopting signals as their core reactive primitive. TC39 has a Stage 1 proposal to standardize them in JavaScript itself. What are signals, why are they winning over hooks, observables, and dirty-checking, and how do they actually work under the hood? A deep technical dive into the reactive primitive that&#x27;s reshaping frontend architecture in 2026."/><meta name="author" content="DevBench"/><meta name="keywords" content="developer tools,JSON formatter,Base64,UUID generator,regex tester,benchmarks,dev tools"/><meta property="og:title" content="DevBench — Developer Tools &amp; Calculators"/><meta property="og:description" content="Free developer tools for everyday use."/><meta property="og:site_name" content="DevBench"/><meta property="og:locale" content="en_US"/><meta property="og:type" content="website"/><meta name="twitter:card" content="summary"/><meta name="twitter:title" content="DevBench — Developer Tools &amp; Calculators"/><meta name="twitter:description" content="Free developer tools for everyday use."/><link rel="icon" href="/favicon.svg"/><script src="/devbench-tech/_next/static/chunks/polyfills-42372ed130431b0a.js" noModule=""></script></head><body class="flex flex-col min-h-screen"><script type="application/ld+json">{"@context":"https://schema.org","@type":"WebSite","name":"DevBench","url":"https://devbench-roan.vercel.app","description":"Free developer tools for everyday use: JSON formatter, Base64 encoder/decoder, UUID generator, regex tester, benchmarks, and more.","potentialAction":{"@type":"SearchAction","target":"https://devbench-roan.vercel.app/tools?q={search_term_string}","query-input":"required name=search_term_string"}}</script><header class="sticky top-0 z-50 transition-all duration-300 bg-surface border-b border-transparent"><div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8"><div class="flex items-center justify-between h-16"><a class="flex items-center gap-2.5 group" href="/devbench-tech/"><div class="w-8 h-8 bg-brand-500 rounded-lg flex items-center justify-center group-hover:bg-brand-400 transition-colors"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-terminal w-4 h-4 text-white"><polyline points="4 17 10 11 4 5"></polyline><line x1="12" x2="20" y1="19" y2="19"></line></svg></div><span class="text-xl font-bold text-white tracking-tight">Dev<span class="gradient-text">Bench</span></span></a><nav class="hidden md:flex items-center gap-1"><a class="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 text-slate-400 hover:text-slate-200 hover:bg-surface-lighter" href="/devbench-tech/tools/"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-wrench w-4 h-4"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path></svg>Tools</a><a class="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 text-slate-400 hover:text-slate-200 hover:bg-surface-lighter" href="/devbench-tech/benchmarks/"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-bar-chart3 w-4 h-4"><path d="M3 3v18h18"></path><path d="M18 17V9"></path><path d="M13 17V5"></path><path d="M8 17v-3"></path></svg>Benchmarks</a><a class="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 bg-brand-500/10 text-brand-400" href="/devbench-tech/blog/"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-book-open w-4 h-4"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg>Blog</a><a class="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 text-slate-400 hover:text-slate-200 hover:bg-surface-lighter" href="/devbench-tech/about/"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-info w-4 h-4"><circle cx="12" cy="12" r="10"></circle><path d="M12 16v-4"></path><path d="M12 8h.01"></path></svg>About</a></nav><button class="md:hidden p-2 rounded-lg text-slate-400 hover:text-white hover:bg-surface-lighter transition-colors" aria-label="Toggle menu"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-menu w-5 h-5"><line x1="4" x2="20" y1="12" y2="12"></line><line x1="4" x2="20" y1="6" y2="6"></line><line x1="4" x2="20" y1="18" y2="18"></line></svg></button></div></div></header><main class="flex-1"><article class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-20"><script type="application/ld+json">{"@context":"https://schema.org","@type":"Article","headline":"Signals in 2026: Why Every Framework Is Converging on This One Primitive","description":"Solid, Preact, Vue, Angular, Svelte — every major framework is adopting signals as their core reactive primitive. TC39 has a Stage 1 proposal to standardize them in JavaScript itself. What are signals, why are they winning over hooks, observables, and dirty-checking, and how do they actually work under the hood? A deep technical dive into the reactive primitive that's reshaping frontend architecture in 2026.","datePublished":"2026-05-28","author":{"@type":"Organization","name":"DevBench"},"publisher":{"@type":"Organization","name":"DevBench","url":"https://devbench-roan.vercel.app"}}</script><script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://devbench-roan.vercel.app"},{"@type":"ListItem","position":2,"name":"Blog","item":"https://devbench-roan.vercel.app/blog"},{"@type":"ListItem","position":3,"name":"Signals in 2026: Why Every Framework Is Converging on This One Primitive"}]}</script><a class="inline-flex items-center gap-1.5 text-slate-400 hover:text-brand-400 text-sm transition-colors mb-8" href="/devbench-tech/blog/"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-arrow-left w-4 h-4"><path d="m12 19-7-7 7-7"></path><path d="M19 12H5"></path></svg>Back to Blog</a><header class="mb-10"><h1 class="text-3xl sm:text-4xl font-bold text-white leading-tight mb-4">Signals in 2026: Why Every Framework Is Converging on This One Primitive</h1><div class="flex flex-wrap items-center gap-4 text-sm text-slate-400"><span class="flex items-center gap-1.5"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-calendar w-4 h-4"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"></rect><line x1="16" x2="16" y1="2" y2="6"></line><line x1="8" x2="8" y1="2" y2="6"></line><line x1="3" x2="21" y1="10" y2="10"></line></svg>2026-05-28</span><div class="flex flex-wrap gap-1.5"><span class="badge-secondary flex items-center gap-1"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-tag w-3 h-3"><path d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"></path><path d="M7 7h.01"></path></svg>[&quot;Signals&quot;</span><span class="badge-secondary flex items-center gap-1"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-tag w-3 h-3"><path d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"></path><path d="M7 7h.01"></path></svg>&quot;SolidJS&quot;</span><span class="badge-secondary flex items-center gap-1"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-tag w-3 h-3"><path d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"></path><path d="M7 7h.01"></path></svg>&quot;Preact&quot;</span><span class="badge-secondary flex items-center gap-1"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-tag w-3 h-3"><path d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"></path><path d="M7 7h.01"></path></svg>&quot;Vue&quot;</span><span class="badge-secondary flex items-center gap-1"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-tag w-3 h-3"><path d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"></path><path d="M7 7h.01"></path></svg>&quot;Angular&quot;</span><span class="badge-secondary flex items-center gap-1"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-tag w-3 h-3"><path d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"></path><path d="M7 7h.01"></path></svg>&quot;Svelte&quot;</span><span class="badge-secondary flex items-center gap-1"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-tag w-3 h-3"><path d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"></path><path d="M7 7h.01"></path></svg>&quot;Reactivity&quot;</span><span class="badge-secondary flex items-center gap-1"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-tag w-3 h-3"><path d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"></path><path d="M7 7h.01"></path></svg>&quot;TC39&quot;</span><span class="badge-secondary flex items-center gap-1"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-tag w-3 h-3"><path d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"></path><path d="M7 7h.01"></path></svg>&quot;JavaScript&quot;</span><span class="badge-secondary flex items-center gap-1"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-tag w-3 h-3"><path d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"></path><path d="M7 7h.01"></path></svg>&quot;Web Platform&quot;</span><span class="badge-secondary flex items-center gap-1"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-tag w-3 h-3"><path d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"></path><path d="M7 7h.01"></path></svg>&quot;State Management&quot;</span><span class="badge-secondary flex items-center gap-1"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-tag w-3 h-3"><path d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"></path><path d="M7 7h.01"></path></svg>&quot;2026&quot;]</span></div></div></header><div class="blog-content prose-p:text-slate-300 prose-p:leading-relaxed prose-p:mb-4">
+<p class="post-p">
+In 2023, the Signals conversation was still fringe — SolidJS enthusiasts, a Preact add-on, an experimental Angular feature. In 2026, Signals are <strong>the</strong> reactive primitive. Every major framework ships them as a first-class API. TC39 is working on standardizing them directly into JavaScript. And an entire ecosystem of framework-agnostic signal libraries has emerged.
+</p>
+
+<p class="post-p">
+What happened? And more importantly — what <em>is</em> a signal, and why did it defeat hooks, observables, dirty-checking, and virtual DOM diffing to become the winner?
+</p>
+
+<h2 class="post-h2">What Is a Signal?</h2>
+
+<p class="post-p">
+At its most fundamental, a signal is three things:
+</p>
+
+<ul class="post-ul"><li class="post-li"><strong>A value container</strong> — it holds a piece of state</li>
+<li class="post-li"><strong>A getter</strong> — reading it subscribes you to changes</li>
+<li class="post-li"><strong>A setter</strong> — writing it notifies all subscribers</li>
+</ul>
+<pre class="code-block"><code class="language-javascript">// The simplest possible signal
+<p class="post-p">
+const [count, setCount] = createSignal(0);
+</p>
+
+<p class="post-p">
+console.log(count()); // 0 — read
+setCount(1);          // write — all subscribers re-run
+console.log(count()); // 1
+</code></pre>
+</p>
+
+<p class="post-p">
+That's it. No virtual DOM. No diffing. No scheduler. Just "I hold a value, and when you change it, everything that depends on it updates."
+</p>
+
+<p class="post-p">
+The magic is in <strong>automatic dependency tracking</strong>. You never manually subscribe. The signal system tracks which signals you read during a computation, and re-runs that computation only when those specific signals change.
+</p>
+
+<pre class="code-block"><code class="language-javascript">const [firstName, setFirstName] = createSignal('Ada');
+<p class="post-p">
+const [lastName, setLastName] = createSignal('Lovelace');
+</p>
+
+<p class="post-p">
+// This computation automatically subscribes to firstName and lastName
+const fullName = createMemo(() =&amp;gt; <code class="inline-code">${firstName()} ${lastName()}</code>);
+// fullName() === "Ada Lovelace"
+</p>
+
+<p class="post-p">
+setFirstName('Grace');
+// fullName() === "Grace Lovelace" — only fullName re-ran, nothing else
+</code></pre>
+</p>
+
+<p class="post-p">
+This is called <strong>fine-grained reactivity</strong>. Only the exact thing that changed re-renders. There is no re-render of a component tree, no reconciliation pass, no <code class="inline-code">useMemo</code> dependency arrays. The graph is precise.
+</p>
+
+<h2 class="post-h2">The Architecture: A Directed Acyclic Graph</h2>
+
+<p class="post-p">
+Under the hood, every signal system builds a <strong>dependency graph</strong>. When you read a signal inside a computation, an edge is added from that signal to the computation. When the signal changes, all downstream computations are marked dirty and re-evaluated.
+</p>
+
+<pre class="code-block"><code class="language-text">Signal A ──→ Memo C ──→ Effect D
+<p class="post-p">
+│
+└──→ Memo E ──→ Effect F
+</p>
+
+<p class="post-p">
+Signal B ──→ Memo E
+</code></pre>
+</p>
+
+<p class="post-p">
+Change Signal A → Memo C and Memo E re-evaluate → Effects D and F run. Signal B is untouched, Memo C is untouched by B's changes. This graph is a <strong>DAG</strong> (directed acyclic graph) — no cycles, no infinite loops, no cascading re-renders.
+</p>
+
+<p class="post-p">
+Compare to React's model: state change → re-render entire component tree → virtual DOM diff → patch real DOM. Even with memoization (<code class="inline-code">React.memo</code>, <code class="inline-code">useMemo</code>, <code class="inline-code">useCallback</code>), you're <strong>subtracting</strong> work from a full re-render. Signals <strong>add</strong> only the work that's actually needed.
+</p>
+
+<h3 class="post-h3">Push-Pull Hybrid</h3>
+
+<p class="post-p">
+Most signal implementations use a <strong>push-pull hybrid</strong> strategy:
+</p>
+
+<ul class="post-ul"><li class="post-li"><strong>Push phase</strong> (dirty marking): when Signal A changes, it marks all direct dependents as "dirty." This propagates transitively through the graph.</li>
+<li class="post-li"><strong>Pull phase</strong> (lazy evaluation): when an effect or memo is actually read, it checks if it's dirty. If so, it re-evaluates its sources, pulling fresh values. This is lazy — if nobody reads a dirty memo, it never re-evaluates.</li>
+</ul>
+<pre class="code-block"><code class="language-javascript">// Pseudo-implementation of the push-pull hybrid
+<p class="post-p">
+class Signal {
+#value;
+#subscribers = new Set();
+</p>
+
+<p class="post-p">
+constructor(initial) {
+this.#value = initial;
+}
+</p>
+
+<p class="post-p">
+get() {
+// Track that the current computation depends on this signal
+if (currentComputation) {
+this.#subscribers.add(currentComputation);
+currentComputation.sources.add(this);
+}
+return this.#value;
+}
+</p>
+
+<p class="post-p">
+set(newValue) {
+if (this.#value === newValue) return;
+this.#value = newValue;
+// PUSH: mark all dependents dirty
+for (const sub of this.#subscribers) sub.markDirty();
+}
+}
+</code></pre>
+</p>
+
+<p class="post-p">
+This hybrid approach means signals are both <strong>glitch-free</strong> (you never see intermediate inconsistent states) and <strong>lazy</strong> (you don't recalculate things nobody is reading).
+</p>
+
+<h2 class="post-h2">The Framework Landscape in 2026</h2>
+
+<h3 class="post-h3">SolidJS: The Reference Implementation</h3>
+
+<p class="post-p">
+Solid started the signals renaissance. Its implementation is the gold standard — Ryan Carniato's talks and articles are the canonical references. Solid proves that signals can power a full-featured framework with JSX, Suspense, and server-side rendering — all while being faster than vanilla JS in some benchmarks because it does less work.
+</p>
+
+<pre class="code-block"><code class="language-jsx">// Solid — signals are the default
+<p class="post-p">
+const [count, setCount] = createSignal(0);
+</p>
+
+<p class="post-p">
+// createMemo auto-tracks dependencies
+const doubled = createMemo(() =&amp;gt; count() * 2);
+</p>
+
+<p class="post-p">
+// createEffect runs when dependencies change
+createEffect(() =&amp;gt; {
+console.log(<code class="inline-code">Count is ${count()}, doubled is ${doubled()}</code>);
+});
+</p>
+
+<p class="post-p">
+return &amp;lt;button onClick={() =&amp;gt; setCount(c =&amp;gt; c + 1)}&amp;gt;
+{count()}
+&amp;lt;/button&amp;gt;;
+</code></pre>
+</p>
+
+<p class="post-p">
+Key insight: Solid's JSX compiles to direct DOM operations, not virtual DOM. <code class="inline-code">&lt;div&gt;{count()}&lt;/div&gt;</code> compiles to <code class="inline-code">div.textContent = count()</code> with an effect wrapping it. The template is static; only the dynamic parts are wrapped in reactive primitives.
+</p>
+
+<h3 class="post-h3">Preact Signals: Signals Without the Framework</h3>
+
+<p class="post-p">
+Preact's <code class="inline-code">@preact/signals</code> package is the most versatile — it works <strong>outside</strong> Preact components. You can use signals in vanilla JS, in React components, in Node.js — anywhere. This drove a lot of the "signals as a platform primitive" thinking.
+</p>
+
+<pre class="code-block"><code class="language-javascript">import { signal, computed, effect } from '@preact/signals-core';
+
+<p class="post-p">
+const name = signal('Ada');
+const greeting = computed(() =&amp;gt; <code class="inline-code">Hello, ${name.value}!</code>);
+</p>
+
+<p class="post-p">
+effect(() =&amp;gt; {
+console.log(greeting.value); // "Hello, Ada!"
+// Re-runs whenever name.value changes
+});
+</p>
+
+<p class="post-p">
+name.value = 'Grace'; // logs "Hello, Grace!"
+</code></pre>
+</p>
+
+<p class="post-p">
+The killer feature: <code class="inline-code">@preact/signals-react</code> lets you use signals <strong>inside React components</strong>. You get fine-grained reactivity without re-renders, while keeping the React ecosystem. The <code class="inline-code">useSignals()</code> hook or the Babel transform makes <code class="inline-code">.value</code> reads auto-subscribe.
+</p>
+
+<h3 class="post-h3">Vue 3: ref() and reactive() Are Signals</h3>
+
+<p class="post-p">
+Vue's Composition API was signal-based from the start — they just called them <code class="inline-code">ref()</code> and <code class="inline-code">reactive()</code>. The <code class="inline-code">ref()</code> is literally a signal (<code class="inline-code">.value</code> getter/setter with dependency tracking), and <code class="inline-code">computed()</code> is a memo. Vue's reactivity system has been refined since 2014 and is now battle-tested at the scale of billions of users.
+</p>
+
+<pre class="code-block"><code class="language-javascript">import { ref, computed, watchEffect } from 'vue';
+
+<p class="post-p">
+const count = ref(0);           // signal
+const doubled = computed(() =&amp;gt; count.value * 2); // memo
+</p>
+
+<p class="post-p">
+watchEffect(() =&amp;gt; {              // effect
+console.log(count.value, doubled.value);
+});
+</code></pre>
+</p>
+
+<p class="post-p">
+Vue 3's innovation was making signals work with <code class="inline-code">&lt;template&gt;</code> compilation — the compiler can statically analyze which signals a template reads and generate optimal update code, skipping the runtime dependency tracking entirely for static parts.
+</p>
+
+<h3 class="post-h3">Angular: Signals Replace Zone.js</h3>
+
+<p class="post-p">
+Angular's signals story is the most dramatic. Angular historically used Zone.js — it monkey-patched all async APIs (setTimeout, fetch, event listeners) to trigger change detection across the entire component tree. This was reliable but slow.
+</p>
+
+<p class="post-p">
+Angular 16-18 introduced signals as an opt-in alternative. Angular 19+ makes them the default. The <code class="inline-code">OnPush</code> change detection strategy is being replaced by signal-based components that only update when their signals change — no Zone.js required.
+</p>
+
+<pre class="code-block"><code class="language-typescript">@Component({
+<p class="post-p">
+template: <code class="inline-code">
+&amp;lt;button (click)="increment()"&amp;gt;{{ count() }}&amp;lt;/button&amp;gt;
+&amp;lt;p&amp;gt;Double: {{ doubled() }}&amp;lt;/p&amp;gt;
+</code>
+})
+class Counter {
+count = signal(0);
+doubled = computed(() =&amp;gt; this.count() * 2);
+</p>
+
+<p class="post-p">
+increment() {
+this.count.update(c =&amp;gt; c + 1);
+}
+}
+</code></pre>
+</p>
+
+<p class="post-p">
+The Angular team has publicly stated that signals are the future of Angular reactivity, and Zone.js will eventually be optional and then deprecated.
+</p>
+
+<h3 class="post-h3">Svelte 5: Runes Are Signals</h3>
+
+<p class="post-p">
+Svelte's transition is the most interesting because it's a <strong>breaking change</strong> to Svelte's philosophy. Svelte 1-4 used a compiler trick: <code class="inline-code">let count = 0</code> was reactive if it appeared in a <code class="inline-code">.svelte</code> file and was assigned to. The <code class="inline-code">$:</code> label syntax created reactive declarations.
+</p>
+
+<p class="post-p">
+Svelte 5 replaced this with <strong>runes</strong> — explicit signal-like primitives:
+</p>
+
+<pre class="code-block"><code class="language-svelte">&amp;lt;script&amp;gt;
+<p class="post-p">
+let count = $state(0);        // signal
+let doubled = $derived(count * 2); // memo
+</p>
+
+<p class="post-p">
+$effect(() =&amp;gt; {               // effect
+console.log(count, doubled);
+});
+&amp;lt;/script&amp;gt;
+</p>
+
+<p class="post-p">
+&amp;lt;button on:click={() =&amp;gt; count++}&amp;gt;
+{count}
+&amp;lt;/button&amp;gt;
+</code></pre>
+</p>
+
+<p class="post-p">
+The <code class="inline-code">$state()</code> rune is a signal. <code class="inline-code">$derived()</code> is a memo. <code class="inline-code">$effect()</code> is an effect. The Svelte team made the case that implicit reactivity (<code class="inline-code">let</code> just being reactive) was magical and confusing at scale — explicit signals are more predictable and tool-able.
+</p>
+
+<h3 class="post-h3">The TC39 Proposal: Signals in JavaScript</h3>
+
+<p class="post-p">
+The TC39 Signals proposal (Stage 1, championed by members of the Solid, Preact, Vue, Angular, Svelte, Ember, and Qwik teams) aims to standardize signals as a JavaScript primitive:
+</p>
+
+<pre class="code-block"><code class="language-javascript">// Proposed future JavaScript:
+<p class="post-p">
+const counter = new Signal.State(0);
+</p>
+
+<p class="post-p">
+// Reading creates a subscription when inside a computed context
+counter.get(); // 0
+</p>
+
+<p class="post-p">
+counter.set(1); // notifies all watchers
+</p>
+
+<p class="post-p">
+// Derived signals
+const doubled = new Signal.Computed(() =&amp;gt; counter.get() * 2);
+</p>
+
+<p class="post-p">
+// Watch for changes
+const watcher = new Signal.subtle.Watcher(() =&amp;gt; {
+console.log(<code class="inline-code">Counter changed to ${counter.get()}</code>);
+});
+</code></pre>
+</p>
+
+<p class="post-p">
+The proposal is explicitly designed to be a <strong>low-level primitive</strong> that frameworks build on top of — not a user-facing API. The goal is interoperability: a signal created by one framework could be consumed by another. A Preact signal could drive a Lit component. A Solid signal could feed a vanilla JS effect.
+</p>
+
+<p class="post-p">
+This is the same pattern as <code class="inline-code">CustomEvent</code>, <code class="inline-code">AbortSignal</code>, and <code class="inline-code">Promise</code> — platform primitives that ecosystem tools standardize around. If this lands (likely Stage 2 in 2026, Stage 3 in 2027), it reshapes the framework landscape permanently.
+</p>
+
+<h2 class="post-h2">Why Signals Won</h2>
+
+<h3 class="post-h3">1. The Performance Ceiling Is Higher</h3>
+
+<p class="post-p">
+React's model has a fundamental limit: every state change triggers a re-render of the owning component and its subtree. You can optimize with <code class="inline-code">memo</code>, <code class="inline-code">useMemo</code>, and <code class="inline-code">useCallback</code>, but these are <strong>manual escape hatches</strong> — you're carving exceptions out of the default full re-render.
+</p>
+
+<p class="post-p">
+Signals don't have this ceiling. The default is zero wasted work. The graph is precise from the start. There is no subtree re-render to optimize away.
+</p>
+
+<pre class="code-block"><code class="language-javascript">// React: changing 'name' re-renders entire component,
+<p class="post-p">
+// then memo and useMemo prevent downstream re-renders
+function Profile({ user }) {
+const [name, setName] = useState(user.name);
+const [bio, setBio] = useState(user.bio);
+</p>
+
+<p class="post-p">
+// Every state change re-runs this entire function body
+// useMemo prevents Header from re-rendering if deps unchanged
+return (
+&amp;lt;div&amp;gt;
+&amp;lt;Header name={name} /&amp;gt;
+&amp;lt;Bio bio={bio} /&amp;gt;
+&amp;lt;/div&amp;gt;
+);
+}
+</p>
+
+<p class="post-p">
+// Signals: changing name.update() ONLY updates the &amp;lt;h1&amp;gt; textContent
+// Nothing else runs. Profile() was called once at setup.
+function Profile() {
+const name = signal('Ada');
+const bio = signal('Programmer');
+</p>
+
+<p class="post-p">
+return (
+&amp;lt;div&amp;gt;
+&amp;lt;h1&amp;gt;{name}&amp;lt;/h1&amp;gt;   {/<em> Only this node updates when name changes </em>/}
+&amp;lt;p&amp;gt;{bio}&amp;lt;/p&amp;gt;       {/<em> Only this node updates when bio changes </em>/}
+&amp;lt;/div&amp;gt;
+);
+}
+</code></pre>
+</p>
+
+<h3 class="post-h3">2. The Mental Model Is Simpler</h3>
+
+<p class="post-p">
+Hooks introduced a new mental model: the dependency array. <code class="inline-code">useEffect(fn, [dep1, dep2])</code>. Get the deps wrong, and you have stale closures. Forget a dep, and you have a bug. ESLint's <code class="inline-code">exhaustive-deps</code> rule catches most of them, but the cognitive overhead is real.
+</p>
+
+<p class="post-p">
+Signals eliminate dependency arrays entirely. The system automatically tracks what you read. No <code class="inline-code">[dep1, dep2]</code>. No stale closures. No <code class="inline-code">useCallback</code> to stabilize function references.
+</p>
+
+<pre class="code-block"><code class="language-javascript">// React: manual dependency arrays
+<p class="post-p">
+useEffect(() =&amp;gt; {
+fetchUser(id).then(setUser);
+}, [id]); // ← don't forget this
+</p>
+
+<p class="post-p">
+// Signals: automatic tracking
+createEffect(() =&amp;gt; {
+fetchUser(id()).then(user.set); // reads id(), auto-subscribes
+});
+</code></pre>
+</p>
+
+<h3 class="post-h3">3. Framework Interop Is Possible</h3>
+
+<p class="post-p">
+A standardized signal primitive means cross-framework reactivity. Imagine:
+</p>
+
+<ul class="post-ul"><li class="post-li">A design system component library built with signals that works in React, Vue, and Solid without wrapper components</li>
+<li class="post-li">State management that spans micro-frontends built with different frameworks</li>
+<li class="post-li">Browser DevTools with a unified "Signals" panel showing the reactive graph, across all frameworks</li>
+</ul>
+<p class="post-p">
+The TC39 proposal makes this a reality. Like <code class="inline-code">Promise</code> unified async patterns (callbacks, events, streams all interoperate through Promises), <code class="inline-code">Signal</code> would unify reactivity patterns.
+</p>
+
+<h2 class="post-h2">The Counter-Arguments</h2>
+
+<p class="post-p">
+Signals aren't without critics, and the critique is worth understanding:
+</p>
+
+<h3 class="post-h3">"Unidirectional Data Flow Is Simpler"</h3>
+
+<p class="post-p">
+React's model has a clear rule: data flows down, events flow up. The re-render-from-root model means the UI is a pure function of state: <code class="inline-code">UI = f(state)</code>. You can always reason about what's on screen by looking at state.
+</p>
+
+<p class="post-p">
+Signals allow arbitrary connections in the dependency graph. A signal deep in the tree can drive an effect at the top. This is powerful but can create spaghetti graphs that are hard to debug.
+</p>
+
+<p class="post-p">
+The counter-counter-argument: this is already true in any complex React app with context, Redux, or Zustand. A context change at the top triggers re-renders everywhere. Signals just make the graph explicit and inspectable instead of implicit through component composition.
+</p>
+
+<h3 class="post-h3">"It's Just Another Thing to Learn"</h3>
+
+<p class="post-p">
+Valid. Signals add <code class="inline-code">.value</code> or <code class="inline-code">()</code> getter/setter patterns. They add <code class="inline-code">createEffect</code>, <code class="inline-code">createMemo</code>, <code class="inline-code">untrack</code>, and <code class="inline-code">batch</code> APIs. The API surface is non-trivial.
+</p>
+
+<p class="post-p">
+But the counter-argument: hooks were also "another thing to learn" in 2019. Class components to hooks was a bigger mental-model shift than hooks to signals. And signals map directly to concepts developers already understand: getter/setter properties, computed properties, observers.
+</p>
+
+<h3 class="post-h3">"React Is Adding a Compiler, Not Signals"</h3>
+
+<p class="post-p">
+React's direction is React Compiler (formerly React Forget) — automatic memoization at compile time rather than signals. The argument: you keep the <code class="inline-code">UI = f(state)</code> model, and the compiler handles the optimization. No new primitives to learn.
+</p>
+
+<p class="post-p">
+This is a valid architectural difference. React is betting that static analysis can optimize re-renders enough to make signals unnecessary. The signals ecosystem is betting that fine-grained reactivity at the primitive level is fundamentally more scalable. Both are being proven out in 2026.
+</p>
+
+<h2 class="post-h2">The Ecosystem in 2026</h2>
+
+<p class="post-p">
+Beyond the frameworks, a rich signal ecosystem has emerged:
+</p>
+
+<p class="post-p">
+| Library | Description |
+|---------|-------------|
+| <strong>@preact/signals-core</strong> | Framework-agnostic signal implementation. The most portable. |
+| <strong>signal-utils</strong> (TC39) | Polyfill for the proposed TC39 Signal API |
+| <strong>starbeam</strong> | Universal reactivity by the Ember/Glimmer team. Works in any framework. |
+| <strong>alien-signals</strong> | Ultra-lightweight (sub-1KB) signals by the Vue team. Designed for embedding. |
+| <strong>tanstack-store</strong> | Signals-based state management from the TanStack team. Works with React, Solid, Vue. |
+| <strong>valtio-signals</strong> | Proxy-based signals from the Valtio/Zustand team |
+| <strong>legend-state</strong> | Optimized signals with built-in persistence and sync |
+</p>
+
+<p class="post-p">
+The pattern is clear: framework authors are racing to own the signal primitive, while library authors are building framework-agnostic solutions on top.
+</p>
+
+<h2 class="post-h2">Should You Adopt Signals in 2026?</h2>
+
+<p class="post-p">
+The answer depends on your context:
+</p>
+
+<p class="post-p">
+<strong>If you're on React:</strong> You don't have to switch. React Compiler will handle a lot of the optimization pain. But you can use <code class="inline-code">@preact/signals-react</code> to get fine-grained reactivity in specific hot paths — large lists, real-time dashboards, canvas-heavy apps — without changing your architecture. It's an opt-in optimization, not a rewrite.
+</p>
+
+<p class="post-p">
+<strong>If you're starting a new project:</strong> Consider Solid, or Vue with signals mode. The performance characteristics and mental model are genuinely better for many use cases. If you're building a highly interactive app (dashboards, editors, real-time collaboration), signals are a strong default.
+</p>
+
+<p class="post-p">
+<strong>If you're maintaining an existing app:</strong> Don't rewrite. But do learn signals — the concepts are flowing into every framework, and the TC39 proposal means they'll be a platform primitive within a few years. Understanding the dependency graph, push-pull evaluation, and glitch-free updates will make you a better developer regardless of framework.
+</p>
+
+<p class="post-p">
+<strong>For library authors:</strong> Start thinking about signals-based APIs. A state management library, a form library, or a data-fetching library built on signals works across frameworks. This is where the ecosystem is heading.
+</p>
+
+<h2 class="post-h2">The Big Picture</h2>
+
+<p class="post-p">
+Signals winning is part of a larger trend: <strong>the platform is catching up to frameworks</strong>. CSS now has nesting, container queries, anchor positioning, scroll-driven animations, and View Transitions. HTML has <code class="inline-code">&lt;dialog&gt;</code>, <code class="inline-code">&lt;popover&gt;</code>, and the inert attribute. JavaScript is getting signals, decorators, and records &amp; tuples.
+</p>
+
+<p class="post-p">
+The frameworks that win in this environment are the ones that lean into platform primitives — not the ones that build on top of them and abstract them away. Signals are the reactivity layer of that platform. The framework wars aren't over, but the battle over the reactivity primitive is. Signals won.
+</p>
+</div><style>
+        .blog-content .post-h1 { font-size: 1.75rem; font-weight: 700; color: #ffffff; margin-top: 2rem; margin-bottom: 1rem; }
+        .blog-content .post-h2 { font-size: 1.5rem; font-weight: 600; color: #f1f5f9; margin-top: 1.75rem; margin-bottom: 0.75rem; padding-bottom: 0.5rem; border-bottom: 1px solid #334155; }
+        .blog-content .post-h3 { font-size: 1.25rem; font-weight: 600; color: #e2e8f0; margin-top: 1.5rem; margin-bottom: 0.5rem; }
+        .blog-content .post-h4 { font-size: 1.1rem; font-weight: 600; color: #e2e8f0; margin-top: 1.25rem; margin-bottom: 0.5rem; }
+        .blog-content .post-p { color: #cbd5e1; line-height: 1.75; margin-bottom: 1rem; }
+        .blog-content .code-block { background: #0f172a; border: 1px solid #334155; border-radius: 0.5rem; padding: 1rem; overflow-x: auto; margin: 1rem 0; font-family: 'JetBrains Mono', monospace; font-size: 0.875rem; color: #e2e8f0; }
+        .blog-content .inline-code { background: #1e293b; color: #38bdf8; padding: 0.15rem 0.4rem; border-radius: 0.25rem; font-family: 'JetBrains Mono', monospace; font-size: 0.875em; }
+        .blog-content .post-link { color: #38bdf8; text-decoration: underline; transition: color 0.2s; }
+        .blog-content .post-link:hover { color: #7dd3fc; }
+        .blog-content .post-ul { list-style: disc; padding-left: 1.5rem; margin: 0.75rem 0; color: #cbd5e1; }
+        .blog-content .post-li { margin-bottom: 0.25rem; line-height: 1.6; }
+        .blog-content .post-blockquote { border-left: 3px solid #0ea5e9; padding: 0.5rem 1rem; margin: 1rem 0; background: rgba(14, 165, 233, 0.05); border-radius: 0 0.5rem 0.5rem 0; }
+        .blog-content .post-blockquote p { color: #94a3b8; font-style: italic; }
+        .blog-content .post-hr { border: none; border-top: 1px solid #334155; margin: 2rem 0; }
+        .blog-content strong { color: #f1f5f9; font-weight: 600; }
+        .blog-content em { font-style: italic; }
+        </style></article></main><footer class="bg-surface-light border-t border-slate-700/50 mt-auto"><div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12"><div class="grid grid-cols-1 md:grid-cols-3 gap-8"><div><a class="flex items-center gap-2.5 mb-3" href="/devbench-tech/"><div class="w-7 h-7 bg-brand-500 rounded-lg flex items-center justify-center"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-terminal w-3.5 h-3.5 text-white"><polyline points="4 17 10 11 4 5"></polyline><line x1="12" x2="20" y1="19" y2="19"></line></svg></div><span class="text-lg font-bold text-white">Dev<span class="gradient-text">Bench</span></span></a><p class="text-slate-400 text-sm leading-relaxed">Free developer tools, benchmarks, and calculators. Built for developers, by developers.</p></div><div><h3 class="text-sm font-semibold text-slate-300 uppercase tracking-wider mb-4">Tools</h3><ul class="space-y-2"><li><a class="text-slate-400 hover:text-brand-400 text-sm transition-colors" href="/devbench-tech/tools/json-formatter/">JSON Formatter</a></li><li><a class="text-slate-400 hover:text-brand-400 text-sm transition-colors" href="/devbench-tech/tools/base64/">Base64 Encoder/Decoder</a></li><li><a class="text-slate-400 hover:text-brand-400 text-sm transition-colors" href="/devbench-tech/tools/uuid-generator/">UUID Generator</a></li><li><a class="text-slate-400 hover:text-brand-400 text-sm transition-colors" href="/devbench-tech/tools/regex-tester/">Regex Tester</a></li></ul></div><div><h3 class="text-sm font-semibold text-slate-300 uppercase tracking-wider mb-4">Resources</h3><ul class="space-y-2"><li><a class="text-slate-400 hover:text-brand-400 text-sm transition-colors" href="/devbench-tech/blog/">Blog</a></li><li><a class="text-slate-400 hover:text-brand-400 text-sm transition-colors" href="/devbench-tech/benchmarks/">Benchmarks</a></li><li><a class="text-slate-400 hover:text-brand-400 text-sm transition-colors" href="/devbench-tech/about/">About</a></li></ul></div></div><div class="mt-10 pt-6 border-t border-slate-700/50 flex flex-col sm:flex-row items-center justify-between gap-4"><p class="text-slate-500 text-sm flex items-center gap-1">Made with <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-heart w-3.5 h-3.5 text-red-500 fill-red-500"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"></path></svg> by the DevBench team © <!-- -->2026</p><a href="https://github.com" target="_blank" rel="noopener noreferrer" class="text-slate-500 hover:text-slate-300 transition-colors" aria-label="GitHub"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-github w-5 h-5"><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"></path><path d="M9 18c-4.51 2-5-2-7-2"></path></svg></a></div></div></footer><div data-rht-toaster="" style="position:fixed;z-index:9999;top:16px;left:16px;right:16px;bottom:16px;pointer-events:none"></div><script src="/devbench-tech/_next/static/chunks/webpack-b521a83317325026.js" async=""></script><script>(self.__next_f=self.__next_f||[]).push([0]);self.__next_f.push([2,null])</script><script>self.__next_f.push([1,"1:HL[\"/devbench-tech/_next/static/css/c877e59dbcb00f11.css\",\"style\"]\n"])</script><script>self.__next_f.push([1,"2:I[12846,[],\"\"]\n4:I[72972,[\"2972\",\"static/chunks/2972-4aaa15d119eeb022.js\",\"308\",\"static/chunks/app/blog/%5Bslug%5D/page-a411190e7012c687.js\"],\"\"]\n7:I[4707,[],\"\"]\n9:I[36423,[],\"\"]\na:I[39295,[\"9762\",\"static/chunks/44530001-4ecf7a22b5b24163.js\",\"2972\",\"static/chunks/2972-4aaa15d119eeb022.js\",\"8375\",\"static/chunks/8375-c77b8de36f6696fb.js\",\"6829\",\"static/chunks/6829-f51803445ddf1872.js\",\"3185\",\"static/chunks/app/layout-488e5c40aa6ffa72.js\"],\"Header\"]\nb:I[66506,[\"9762\",\"static/chunks/44530001-4ecf7a22b5b24163.js\",\"2972\",\"static/chunks/2972-4aaa15d119eeb022.js\",\"8375\",\"static/chunks/8375-c77b8de36f6696fb.js\",\"6829\",\"static/chunks/6829-f51803445ddf1872.js\",\"3185\",\"static/chunks/app/layout-488e5c40aa6ffa72.js\"],\"Analytics\"]\nc:I[69064,[\"9762\",\"static/chunks/44530001-4ecf7a22b5b24163.js\",\"2972\",\"static/chunks/2972-4aaa15d119eeb022.js\",\"8375\",\"static/chunks/8375-c77b8de36f6696fb.js\",\"6829\",\"static/chunks/6829-f51803445ddf1872.js\",\"3185\",\"static/chunks/app/layout-488e5c40aa6ffa72.js\"],\"Toaster\"]\ne:I[61060,[],\"\"]\n5:T5aff,"])</script><script>self.__next_f.push([1,"\n\u003cp class=\"post-p\"\u003e\nIn 2023, the Signals conversation was still fringe — SolidJS enthusiasts, a Preact add-on, an experimental Angular feature. In 2026, Signals are \u003cstrong\u003ethe\u003c/strong\u003e reactive primitive. Every major framework ships them as a first-class API. TC39 is working on standardizing them directly into JavaScript. And an entire ecosystem of framework-agnostic signal libraries has emerged.\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\nWhat happened? And more importantly — what \u003cem\u003eis\u003c/em\u003e a signal, and why did it defeat hooks, observables, dirty-checking, and virtual DOM diffing to become the winner?\n\u003c/p\u003e\n\n\u003ch2 class=\"post-h2\"\u003eWhat Is a Signal?\u003c/h2\u003e\n\n\u003cp class=\"post-p\"\u003e\nAt its most fundamental, a signal is three things:\n\u003c/p\u003e\n\n\u003cul class=\"post-ul\"\u003e\u003cli class=\"post-li\"\u003e\u003cstrong\u003eA value container\u003c/strong\u003e — it holds a piece of state\u003c/li\u003e\n\u003cli class=\"post-li\"\u003e\u003cstrong\u003eA getter\u003c/strong\u003e — reading it subscribes you to changes\u003c/li\u003e\n\u003cli class=\"post-li\"\u003e\u003cstrong\u003eA setter\u003c/strong\u003e — writing it notifies all subscribers\u003c/li\u003e\n\u003c/ul\u003e\n\u003cpre class=\"code-block\"\u003e\u003ccode class=\"language-javascript\"\u003e// The simplest possible signal\n\u003cp class=\"post-p\"\u003e\nconst [count, setCount] = createSignal(0);\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\nconsole.log(count()); // 0 — read\nsetCount(1);          // write — all subscribers re-run\nconsole.log(count()); // 1\n\u003c/code\u003e\u003c/pre\u003e\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\nThat's it. No virtual DOM. No diffing. No scheduler. Just \"I hold a value, and when you change it, everything that depends on it updates.\"\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\nThe magic is in \u003cstrong\u003eautomatic dependency tracking\u003c/strong\u003e. You never manually subscribe. The signal system tracks which signals you read during a computation, and re-runs that computation only when those specific signals change.\n\u003c/p\u003e\n\n\u003cpre class=\"code-block\"\u003e\u003ccode class=\"language-javascript\"\u003econst [firstName, setFirstName] = createSignal('Ada');\n\u003cp class=\"post-p\"\u003e\nconst [lastName, setLastName] = createSignal('Lovelace');\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n// This computation automatically subscribes to firstName and lastName\nconst fullName = createMemo(() =\u0026amp;gt; \u003ccode class=\"inline-code\"\u003e${firstName()} ${lastName()}\u003c/code\u003e);\n// fullName() === \"Ada Lovelace\"\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\nsetFirstName('Grace');\n// fullName() === \"Grace Lovelace\" — only fullName re-ran, nothing else\n\u003c/code\u003e\u003c/pre\u003e\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\nThis is called \u003cstrong\u003efine-grained reactivity\u003c/strong\u003e. Only the exact thing that changed re-renders. There is no re-render of a component tree, no reconciliation pass, no \u003ccode class=\"inline-code\"\u003euseMemo\u003c/code\u003e dependency arrays. The graph is precise.\n\u003c/p\u003e\n\n\u003ch2 class=\"post-h2\"\u003eThe Architecture: A Directed Acyclic Graph\u003c/h2\u003e\n\n\u003cp class=\"post-p\"\u003e\nUnder the hood, every signal system builds a \u003cstrong\u003edependency graph\u003c/strong\u003e. When you read a signal inside a computation, an edge is added from that signal to the computation. When the signal changes, all downstream computations are marked dirty and re-evaluated.\n\u003c/p\u003e\n\n\u003cpre class=\"code-block\"\u003e\u003ccode class=\"language-text\"\u003eSignal A ──→ Memo C ──→ Effect D\n\u003cp class=\"post-p\"\u003e\n│\n└──→ Memo E ──→ Effect F\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\nSignal B ──→ Memo E\n\u003c/code\u003e\u003c/pre\u003e\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\nChange Signal A → Memo C and Memo E re-evaluate → Effects D and F run. Signal B is untouched, Memo C is untouched by B's changes. This graph is a \u003cstrong\u003eDAG\u003c/strong\u003e (directed acyclic graph) — no cycles, no infinite loops, no cascading re-renders.\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\nCompare to React's model: state change → re-render entire component tree → virtual DOM diff → patch real DOM. Even with memoization (\u003ccode class=\"inline-code\"\u003eReact.memo\u003c/code\u003e, \u003ccode class=\"inline-code\"\u003euseMemo\u003c/code\u003e, \u003ccode class=\"inline-code\"\u003euseCallback\u003c/code\u003e), you're \u003cstrong\u003esubtracting\u003c/strong\u003e work from a full re-render. Signals \u003cstrong\u003eadd\u003c/strong\u003e only the work that's actually needed.\n\u003c/p\u003e\n\n\u003ch3 class=\"post-h3\"\u003ePush-Pull Hybrid\u003c/h3\u003e\n\n\u003cp class=\"post-p\"\u003e\nMost signal implementations use a \u003cstrong\u003epush-pull hybrid\u003c/strong\u003e strategy:\n\u003c/p\u003e\n\n\u003cul class=\"post-ul\"\u003e\u003cli class=\"post-li\"\u003e\u003cstrong\u003ePush phase\u003c/strong\u003e (dirty marking): when Signal A changes, it marks all direct dependents as \"dirty.\" This propagates transitively through the graph.\u003c/li\u003e\n\u003cli class=\"post-li\"\u003e\u003cstrong\u003ePull phase\u003c/strong\u003e (lazy evaluation): when an effect or memo is actually read, it checks if it's dirty. If so, it re-evaluates its sources, pulling fresh values. This is lazy — if nobody reads a dirty memo, it never re-evaluates.\u003c/li\u003e\n\u003c/ul\u003e\n\u003cpre class=\"code-block\"\u003e\u003ccode class=\"language-javascript\"\u003e// Pseudo-implementation of the push-pull hybrid\n\u003cp class=\"post-p\"\u003e\nclass Signal {\n#value;\n#subscribers = new Set();\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\nconstructor(initial) {\nthis.#value = initial;\n}\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\nget() {\n// Track that the current computation depends on this signal\nif (currentComputation) {\nthis.#subscribers.add(currentComputation);\ncurrentComputation.sources.add(this);\n}\nreturn this.#value;\n}\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\nset(newValue) {\nif (this.#value === newValue) return;\nthis.#value = newValue;\n// PUSH: mark all dependents dirty\nfor (const sub of this.#subscribers) sub.markDirty();\n}\n}\n\u003c/code\u003e\u003c/pre\u003e\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\nThis hybrid approach means signals are both \u003cstrong\u003eglitch-free\u003c/strong\u003e (you never see intermediate inconsistent states) and \u003cstrong\u003elazy\u003c/strong\u003e (you don't recalculate things nobody is reading).\n\u003c/p\u003e\n\n\u003ch2 class=\"post-h2\"\u003eThe Framework Landscape in 2026\u003c/h2\u003e\n\n\u003ch3 class=\"post-h3\"\u003eSolidJS: The Reference Implementation\u003c/h3\u003e\n\n\u003cp class=\"post-p\"\u003e\nSolid started the signals renaissance. Its implementation is the gold standard — Ryan Carniato's talks and articles are the canonical references. Solid proves that signals can power a full-featured framework with JSX, Suspense, and server-side rendering — all while being faster than vanilla JS in some benchmarks because it does less work.\n\u003c/p\u003e\n\n\u003cpre class=\"code-block\"\u003e\u003ccode class=\"language-jsx\"\u003e// Solid — signals are the default\n\u003cp class=\"post-p\"\u003e\nconst [count, setCount] = createSignal(0);\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n// createMemo auto-tracks dependencies\nconst doubled = createMemo(() =\u0026amp;gt; count() * 2);\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n// createEffect runs when dependencies change\ncreateEffect(() =\u0026amp;gt; {\nconsole.log(\u003ccode class=\"inline-code\"\u003eCount is ${count()}, doubled is ${doubled()}\u003c/code\u003e);\n});\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\nreturn \u0026amp;lt;button onClick={() =\u0026amp;gt; setCount(c =\u0026amp;gt; c + 1)}\u0026amp;gt;\n{count()}\n\u0026amp;lt;/button\u0026amp;gt;;\n\u003c/code\u003e\u003c/pre\u003e\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\nKey insight: Solid's JSX compiles to direct DOM operations, not virtual DOM. \u003ccode class=\"inline-code\"\u003e\u0026lt;div\u0026gt;{count()}\u0026lt;/div\u0026gt;\u003c/code\u003e compiles to \u003ccode class=\"inline-code\"\u003ediv.textContent = count()\u003c/code\u003e with an effect wrapping it. The template is static; only the dynamic parts are wrapped in reactive primitives.\n\u003c/p\u003e\n\n\u003ch3 class=\"post-h3\"\u003ePreact Signals: Signals Without the Framework\u003c/h3\u003e\n\n\u003cp class=\"post-p\"\u003e\nPreact's \u003ccode class=\"inline-code\"\u003e@preact/signals\u003c/code\u003e package is the most versatile — it works \u003cstrong\u003eoutside\u003c/strong\u003e Preact components. You can use signals in vanilla JS, in React components, in Node.js — anywhere. This drove a lot of the \"signals as a platform primitive\" thinking.\n\u003c/p\u003e\n\n\u003cpre class=\"code-block\"\u003e\u003ccode class=\"language-javascript\"\u003eimport { signal, computed, effect } from '@preact/signals-core';\n\n\u003cp class=\"post-p\"\u003e\nconst name = signal('Ada');\nconst greeting = computed(() =\u0026amp;gt; \u003ccode class=\"inline-code\"\u003eHello, ${name.value}!\u003c/code\u003e);\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\neffect(() =\u0026amp;gt; {\nconsole.log(greeting.value); // \"Hello, Ada!\"\n// Re-runs whenever name.value changes\n});\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\nname.value = 'Grace'; // logs \"Hello, Grace!\"\n\u003c/code\u003e\u003c/pre\u003e\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\nThe killer feature: \u003ccode class=\"inline-code\"\u003e@preact/signals-react\u003c/code\u003e lets you use signals \u003cstrong\u003einside React components\u003c/strong\u003e. You get fine-grained reactivity without re-renders, while keeping the React ecosystem. The \u003ccode class=\"inline-code\"\u003euseSignals()\u003c/code\u003e hook or the Babel transform makes \u003ccode class=\"inline-code\"\u003e.value\u003c/code\u003e reads auto-subscribe.\n\u003c/p\u003e\n\n\u003ch3 class=\"post-h3\"\u003eVue 3: ref() and reactive() Are Signals\u003c/h3\u003e\n\n\u003cp class=\"post-p\"\u003e\nVue's Composition API was signal-based from the start — they just called them \u003ccode class=\"inline-code\"\u003eref()\u003c/code\u003e and \u003ccode class=\"inline-code\"\u003ereactive()\u003c/code\u003e. The \u003ccode class=\"inline-code\"\u003eref()\u003c/code\u003e is literally a signal (\u003ccode class=\"inline-code\"\u003e.value\u003c/code\u003e getter/setter with dependency tracking), and \u003ccode class=\"inline-code\"\u003ecomputed()\u003c/code\u003e is a memo. Vue's reactivity system has been refined since 2014 and is now battle-tested at the scale of billions of users.\n\u003c/p\u003e\n\n\u003cpre class=\"code-block\"\u003e\u003ccode class=\"language-javascript\"\u003eimport { ref, computed, watchEffect } from 'vue';\n\n\u003cp class=\"post-p\"\u003e\nconst count = ref(0);           // signal\nconst doubled = computed(() =\u0026amp;gt; count.value * 2); // memo\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\nwatchEffect(() =\u0026amp;gt; {              // effect\nconsole.log(count.value, doubled.value);\n});\n\u003c/code\u003e\u003c/pre\u003e\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\nVue 3's innovation was making signals work with \u003ccode class=\"inline-code\"\u003e\u0026lt;template\u0026gt;\u003c/code\u003e compilation — the compiler can statically analyze which signals a template reads and generate optimal update code, skipping the runtime dependency tracking entirely for static parts.\n\u003c/p\u003e\n\n\u003ch3 class=\"post-h3\"\u003eAngular: Signals Replace Zone.js\u003c/h3\u003e\n\n\u003cp class=\"post-p\"\u003e\nAngular's signals story is the most dramatic. Angular historically used Zone.js — it monkey-patched all async APIs (setTimeout, fetch, event listeners) to trigger change detection across the entire component tree. This was reliable but slow.\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\nAngular 16-18 introduced signals as an opt-in alternative. Angular 19+ makes them the default. The \u003ccode class=\"inline-code\"\u003eOnPush\u003c/code\u003e change detection strategy is being replaced by signal-based components that only update when their signals change — no Zone.js required.\n\u003c/p\u003e\n\n\u003cpre class=\"code-block\"\u003e\u003ccode class=\"language-typescript\"\u003e@Component({\n\u003cp class=\"post-p\"\u003e\ntemplate: \u003ccode class=\"inline-code\"\u003e\n\u0026amp;lt;button (click)=\"increment()\"\u0026amp;gt;{{ count() }}\u0026amp;lt;/button\u0026amp;gt;\n\u0026amp;lt;p\u0026amp;gt;Double: {{ doubled() }}\u0026amp;lt;/p\u0026amp;gt;\n\u003c/code\u003e\n})\nclass Counter {\ncount = signal(0);\ndoubled = computed(() =\u0026amp;gt; this.count() * 2);\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\nincrement() {\nthis.count.update(c =\u0026amp;gt; c + 1);\n}\n}\n\u003c/code\u003e\u003c/pre\u003e\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\nThe Angular team has publicly stated that signals are the future of Angular reactivity, and Zone.js will eventually be optional and then deprecated.\n\u003c/p\u003e\n\n\u003ch3 class=\"post-h3\"\u003eSvelte 5: Runes Are Signals\u003c/h3\u003e\n\n\u003cp class=\"post-p\"\u003e\nSvelte's transition is the most interesting because it's a \u003cstrong\u003ebreaking change\u003c/strong\u003e to Svelte's philosophy. Svelte 1-4 used a compiler trick: \u003ccode class=\"inline-code\"\u003elet count = 0\u003c/code\u003e was reactive if it appeared in a \u003ccode class=\"inline-code\"\u003e.svelte\u003c/code\u003e file and was assigned to. The \u003ccode class=\"inline-code\"\u003e$:\u003c/code\u003e label syntax created reactive declarations.\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\nSvelte 5 replaced this with \u003cstrong\u003erunes\u003c/strong\u003e — explicit signal-like primitives:\n\u003c/p\u003e\n\n\u003cpre class=\"code-block\"\u003e\u003ccode class=\"language-svelte\"\u003e\u0026amp;lt;script\u0026amp;gt;\n\u003cp class=\"post-p\"\u003e\nlet count = $state(0);        // signal\nlet doubled = $derived(count * 2); // memo\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n$effect(() =\u0026amp;gt; {               // effect\nconsole.log(count, doubled);\n});\n\u0026amp;lt;/script\u0026amp;gt;\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n\u0026amp;lt;button on:click={() =\u0026amp;gt; count++}\u0026amp;gt;\n{count}\n\u0026amp;lt;/button\u0026amp;gt;\n\u003c/code\u003e\u003c/pre\u003e\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\nThe \u003ccode class=\"inline-code\"\u003e$state()\u003c/code\u003e rune is a signal. \u003ccode class=\"inline-code\"\u003e$derived()\u003c/code\u003e is a memo. \u003ccode class=\"inline-code\"\u003e$effect()\u003c/code\u003e is an effect. The Svelte team made the case that implicit reactivity (\u003ccode class=\"inline-code\"\u003elet\u003c/code\u003e just being reactive) was magical and confusing at scale — explicit signals are more predictable and tool-able.\n\u003c/p\u003e\n\n\u003ch3 class=\"post-h3\"\u003eThe TC39 Proposal: Signals in JavaScript\u003c/h3\u003e\n\n\u003cp class=\"post-p\"\u003e\nThe TC39 Signals proposal (Stage 1, championed by members of the Solid, Preact, Vue, Angular, Svelte, Ember, and Qwik teams) aims to standardize signals as a JavaScript primitive:\n\u003c/p\u003e\n\n\u003cpre class=\"code-block\"\u003e\u003ccode class=\"language-javascript\"\u003e// Proposed future JavaScript:\n\u003cp class=\"post-p\"\u003e\nconst counter = new Signal.State(0);\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n// Reading creates a subscription when inside a computed context\ncounter.get(); // 0\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\ncounter.set(1); // notifies all watchers\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n// Derived signals\nconst doubled = new Signal.Computed(() =\u0026amp;gt; counter.get() * 2);\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n// Watch for changes\nconst watcher = new Signal.subtle.Watcher(() =\u0026amp;gt; {\nconsole.log(\u003ccode class=\"inline-code\"\u003eCounter changed to ${counter.get()}\u003c/code\u003e);\n});\n\u003c/code\u003e\u003c/pre\u003e\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\nThe proposal is explicitly designed to be a \u003cstrong\u003elow-level primitive\u003c/strong\u003e that frameworks build on top of — not a user-facing API. The goal is interoperability: a signal created by one framework could be consumed by another. A Preact signal could drive a Lit component. A Solid signal could feed a vanilla JS effect.\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\nThis is the same pattern as \u003ccode class=\"inline-code\"\u003eCustomEvent\u003c/code\u003e, \u003ccode class=\"inline-code\"\u003eAbortSignal\u003c/code\u003e, and \u003ccode class=\"inline-code\"\u003ePromise\u003c/code\u003e — platform primitives that ecosystem tools standardize around. If this lands (likely Stage 2 in 2026, Stage 3 in 2027), it reshapes the framework landscape permanently.\n\u003c/p\u003e\n\n\u003ch2 class=\"post-h2\"\u003eWhy Signals Won\u003c/h2\u003e\n\n\u003ch3 class=\"post-h3\"\u003e1. The Performance Ceiling Is Higher\u003c/h3\u003e\n\n\u003cp class=\"post-p\"\u003e\nReact's model has a fundamental limit: every state change triggers a re-render of the owning component and its subtree. You can optimize with \u003ccode class=\"inline-code\"\u003ememo\u003c/code\u003e, \u003ccode class=\"inline-code\"\u003euseMemo\u003c/code\u003e, and \u003ccode class=\"inline-code\"\u003euseCallback\u003c/code\u003e, but these are \u003cstrong\u003emanual escape hatches\u003c/strong\u003e — you're carving exceptions out of the default full re-render.\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\nSignals don't have this ceiling. The default is zero wasted work. The graph is precise from the start. There is no subtree re-render to optimize away.\n\u003c/p\u003e\n\n\u003cpre class=\"code-block\"\u003e\u003ccode class=\"language-javascript\"\u003e// React: changing 'name' re-renders entire component,\n\u003cp class=\"post-p\"\u003e\n// then memo and useMemo prevent downstream re-renders\nfunction Profile({ user }) {\nconst [name, setName] = useState(user.name);\nconst [bio, setBio] = useState(user.bio);\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n// Every state change re-runs this entire function body\n// useMemo prevents Header from re-rendering if deps unchanged\nreturn (\n\u0026amp;lt;div\u0026amp;gt;\n\u0026amp;lt;Header name={name} /\u0026amp;gt;\n\u0026amp;lt;Bio bio={bio} /\u0026amp;gt;\n\u0026amp;lt;/div\u0026amp;gt;\n);\n}\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n// Signals: changing name.update() ONLY updates the \u0026amp;lt;h1\u0026amp;gt; textContent\n// Nothing else runs. Profile() was called once at setup.\nfunction Profile() {\nconst name = signal('Ada');\nconst bio = signal('Programmer');\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\nreturn (\n\u0026amp;lt;div\u0026amp;gt;\n\u0026amp;lt;h1\u0026amp;gt;{name}\u0026amp;lt;/h1\u0026amp;gt;   {/\u003cem\u003e Only this node updates when name changes \u003c/em\u003e/}\n\u0026amp;lt;p\u0026amp;gt;{bio}\u0026amp;lt;/p\u0026amp;gt;       {/\u003cem\u003e Only this node updates when bio changes \u003c/em\u003e/}\n\u0026amp;lt;/div\u0026amp;gt;\n);\n}\n\u003c/code\u003e\u003c/pre\u003e\n\u003c/p\u003e\n\n\u003ch3 class=\"post-h3\"\u003e2. The Mental Model Is Simpler\u003c/h3\u003e\n\n\u003cp class=\"post-p\"\u003e\nHooks introduced a new mental model: the dependency array. \u003ccode class=\"inline-code\"\u003euseEffect(fn, [dep1, dep2])\u003c/code\u003e. Get the deps wrong, and you have stale closures. Forget a dep, and you have a bug. ESLint's \u003ccode class=\"inline-code\"\u003eexhaustive-deps\u003c/code\u003e rule catches most of them, but the cognitive overhead is real.\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\nSignals eliminate dependency arrays entirely. The system automatically tracks what you read. No \u003ccode class=\"inline-code\"\u003e[dep1, dep2]\u003c/code\u003e. No stale closures. No \u003ccode class=\"inline-code\"\u003euseCallback\u003c/code\u003e to stabilize function references.\n\u003c/p\u003e\n\n\u003cpre class=\"code-block\"\u003e\u003ccode class=\"language-javascript\"\u003e// React: manual dependency arrays\n\u003cp class=\"post-p\"\u003e\nuseEffect(() =\u0026amp;gt; {\nfetchUser(id).then(setUser);\n}, [id]); // ← don't forget this\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n// Signals: automatic tracking\ncreateEffect(() =\u0026amp;gt; {\nfetchUser(id()).then(user.set); // reads id(), auto-subscribes\n});\n\u003c/code\u003e\u003c/pre\u003e\n\u003c/p\u003e\n\n\u003ch3 class=\"post-h3\"\u003e3. Framework Interop Is Possible\u003c/h3\u003e\n\n\u003cp class=\"post-p\"\u003e\nA standardized signal primitive means cross-framework reactivity. Imagine:\n\u003c/p\u003e\n\n\u003cul class=\"post-ul\"\u003e\u003cli class=\"post-li\"\u003eA design system component library built with signals that works in React, Vue, and Solid without wrapper components\u003c/li\u003e\n\u003cli class=\"post-li\"\u003eState management that spans micro-frontends built with different frameworks\u003c/li\u003e\n\u003cli class=\"post-li\"\u003eBrowser DevTools with a unified \"Signals\" panel showing the reactive graph, across all frameworks\u003c/li\u003e\n\u003c/ul\u003e\n\u003cp class=\"post-p\"\u003e\nThe TC39 proposal makes this a reality. Like \u003ccode class=\"inline-code\"\u003ePromise\u003c/code\u003e unified async patterns (callbacks, events, streams all interoperate through Promises), \u003ccode class=\"inline-code\"\u003eSignal\u003c/code\u003e would unify reactivity patterns.\n\u003c/p\u003e\n\n\u003ch2 class=\"post-h2\"\u003eThe Counter-Arguments\u003c/h2\u003e\n\n\u003cp class=\"post-p\"\u003e\nSignals aren't without critics, and the critique is worth understanding:\n\u003c/p\u003e\n\n\u003ch3 class=\"post-h3\"\u003e\"Unidirectional Data Flow Is Simpler\"\u003c/h3\u003e\n\n\u003cp class=\"post-p\"\u003e\nReact's model has a clear rule: data flows down, events flow up. The re-render-from-root model means the UI is a pure function of state: \u003ccode class=\"inline-code\"\u003eUI = f(state)\u003c/code\u003e. You can always reason about what's on screen by looking at state.\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\nSignals allow arbitrary connections in the dependency graph. A signal deep in the tree can drive an effect at the top. This is powerful but can create spaghetti graphs that are hard to debug.\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\nThe counter-counter-argument: this is already true in any complex React app with context, Redux, or Zustand. A context change at the top triggers re-renders everywhere. Signals just make the graph explicit and inspectable instead of implicit through component composition.\n\u003c/p\u003e\n\n\u003ch3 class=\"post-h3\"\u003e\"It's Just Another Thing to Learn\"\u003c/h3\u003e\n\n\u003cp class=\"post-p\"\u003e\nValid. Signals add \u003ccode class=\"inline-code\"\u003e.value\u003c/code\u003e or \u003ccode class=\"inline-code\"\u003e()\u003c/code\u003e getter/setter patterns. They add \u003ccode class=\"inline-code\"\u003ecreateEffect\u003c/code\u003e, \u003ccode class=\"inline-code\"\u003ecreateMemo\u003c/code\u003e, \u003ccode class=\"inline-code\"\u003euntrack\u003c/code\u003e, and \u003ccode class=\"inline-code\"\u003ebatch\u003c/code\u003e APIs. The API surface is non-trivial.\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\nBut the counter-argument: hooks were also \"another thing to learn\" in 2019. Class components to hooks was a bigger mental-model shift than hooks to signals. And signals map directly to concepts developers already understand: getter/setter properties, computed properties, observers.\n\u003c/p\u003e\n\n\u003ch3 class=\"post-h3\"\u003e\"React Is Adding a Compiler, Not Signals\"\u003c/h3\u003e\n\n\u003cp class=\"post-p\"\u003e\nReact's direction is React Compiler (formerly React Forget) — automatic memoization at compile time rather than signals. The argument: you keep the \u003ccode class=\"inline-code\"\u003eUI = f(state)\u003c/code\u003e model, and the compiler handles the optimization. No new primitives to learn.\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\nThis is a valid architectural difference. React is betting that static analysis can optimize re-renders enough to make signals unnecessary. The signals ecosystem is betting that fine-grained reactivity at the primitive level is fundamentally more scalable. Both are being proven out in 2026.\n\u003c/p\u003e\n\n\u003ch2 class=\"post-h2\"\u003eThe Ecosystem in 2026\u003c/h2\u003e\n\n\u003cp class=\"post-p\"\u003e\nBeyond the frameworks, a rich signal ecosystem has emerged:\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n| Library | Description |\n|---------|-------------|\n| \u003cstrong\u003e@preact/signals-core\u003c/strong\u003e | Framework-agnostic signal implementation. The most portable. |\n| \u003cstrong\u003esignal-utils\u003c/strong\u003e (TC39) | Polyfill for the proposed TC39 Signal API |\n| \u003cstrong\u003estarbeam\u003c/strong\u003e | Universal reactivity by the Ember/Glimmer team. Works in any framework. |\n| \u003cstrong\u003ealien-signals\u003c/strong\u003e | Ultra-lightweight (sub-1KB) signals by the Vue team. Designed for embedding. |\n| \u003cstrong\u003etanstack-store\u003c/strong\u003e | Signals-based state management from the TanStack team. Works with React, Solid, Vue. |\n| \u003cstrong\u003evaltio-signals\u003c/strong\u003e | Proxy-based signals from the Valtio/Zustand team |\n| \u003cstrong\u003elegend-state\u003c/strong\u003e | Optimized signals with built-in persistence and sync |\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\nThe pattern is clear: framework authors are racing to own the signal primitive, while library authors are building framework-agnostic solutions on top.\n\u003c/p\u003e\n\n\u003ch2 class=\"post-h2\"\u003eShould You Adopt Signals in 2026?\u003c/h2\u003e\n\n\u003cp class=\"post-p\"\u003e\nThe answer depends on your context:\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n\u003cstrong\u003eIf you're on React:\u003c/strong\u003e You don't have to switch. React Compiler will handle a lot of the optimization pain. But you can use \u003ccode class=\"inline-code\"\u003e@preact/signals-react\u003c/code\u003e to get fine-grained reactivity in specific hot paths — large lists, real-time dashboards, canvas-heavy apps — without changing your architecture. It's an opt-in optimization, not a rewrite.\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n\u003cstrong\u003eIf you're starting a new project:\u003c/strong\u003e Consider Solid, or Vue with signals mode. The performance characteristics and mental model are genuinely better for many use cases. If you're building a highly interactive app (dashboards, editors, real-time collaboration), signals are a strong default.\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n\u003cstrong\u003eIf you're maintaining an existing app:\u003c/strong\u003e Don't rewrite. But do learn signals — the concepts are flowing into every framework, and the TC39 proposal means they'll be a platform primitive within a few years. Understanding the dependency graph, push-pull evaluation, and glitch-free updates will make you a better developer regardless of framework.\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n\u003cstrong\u003eFor library authors:\u003c/strong\u003e Start thinking about signals-based APIs. A state management library, a form library, or a data-fetching library built on signals works across frameworks. This is where the ecosystem is heading.\n\u003c/p\u003e\n\n\u003ch2 class=\"post-h2\"\u003eThe Big Picture\u003c/h2\u003e\n\n\u003cp class=\"post-p\"\u003e\nSignals winning is part of a larger trend: \u003cstrong\u003ethe platform is catching up to frameworks\u003c/strong\u003e. CSS now has nesting, container queries, anchor positioning, scroll-driven animations, and View Transitions. HTML has \u003ccode class=\"inline-code\"\u003e\u0026lt;dialog\u0026gt;\u003c/code\u003e, \u003ccode class=\"inline-code\"\u003e\u0026lt;popover\u0026gt;\u003c/code\u003e, and the inert attribute. JavaScript is getting signals, decorators, and records \u0026amp; tuples.\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\nThe frameworks that win in this environment are the ones that lean into platform primitives — not the ones that build on top of them and abstract them away. Signals are the reactivity layer of that platform. The framework wars aren't over, but the battle over the reactivity primitive is. Signals won.\n\u003c/p\u003e\n"])</script><script>self.__next_f.push([1,"6:T78f,\n        .blog-content .post-h1 { font-size: 1.75rem; font-weight: 700; color: #ffffff; margin-top: 2rem; margin-bottom: 1rem; }\n        .blog-content .post-h2 { font-size: 1.5rem; font-weight: 600; color: #f1f5f9; margin-top: 1.75rem; margin-bottom: 0.75rem; padding-bottom: 0.5rem; border-bottom: 1px solid #334155; }\n        .blog-content .post-h3 { font-size: 1.25rem; font-weight: 600; color: #e2e8f0; margin-top: 1.5rem; margin-bottom: 0.5rem; }\n        .blog-content .post-h4 { font-size: 1.1rem; font-weight: 600; color: #e2e8f0; margin-top: 1.25rem; margin-bottom: 0.5rem; }\n        .blog-content .post-p { color: #cbd5e1; line-height: 1.75; margin-bottom: 1rem; }\n        .blog-content .code-block { background: #0f172a; border: 1px solid #334155; border-radius: 0.5rem; padding: 1rem; overflow-x: auto; margin: 1rem 0; font-family: 'JetBrains Mono', monospace; font-size: 0.875rem; color: #e2e8f0; }\n        .blog-content .inline-code { background: #1e293b; color: #38bdf8; padding: 0.15rem 0.4rem; border-radius: 0.25rem; font-family: 'JetBrains Mono', monospace; font-size: 0.875em; }\n        .blog-content .post-link { color: #38bdf8; text-decoration: underline; transition: color 0.2s; }\n        .blog-content .post-link:hover { color: #7dd3fc; }\n        .blog-content .post-ul { list-style: disc; padding-left: 1.5rem; margin: 0.75rem 0; color: #cbd5e1; }\n        .blog-content .post-li { margin-bottom: 0.25rem; line-height: 1.6; }\n        .blog-content .post-blockquote { border-left: 3px solid #0ea5e9; padding: 0.5rem 1rem; margin: 1rem 0; background: rgba(14, 165, 233, 0.05); border-radius: 0 0.5rem 0.5rem 0; }\n        .blog-content .post-blockquote p { color: #94a3b8; font-style: italic; }\n        .blog-content .post-hr { border: none; border-top: 1px solid #334155; margin: 2rem 0; }\n        .blog-content strong { color: #f1f5f9; font-weight: 600; }\n        .blog-content em { font-style: italic; }\n        8:[\"slug\",\"signals-every-framework-2026\",\"d\"]\nf:[]\n"])</script><script>self.__next_f.push([1,"0:[\"$\",\"$L2\",null,{\"buildId\":\"wLkx3_e9eF0HmBHirJWLm\",\"assetPrefix\":\"/devbench-tech\",\"urlParts\":[\"\",\"blog\",\"signals-every-framework-2026\",\"\"],\"initialTree\":[\"\",{\"children\":[\"blog\",{\"children\":[[\"slug\",\"signals-every-framework-2026\",\"d\"],{\"children\":[\"__PAGE__?{\\\"slug\\\":\\\"signals-every-framework-2026\\\"}\",{}]}]}]},\"$undefined\",\"$undefined\",true],\"initialSeedData\":[\"\",{\"children\":[\"blog\",{\"children\":[[\"slug\",\"signals-every-framework-2026\",\"d\"],{\"children\":[\"__PAGE__\",{},[[\"$L3\",[\"$\",\"article\",null,{\"className\":\"max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-20\",\"children\":[[\"$\",\"script\",null,{\"type\":\"application/ld+json\",\"dangerouslySetInnerHTML\":{\"__html\":\"{\\\"@context\\\":\\\"https://schema.org\\\",\\\"@type\\\":\\\"Article\\\",\\\"headline\\\":\\\"Signals in 2026: Why Every Framework Is Converging on This One Primitive\\\",\\\"description\\\":\\\"Solid, Preact, Vue, Angular, Svelte — every major framework is adopting signals as their core reactive primitive. TC39 has a Stage 1 proposal to standardize them in JavaScript itself. What are signals, why are they winning over hooks, observables, and dirty-checking, and how do they actually work under the hood? A deep technical dive into the reactive primitive that's reshaping frontend architecture in 2026.\\\",\\\"datePublished\\\":\\\"2026-05-28\\\",\\\"author\\\":{\\\"@type\\\":\\\"Organization\\\",\\\"name\\\":\\\"DevBench\\\"},\\\"publisher\\\":{\\\"@type\\\":\\\"Organization\\\",\\\"name\\\":\\\"DevBench\\\",\\\"url\\\":\\\"https://devbench-roan.vercel.app\\\"}}\"}}],[\"$\",\"script\",null,{\"type\":\"application/ld+json\",\"dangerouslySetInnerHTML\":{\"__html\":\"{\\\"@context\\\":\\\"https://schema.org\\\",\\\"@type\\\":\\\"BreadcrumbList\\\",\\\"itemListElement\\\":[{\\\"@type\\\":\\\"ListItem\\\",\\\"position\\\":1,\\\"name\\\":\\\"Home\\\",\\\"item\\\":\\\"https://devbench-roan.vercel.app\\\"},{\\\"@type\\\":\\\"ListItem\\\",\\\"position\\\":2,\\\"name\\\":\\\"Blog\\\",\\\"item\\\":\\\"https://devbench-roan.vercel.app/blog\\\"},{\\\"@type\\\":\\\"ListItem\\\",\\\"position\\\":3,\\\"name\\\":\\\"Signals in 2026: Why Every Framework Is Converging on This One Primitive\\\"}]}\"}}],[\"$\",\"$L4\",null,{\"href\":\"/blog\",\"className\":\"inline-flex items-center gap-1.5 text-slate-400 hover:text-brand-400 text-sm transition-colors mb-8\",\"children\":[[\"$\",\"svg\",null,{\"xmlns\":\"http://www.w3.org/2000/svg\",\"width\":24,\"height\":24,\"viewBox\":\"0 0 24 24\",\"fill\":\"none\",\"stroke\":\"currentColor\",\"strokeWidth\":2,\"strokeLinecap\":\"round\",\"strokeLinejoin\":\"round\",\"className\":\"lucide lucide-arrow-left w-4 h-4\",\"children\":[[\"$\",\"path\",\"1l729n\",{\"d\":\"m12 19-7-7 7-7\"}],[\"$\",\"path\",\"x3x0zl\",{\"d\":\"M19 12H5\"}],\"$undefined\"]}],\"Back to Blog\"]}],[\"$\",\"header\",null,{\"className\":\"mb-10\",\"children\":[[\"$\",\"h1\",null,{\"className\":\"text-3xl sm:text-4xl font-bold text-white leading-tight mb-4\",\"children\":\"Signals in 2026: Why Every Framework Is Converging on This One Primitive\"}],[\"$\",\"div\",null,{\"className\":\"flex flex-wrap items-center gap-4 text-sm text-slate-400\",\"children\":[[\"$\",\"span\",null,{\"className\":\"flex items-center gap-1.5\",\"children\":[[\"$\",\"svg\",null,{\"xmlns\":\"http://www.w3.org/2000/svg\",\"width\":24,\"height\":24,\"viewBox\":\"0 0 24 24\",\"fill\":\"none\",\"stroke\":\"currentColor\",\"strokeWidth\":2,\"strokeLinecap\":\"round\",\"strokeLinejoin\":\"round\",\"className\":\"lucide lucide-calendar w-4 h-4\",\"children\":[[\"$\",\"rect\",\"eu3xkr\",{\"width\":\"18\",\"height\":\"18\",\"x\":\"3\",\"y\":\"4\",\"rx\":\"2\",\"ry\":\"2\"}],[\"$\",\"line\",\"m3sa8f\",{\"x1\":\"16\",\"x2\":\"16\",\"y1\":\"2\",\"y2\":\"6\"}],[\"$\",\"line\",\"18kwsl\",{\"x1\":\"8\",\"x2\":\"8\",\"y1\":\"2\",\"y2\":\"6\"}],[\"$\",\"line\",\"xt86sb\",{\"x1\":\"3\",\"x2\":\"21\",\"y1\":\"10\",\"y2\":\"10\"}],\"$undefined\"]}],\"2026-05-28\"]}],[\"$\",\"div\",null,{\"className\":\"flex flex-wrap gap-1.5\",\"children\":[[\"$\",\"span\",\"[\\\"Signals\\\"\",{\"className\":\"badge-secondary flex items-center gap-1\",\"children\":[[\"$\",\"svg\",null,{\"xmlns\":\"http://www.w3.org/2000/svg\",\"width\":24,\"height\":24,\"viewBox\":\"0 0 24 24\",\"fill\":\"none\",\"stroke\":\"currentColor\",\"strokeWidth\":2,\"strokeLinecap\":\"round\",\"strokeLinejoin\":\"round\",\"className\":\"lucide lucide-tag w-3 h-3\",\"children\":[[\"$\",\"path\",\"14b2ls\",{\"d\":\"M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z\"}],[\"$\",\"path\",\"7u93v4\",{\"d\":\"M7 7h.01\"}],\"$undefined\"]}],\"[\\\"Signals\\\"\"]}],[\"$\",\"span\",\"\\\"SolidJS\\\"\",{\"className\":\"badge-secondary flex items-center gap-1\",\"children\":[[\"$\",\"svg\",null,{\"xmlns\":\"http://www.w3.org/2000/svg\",\"width\":24,\"height\":24,\"viewBox\":\"0 0 24 24\",\"fill\":\"none\",\"stroke\":\"currentColor\",\"strokeWidth\":2,\"strokeLinecap\":\"round\",\"strokeLinejoin\":\"round\",\"className\":\"lucide lucide-tag w-3 h-3\",\"children\":[[\"$\",\"path\",\"14b2ls\",{\"d\":\"M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z\"}],[\"$\",\"path\",\"7u93v4\",{\"d\":\"M7 7h.01\"}],\"$undefined\"]}],\"\\\"SolidJS\\\"\"]}],[\"$\",\"span\",\"\\\"Preact\\\"\",{\"className\":\"badge-secondary flex items-center gap-1\",\"children\":[[\"$\",\"svg\",null,{\"xmlns\":\"http://www.w3.org/2000/svg\",\"width\":24,\"height\":24,\"viewBox\":\"0 0 24 24\",\"fill\":\"none\",\"stroke\":\"currentColor\",\"strokeWidth\":2,\"strokeLinecap\":\"round\",\"strokeLinejoin\":\"round\",\"className\":\"lucide lucide-tag w-3 h-3\",\"children\":[[\"$\",\"path\",\"14b2ls\",{\"d\":\"M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z\"}],[\"$\",\"path\",\"7u93v4\",{\"d\":\"M7 7h.01\"}],\"$undefined\"]}],\"\\\"Preact\\\"\"]}],[\"$\",\"span\",\"\\\"Vue\\\"\",{\"className\":\"badge-secondary flex items-center gap-1\",\"children\":[[\"$\",\"svg\",null,{\"xmlns\":\"http://www.w3.org/2000/svg\",\"width\":24,\"height\":24,\"viewBox\":\"0 0 24 24\",\"fill\":\"none\",\"stroke\":\"currentColor\",\"strokeWidth\":2,\"strokeLinecap\":\"round\",\"strokeLinejoin\":\"round\",\"className\":\"lucide lucide-tag w-3 h-3\",\"children\":[[\"$\",\"path\",\"14b2ls\",{\"d\":\"M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z\"}],[\"$\",\"path\",\"7u93v4\",{\"d\":\"M7 7h.01\"}],\"$undefined\"]}],\"\\\"Vue\\\"\"]}],[\"$\",\"span\",\"\\\"Angular\\\"\",{\"className\":\"badge-secondary flex items-center gap-1\",\"children\":[[\"$\",\"svg\",null,{\"xmlns\":\"http://www.w3.org/2000/svg\",\"width\":24,\"height\":24,\"viewBox\":\"0 0 24 24\",\"fill\":\"none\",\"stroke\":\"currentColor\",\"strokeWidth\":2,\"strokeLinecap\":\"round\",\"strokeLinejoin\":\"round\",\"className\":\"lucide lucide-tag w-3 h-3\",\"children\":[[\"$\",\"path\",\"14b2ls\",{\"d\":\"M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z\"}],[\"$\",\"path\",\"7u93v4\",{\"d\":\"M7 7h.01\"}],\"$undefined\"]}],\"\\\"Angular\\\"\"]}],[\"$\",\"span\",\"\\\"Svelte\\\"\",{\"className\":\"badge-secondary flex items-center gap-1\",\"children\":[[\"$\",\"svg\",null,{\"xmlns\":\"http://www.w3.org/2000/svg\",\"width\":24,\"height\":24,\"viewBox\":\"0 0 24 24\",\"fill\":\"none\",\"stroke\":\"currentColor\",\"strokeWidth\":2,\"strokeLinecap\":\"round\",\"strokeLinejoin\":\"round\",\"className\":\"lucide lucide-tag w-3 h-3\",\"children\":[[\"$\",\"path\",\"14b2ls\",{\"d\":\"M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z\"}],[\"$\",\"path\",\"7u93v4\",{\"d\":\"M7 7h.01\"}],\"$undefined\"]}],\"\\\"Svelte\\\"\"]}],[\"$\",\"span\",\"\\\"Reactivity\\\"\",{\"className\":\"badge-secondary flex items-center gap-1\",\"children\":[[\"$\",\"svg\",null,{\"xmlns\":\"http://www.w3.org/2000/svg\",\"width\":24,\"height\":24,\"viewBox\":\"0 0 24 24\",\"fill\":\"none\",\"stroke\":\"currentColor\",\"strokeWidth\":2,\"strokeLinecap\":\"round\",\"strokeLinejoin\":\"round\",\"className\":\"lucide lucide-tag w-3 h-3\",\"children\":[[\"$\",\"path\",\"14b2ls\",{\"d\":\"M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z\"}],[\"$\",\"path\",\"7u93v4\",{\"d\":\"M7 7h.01\"}],\"$undefined\"]}],\"\\\"Reactivity\\\"\"]}],[\"$\",\"span\",\"\\\"TC39\\\"\",{\"className\":\"badge-secondary flex items-center gap-1\",\"children\":[[\"$\",\"svg\",null,{\"xmlns\":\"http://www.w3.org/2000/svg\",\"width\":24,\"height\":24,\"viewBox\":\"0 0 24 24\",\"fill\":\"none\",\"stroke\":\"currentColor\",\"strokeWidth\":2,\"strokeLinecap\":\"round\",\"strokeLinejoin\":\"round\",\"className\":\"lucide lucide-tag w-3 h-3\",\"children\":[[\"$\",\"path\",\"14b2ls\",{\"d\":\"M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z\"}],[\"$\",\"path\",\"7u93v4\",{\"d\":\"M7 7h.01\"}],\"$undefined\"]}],\"\\\"TC39\\\"\"]}],[\"$\",\"span\",\"\\\"JavaScript\\\"\",{\"className\":\"badge-secondary flex items-center gap-1\",\"children\":[[\"$\",\"svg\",null,{\"xmlns\":\"http://www.w3.org/2000/svg\",\"width\":24,\"height\":24,\"viewBox\":\"0 0 24 24\",\"fill\":\"none\",\"stroke\":\"currentColor\",\"strokeWidth\":2,\"strokeLinecap\":\"round\",\"strokeLinejoin\":\"round\",\"className\":\"lucide lucide-tag w-3 h-3\",\"children\":[[\"$\",\"path\",\"14b2ls\",{\"d\":\"M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z\"}],[\"$\",\"path\",\"7u93v4\",{\"d\":\"M7 7h.01\"}],\"$undefined\"]}],\"\\\"JavaScript\\\"\"]}],[\"$\",\"span\",\"\\\"Web Platform\\\"\",{\"className\":\"badge-secondary flex items-center gap-1\",\"children\":[[\"$\",\"svg\",null,{\"xmlns\":\"http://www.w3.org/2000/svg\",\"width\":24,\"height\":24,\"viewBox\":\"0 0 24 24\",\"fill\":\"none\",\"stroke\":\"currentColor\",\"strokeWidth\":2,\"strokeLinecap\":\"round\",\"strokeLinejoin\":\"round\",\"className\":\"lucide lucide-tag w-3 h-3\",\"children\":[[\"$\",\"path\",\"14b2ls\",{\"d\":\"M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z\"}],[\"$\",\"path\",\"7u93v4\",{\"d\":\"M7 7h.01\"}],\"$undefined\"]}],\"\\\"Web Platform\\\"\"]}],[\"$\",\"span\",\"\\\"State Management\\\"\",{\"className\":\"badge-secondary flex items-center gap-1\",\"children\":[[\"$\",\"svg\",null,{\"xmlns\":\"http://www.w3.org/2000/svg\",\"width\":24,\"height\":24,\"viewBox\":\"0 0 24 24\",\"fill\":\"none\",\"stroke\":\"currentColor\",\"strokeWidth\":2,\"strokeLinecap\":\"round\",\"strokeLinejoin\":\"round\",\"className\":\"lucide lucide-tag w-3 h-3\",\"children\":[[\"$\",\"path\",\"14b2ls\",{\"d\":\"M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z\"}],[\"$\",\"path\",\"7u93v4\",{\"d\":\"M7 7h.01\"}],\"$undefined\"]}],\"\\\"State Management\\\"\"]}],[\"$\",\"span\",\"\\\"2026\\\"]\",{\"className\":\"badge-secondary flex items-center gap-1\",\"children\":[[\"$\",\"svg\",null,{\"xmlns\":\"http://www.w3.org/2000/svg\",\"width\":24,\"height\":24,\"viewBox\":\"0 0 24 24\",\"fill\":\"none\",\"stroke\":\"currentColor\",\"strokeWidth\":2,\"strokeLinecap\":\"round\",\"strokeLinejoin\":\"round\",\"className\":\"lucide lucide-tag w-3 h-3\",\"children\":[[\"$\",\"path\",\"14b2ls\",{\"d\":\"M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z\"}],[\"$\",\"path\",\"7u93v4\",{\"d\":\"M7 7h.01\"}],\"$undefined\"]}],\"\\\"2026\\\"]\"]}]]}]]}]]}],[\"$\",\"div\",null,{\"className\":\"blog-content prose-p:text-slate-300 prose-p:leading-relaxed prose-p:mb-4\",\"dangerouslySetInnerHTML\":{\"__html\":\"$5\"}}],[\"$\",\"style\",null,{\"dangerouslySetInnerHTML\":{\"__html\":\"$6\"}}]]}],null],null],null]},[null,[\"$\",\"$L7\",null,{\"parallelRouterKey\":\"children\",\"segmentPath\":[\"children\",\"blog\",\"children\",\"$8\",\"children\"],\"error\":\"$undefined\",\"errorStyles\":\"$undefined\",\"errorScripts\":\"$undefined\",\"template\":[\"$\",\"$L9\",null,{}],\"templateStyles\":\"$undefined\",\"templateScripts\":\"$undefined\",\"notFound\":\"$undefined\",\"notFoundStyles\":\"$undefined\"}]],null]},[null,[\"$\",\"$L7\",null,{\"parallelRouterKey\":\"children\",\"segmentPath\":[\"children\",\"blog\",\"children\"],\"error\":\"$undefined\",\"errorStyles\":\"$undefined\",\"errorScripts\":\"$undefined\",\"template\":[\"$\",\"$L9\",null,{}],\"templateStyles\":\"$undefined\",\"templateScripts\":\"$undefined\",\"notFound\":\"$undefined\",\"notFoundStyles\":\"$undefined\"}]],null]},[[[[\"$\",\"link\",\"0\",{\"rel\":\"stylesheet\",\"href\":\"/devbench-tech/_next/static/css/c877e59dbcb00f11.css\",\"precedence\":\"next\",\"crossOrigin\":\"$undefined\"}]],[\"$\",\"html\",null,{\"lang\":\"en\",\"className\":\"dark\",\"children\":[\"$\",\"body\",null,{\"className\":\"flex flex-col min-h-screen\",\"children\":[[\"$\",\"script\",null,{\"type\":\"application/ld+json\",\"dangerouslySetInnerHTML\":{\"__html\":\"{\\\"@context\\\":\\\"https://schema.org\\\",\\\"@type\\\":\\\"WebSite\\\",\\\"name\\\":\\\"DevBench\\\",\\\"url\\\":\\\"https://devbench-roan.vercel.app\\\",\\\"description\\\":\\\"Free developer tools for everyday use: JSON formatter, Base64 encoder/decoder, UUID generator, regex tester, benchmarks, and more.\\\",\\\"potentialAction\\\":{\\\"@type\\\":\\\"SearchAction\\\",\\\"target\\\":\\\"https://devbench-roan.vercel.app/tools?q={search_term_string}\\\",\\\"query-input\\\":\\\"required name=search_term_string\\\"}}\"}}],[\"$\",\"$La\",null,{}],[\"$\",\"main\",null,{\"className\":\"flex-1\",\"children\":[\"$\",\"$L7\",null,{\"parallelRouterKey\":\"children\",\"segmentPath\":[\"children\"],\"error\":\"$undefined\",\"errorStyles\":\"$undefined\",\"errorScripts\":\"$undefined\",\"template\":[\"$\",\"$L9\",null,{}],\"templateStyles\":\"$undefined\",\"templateScripts\":\"$undefined\",\"notFound\":[[\"$\",\"title\",null,{\"children\":\"404: This page could not be found.\"}],[\"$\",\"div\",null,{\"style\":{\"fontFamily\":\"system-ui,\\\"Segoe UI\\\",Roboto,Helvetica,Arial,sans-serif,\\\"Apple Color Emoji\\\",\\\"Segoe UI Emoji\\\"\",\"height\":\"100vh\",\"textAlign\":\"center\",\"display\":\"flex\",\"flexDirection\":\"column\",\"alignItems\":\"center\",\"justifyContent\":\"center\"},\"children\":[\"$\",\"div\",null,{\"children\":[[\"$\",\"style\",null,{\"dangerouslySetInnerHTML\":{\"__html\":\"body{color:#000;background:#fff;margin:0}.next-error-h1{border-right:1px solid rgba(0,0,0,.3)}@media (prefers-color-scheme:dark){body{color:#fff;background:#000}.next-error-h1{border-right:1px solid rgba(255,255,255,.3)}}\"}}],[\"$\",\"h1\",null,{\"className\":\"next-error-h1\",\"style\":{\"display\":\"inline-block\",\"margin\":\"0 20px 0 0\",\"padding\":\"0 23px 0 0\",\"fontSize\":24,\"fontWeight\":500,\"verticalAlign\":\"top\",\"lineHeight\":\"49px\"},\"children\":\"404\"}],[\"$\",\"div\",null,{\"style\":{\"display\":\"inline-block\"},\"children\":[\"$\",\"h2\",null,{\"style\":{\"fontSize\":14,\"fontWeight\":400,\"lineHeight\":\"49px\",\"margin\":0},\"children\":\"This page could not be found.\"}]}]]}]}]],\"notFoundStyles\":[]}]}],[\"$\",\"footer\",null,{\"className\":\"bg-surface-light border-t border-slate-700/50 mt-auto\",\"children\":[\"$\",\"div\",null,{\"className\":\"max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12\",\"children\":[[\"$\",\"div\",null,{\"className\":\"grid grid-cols-1 md:grid-cols-3 gap-8\",\"children\":[[\"$\",\"div\",null,{\"children\":[[\"$\",\"$L4\",null,{\"href\":\"/\",\"className\":\"flex items-center gap-2.5 mb-3\",\"children\":[[\"$\",\"div\",null,{\"className\":\"w-7 h-7 bg-brand-500 rounded-lg flex items-center justify-center\",\"children\":[\"$\",\"svg\",null,{\"xmlns\":\"http://www.w3.org/2000/svg\",\"width\":24,\"height\":24,\"viewBox\":\"0 0 24 24\",\"fill\":\"none\",\"stroke\":\"currentColor\",\"strokeWidth\":2,\"strokeLinecap\":\"round\",\"strokeLinejoin\":\"round\",\"className\":\"lucide lucide-terminal w-3.5 h-3.5 text-white\",\"children\":[[\"$\",\"polyline\",\"akl6gq\",{\"points\":\"4 17 10 11 4 5\"}],[\"$\",\"line\",\"q2wloq\",{\"x1\":\"12\",\"x2\":\"20\",\"y1\":\"19\",\"y2\":\"19\"}],\"$undefined\"]}]}],[\"$\",\"span\",null,{\"className\":\"text-lg font-bold text-white\",\"children\":[\"Dev\",[\"$\",\"span\",null,{\"className\":\"gradient-text\",\"children\":\"Bench\"}]]}]]}],[\"$\",\"p\",null,{\"className\":\"text-slate-400 text-sm leading-relaxed\",\"children\":\"Free developer tools, benchmarks, and calculators. Built for developers, by developers.\"}]]}],[\"$\",\"div\",null,{\"children\":[[\"$\",\"h3\",null,{\"className\":\"text-sm font-semibold text-slate-300 uppercase tracking-wider mb-4\",\"children\":\"Tools\"}],[\"$\",\"ul\",null,{\"className\":\"space-y-2\",\"children\":[[\"$\",\"li\",\"/tools/json-formatter\",{\"children\":[\"$\",\"$L4\",null,{\"href\":\"/tools/json-formatter\",\"className\":\"text-slate-400 hover:text-brand-400 text-sm transition-colors\",\"children\":\"JSON Formatter\"}]}],[\"$\",\"li\",\"/tools/base64\",{\"children\":[\"$\",\"$L4\",null,{\"href\":\"/tools/base64\",\"className\":\"text-slate-400 hover:text-brand-400 text-sm transition-colors\",\"children\":\"Base64 Encoder/Decoder\"}]}],[\"$\",\"li\",\"/tools/uuid-generator\",{\"children\":[\"$\",\"$L4\",null,{\"href\":\"/tools/uuid-generator\",\"className\":\"text-slate-400 hover:text-brand-400 text-sm transition-colors\",\"children\":\"UUID Generator\"}]}],[\"$\",\"li\",\"/tools/regex-tester\",{\"children\":[\"$\",\"$L4\",null,{\"href\":\"/tools/regex-tester\",\"className\":\"text-slate-400 hover:text-brand-400 text-sm transition-colors\",\"children\":\"Regex Tester\"}]}]]}]]}],[\"$\",\"div\",null,{\"children\":[[\"$\",\"h3\",null,{\"className\":\"text-sm font-semibold text-slate-300 uppercase tracking-wider mb-4\",\"children\":\"Resources\"}],[\"$\",\"ul\",null,{\"className\":\"space-y-2\",\"children\":[[\"$\",\"li\",\"/blog\",{\"children\":[\"$\",\"$L4\",null,{\"href\":\"/blog\",\"className\":\"text-slate-400 hover:text-brand-400 text-sm transition-colors\",\"children\":\"Blog\"}]}],[\"$\",\"li\",\"/benchmarks\",{\"children\":[\"$\",\"$L4\",null,{\"href\":\"/benchmarks\",\"className\":\"text-slate-400 hover:text-brand-400 text-sm transition-colors\",\"children\":\"Benchmarks\"}]}],[\"$\",\"li\",\"/about\",{\"children\":[\"$\",\"$L4\",null,{\"href\":\"/about\",\"className\":\"text-slate-400 hover:text-brand-400 text-sm transition-colors\",\"children\":\"About\"}]}]]}]]}]]}],[\"$\",\"div\",null,{\"className\":\"mt-10 pt-6 border-t border-slate-700/50 flex flex-col sm:flex-row items-center justify-between gap-4\",\"children\":[[\"$\",\"p\",null,{\"className\":\"text-slate-500 text-sm flex items-center gap-1\",\"children\":[\"Made with \",[\"$\",\"svg\",null,{\"xmlns\":\"http://www.w3.org/2000/svg\",\"width\":24,\"height\":24,\"viewBox\":\"0 0 24 24\",\"fill\":\"none\",\"stroke\":\"currentColor\",\"strokeWidth\":2,\"strokeLinecap\":\"round\",\"strokeLinejoin\":\"round\",\"className\":\"lucide lucide-heart w-3.5 h-3.5 text-red-500 fill-red-500\",\"children\":[[\"$\",\"path\",\"c3ymky\",{\"d\":\"M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z\"}],\"$undefined\"]}],\" by the DevBench team © \",2026]}],[\"$\",\"a\",null,{\"href\":\"https://github.com\",\"target\":\"_blank\",\"rel\":\"noopener noreferrer\",\"className\":\"text-slate-500 hover:text-slate-300 transition-colors\",\"aria-label\":\"GitHub\",\"children\":[\"$\",\"svg\",null,{\"xmlns\":\"http://www.w3.org/2000/svg\",\"width\":24,\"height\":24,\"viewBox\":\"0 0 24 24\",\"fill\":\"none\",\"stroke\":\"currentColor\",\"strokeWidth\":2,\"strokeLinecap\":\"round\",\"strokeLinejoin\":\"round\",\"className\":\"lucide lucide-github w-5 h-5\",\"children\":[[\"$\",\"path\",\"tonef\",{\"d\":\"M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4\"}],[\"$\",\"path\",\"9comsn\",{\"d\":\"M9 18c-4.51 2-5-2-7-2\"}],\"$undefined\"]}]}]]}]]}]}],[\"$\",\"$Lb\",null,{}],[\"$\",\"$Lc\",null,{\"position\":\"bottom-right\",\"toastOptions\":{\"style\":{\"background\":\"#1e293b\",\"color\":\"#e2e8f0\",\"border\":\"1px solid #334155\",\"fontSize\":\"14px\"}}}]]}]}]],null],null],\"couldBeIntercepted\":false,\"initialHead\":[null,\"$Ld\"],\"globalErrorComponent\":\"$e\",\"missingSlots\":\"$Wf\"}]\n"])</script><script>self.__next_f.push([1,"d:[[\"$\",\"meta\",\"0\",{\"name\":\"viewport\",\"content\":\"width=device-width, initial-scale=1\"}],[\"$\",\"meta\",\"1\",{\"charSet\":\"utf-8\"}],[\"$\",\"title\",\"2\",{\"children\":\"Signals in 2026: Why Every Framework Is Converging on This One Primitive | DevBench\"}],[\"$\",\"meta\",\"3\",{\"name\":\"description\",\"content\":\"Solid, Preact, Vue, Angular, Svelte — every major framework is adopting signals as their core reactive primitive. TC39 has a Stage 1 proposal to standardize them in JavaScript itself. What are signals, why are they winning over hooks, observables, and dirty-checking, and how do they actually work under the hood? A deep technical dive into the reactive primitive that's reshaping frontend architecture in 2026.\"}],[\"$\",\"meta\",\"4\",{\"name\":\"author\",\"content\":\"DevBench\"}],[\"$\",\"meta\",\"5\",{\"name\":\"keywords\",\"content\":\"developer tools,JSON formatter,Base64,UUID generator,regex tester,benchmarks,dev tools\"}],[\"$\",\"meta\",\"6\",{\"property\":\"og:title\",\"content\":\"DevBench — Developer Tools \u0026 Calculators\"}],[\"$\",\"meta\",\"7\",{\"property\":\"og:description\",\"content\":\"Free developer tools for everyday use.\"}],[\"$\",\"meta\",\"8\",{\"property\":\"og:site_name\",\"content\":\"DevBench\"}],[\"$\",\"meta\",\"9\",{\"property\":\"og:locale\",\"content\":\"en_US\"}],[\"$\",\"meta\",\"10\",{\"property\":\"og:type\",\"content\":\"website\"}],[\"$\",\"meta\",\"11\",{\"name\":\"twitter:card\",\"content\":\"summary\"}],[\"$\",\"meta\",\"12\",{\"name\":\"twitter:title\",\"content\":\"DevBench — Developer Tools \u0026 Calculators\"}],[\"$\",\"meta\",\"13\",{\"name\":\"twitter:description\",\"content\":\"Free developer tools for everyday use.\"}],[\"$\",\"link\",\"14\",{\"rel\":\"icon\",\"href\":\"/favicon.svg\"}]]\n3:null\n"])</script></body></html>

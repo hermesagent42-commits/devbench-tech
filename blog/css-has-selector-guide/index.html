@@ -1,0 +1,754 @@
+<!DOCTYPE html><html lang="en" class="dark"><head><meta charSet="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/><link rel="stylesheet" href="/devbench-tech/_next/static/css/c877e59dbcb00f11.css" data-precedence="next"/><link rel="preload" as="script" fetchPriority="low" href="/devbench-tech/_next/static/chunks/webpack-b521a83317325026.js"/><script src="/devbench-tech/_next/static/chunks/fd9d1056-04e0aa683dc3c41f.js" async=""></script><script src="/devbench-tech/_next/static/chunks/2117-8374a93ea77a2be4.js" async=""></script><script src="/devbench-tech/_next/static/chunks/main-app-aaec773b36366bc0.js" async=""></script><script src="/devbench-tech/_next/static/chunks/2972-4aaa15d119eeb022.js" async=""></script><script src="/devbench-tech/_next/static/chunks/app/blog/%5Bslug%5D/page-a411190e7012c687.js" async=""></script><script src="/devbench-tech/_next/static/chunks/44530001-4ecf7a22b5b24163.js" async=""></script><script src="/devbench-tech/_next/static/chunks/8375-c77b8de36f6696fb.js" async=""></script><script src="/devbench-tech/_next/static/chunks/6829-f51803445ddf1872.js" async=""></script><script src="/devbench-tech/_next/static/chunks/app/layout-488e5c40aa6ffa72.js" async=""></script><title>CSS :has() — The Parent Selector That Changes Everything | DevBench</title><meta name="description" content="The :has() pseudo-class is now Baseline across all major browsers. It&#x27;s not just a &#x27;parent selector&#x27; — it&#x27;s a relational selector that unlocks patterns we&#x27;ve needed JavaScript for since the beginning of CSS. Here&#x27;s the complete guide with real-world patterns."/><meta name="author" content="DevBench"/><meta name="keywords" content="developer tools,JSON formatter,Base64,UUID generator,regex tester,benchmarks,dev tools"/><meta property="og:title" content="DevBench — Developer Tools &amp; Calculators"/><meta property="og:description" content="Free developer tools for everyday use."/><meta property="og:site_name" content="DevBench"/><meta property="og:locale" content="en_US"/><meta property="og:type" content="website"/><meta name="twitter:card" content="summary"/><meta name="twitter:title" content="DevBench — Developer Tools &amp; Calculators"/><meta name="twitter:description" content="Free developer tools for everyday use."/><link rel="icon" href="/favicon.svg"/><script src="/devbench-tech/_next/static/chunks/polyfills-42372ed130431b0a.js" noModule=""></script></head><body class="flex flex-col min-h-screen"><script type="application/ld+json">{"@context":"https://schema.org","@type":"WebSite","name":"DevBench","url":"https://devbench-roan.vercel.app","description":"Free developer tools for everyday use: JSON formatter, Base64 encoder/decoder, UUID generator, regex tester, benchmarks, and more.","potentialAction":{"@type":"SearchAction","target":"https://devbench-roan.vercel.app/tools?q={search_term_string}","query-input":"required name=search_term_string"}}</script><header class="sticky top-0 z-50 transition-all duration-300 bg-surface border-b border-transparent"><div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8"><div class="flex items-center justify-between h-16"><a class="flex items-center gap-2.5 group" href="/devbench-tech/"><div class="w-8 h-8 bg-brand-500 rounded-lg flex items-center justify-center group-hover:bg-brand-400 transition-colors"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-terminal w-4 h-4 text-white"><polyline points="4 17 10 11 4 5"></polyline><line x1="12" x2="20" y1="19" y2="19"></line></svg></div><span class="text-xl font-bold text-white tracking-tight">Dev<span class="gradient-text">Bench</span></span></a><nav class="hidden md:flex items-center gap-1"><a class="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 text-slate-400 hover:text-slate-200 hover:bg-surface-lighter" href="/devbench-tech/tools/"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-wrench w-4 h-4"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path></svg>Tools</a><a class="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 text-slate-400 hover:text-slate-200 hover:bg-surface-lighter" href="/devbench-tech/benchmarks/"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-bar-chart3 w-4 h-4"><path d="M3 3v18h18"></path><path d="M18 17V9"></path><path d="M13 17V5"></path><path d="M8 17v-3"></path></svg>Benchmarks</a><a class="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 bg-brand-500/10 text-brand-400" href="/devbench-tech/blog/"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-book-open w-4 h-4"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg>Blog</a><a class="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 text-slate-400 hover:text-slate-200 hover:bg-surface-lighter" href="/devbench-tech/about/"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-info w-4 h-4"><circle cx="12" cy="12" r="10"></circle><path d="M12 16v-4"></path><path d="M12 8h.01"></path></svg>About</a></nav><button class="md:hidden p-2 rounded-lg text-slate-400 hover:text-white hover:bg-surface-lighter transition-colors" aria-label="Toggle menu"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-menu w-5 h-5"><line x1="4" x2="20" y1="12" y2="12"></line><line x1="4" x2="20" y1="6" y2="6"></line><line x1="4" x2="20" y1="18" y2="18"></line></svg></button></div></div></header><main class="flex-1"><article class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-20"><script type="application/ld+json">{"@context":"https://schema.org","@type":"Article","headline":"CSS :has() — The Parent Selector That Changes Everything","description":"The :has() pseudo-class is now Baseline across all major browsers. It's not just a 'parent selector' — it's a relational selector that unlocks patterns we've needed JavaScript for since the beginning of CSS. Here's the complete guide with real-world patterns.","datePublished":"2026-05-24","author":{"@type":"Organization","name":"DevBench"},"publisher":{"@type":"Organization","name":"DevBench","url":"https://devbench-roan.vercel.app"}}</script><script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://devbench-roan.vercel.app"},{"@type":"ListItem","position":2,"name":"Blog","item":"https://devbench-roan.vercel.app/blog"},{"@type":"ListItem","position":3,"name":"CSS :has() — The Parent Selector That Changes Everything"}]}</script><a class="inline-flex items-center gap-1.5 text-slate-400 hover:text-brand-400 text-sm transition-colors mb-8" href="/devbench-tech/blog/"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-arrow-left w-4 h-4"><path d="m12 19-7-7 7-7"></path><path d="M19 12H5"></path></svg>Back to Blog</a><header class="mb-10"><h1 class="text-3xl sm:text-4xl font-bold text-white leading-tight mb-4">CSS :has() — The Parent Selector That Changes Everything</h1><div class="flex flex-wrap items-center gap-4 text-sm text-slate-400"><span class="flex items-center gap-1.5"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-calendar w-4 h-4"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"></rect><line x1="16" x2="16" y1="2" y2="6"></line><line x1="8" x2="8" y1="2" y2="6"></line><line x1="3" x2="21" y1="10" y2="10"></line></svg>2026-05-24</span><div class="flex flex-wrap gap-1.5"><span class="badge-secondary flex items-center gap-1"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-tag w-3 h-3"><path d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"></path><path d="M7 7h.01"></path></svg>[&quot;css&quot;</span><span class="badge-secondary flex items-center gap-1"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-tag w-3 h-3"><path d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"></path><path d="M7 7h.01"></path></svg>&quot;has-selector&quot;</span><span class="badge-secondary flex items-center gap-1"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-tag w-3 h-3"><path d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"></path><path d="M7 7h.01"></path></svg>&quot;web-platform&quot;</span><span class="badge-secondary flex items-center gap-1"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-tag w-3 h-3"><path d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"></path><path d="M7 7h.01"></path></svg>&quot;tutorial&quot;</span><span class="badge-secondary flex items-center gap-1"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-tag w-3 h-3"><path d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"></path><path d="M7 7h.01"></path></svg>&quot;selectors&quot;]</span></div></div></header><div class="blog-content prose-p:text-slate-300 prose-p:leading-relaxed prose-p:mb-4">
+<p class="post-p">
+For two decades, CSS developers asked for a <strong>parent selector</strong> — a way to style an element based on what it <em>contains</em>. In 2023, we got it. And by late 2025, <code class="inline-code">:has()</code> reached Baseline — supported in every major browser, covering ~94% of global users.
+</p>
+
+<p class="post-p">
+But <code class="inline-code">:has()</code> is much more than a parent selector. It's a <strong>relational selector</strong> that lets you style any element based on any of its descendants, siblings, or state. It unlocks patterns that used to require JavaScript — or were simply impossible in CSS.
+</p>
+
+<p class="post-p">
+Let's dive deep.
+</p>
+
+<h2 class="post-h2">What <code class="inline-code">:has()</code> Actually Does</h2>
+
+<p class="post-p">
+<code class="inline-code">:has()</code> is a functional pseudo-class that takes a <strong>selector list</strong> as its argument. It matches an element if any of the relative selectors in that list match at least one element.
+</p>
+
+<pre class="code-block"><code class="language-css">/<em> "Select any .card that contains an img" </em>/
+<p class="post-p">
+.card:has(img) {
+grid-column: span 2;
+}
+</p>
+
+<p class="post-p">
+/<em> "Select any li that contains a ul (a sublist)" </em>/
+li:has(&amp;gt; ul) {
+list-style: none;
+}
+</p>
+
+<p class="post-p">
+/<em> "Select a form that contains an invalid input" </em>/
+form:has(:invalid) {
+border-left: 4px solid #ef4444;
+}
+</code></pre>
+</p>
+
+<p class="post-p">
+The argument is a <strong>relative selector</strong> — it's scoped to the element you're checking. The <code class="inline-code">:has()</code> itself doesn't change which element gets styled; it changes <em>whether</em> it gets styled.
+</p>
+
+<h2 class="post-h2">The Classic: Parent Selector</h2>
+
+<p class="post-p">
+The most requested use case — style a parent based on its child:
+</p>
+
+<pre class="code-block"><code class="language-css">/<em> A card that contains an image gets a two-column layout </em>/
+<p class="post-p">
+.card:has(img) {
+display: grid;
+grid-template-columns: 200px 1fr;
+gap: 1.5rem;
+}
+</p>
+
+<p class="post-p">
+/<em> A nav item that has a dropdown gets a chevron </em>/
+.nav-item:has(&amp;gt; .dropdown)::after {
+content: ' ▾';
+font-size: 0.7rem;
+}
+</code></pre>
+</p>
+
+<p class="post-p">
+Without <code class="inline-code">:has()</code>, you'd need JavaScript to toggle a class on the parent. Now it's a single CSS rule.
+</p>
+
+<h2 class="post-h2">Previous Sibling Selector</h2>
+
+<p class="post-p">
+This is the one that blows people's minds. CSS has always had <code class="inline-code">+</code> (next sibling) but never "previous sibling." With <code class="inline-code">:has()</code>, you can:
+</p>
+
+<pre class="code-block"><code class="language-css">/<em> When a checkbox is checked, style the label BEFORE it </em>/
+<p class="post-p">
+label:has(+ input:checked) {
+color: #6366f1;
+font-weight: 600;
+}
+</p>
+
+<p class="post-p">
+/<em> Style all items BEFORE the active one differently </em>/
+.item:has(+ .item.active) {
+opacity: 0.6;
+}
+</code></pre>
+</p>
+
+<p class="post-p">
+This is a game-changer for custom form controls, navigation, and any UI where "the thing before the active thing" matters.
+</p>
+
+<h2 class="post-h2">Real-World Patterns</h2>
+
+<h3 class="post-h3">Pattern 1: Form Validation States</h3>
+
+<p class="post-p">
+This is where <code class="inline-code">:has()</code> shines brightest. Style the entire form — or individual field groups — based on the validity of their inputs:
+</p>
+
+<pre class="code-block"><code class="language-css">/<em> Highlight the entire form when any field is invalid </em>/
+<p class="post-p">
+form:has(:user-invalid) {
+--form-border: #ef4444;
+}
+</p>
+
+<p class="post-p">
+/<em> Show a submit button only when all required fields are filled </em>/
+form:has(:required:valid) button[type="submit"] {
+opacity: 1;
+pointer-events: auto;
+}
+</p>
+
+<p class="post-p">
+/<em> Style a field group with an error state </em>/
+.field-group:has(:user-invalid) {
+border-left: 3px solid #ef4444;
+padding-left: 1rem;
+background: rgba(239, 68, 68, 0.05);
+}
+</p>
+
+<p class="post-p">
+/<em> Show error message only when the associated input is invalid </em>/
+.field-group:has(:user-invalid) .error-message {
+display: block;
+}
+</p>
+
+<p class="post-p">
+/<em> Style the password field differently when it passes validation </em>/
+.field-group:has(input[type="password"]:valid) .strength-indicator {
+background: #22c55e;
+}
+</code></pre>
+</p>
+
+<p class="post-p">
+No JavaScript. No class toggling. Pure CSS form validation feedback.
+</p>
+
+<h3 class="post-h3">Pattern 2: Card Layout Adaptation</h3>
+
+<p class="post-p">
+Make your card layouts responsive to their <em>content</em>, not just the viewport:
+</p>
+
+<pre class="code-block"><code class="language-css">/<em> Cards with images get a horizontal layout </em>/
+<p class="post-p">
+.product-card:has(img) {
+display: grid;
+grid-template-columns: 180px 1fr;
+gap: 1rem;
+}
+</p>
+
+<p class="post-p">
+/<em> Cards without images stay vertical </em>/
+.product-card:not(:has(img)) {
+display: flex;
+flex-direction: column;
+}
+</p>
+
+<p class="post-p">
+/<em> A featured card with a badge gets extra prominence </em>/
+.product-card:has(.badge--featured) {
+box-shadow: 0 0 0 2px #6366f1, 0 4px 20px rgba(99, 102, 241, 0.3);
+}
+</p>
+
+<p class="post-p">
+/<em> Card with multiple tags gets a scrollable tag area </em>/
+.product-card:has(.tag:nth-child(4)) .tags-container {
+overflow-x: auto;
+mask-image: linear-gradient(to right, black 80%, transparent);
+}
+</code></pre>
+</p>
+
+<p class="post-p">
+Content-aware layouts. No media queries. No container queries. Just the structure of the content deciding the layout.
+</p>
+
+<h3 class="post-h3">Pattern 3: Navigation States</h3>
+
+<pre class="code-block"><code class="language-css">/<em> Highlight the current nav section </em>/
+<p class="post-p">
+nav:has([aria-current="page"]) {
+/<em> We know we're on a page with active nav </em>/
+}
+</p>
+
+<p class="post-p">
+.nav-item:has([aria-current="page"]) {
+background: rgba(99, 102, 241, 0.15);
+}
+</p>
+
+<p class="post-p">
+/<em> Style a dropdown toggle when its menu is open </em>/
+.dropdown:has([aria-expanded="true"]) .dropdown-toggle {
+background: #6366f1;
+color: white;
+}
+</p>
+
+<p class="post-p">
+/<em> Breadcrumb with more than 3 items gets truncated </em>/
+.breadcrumb:has(&amp;gt; li:nth-child(4)) {
+/<em> Enable truncation mode </em>/
+--truncate-breadcrumbs: 1;
+}
+</code></pre>
+</p>
+
+<h3 class="post-h3">Pattern 4: Interactive Components</h3>
+
+<pre class="code-block"><code class="language-css">/<em> Custom checkbox/radio styling </em>/
+<p class="post-p">
+.checkbox-wrapper:has(input:checked) .checkmark {
+background: #6366f1;
+border-color: #6366f1;
+}
+</p>
+
+<p class="post-p">
+.checkbox-wrapper:has(input:checked) .checkmark::after {
+opacity: 1;
+transform: scale(1);
+}
+</p>
+
+<p class="post-p">
+/<em> Tab panels </em>/
+.tab-panel:not(:has([aria-selected="true"])) {
+display: none;
+}
+</p>
+
+<p class="post-p">
+/<em> Accordion </em>/
+.accordion-item:has([aria-expanded="true"]) .accordion-content {
+grid-template-rows: 1fr;
+}
+</p>
+
+<p class="post-p">
+/<em> A toggle switch </em>/
+.toggle:has(input:checked) .toggle-track {
+background: #22c55e;
+}
+</p>
+
+<p class="post-p">
+.toggle:has(input:checked) .toggle-thumb {
+transform: translateX(20px);
+}
+</code></pre>
+</p>
+
+<h3 class="post-h3">Pattern 5: Empty States and Edge Cases</h3>
+
+<pre class="code-block"><code class="language-css">/<em> A list with no items gets an empty state </em>/
+<p class="post-p">
+.list-container:has(&amp;gt; :not(.empty-state)) {
+/<em> The list has items — hide the empty state </em>/
+}
+</p>
+
+<p class="post-p">
+.list-container:not(:has(&amp;gt; :not(.empty-state))) .empty-state {
+display: flex;
+}
+</p>
+
+<p class="post-p">
+/<em> A grid with only one item </em>/
+.grid:has(&amp;gt; :only-child) {
+grid-template-columns: 1fr;
+max-width: 400px;
+margin-inline: auto;
+}
+</p>
+
+<p class="post-p">
+/<em> A table with no rows </em>/
+.table-wrapper:not(:has(tbody tr)) .no-data-message {
+display: block;
+}
+</p>
+
+<p class="post-p">
+/<em> A button that contains only an icon (no text) gets rounded </em>/
+button:has(svg:only-child):not(:has(:not(svg))) {
+border-radius: 50%;
+padding: 0.5rem;
+aspect-ratio: 1;
+}
+</code></pre>
+</p>
+
+<h3 class="post-h3">Pattern 6: Article/Content Layouts</h3>
+
+<pre class="code-block"><code class="language-css">/<em> An article with a hero image </em>/
+<p class="post-p">
+article:has(&amp;gt; figure:first-child) h1 {
+margin-top: 0;
+font-size: 2.5rem;
+}
+</p>
+
+<p class="post-p">
+/<em> A section with lots of content gets more padding </em>/
+section:has(&amp;gt; *:nth-child(5)) {
+padding-block: 4rem;
+}
+</p>
+
+<p class="post-p">
+/<em> Style a code block that's inside a list item differently </em>/
+li:has(&amp;gt; pre) {
+margin-block: 1.5rem;
+}
+</p>
+
+<p class="post-p">
+/<em> Show a "back to top" button on long articles </em>/
+article:has(&amp;gt; *:nth-child(20)) .back-to-top {
+display: flex;
+}
+</code></pre>
+</p>
+
+<h2 class="post-h2">Combining <code class="inline-code">:has()</code> with Other Selectors</h2>
+
+<p class="post-p">
+<code class="inline-code">:has()</code> composes beautifully with other modern CSS:
+</p>
+
+<pre class="code-block"><code class="language-css">/<em> :has() + :not() — cards WITHOUT images </em>/
+<p class="post-p">
+.product-grid:has(.card:not(:has(img))) {
+grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+}
+</p>
+
+<p class="post-p">
+/<em> :has() + :is() — any input that has an error state </em>/
+.form:has(:is(input, select, textarea):user-invalid) {
+--form-state: 'error';
+}
+</p>
+
+<p class="post-p">
+/<em> :has() + :where() — low-specificity structural checks </em>/
+.sidebar:where(:has(nav)) {
+background: var(--surface);
+}
+</p>
+
+<p class="post-p">
+/<em> :has() + :nth-child() — a grid with an odd number of items </em>/
+.grid:has(&amp;gt; :nth-child(odd):last-child) {
+/<em> The last item will span full width </em>/
+justify-items: center;
+}
+</code></pre>
+</p>
+
+<h2 class="post-h2">Browser Support</h2>
+
+<p class="post-p">
+As of May 2026:
+</p>
+
+<p class="post-p">
+| Browser | Support |
+|---------|---------|
+| Chrome | ✅ 105+ |
+| Firefox | ✅ 121+ |
+| Safari | ✅ 15.4+ |
+| Edge | ✅ 105+ |
+| Samsung Internet | ✅ 20+ |
+| Opera | ✅ 91+ |
+</p>
+
+<p class="post-p">
+<strong>Baseline: Widely Available</strong> as of December 2024. ~94% global coverage.
+</p>
+
+<h3 class="post-h3">Progressive Enhancement</h3>
+
+<pre class="code-block"><code class="language-css">/<em> Fallback: no special styling </em>/
+<p class="post-p">
+.card {
+padding: 1.5rem;
+}
+</p>
+
+<p class="post-p">
+/<em> Enhancement: content-aware styling </em>/
+@supports selector(:has(img)) {
+.card:has(img) {
+display: grid;
+grid-template-columns: 200px 1fr;
+gap: 1.5rem;
+padding: 0;
+}
+</p>
+
+<p class="post-p">
+.card:has(img) .card-body {
+padding: 1.5rem;
+}
+</p>
+
+<p class="post-p">
+.card:has(img) .card-image {
+height: 100%;
+object-fit: cover;
+}
+}
+</code></pre>
+</p>
+
+<h2 class="post-h2">Performance Considerations</h2>
+
+<p class="post-p">
+The browser needs to evaluate <code class="inline-code">:has()</code> selectors carefully because they look <em>downward</em> in the DOM tree — opposite to the normal top-down selector matching. Here's what to know:
+</p>
+
+<h3 class="post-h3">Good: Low specificity, shallow checks</h3>
+
+<pre class="code-block"><code class="language-css">/<em> Fast — checks only immediate children </em>/
+<p class="post-p">
+.card:has(&amp;gt; img) { }
+</p>
+
+<p class="post-p">
+/<em> Fast — checks only one level deep </em>/
+form:has(input:invalid) { }
+</p>
+
+<p class="post-p">
+/<em> Fast — simple structural check </em>/
+section:has(&amp;gt; h2) { }
+</code></pre>
+</p>
+
+<h3 class="post-h3">Watch out: Deep or complex selectors</h3>
+
+<pre class="code-block"><code class="language-css">/<em> Slower — checks all descendants at any depth </em>/
+<p class="post-p">
+.container:has(img) { }
+</p>
+
+<p class="post-p">
+/<em> Slower — complex combinator chain </em>/
+body:has(.modal .dialog button:focus) { }
+</code></pre>
+</p>
+
+<h3 class="post-h3">The browser is smart about it</h3>
+
+<p class="post-p">
+Browsers use a technique called "selector invalidation" — they only re-evaluate <code class="inline-code">:has()</code> when something changes that could affect the result. Changing the color of a child won't trigger a re-evaluation for <code class="inline-code">:has(img)</code>, but adding or removing an <code class="inline-code">&lt;img&gt;</code> will.
+</p>
+
+<p class="post-p">
+In practice, for typical UI patterns, the performance impact of <code class="inline-code">:has()</code> is negligible. Don't avoid it out of premature optimization fear.
+</p>
+
+<h3 class="post-h3">The "specificity gotcha"</h3>
+
+<p class="post-p">
+<code class="inline-code">:has()</code> itself <strong>does not add specificity</strong>. Only the selectors <em>inside</em> <code class="inline-code">:has()</code> contribute:
+</p>
+
+<pre class="code-block"><code class="language-css">/<em> Specificity: 0,1,0 (one class) </em>/
+<p class="post-p">
+.card { }
+</p>
+
+<p class="post-p">
+/<em> Specificity: 0,1,0 (still one class — :has() adds nothing) </em>/
+.card:has(img) { }
+</p>
+
+<p class="post-p">
+/<em> Specificity: 0,2,0 (.card + img inside :has()) </em>/
+.card:has(img.hero) { }
+</code></pre>
+</p>
+
+<p class="post-p">
+This is different from <code class="inline-code">:not()</code> and <code class="inline-code">:is()</code> which take the specificity of their <em>most specific</em> argument. <code class="inline-code">:has()</code> is refreshingly simple.
+</p>
+
+<h2 class="post-h2">Common Pitfalls</h2>
+
+<h3 class="post-h3">1. <code class="inline-code">:has()</code> cannot be nested inside another <code class="inline-code">:has()</code></h3>
+
+<pre class="code-block"><code class="language-css">/<em> ❌ Not allowed — nested :has() </em>/
+<p class="post-p">
+.card:has(.body:has(img)) { }
+</p>
+
+<p class="post-p">
+/<em> ✅ Restructure instead </em>/
+.card:has(.body img) { }
+</code></pre>
+</p>
+
+<p class="post-p">
+The CSSWG restricted this to keep selector matching performant.
+</p>
+
+<h3 class="post-h3">2. Pseudo-elements don't work inside <code class="inline-code">:has()</code></h3>
+
+<pre class="code-block"><code class="language-css">/<em> ❌ Won't work </em>/
+<p class="post-p">
+.card:has(::before) { }
+</code></pre>
+</p>
+
+<p class="post-p">
+<code class="inline-code">::before</code> and <code class="inline-code">::after</code> are not real DOM elements — <code class="inline-code">:has()</code> only sees the real tree.
+</p>
+
+<h3 class="post-h3">3. <code class="inline-code">:has()</code> only works with supported selectors</h3>
+
+<pre class="code-block"><code class="language-css">/<em> ❌ Pseudo-classes that represent element state may not work </em>/
+<p class="post-p">
+/<em> (browser-dependent — check support) </em>/
+.element:has(:focus-within) { } /<em> ✅ Works </em>/
+.element:has(:hover) { }        /<em> ✅ Works </em>/
+.element:has(:playing) { }      /<em> ⚠️ Check support </em>/
+</code></pre>
+</p>
+
+<h3 class="post-h3">4. Overusing <code class="inline-code">:has()</code> for everything</h3>
+
+<p class="post-p">
+Just because you <em>can</em> doesn't mean you <em>should</em>. Simple structural selectors are often clearer:
+</p>
+
+<pre class="code-block"><code class="language-css">/<em> Over-engineered </em>/
+<p class="post-p">
+.wrapper:has(&amp;gt; .sidebar) { }
+</p>
+
+<p class="post-p">
+/<em> Clearer and does the same thing </em>/
+.wrapper &amp;gt; .sidebar { grid-column: 1; }
+</code></pre>
+</p>
+
+<p class="post-p">
+Use <code class="inline-code">:has()</code> when you need to style the <strong>ancestor</strong> or <strong>previous sibling</strong> — not when you can just target the element directly.
+</p>
+
+<h2 class="post-h2">A Complete Example: Product Filter UI</h2>
+
+<p class="post-p">
+Here's a full product filter UI that uses <code class="inline-code">:has()</code> to handle almost all interactive states without JavaScript:
+</p>
+
+<pre class="code-block"><code class="language-html">&amp;lt;div class="filter-bar"&amp;gt;
+<p class="post-p">
+&amp;lt;div class="filter-group"&amp;gt;
+&amp;lt;label class="filter-label"&amp;gt;
+&amp;lt;input type="checkbox" value="in-stock" checked&amp;gt;
+In Stock Only
+&amp;lt;/label&amp;gt;
+&amp;lt;/div&amp;gt;
+</p>
+
+<p class="post-p">
+&amp;lt;div class="filter-group"&amp;gt;
+&amp;lt;span class="filter-label-text"&amp;gt;Category&amp;lt;/span&amp;gt;
+&amp;lt;select class="filter-select"&amp;gt;
+&amp;lt;option value="all"&amp;gt;All&amp;lt;/option&amp;gt;
+&amp;lt;option value="electronics"&amp;gt;Electronics&amp;lt;/option&amp;gt;
+&amp;lt;option value="clothing"&amp;gt;Clothing&amp;lt;/option&amp;gt;
+&amp;lt;/select&amp;gt;
+&amp;lt;/div&amp;gt;
+</p>
+
+<p class="post-p">
+&amp;lt;div class="active-filters" aria-live="polite"&amp;gt;&amp;lt;/div&amp;gt;
+&amp;lt;/div&amp;gt;
+</p>
+
+<p class="post-p">
+&amp;lt;div class="product-grid"&amp;gt;
+&amp;lt;!-- Product cards would go here --&amp;gt;
+&amp;lt;/div&amp;gt;
+</code></pre>
+</p>
+
+<pre class="code-block"><code class="language-css">/<em> Highlight active filter groups </em>/
+<p class="post-p">
+.filter-group:has(input:checked),
+.filter-group:has(select:not([value="all"])) {
+background: rgba(99, 102, 241, 0.1);
+border-color: #6366f1;
+}
+</p>
+
+<p class="post-p">
+/<em> Show the "active filters" section only when filters are applied </em>/
+.active-filters:has(.filter-chip) {
+display: flex;
+padding: 0.75rem 0;
+border-top: 1px solid var(--border);
+}
+</p>
+
+<p class="post-p">
+/<em> Empty state: when no filters match </em>/
+.product-grid:not(:has(.product-card))::after {
+content: 'No products match your filters';
+grid-column: 1 / -1;
+text-align: center;
+padding: 3rem;
+color: var(--text-muted);
+}
+</p>
+
+<p class="post-p">
+/<em> Filter chips for active filters </em>/
+.filter-bar:has(input:checked) .active-filters {
+display: flex;
+}
+</code></pre>
+</p>
+
+<p class="post-p">
+The entire filter interaction state is managed by CSS. JavaScript only needs to handle the actual list filtering — all visual feedback is declarative.
+</p>
+
+<h2 class="post-h2">Debugging <code class="inline-code">:has()</code> Selectors</h2>
+
+<h3 class="post-h3">Chrome DevTools</h3>
+
+<ul class="post-ul"><li class="post-li">Open DevTools → <strong>Elements</strong> panel</li>
+<li class="post-li">Find an element with a <code class="inline-code">:has()</code> rule</li>
+<li class="post-li">In the <strong>Styles</strong> pane, hover over the selector — Chrome highlights matching elements</li>
+<li class="post-li">If the selector isn't matching, check the <strong>Computed</strong> tab to see which rule is being overridden</li>
+</ul>
+<h3 class="post-h3">Checking support dynamically</h3>
+
+<pre class="code-block"><code class="language-css">@supports selector(:has(*)) {
+<p class="post-p">
+/<em> :has() is supported </em>/
+.card:has(img) {
+display: grid;
+grid-template-columns: 200px 1fr;
+}
+}
+</p>
+
+<p class="post-p">
+@supports not selector(:has(*)) {
+/<em> Fallback </em>/
+.card {
+display: flex;
+flex-direction: column;
+}
+}
+</code></pre>
+</p>
+
+<h3 class="post-h3">Common debugging checklist</h3>
+
+<ul class="post-ul"><li class="post-li">Is the element inside <code class="inline-code">:has()</code> actually a descendant? Use <code class="inline-code">&gt; </code> for direct children, space for any descendant.</li>
+<li class="post-li">Are you using a valid selector inside <code class="inline-code">:has()</code>? No pseudo-elements, no nested <code class="inline-code">:has()</code>.</li>
+<li class="post-li">Does the element exist in the DOM? <code class="inline-code">:has()</code> only sees real elements — not <code class="inline-code">::before</code>/<code class="inline-code">::after</code>.</li>
+<li class="post-li">Is your specificity right? <code class="inline-code">:has()</code> doesn't add specificity — you might be getting overridden.</li>
+</ul>
+<h2 class="post-h2">The Bigger Picture: Why <code class="inline-code">:has()</code> Matters</h2>
+
+<p class="post-p">
+<code class="inline-code">:has()</code> represents a fundamental shift in CSS. For the first time, selectors can look <em>back up</em> the tree. This changes how we think about component architecture:
+</p>
+
+<ul class="post-ul"><li class="post-li"><strong>Before <code class="inline-code">:has()</code>:</strong> You styled elements from the top down. Components needed JavaScript to communicate state upward.</li>
+<li class="post-li"><strong>After <code class="inline-code">:has()</code>:</strong> Components can react to their <em>contents</em>. A card knows if it has an image. A form knows if it has errors. A list knows if it's empty.</li>
+</ul>
+<p class="post-p">
+This is <strong>declarative component logic</strong> — the CSS equivalent of React's component state, but built into the browser itself.
+</p>
+
+<h3 class="post-h3">What you can remove</h3>
+
+<p class="post-p">
+With <code class="inline-code">:has()</code>, you can often eliminate:
+</p>
+
+<p class="post-p">
+| JavaScript Pattern | CSS Replacement |
+|---|---|
+| <code class="inline-code">parent.classList.toggle('has-image')</code> | <code class="inline-code">.card:has(img)</code> |
+| <code class="inline-code">form.classList.add('has-errors')</code> | <code class="inline-code">form:has(:invalid)</code> |
+| <code class="inline-code">menu.classList.toggle('open')</code> | <code class="inline-code">.dropdown:has([aria-expanded="true"])</code> |
+| <code class="inline-code">items.length === 0 &amp;&amp; showEmptyState()</code> | <code class="inline-code">.list:not(:has(&gt; *)) .empty-state</code> |
+| <code class="inline-code">previousSibling.classList.add('before-active')</code> | <code class="inline-code">.item:has(+ .item.active)</code> |
+</p>
+
+<p class="post-p">
+Less JavaScript. Fewer state-management bugs. Faster initial render.
+</p>
+
+<h2 class="post-h2">Resources</h2>
+
+<ul class="post-ul"><li class="post-li"><a href="https://developer.mozilla.org/en-US/docs/Web/CSS/:has" class="post-link" target="_blank" rel="noopener noreferrer">MDN: :has() pseudo-class</a></li>
+<li class="post-li"><a href="https://drafts.csswg.org/selectors-4/#relational" class="post-link" target="_blank" rel="noopener noreferrer">CSSWG Selectors Level 4 Spec</a></li>
+<li class="post-li"><a href="https://web.dev/articles/has" class="post-link" target="_blank" rel="noopener noreferrer">web.dev: The CSS :has() selector</a></li>
+<li class="post-li"><a href="https://caniuse.com/css-has" class="post-link" target="_blank" rel="noopener noreferrer">Can I Use: :has() selector</a></li>
+<li class="post-li"><a href="https://developer.chrome.com/docs/css-ui/has-selector" class="post-link" target="_blank" rel="noopener noreferrer">Chrome Developers: :has() — the family selector</a></li>
+</ul>
+<hr class="post-hr" />
+
+<p class="post-p">
+<strong><code class="inline-code">:has()</code> is Baseline.</strong> It's not experimental. It's not "coming soon." It's here, it's fast, and it eliminates some of the last remaining reasons to use JavaScript for styling logic. If you haven't started using it yet, now is the time.
+</p>
+</div><style>
+        .blog-content .post-h1 { font-size: 1.75rem; font-weight: 700; color: #ffffff; margin-top: 2rem; margin-bottom: 1rem; }
+        .blog-content .post-h2 { font-size: 1.5rem; font-weight: 600; color: #f1f5f9; margin-top: 1.75rem; margin-bottom: 0.75rem; padding-bottom: 0.5rem; border-bottom: 1px solid #334155; }
+        .blog-content .post-h3 { font-size: 1.25rem; font-weight: 600; color: #e2e8f0; margin-top: 1.5rem; margin-bottom: 0.5rem; }
+        .blog-content .post-h4 { font-size: 1.1rem; font-weight: 600; color: #e2e8f0; margin-top: 1.25rem; margin-bottom: 0.5rem; }
+        .blog-content .post-p { color: #cbd5e1; line-height: 1.75; margin-bottom: 1rem; }
+        .blog-content .code-block { background: #0f172a; border: 1px solid #334155; border-radius: 0.5rem; padding: 1rem; overflow-x: auto; margin: 1rem 0; font-family: 'JetBrains Mono', monospace; font-size: 0.875rem; color: #e2e8f0; }
+        .blog-content .inline-code { background: #1e293b; color: #38bdf8; padding: 0.15rem 0.4rem; border-radius: 0.25rem; font-family: 'JetBrains Mono', monospace; font-size: 0.875em; }
+        .blog-content .post-link { color: #38bdf8; text-decoration: underline; transition: color 0.2s; }
+        .blog-content .post-link:hover { color: #7dd3fc; }
+        .blog-content .post-ul { list-style: disc; padding-left: 1.5rem; margin: 0.75rem 0; color: #cbd5e1; }
+        .blog-content .post-li { margin-bottom: 0.25rem; line-height: 1.6; }
+        .blog-content .post-blockquote { border-left: 3px solid #0ea5e9; padding: 0.5rem 1rem; margin: 1rem 0; background: rgba(14, 165, 233, 0.05); border-radius: 0 0.5rem 0.5rem 0; }
+        .blog-content .post-blockquote p { color: #94a3b8; font-style: italic; }
+        .blog-content .post-hr { border: none; border-top: 1px solid #334155; margin: 2rem 0; }
+        .blog-content strong { color: #f1f5f9; font-weight: 600; }
+        .blog-content em { font-style: italic; }
+        </style></article></main><footer class="bg-surface-light border-t border-slate-700/50 mt-auto"><div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12"><div class="grid grid-cols-1 md:grid-cols-3 gap-8"><div><a class="flex items-center gap-2.5 mb-3" href="/devbench-tech/"><div class="w-7 h-7 bg-brand-500 rounded-lg flex items-center justify-center"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-terminal w-3.5 h-3.5 text-white"><polyline points="4 17 10 11 4 5"></polyline><line x1="12" x2="20" y1="19" y2="19"></line></svg></div><span class="text-lg font-bold text-white">Dev<span class="gradient-text">Bench</span></span></a><p class="text-slate-400 text-sm leading-relaxed">Free developer tools, benchmarks, and calculators. Built for developers, by developers.</p></div><div><h3 class="text-sm font-semibold text-slate-300 uppercase tracking-wider mb-4">Tools</h3><ul class="space-y-2"><li><a class="text-slate-400 hover:text-brand-400 text-sm transition-colors" href="/devbench-tech/tools/json-formatter/">JSON Formatter</a></li><li><a class="text-slate-400 hover:text-brand-400 text-sm transition-colors" href="/devbench-tech/tools/base64/">Base64 Encoder/Decoder</a></li><li><a class="text-slate-400 hover:text-brand-400 text-sm transition-colors" href="/devbench-tech/tools/uuid-generator/">UUID Generator</a></li><li><a class="text-slate-400 hover:text-brand-400 text-sm transition-colors" href="/devbench-tech/tools/regex-tester/">Regex Tester</a></li></ul></div><div><h3 class="text-sm font-semibold text-slate-300 uppercase tracking-wider mb-4">Resources</h3><ul class="space-y-2"><li><a class="text-slate-400 hover:text-brand-400 text-sm transition-colors" href="/devbench-tech/blog/">Blog</a></li><li><a class="text-slate-400 hover:text-brand-400 text-sm transition-colors" href="/devbench-tech/benchmarks/">Benchmarks</a></li><li><a class="text-slate-400 hover:text-brand-400 text-sm transition-colors" href="/devbench-tech/about/">About</a></li></ul></div></div><div class="mt-10 pt-6 border-t border-slate-700/50 flex flex-col sm:flex-row items-center justify-between gap-4"><p class="text-slate-500 text-sm flex items-center gap-1">Made with <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-heart w-3.5 h-3.5 text-red-500 fill-red-500"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"></path></svg> by the DevBench team © <!-- -->2026</p><a href="https://github.com" target="_blank" rel="noopener noreferrer" class="text-slate-500 hover:text-slate-300 transition-colors" aria-label="GitHub"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-github w-5 h-5"><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"></path><path d="M9 18c-4.51 2-5-2-7-2"></path></svg></a></div></div></footer><div data-rht-toaster="" style="position:fixed;z-index:9999;top:16px;left:16px;right:16px;bottom:16px;pointer-events:none"></div><script src="/devbench-tech/_next/static/chunks/webpack-b521a83317325026.js" async=""></script><script>(self.__next_f=self.__next_f||[]).push([0]);self.__next_f.push([2,null])</script><script>self.__next_f.push([1,"1:HL[\"/devbench-tech/_next/static/css/c877e59dbcb00f11.css\",\"style\"]\n"])</script><script>self.__next_f.push([1,"2:I[12846,[],\"\"]\n4:I[72972,[\"2972\",\"static/chunks/2972-4aaa15d119eeb022.js\",\"308\",\"static/chunks/app/blog/%5Bslug%5D/page-a411190e7012c687.js\"],\"\"]\n7:I[4707,[],\"\"]\n9:I[36423,[],\"\"]\na:I[39295,[\"9762\",\"static/chunks/44530001-4ecf7a22b5b24163.js\",\"2972\",\"static/chunks/2972-4aaa15d119eeb022.js\",\"8375\",\"static/chunks/8375-c77b8de36f6696fb.js\",\"6829\",\"static/chunks/6829-f51803445ddf1872.js\",\"3185\",\"static/chunks/app/layout-488e5c40aa6ffa72.js\"],\"Header\"]\nb:I[66506,[\"9762\",\"static/chunks/44530001-4ecf7a22b5b24163.js\",\"2972\",\"static/chunks/2972-4aaa15d119eeb022.js\",\"8375\",\"static/chunks/8375-c77b8de36f6696fb.js\",\"6829\",\"static/chunks/6829-f51803445ddf1872.js\",\"3185\",\"static/chunks/app/layout-488e5c40aa6ffa72.js\"],\"Analytics\"]\nc:I[69064,[\"9762\",\"static/chunks/44530001-4ecf7a22b5b24163.js\",\"2972\",\"static/chunks/2972-4aaa15d119eeb022.js\",\"8375\",\"static/chunks/8375-c77b8de36f6696fb.js\",\"6829\",\"static/chunks/6829-f51803445ddf1872.js\",\"3185\",\"static/chunks/app/layout-488e5c40aa6ffa72.js\"],\"Toaster\"]\ne:I[61060,[],\"\"]\n5:T5a33,"])</script><script>self.__next_f.push([1,"\n\u003cp class=\"post-p\"\u003e\nFor two decades, CSS developers asked for a \u003cstrong\u003eparent selector\u003c/strong\u003e — a way to style an element based on what it \u003cem\u003econtains\u003c/em\u003e. In 2023, we got it. And by late 2025, \u003ccode class=\"inline-code\"\u003e:has()\u003c/code\u003e reached Baseline — supported in every major browser, covering ~94% of global users.\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\nBut \u003ccode class=\"inline-code\"\u003e:has()\u003c/code\u003e is much more than a parent selector. It's a \u003cstrong\u003erelational selector\u003c/strong\u003e that lets you style any element based on any of its descendants, siblings, or state. It unlocks patterns that used to require JavaScript — or were simply impossible in CSS.\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\nLet's dive deep.\n\u003c/p\u003e\n\n\u003ch2 class=\"post-h2\"\u003eWhat \u003ccode class=\"inline-code\"\u003e:has()\u003c/code\u003e Actually Does\u003c/h2\u003e\n\n\u003cp class=\"post-p\"\u003e\n\u003ccode class=\"inline-code\"\u003e:has()\u003c/code\u003e is a functional pseudo-class that takes a \u003cstrong\u003eselector list\u003c/strong\u003e as its argument. It matches an element if any of the relative selectors in that list match at least one element.\n\u003c/p\u003e\n\n\u003cpre class=\"code-block\"\u003e\u003ccode class=\"language-css\"\u003e/\u003cem\u003e \"Select any .card that contains an img\" \u003c/em\u003e/\n\u003cp class=\"post-p\"\u003e\n.card:has(img) {\ngrid-column: span 2;\n}\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n/\u003cem\u003e \"Select any li that contains a ul (a sublist)\" \u003c/em\u003e/\nli:has(\u0026amp;gt; ul) {\nlist-style: none;\n}\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n/\u003cem\u003e \"Select a form that contains an invalid input\" \u003c/em\u003e/\nform:has(:invalid) {\nborder-left: 4px solid #ef4444;\n}\n\u003c/code\u003e\u003c/pre\u003e\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\nThe argument is a \u003cstrong\u003erelative selector\u003c/strong\u003e — it's scoped to the element you're checking. The \u003ccode class=\"inline-code\"\u003e:has()\u003c/code\u003e itself doesn't change which element gets styled; it changes \u003cem\u003ewhether\u003c/em\u003e it gets styled.\n\u003c/p\u003e\n\n\u003ch2 class=\"post-h2\"\u003eThe Classic: Parent Selector\u003c/h2\u003e\n\n\u003cp class=\"post-p\"\u003e\nThe most requested use case — style a parent based on its child:\n\u003c/p\u003e\n\n\u003cpre class=\"code-block\"\u003e\u003ccode class=\"language-css\"\u003e/\u003cem\u003e A card that contains an image gets a two-column layout \u003c/em\u003e/\n\u003cp class=\"post-p\"\u003e\n.card:has(img) {\ndisplay: grid;\ngrid-template-columns: 200px 1fr;\ngap: 1.5rem;\n}\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n/\u003cem\u003e A nav item that has a dropdown gets a chevron \u003c/em\u003e/\n.nav-item:has(\u0026amp;gt; .dropdown)::after {\ncontent: ' ▾';\nfont-size: 0.7rem;\n}\n\u003c/code\u003e\u003c/pre\u003e\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\nWithout \u003ccode class=\"inline-code\"\u003e:has()\u003c/code\u003e, you'd need JavaScript to toggle a class on the parent. Now it's a single CSS rule.\n\u003c/p\u003e\n\n\u003ch2 class=\"post-h2\"\u003ePrevious Sibling Selector\u003c/h2\u003e\n\n\u003cp class=\"post-p\"\u003e\nThis is the one that blows people's minds. CSS has always had \u003ccode class=\"inline-code\"\u003e+\u003c/code\u003e (next sibling) but never \"previous sibling.\" With \u003ccode class=\"inline-code\"\u003e:has()\u003c/code\u003e, you can:\n\u003c/p\u003e\n\n\u003cpre class=\"code-block\"\u003e\u003ccode class=\"language-css\"\u003e/\u003cem\u003e When a checkbox is checked, style the label BEFORE it \u003c/em\u003e/\n\u003cp class=\"post-p\"\u003e\nlabel:has(+ input:checked) {\ncolor: #6366f1;\nfont-weight: 600;\n}\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n/\u003cem\u003e Style all items BEFORE the active one differently \u003c/em\u003e/\n.item:has(+ .item.active) {\nopacity: 0.6;\n}\n\u003c/code\u003e\u003c/pre\u003e\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\nThis is a game-changer for custom form controls, navigation, and any UI where \"the thing before the active thing\" matters.\n\u003c/p\u003e\n\n\u003ch2 class=\"post-h2\"\u003eReal-World Patterns\u003c/h2\u003e\n\n\u003ch3 class=\"post-h3\"\u003ePattern 1: Form Validation States\u003c/h3\u003e\n\n\u003cp class=\"post-p\"\u003e\nThis is where \u003ccode class=\"inline-code\"\u003e:has()\u003c/code\u003e shines brightest. Style the entire form — or individual field groups — based on the validity of their inputs:\n\u003c/p\u003e\n\n\u003cpre class=\"code-block\"\u003e\u003ccode class=\"language-css\"\u003e/\u003cem\u003e Highlight the entire form when any field is invalid \u003c/em\u003e/\n\u003cp class=\"post-p\"\u003e\nform:has(:user-invalid) {\n--form-border: #ef4444;\n}\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n/\u003cem\u003e Show a submit button only when all required fields are filled \u003c/em\u003e/\nform:has(:required:valid) button[type=\"submit\"] {\nopacity: 1;\npointer-events: auto;\n}\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n/\u003cem\u003e Style a field group with an error state \u003c/em\u003e/\n.field-group:has(:user-invalid) {\nborder-left: 3px solid #ef4444;\npadding-left: 1rem;\nbackground: rgba(239, 68, 68, 0.05);\n}\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n/\u003cem\u003e Show error message only when the associated input is invalid \u003c/em\u003e/\n.field-group:has(:user-invalid) .error-message {\ndisplay: block;\n}\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n/\u003cem\u003e Style the password field differently when it passes validation \u003c/em\u003e/\n.field-group:has(input[type=\"password\"]:valid) .strength-indicator {\nbackground: #22c55e;\n}\n\u003c/code\u003e\u003c/pre\u003e\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\nNo JavaScript. No class toggling. Pure CSS form validation feedback.\n\u003c/p\u003e\n\n\u003ch3 class=\"post-h3\"\u003ePattern 2: Card Layout Adaptation\u003c/h3\u003e\n\n\u003cp class=\"post-p\"\u003e\nMake your card layouts responsive to their \u003cem\u003econtent\u003c/em\u003e, not just the viewport:\n\u003c/p\u003e\n\n\u003cpre class=\"code-block\"\u003e\u003ccode class=\"language-css\"\u003e/\u003cem\u003e Cards with images get a horizontal layout \u003c/em\u003e/\n\u003cp class=\"post-p\"\u003e\n.product-card:has(img) {\ndisplay: grid;\ngrid-template-columns: 180px 1fr;\ngap: 1rem;\n}\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n/\u003cem\u003e Cards without images stay vertical \u003c/em\u003e/\n.product-card:not(:has(img)) {\ndisplay: flex;\nflex-direction: column;\n}\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n/\u003cem\u003e A featured card with a badge gets extra prominence \u003c/em\u003e/\n.product-card:has(.badge--featured) {\nbox-shadow: 0 0 0 2px #6366f1, 0 4px 20px rgba(99, 102, 241, 0.3);\n}\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n/\u003cem\u003e Card with multiple tags gets a scrollable tag area \u003c/em\u003e/\n.product-card:has(.tag:nth-child(4)) .tags-container {\noverflow-x: auto;\nmask-image: linear-gradient(to right, black 80%, transparent);\n}\n\u003c/code\u003e\u003c/pre\u003e\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\nContent-aware layouts. No media queries. No container queries. Just the structure of the content deciding the layout.\n\u003c/p\u003e\n\n\u003ch3 class=\"post-h3\"\u003ePattern 3: Navigation States\u003c/h3\u003e\n\n\u003cpre class=\"code-block\"\u003e\u003ccode class=\"language-css\"\u003e/\u003cem\u003e Highlight the current nav section \u003c/em\u003e/\n\u003cp class=\"post-p\"\u003e\nnav:has([aria-current=\"page\"]) {\n/\u003cem\u003e We know we're on a page with active nav \u003c/em\u003e/\n}\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n.nav-item:has([aria-current=\"page\"]) {\nbackground: rgba(99, 102, 241, 0.15);\n}\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n/\u003cem\u003e Style a dropdown toggle when its menu is open \u003c/em\u003e/\n.dropdown:has([aria-expanded=\"true\"]) .dropdown-toggle {\nbackground: #6366f1;\ncolor: white;\n}\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n/\u003cem\u003e Breadcrumb with more than 3 items gets truncated \u003c/em\u003e/\n.breadcrumb:has(\u0026amp;gt; li:nth-child(4)) {\n/\u003cem\u003e Enable truncation mode \u003c/em\u003e/\n--truncate-breadcrumbs: 1;\n}\n\u003c/code\u003e\u003c/pre\u003e\n\u003c/p\u003e\n\n\u003ch3 class=\"post-h3\"\u003ePattern 4: Interactive Components\u003c/h3\u003e\n\n\u003cpre class=\"code-block\"\u003e\u003ccode class=\"language-css\"\u003e/\u003cem\u003e Custom checkbox/radio styling \u003c/em\u003e/\n\u003cp class=\"post-p\"\u003e\n.checkbox-wrapper:has(input:checked) .checkmark {\nbackground: #6366f1;\nborder-color: #6366f1;\n}\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n.checkbox-wrapper:has(input:checked) .checkmark::after {\nopacity: 1;\ntransform: scale(1);\n}\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n/\u003cem\u003e Tab panels \u003c/em\u003e/\n.tab-panel:not(:has([aria-selected=\"true\"])) {\ndisplay: none;\n}\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n/\u003cem\u003e Accordion \u003c/em\u003e/\n.accordion-item:has([aria-expanded=\"true\"]) .accordion-content {\ngrid-template-rows: 1fr;\n}\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n/\u003cem\u003e A toggle switch \u003c/em\u003e/\n.toggle:has(input:checked) .toggle-track {\nbackground: #22c55e;\n}\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n.toggle:has(input:checked) .toggle-thumb {\ntransform: translateX(20px);\n}\n\u003c/code\u003e\u003c/pre\u003e\n\u003c/p\u003e\n\n\u003ch3 class=\"post-h3\"\u003ePattern 5: Empty States and Edge Cases\u003c/h3\u003e\n\n\u003cpre class=\"code-block\"\u003e\u003ccode class=\"language-css\"\u003e/\u003cem\u003e A list with no items gets an empty state \u003c/em\u003e/\n\u003cp class=\"post-p\"\u003e\n.list-container:has(\u0026amp;gt; :not(.empty-state)) {\n/\u003cem\u003e The list has items — hide the empty state \u003c/em\u003e/\n}\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n.list-container:not(:has(\u0026amp;gt; :not(.empty-state))) .empty-state {\ndisplay: flex;\n}\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n/\u003cem\u003e A grid with only one item \u003c/em\u003e/\n.grid:has(\u0026amp;gt; :only-child) {\ngrid-template-columns: 1fr;\nmax-width: 400px;\nmargin-inline: auto;\n}\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n/\u003cem\u003e A table with no rows \u003c/em\u003e/\n.table-wrapper:not(:has(tbody tr)) .no-data-message {\ndisplay: block;\n}\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n/\u003cem\u003e A button that contains only an icon (no text) gets rounded \u003c/em\u003e/\nbutton:has(svg:only-child):not(:has(:not(svg))) {\nborder-radius: 50%;\npadding: 0.5rem;\naspect-ratio: 1;\n}\n\u003c/code\u003e\u003c/pre\u003e\n\u003c/p\u003e\n\n\u003ch3 class=\"post-h3\"\u003ePattern 6: Article/Content Layouts\u003c/h3\u003e\n\n\u003cpre class=\"code-block\"\u003e\u003ccode class=\"language-css\"\u003e/\u003cem\u003e An article with a hero image \u003c/em\u003e/\n\u003cp class=\"post-p\"\u003e\narticle:has(\u0026amp;gt; figure:first-child) h1 {\nmargin-top: 0;\nfont-size: 2.5rem;\n}\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n/\u003cem\u003e A section with lots of content gets more padding \u003c/em\u003e/\nsection:has(\u0026amp;gt; *:nth-child(5)) {\npadding-block: 4rem;\n}\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n/\u003cem\u003e Style a code block that's inside a list item differently \u003c/em\u003e/\nli:has(\u0026amp;gt; pre) {\nmargin-block: 1.5rem;\n}\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n/\u003cem\u003e Show a \"back to top\" button on long articles \u003c/em\u003e/\narticle:has(\u0026amp;gt; *:nth-child(20)) .back-to-top {\ndisplay: flex;\n}\n\u003c/code\u003e\u003c/pre\u003e\n\u003c/p\u003e\n\n\u003ch2 class=\"post-h2\"\u003eCombining \u003ccode class=\"inline-code\"\u003e:has()\u003c/code\u003e with Other Selectors\u003c/h2\u003e\n\n\u003cp class=\"post-p\"\u003e\n\u003ccode class=\"inline-code\"\u003e:has()\u003c/code\u003e composes beautifully with other modern CSS:\n\u003c/p\u003e\n\n\u003cpre class=\"code-block\"\u003e\u003ccode class=\"language-css\"\u003e/\u003cem\u003e :has() + :not() — cards WITHOUT images \u003c/em\u003e/\n\u003cp class=\"post-p\"\u003e\n.product-grid:has(.card:not(:has(img))) {\ngrid-template-columns: repeat(auto-fill, minmax(250px, 1fr));\n}\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n/\u003cem\u003e :has() + :is() — any input that has an error state \u003c/em\u003e/\n.form:has(:is(input, select, textarea):user-invalid) {\n--form-state: 'error';\n}\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n/\u003cem\u003e :has() + :where() — low-specificity structural checks \u003c/em\u003e/\n.sidebar:where(:has(nav)) {\nbackground: var(--surface);\n}\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n/\u003cem\u003e :has() + :nth-child() — a grid with an odd number of items \u003c/em\u003e/\n.grid:has(\u0026amp;gt; :nth-child(odd):last-child) {\n/\u003cem\u003e The last item will span full width \u003c/em\u003e/\njustify-items: center;\n}\n\u003c/code\u003e\u003c/pre\u003e\n\u003c/p\u003e\n\n\u003ch2 class=\"post-h2\"\u003eBrowser Support\u003c/h2\u003e\n\n\u003cp class=\"post-p\"\u003e\nAs of May 2026:\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n| Browser | Support |\n|---------|---------|\n| Chrome | ✅ 105+ |\n| Firefox | ✅ 121+ |\n| Safari | ✅ 15.4+ |\n| Edge | ✅ 105+ |\n| Samsung Internet | ✅ 20+ |\n| Opera | ✅ 91+ |\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n\u003cstrong\u003eBaseline: Widely Available\u003c/strong\u003e as of December 2024. ~94% global coverage.\n\u003c/p\u003e\n\n\u003ch3 class=\"post-h3\"\u003eProgressive Enhancement\u003c/h3\u003e\n\n\u003cpre class=\"code-block\"\u003e\u003ccode class=\"language-css\"\u003e/\u003cem\u003e Fallback: no special styling \u003c/em\u003e/\n\u003cp class=\"post-p\"\u003e\n.card {\npadding: 1.5rem;\n}\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n/\u003cem\u003e Enhancement: content-aware styling \u003c/em\u003e/\n@supports selector(:has(img)) {\n.card:has(img) {\ndisplay: grid;\ngrid-template-columns: 200px 1fr;\ngap: 1.5rem;\npadding: 0;\n}\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n.card:has(img) .card-body {\npadding: 1.5rem;\n}\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n.card:has(img) .card-image {\nheight: 100%;\nobject-fit: cover;\n}\n}\n\u003c/code\u003e\u003c/pre\u003e\n\u003c/p\u003e\n\n\u003ch2 class=\"post-h2\"\u003ePerformance Considerations\u003c/h2\u003e\n\n\u003cp class=\"post-p\"\u003e\nThe browser needs to evaluate \u003ccode class=\"inline-code\"\u003e:has()\u003c/code\u003e selectors carefully because they look \u003cem\u003edownward\u003c/em\u003e in the DOM tree — opposite to the normal top-down selector matching. Here's what to know:\n\u003c/p\u003e\n\n\u003ch3 class=\"post-h3\"\u003eGood: Low specificity, shallow checks\u003c/h3\u003e\n\n\u003cpre class=\"code-block\"\u003e\u003ccode class=\"language-css\"\u003e/\u003cem\u003e Fast — checks only immediate children \u003c/em\u003e/\n\u003cp class=\"post-p\"\u003e\n.card:has(\u0026amp;gt; img) { }\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n/\u003cem\u003e Fast — checks only one level deep \u003c/em\u003e/\nform:has(input:invalid) { }\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n/\u003cem\u003e Fast — simple structural check \u003c/em\u003e/\nsection:has(\u0026amp;gt; h2) { }\n\u003c/code\u003e\u003c/pre\u003e\n\u003c/p\u003e\n\n\u003ch3 class=\"post-h3\"\u003eWatch out: Deep or complex selectors\u003c/h3\u003e\n\n\u003cpre class=\"code-block\"\u003e\u003ccode class=\"language-css\"\u003e/\u003cem\u003e Slower — checks all descendants at any depth \u003c/em\u003e/\n\u003cp class=\"post-p\"\u003e\n.container:has(img) { }\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n/\u003cem\u003e Slower — complex combinator chain \u003c/em\u003e/\nbody:has(.modal .dialog button:focus) { }\n\u003c/code\u003e\u003c/pre\u003e\n\u003c/p\u003e\n\n\u003ch3 class=\"post-h3\"\u003eThe browser is smart about it\u003c/h3\u003e\n\n\u003cp class=\"post-p\"\u003e\nBrowsers use a technique called \"selector invalidation\" — they only re-evaluate \u003ccode class=\"inline-code\"\u003e:has()\u003c/code\u003e when something changes that could affect the result. Changing the color of a child won't trigger a re-evaluation for \u003ccode class=\"inline-code\"\u003e:has(img)\u003c/code\u003e, but adding or removing an \u003ccode class=\"inline-code\"\u003e\u0026lt;img\u0026gt;\u003c/code\u003e will.\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\nIn practice, for typical UI patterns, the performance impact of \u003ccode class=\"inline-code\"\u003e:has()\u003c/code\u003e is negligible. Don't avoid it out of premature optimization fear.\n\u003c/p\u003e\n\n\u003ch3 class=\"post-h3\"\u003eThe \"specificity gotcha\"\u003c/h3\u003e\n\n\u003cp class=\"post-p\"\u003e\n\u003ccode class=\"inline-code\"\u003e:has()\u003c/code\u003e itself \u003cstrong\u003edoes not add specificity\u003c/strong\u003e. Only the selectors \u003cem\u003einside\u003c/em\u003e \u003ccode class=\"inline-code\"\u003e:has()\u003c/code\u003e contribute:\n\u003c/p\u003e\n\n\u003cpre class=\"code-block\"\u003e\u003ccode class=\"language-css\"\u003e/\u003cem\u003e Specificity: 0,1,0 (one class) \u003c/em\u003e/\n\u003cp class=\"post-p\"\u003e\n.card { }\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n/\u003cem\u003e Specificity: 0,1,0 (still one class — :has() adds nothing) \u003c/em\u003e/\n.card:has(img) { }\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n/\u003cem\u003e Specificity: 0,2,0 (.card + img inside :has()) \u003c/em\u003e/\n.card:has(img.hero) { }\n\u003c/code\u003e\u003c/pre\u003e\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\nThis is different from \u003ccode class=\"inline-code\"\u003e:not()\u003c/code\u003e and \u003ccode class=\"inline-code\"\u003e:is()\u003c/code\u003e which take the specificity of their \u003cem\u003emost specific\u003c/em\u003e argument. \u003ccode class=\"inline-code\"\u003e:has()\u003c/code\u003e is refreshingly simple.\n\u003c/p\u003e\n\n\u003ch2 class=\"post-h2\"\u003eCommon Pitfalls\u003c/h2\u003e\n\n\u003ch3 class=\"post-h3\"\u003e1. \u003ccode class=\"inline-code\"\u003e:has()\u003c/code\u003e cannot be nested inside another \u003ccode class=\"inline-code\"\u003e:has()\u003c/code\u003e\u003c/h3\u003e\n\n\u003cpre class=\"code-block\"\u003e\u003ccode class=\"language-css\"\u003e/\u003cem\u003e ❌ Not allowed — nested :has() \u003c/em\u003e/\n\u003cp class=\"post-p\"\u003e\n.card:has(.body:has(img)) { }\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n/\u003cem\u003e ✅ Restructure instead \u003c/em\u003e/\n.card:has(.body img) { }\n\u003c/code\u003e\u003c/pre\u003e\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\nThe CSSWG restricted this to keep selector matching performant.\n\u003c/p\u003e\n\n\u003ch3 class=\"post-h3\"\u003e2. Pseudo-elements don't work inside \u003ccode class=\"inline-code\"\u003e:has()\u003c/code\u003e\u003c/h3\u003e\n\n\u003cpre class=\"code-block\"\u003e\u003ccode class=\"language-css\"\u003e/\u003cem\u003e ❌ Won't work \u003c/em\u003e/\n\u003cp class=\"post-p\"\u003e\n.card:has(::before) { }\n\u003c/code\u003e\u003c/pre\u003e\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n\u003ccode class=\"inline-code\"\u003e::before\u003c/code\u003e and \u003ccode class=\"inline-code\"\u003e::after\u003c/code\u003e are not real DOM elements — \u003ccode class=\"inline-code\"\u003e:has()\u003c/code\u003e only sees the real tree.\n\u003c/p\u003e\n\n\u003ch3 class=\"post-h3\"\u003e3. \u003ccode class=\"inline-code\"\u003e:has()\u003c/code\u003e only works with supported selectors\u003c/h3\u003e\n\n\u003cpre class=\"code-block\"\u003e\u003ccode class=\"language-css\"\u003e/\u003cem\u003e ❌ Pseudo-classes that represent element state may not work \u003c/em\u003e/\n\u003cp class=\"post-p\"\u003e\n/\u003cem\u003e (browser-dependent — check support) \u003c/em\u003e/\n.element:has(:focus-within) { } /\u003cem\u003e ✅ Works \u003c/em\u003e/\n.element:has(:hover) { }        /\u003cem\u003e ✅ Works \u003c/em\u003e/\n.element:has(:playing) { }      /\u003cem\u003e ⚠️ Check support \u003c/em\u003e/\n\u003c/code\u003e\u003c/pre\u003e\n\u003c/p\u003e\n\n\u003ch3 class=\"post-h3\"\u003e4. Overusing \u003ccode class=\"inline-code\"\u003e:has()\u003c/code\u003e for everything\u003c/h3\u003e\n\n\u003cp class=\"post-p\"\u003e\nJust because you \u003cem\u003ecan\u003c/em\u003e doesn't mean you \u003cem\u003eshould\u003c/em\u003e. Simple structural selectors are often clearer:\n\u003c/p\u003e\n\n\u003cpre class=\"code-block\"\u003e\u003ccode class=\"language-css\"\u003e/\u003cem\u003e Over-engineered \u003c/em\u003e/\n\u003cp class=\"post-p\"\u003e\n.wrapper:has(\u0026amp;gt; .sidebar) { }\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n/\u003cem\u003e Clearer and does the same thing \u003c/em\u003e/\n.wrapper \u0026amp;gt; .sidebar { grid-column: 1; }\n\u003c/code\u003e\u003c/pre\u003e\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\nUse \u003ccode class=\"inline-code\"\u003e:has()\u003c/code\u003e when you need to style the \u003cstrong\u003eancestor\u003c/strong\u003e or \u003cstrong\u003eprevious sibling\u003c/strong\u003e — not when you can just target the element directly.\n\u003c/p\u003e\n\n\u003ch2 class=\"post-h2\"\u003eA Complete Example: Product Filter UI\u003c/h2\u003e\n\n\u003cp class=\"post-p\"\u003e\nHere's a full product filter UI that uses \u003ccode class=\"inline-code\"\u003e:has()\u003c/code\u003e to handle almost all interactive states without JavaScript:\n\u003c/p\u003e\n\n\u003cpre class=\"code-block\"\u003e\u003ccode class=\"language-html\"\u003e\u0026amp;lt;div class=\"filter-bar\"\u0026amp;gt;\n\u003cp class=\"post-p\"\u003e\n\u0026amp;lt;div class=\"filter-group\"\u0026amp;gt;\n\u0026amp;lt;label class=\"filter-label\"\u0026amp;gt;\n\u0026amp;lt;input type=\"checkbox\" value=\"in-stock\" checked\u0026amp;gt;\nIn Stock Only\n\u0026amp;lt;/label\u0026amp;gt;\n\u0026amp;lt;/div\u0026amp;gt;\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n\u0026amp;lt;div class=\"filter-group\"\u0026amp;gt;\n\u0026amp;lt;span class=\"filter-label-text\"\u0026amp;gt;Category\u0026amp;lt;/span\u0026amp;gt;\n\u0026amp;lt;select class=\"filter-select\"\u0026amp;gt;\n\u0026amp;lt;option value=\"all\"\u0026amp;gt;All\u0026amp;lt;/option\u0026amp;gt;\n\u0026amp;lt;option value=\"electronics\"\u0026amp;gt;Electronics\u0026amp;lt;/option\u0026amp;gt;\n\u0026amp;lt;option value=\"clothing\"\u0026amp;gt;Clothing\u0026amp;lt;/option\u0026amp;gt;\n\u0026amp;lt;/select\u0026amp;gt;\n\u0026amp;lt;/div\u0026amp;gt;\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n\u0026amp;lt;div class=\"active-filters\" aria-live=\"polite\"\u0026amp;gt;\u0026amp;lt;/div\u0026amp;gt;\n\u0026amp;lt;/div\u0026amp;gt;\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n\u0026amp;lt;div class=\"product-grid\"\u0026amp;gt;\n\u0026amp;lt;!-- Product cards would go here --\u0026amp;gt;\n\u0026amp;lt;/div\u0026amp;gt;\n\u003c/code\u003e\u003c/pre\u003e\n\u003c/p\u003e\n\n\u003cpre class=\"code-block\"\u003e\u003ccode class=\"language-css\"\u003e/\u003cem\u003e Highlight active filter groups \u003c/em\u003e/\n\u003cp class=\"post-p\"\u003e\n.filter-group:has(input:checked),\n.filter-group:has(select:not([value=\"all\"])) {\nbackground: rgba(99, 102, 241, 0.1);\nborder-color: #6366f1;\n}\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n/\u003cem\u003e Show the \"active filters\" section only when filters are applied \u003c/em\u003e/\n.active-filters:has(.filter-chip) {\ndisplay: flex;\npadding: 0.75rem 0;\nborder-top: 1px solid var(--border);\n}\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n/\u003cem\u003e Empty state: when no filters match \u003c/em\u003e/\n.product-grid:not(:has(.product-card))::after {\ncontent: 'No products match your filters';\ngrid-column: 1 / -1;\ntext-align: center;\npadding: 3rem;\ncolor: var(--text-muted);\n}\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n/\u003cem\u003e Filter chips for active filters \u003c/em\u003e/\n.filter-bar:has(input:checked) .active-filters {\ndisplay: flex;\n}\n\u003c/code\u003e\u003c/pre\u003e\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\nThe entire filter interaction state is managed by CSS. JavaScript only needs to handle the actual list filtering — all visual feedback is declarative.\n\u003c/p\u003e\n\n\u003ch2 class=\"post-h2\"\u003eDebugging \u003ccode class=\"inline-code\"\u003e:has()\u003c/code\u003e Selectors\u003c/h2\u003e\n\n\u003ch3 class=\"post-h3\"\u003eChrome DevTools\u003c/h3\u003e\n\n\u003cul class=\"post-ul\"\u003e\u003cli class=\"post-li\"\u003eOpen DevTools → \u003cstrong\u003eElements\u003c/strong\u003e panel\u003c/li\u003e\n\u003cli class=\"post-li\"\u003eFind an element with a \u003ccode class=\"inline-code\"\u003e:has()\u003c/code\u003e rule\u003c/li\u003e\n\u003cli class=\"post-li\"\u003eIn the \u003cstrong\u003eStyles\u003c/strong\u003e pane, hover over the selector — Chrome highlights matching elements\u003c/li\u003e\n\u003cli class=\"post-li\"\u003eIf the selector isn't matching, check the \u003cstrong\u003eComputed\u003c/strong\u003e tab to see which rule is being overridden\u003c/li\u003e\n\u003c/ul\u003e\n\u003ch3 class=\"post-h3\"\u003eChecking support dynamically\u003c/h3\u003e\n\n\u003cpre class=\"code-block\"\u003e\u003ccode class=\"language-css\"\u003e@supports selector(:has(*)) {\n\u003cp class=\"post-p\"\u003e\n/\u003cem\u003e :has() is supported \u003c/em\u003e/\n.card:has(img) {\ndisplay: grid;\ngrid-template-columns: 200px 1fr;\n}\n}\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n@supports not selector(:has(*)) {\n/\u003cem\u003e Fallback \u003c/em\u003e/\n.card {\ndisplay: flex;\nflex-direction: column;\n}\n}\n\u003c/code\u003e\u003c/pre\u003e\n\u003c/p\u003e\n\n\u003ch3 class=\"post-h3\"\u003eCommon debugging checklist\u003c/h3\u003e\n\n\u003cul class=\"post-ul\"\u003e\u003cli class=\"post-li\"\u003eIs the element inside \u003ccode class=\"inline-code\"\u003e:has()\u003c/code\u003e actually a descendant? Use \u003ccode class=\"inline-code\"\u003e\u0026gt; \u003c/code\u003e for direct children, space for any descendant.\u003c/li\u003e\n\u003cli class=\"post-li\"\u003eAre you using a valid selector inside \u003ccode class=\"inline-code\"\u003e:has()\u003c/code\u003e? No pseudo-elements, no nested \u003ccode class=\"inline-code\"\u003e:has()\u003c/code\u003e.\u003c/li\u003e\n\u003cli class=\"post-li\"\u003eDoes the element exist in the DOM? \u003ccode class=\"inline-code\"\u003e:has()\u003c/code\u003e only sees real elements — not \u003ccode class=\"inline-code\"\u003e::before\u003c/code\u003e/\u003ccode class=\"inline-code\"\u003e::after\u003c/code\u003e.\u003c/li\u003e\n\u003cli class=\"post-li\"\u003eIs your specificity right? \u003ccode class=\"inline-code\"\u003e:has()\u003c/code\u003e doesn't add specificity — you might be getting overridden.\u003c/li\u003e\n\u003c/ul\u003e\n\u003ch2 class=\"post-h2\"\u003eThe Bigger Picture: Why \u003ccode class=\"inline-code\"\u003e:has()\u003c/code\u003e Matters\u003c/h2\u003e\n\n\u003cp class=\"post-p\"\u003e\n\u003ccode class=\"inline-code\"\u003e:has()\u003c/code\u003e represents a fundamental shift in CSS. For the first time, selectors can look \u003cem\u003eback up\u003c/em\u003e the tree. This changes how we think about component architecture:\n\u003c/p\u003e\n\n\u003cul class=\"post-ul\"\u003e\u003cli class=\"post-li\"\u003e\u003cstrong\u003eBefore \u003ccode class=\"inline-code\"\u003e:has()\u003c/code\u003e:\u003c/strong\u003e You styled elements from the top down. Components needed JavaScript to communicate state upward.\u003c/li\u003e\n\u003cli class=\"post-li\"\u003e\u003cstrong\u003eAfter \u003ccode class=\"inline-code\"\u003e:has()\u003c/code\u003e:\u003c/strong\u003e Components can react to their \u003cem\u003econtents\u003c/em\u003e. A card knows if it has an image. A form knows if it has errors. A list knows if it's empty.\u003c/li\u003e\n\u003c/ul\u003e\n\u003cp class=\"post-p\"\u003e\nThis is \u003cstrong\u003edeclarative component logic\u003c/strong\u003e — the CSS equivalent of React's component state, but built into the browser itself.\n\u003c/p\u003e\n\n\u003ch3 class=\"post-h3\"\u003eWhat you can remove\u003c/h3\u003e\n\n\u003cp class=\"post-p\"\u003e\nWith \u003ccode class=\"inline-code\"\u003e:has()\u003c/code\u003e, you can often eliminate:\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n| JavaScript Pattern | CSS Replacement |\n|---|---|\n| \u003ccode class=\"inline-code\"\u003eparent.classList.toggle('has-image')\u003c/code\u003e | \u003ccode class=\"inline-code\"\u003e.card:has(img)\u003c/code\u003e |\n| \u003ccode class=\"inline-code\"\u003eform.classList.add('has-errors')\u003c/code\u003e | \u003ccode class=\"inline-code\"\u003eform:has(:invalid)\u003c/code\u003e |\n| \u003ccode class=\"inline-code\"\u003emenu.classList.toggle('open')\u003c/code\u003e | \u003ccode class=\"inline-code\"\u003e.dropdown:has([aria-expanded=\"true\"])\u003c/code\u003e |\n| \u003ccode class=\"inline-code\"\u003eitems.length === 0 \u0026amp;\u0026amp; showEmptyState()\u003c/code\u003e | \u003ccode class=\"inline-code\"\u003e.list:not(:has(\u0026gt; *)) .empty-state\u003c/code\u003e |\n| \u003ccode class=\"inline-code\"\u003epreviousSibling.classList.add('before-active')\u003c/code\u003e | \u003ccode class=\"inline-code\"\u003e.item:has(+ .item.active)\u003c/code\u003e |\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\nLess JavaScript. Fewer state-management bugs. Faster initial render.\n\u003c/p\u003e\n\n\u003ch2 class=\"post-h2\"\u003eResources\u003c/h2\u003e\n\n\u003cul class=\"post-ul\"\u003e\u003cli class=\"post-li\"\u003e\u003ca href=\"https://developer.mozilla.org/en-US/docs/Web/CSS/:has\" class=\"post-link\" target=\"_blank\" rel=\"noopener noreferrer\"\u003eMDN: :has() pseudo-class\u003c/a\u003e\u003c/li\u003e\n\u003cli class=\"post-li\"\u003e\u003ca href=\"https://drafts.csswg.org/selectors-4/#relational\" class=\"post-link\" target=\"_blank\" rel=\"noopener noreferrer\"\u003eCSSWG Selectors Level 4 Spec\u003c/a\u003e\u003c/li\u003e\n\u003cli class=\"post-li\"\u003e\u003ca href=\"https://web.dev/articles/has\" class=\"post-link\" target=\"_blank\" rel=\"noopener noreferrer\"\u003eweb.dev: The CSS :has() selector\u003c/a\u003e\u003c/li\u003e\n\u003cli class=\"post-li\"\u003e\u003ca href=\"https://caniuse.com/css-has\" class=\"post-link\" target=\"_blank\" rel=\"noopener noreferrer\"\u003eCan I Use: :has() selector\u003c/a\u003e\u003c/li\u003e\n\u003cli class=\"post-li\"\u003e\u003ca href=\"https://developer.chrome.com/docs/css-ui/has-selector\" class=\"post-link\" target=\"_blank\" rel=\"noopener noreferrer\"\u003eChrome Developers: :has() — the family selector\u003c/a\u003e\u003c/li\u003e\n\u003c/ul\u003e\n\u003chr class=\"post-hr\" /\u003e\n\n\u003cp class=\"post-p\"\u003e\n\u003cstrong\u003e\u003ccode class=\"inline-code\"\u003e:has()\u003c/code\u003e is Baseline.\u003c/strong\u003e It's not experimental. It's not \"coming soon.\" It's here, it's fast, and it eliminates some of the last remaining reasons to use JavaScript for styling logic. If you haven't started using it yet, now is the time.\n\u003c/p\u003e\n"])</script><script>self.__next_f.push([1,"6:T78f,\n        .blog-content .post-h1 { font-size: 1.75rem; font-weight: 700; color: #ffffff; margin-top: 2rem; margin-bottom: 1rem; }\n        .blog-content .post-h2 { font-size: 1.5rem; font-weight: 600; color: #f1f5f9; margin-top: 1.75rem; margin-bottom: 0.75rem; padding-bottom: 0.5rem; border-bottom: 1px solid #334155; }\n        .blog-content .post-h3 { font-size: 1.25rem; font-weight: 600; color: #e2e8f0; margin-top: 1.5rem; margin-bottom: 0.5rem; }\n        .blog-content .post-h4 { font-size: 1.1rem; font-weight: 600; color: #e2e8f0; margin-top: 1.25rem; margin-bottom: 0.5rem; }\n        .blog-content .post-p { color: #cbd5e1; line-height: 1.75; margin-bottom: 1rem; }\n        .blog-content .code-block { background: #0f172a; border: 1px solid #334155; border-radius: 0.5rem; padding: 1rem; overflow-x: auto; margin: 1rem 0; font-family: 'JetBrains Mono', monospace; font-size: 0.875rem; color: #e2e8f0; }\n        .blog-content .inline-code { background: #1e293b; color: #38bdf8; padding: 0.15rem 0.4rem; border-radius: 0.25rem; font-family: 'JetBrains Mono', monospace; font-size: 0.875em; }\n        .blog-content .post-link { color: #38bdf8; text-decoration: underline; transition: color 0.2s; }\n        .blog-content .post-link:hover { color: #7dd3fc; }\n        .blog-content .post-ul { list-style: disc; padding-left: 1.5rem; margin: 0.75rem 0; color: #cbd5e1; }\n        .blog-content .post-li { margin-bottom: 0.25rem; line-height: 1.6; }\n        .blog-content .post-blockquote { border-left: 3px solid #0ea5e9; padding: 0.5rem 1rem; margin: 1rem 0; background: rgba(14, 165, 233, 0.05); border-radius: 0 0.5rem 0.5rem 0; }\n        .blog-content .post-blockquote p { color: #94a3b8; font-style: italic; }\n        .blog-content .post-hr { border: none; border-top: 1px solid #334155; margin: 2rem 0; }\n        .blog-content strong { color: #f1f5f9; font-weight: 600; }\n        .blog-content em { font-style: italic; }\n        8:[\"slug\",\"css-has-selector-guide\",\"d\"]\nf:[]\n"])</script><script>self.__next_f.push([1,"0:[\"$\",\"$L2\",null,{\"buildId\":\"wLkx3_e9eF0HmBHirJWLm\",\"assetPrefix\":\"/devbench-tech\",\"urlParts\":[\"\",\"blog\",\"css-has-selector-guide\",\"\"],\"initialTree\":[\"\",{\"children\":[\"blog\",{\"children\":[[\"slug\",\"css-has-selector-guide\",\"d\"],{\"children\":[\"__PAGE__?{\\\"slug\\\":\\\"css-has-selector-guide\\\"}\",{}]}]}]},\"$undefined\",\"$undefined\",true],\"initialSeedData\":[\"\",{\"children\":[\"blog\",{\"children\":[[\"slug\",\"css-has-selector-guide\",\"d\"],{\"children\":[\"__PAGE__\",{},[[\"$L3\",[\"$\",\"article\",null,{\"className\":\"max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-20\",\"children\":[[\"$\",\"script\",null,{\"type\":\"application/ld+json\",\"dangerouslySetInnerHTML\":{\"__html\":\"{\\\"@context\\\":\\\"https://schema.org\\\",\\\"@type\\\":\\\"Article\\\",\\\"headline\\\":\\\"CSS :has() — The Parent Selector That Changes Everything\\\",\\\"description\\\":\\\"The :has() pseudo-class is now Baseline across all major browsers. It's not just a 'parent selector' — it's a relational selector that unlocks patterns we've needed JavaScript for since the beginning of CSS. Here's the complete guide with real-world patterns.\\\",\\\"datePublished\\\":\\\"2026-05-24\\\",\\\"author\\\":{\\\"@type\\\":\\\"Organization\\\",\\\"name\\\":\\\"DevBench\\\"},\\\"publisher\\\":{\\\"@type\\\":\\\"Organization\\\",\\\"name\\\":\\\"DevBench\\\",\\\"url\\\":\\\"https://devbench-roan.vercel.app\\\"}}\"}}],[\"$\",\"script\",null,{\"type\":\"application/ld+json\",\"dangerouslySetInnerHTML\":{\"__html\":\"{\\\"@context\\\":\\\"https://schema.org\\\",\\\"@type\\\":\\\"BreadcrumbList\\\",\\\"itemListElement\\\":[{\\\"@type\\\":\\\"ListItem\\\",\\\"position\\\":1,\\\"name\\\":\\\"Home\\\",\\\"item\\\":\\\"https://devbench-roan.vercel.app\\\"},{\\\"@type\\\":\\\"ListItem\\\",\\\"position\\\":2,\\\"name\\\":\\\"Blog\\\",\\\"item\\\":\\\"https://devbench-roan.vercel.app/blog\\\"},{\\\"@type\\\":\\\"ListItem\\\",\\\"position\\\":3,\\\"name\\\":\\\"CSS :has() — The Parent Selector That Changes Everything\\\"}]}\"}}],[\"$\",\"$L4\",null,{\"href\":\"/blog\",\"className\":\"inline-flex items-center gap-1.5 text-slate-400 hover:text-brand-400 text-sm transition-colors mb-8\",\"children\":[[\"$\",\"svg\",null,{\"xmlns\":\"http://www.w3.org/2000/svg\",\"width\":24,\"height\":24,\"viewBox\":\"0 0 24 24\",\"fill\":\"none\",\"stroke\":\"currentColor\",\"strokeWidth\":2,\"strokeLinecap\":\"round\",\"strokeLinejoin\":\"round\",\"className\":\"lucide lucide-arrow-left w-4 h-4\",\"children\":[[\"$\",\"path\",\"1l729n\",{\"d\":\"m12 19-7-7 7-7\"}],[\"$\",\"path\",\"x3x0zl\",{\"d\":\"M19 12H5\"}],\"$undefined\"]}],\"Back to Blog\"]}],[\"$\",\"header\",null,{\"className\":\"mb-10\",\"children\":[[\"$\",\"h1\",null,{\"className\":\"text-3xl sm:text-4xl font-bold text-white leading-tight mb-4\",\"children\":\"CSS :has() — The Parent Selector That Changes Everything\"}],[\"$\",\"div\",null,{\"className\":\"flex flex-wrap items-center gap-4 text-sm text-slate-400\",\"children\":[[\"$\",\"span\",null,{\"className\":\"flex items-center gap-1.5\",\"children\":[[\"$\",\"svg\",null,{\"xmlns\":\"http://www.w3.org/2000/svg\",\"width\":24,\"height\":24,\"viewBox\":\"0 0 24 24\",\"fill\":\"none\",\"stroke\":\"currentColor\",\"strokeWidth\":2,\"strokeLinecap\":\"round\",\"strokeLinejoin\":\"round\",\"className\":\"lucide lucide-calendar w-4 h-4\",\"children\":[[\"$\",\"rect\",\"eu3xkr\",{\"width\":\"18\",\"height\":\"18\",\"x\":\"3\",\"y\":\"4\",\"rx\":\"2\",\"ry\":\"2\"}],[\"$\",\"line\",\"m3sa8f\",{\"x1\":\"16\",\"x2\":\"16\",\"y1\":\"2\",\"y2\":\"6\"}],[\"$\",\"line\",\"18kwsl\",{\"x1\":\"8\",\"x2\":\"8\",\"y1\":\"2\",\"y2\":\"6\"}],[\"$\",\"line\",\"xt86sb\",{\"x1\":\"3\",\"x2\":\"21\",\"y1\":\"10\",\"y2\":\"10\"}],\"$undefined\"]}],\"2026-05-24\"]}],[\"$\",\"div\",null,{\"className\":\"flex flex-wrap gap-1.5\",\"children\":[[\"$\",\"span\",\"[\\\"css\\\"\",{\"className\":\"badge-secondary flex items-center gap-1\",\"children\":[[\"$\",\"svg\",null,{\"xmlns\":\"http://www.w3.org/2000/svg\",\"width\":24,\"height\":24,\"viewBox\":\"0 0 24 24\",\"fill\":\"none\",\"stroke\":\"currentColor\",\"strokeWidth\":2,\"strokeLinecap\":\"round\",\"strokeLinejoin\":\"round\",\"className\":\"lucide lucide-tag w-3 h-3\",\"children\":[[\"$\",\"path\",\"14b2ls\",{\"d\":\"M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z\"}],[\"$\",\"path\",\"7u93v4\",{\"d\":\"M7 7h.01\"}],\"$undefined\"]}],\"[\\\"css\\\"\"]}],[\"$\",\"span\",\"\\\"has-selector\\\"\",{\"className\":\"badge-secondary flex items-center gap-1\",\"children\":[[\"$\",\"svg\",null,{\"xmlns\":\"http://www.w3.org/2000/svg\",\"width\":24,\"height\":24,\"viewBox\":\"0 0 24 24\",\"fill\":\"none\",\"stroke\":\"currentColor\",\"strokeWidth\":2,\"strokeLinecap\":\"round\",\"strokeLinejoin\":\"round\",\"className\":\"lucide lucide-tag w-3 h-3\",\"children\":[[\"$\",\"path\",\"14b2ls\",{\"d\":\"M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z\"}],[\"$\",\"path\",\"7u93v4\",{\"d\":\"M7 7h.01\"}],\"$undefined\"]}],\"\\\"has-selector\\\"\"]}],[\"$\",\"span\",\"\\\"web-platform\\\"\",{\"className\":\"badge-secondary flex items-center gap-1\",\"children\":[[\"$\",\"svg\",null,{\"xmlns\":\"http://www.w3.org/2000/svg\",\"width\":24,\"height\":24,\"viewBox\":\"0 0 24 24\",\"fill\":\"none\",\"stroke\":\"currentColor\",\"strokeWidth\":2,\"strokeLinecap\":\"round\",\"strokeLinejoin\":\"round\",\"className\":\"lucide lucide-tag w-3 h-3\",\"children\":[[\"$\",\"path\",\"14b2ls\",{\"d\":\"M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z\"}],[\"$\",\"path\",\"7u93v4\",{\"d\":\"M7 7h.01\"}],\"$undefined\"]}],\"\\\"web-platform\\\"\"]}],[\"$\",\"span\",\"\\\"tutorial\\\"\",{\"className\":\"badge-secondary flex items-center gap-1\",\"children\":[[\"$\",\"svg\",null,{\"xmlns\":\"http://www.w3.org/2000/svg\",\"width\":24,\"height\":24,\"viewBox\":\"0 0 24 24\",\"fill\":\"none\",\"stroke\":\"currentColor\",\"strokeWidth\":2,\"strokeLinecap\":\"round\",\"strokeLinejoin\":\"round\",\"className\":\"lucide lucide-tag w-3 h-3\",\"children\":[[\"$\",\"path\",\"14b2ls\",{\"d\":\"M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z\"}],[\"$\",\"path\",\"7u93v4\",{\"d\":\"M7 7h.01\"}],\"$undefined\"]}],\"\\\"tutorial\\\"\"]}],[\"$\",\"span\",\"\\\"selectors\\\"]\",{\"className\":\"badge-secondary flex items-center gap-1\",\"children\":[[\"$\",\"svg\",null,{\"xmlns\":\"http://www.w3.org/2000/svg\",\"width\":24,\"height\":24,\"viewBox\":\"0 0 24 24\",\"fill\":\"none\",\"stroke\":\"currentColor\",\"strokeWidth\":2,\"strokeLinecap\":\"round\",\"strokeLinejoin\":\"round\",\"className\":\"lucide lucide-tag w-3 h-3\",\"children\":[[\"$\",\"path\",\"14b2ls\",{\"d\":\"M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z\"}],[\"$\",\"path\",\"7u93v4\",{\"d\":\"M7 7h.01\"}],\"$undefined\"]}],\"\\\"selectors\\\"]\"]}]]}]]}]]}],[\"$\",\"div\",null,{\"className\":\"blog-content prose-p:text-slate-300 prose-p:leading-relaxed prose-p:mb-4\",\"dangerouslySetInnerHTML\":{\"__html\":\"$5\"}}],[\"$\",\"style\",null,{\"dangerouslySetInnerHTML\":{\"__html\":\"$6\"}}]]}],null],null],null]},[null,[\"$\",\"$L7\",null,{\"parallelRouterKey\":\"children\",\"segmentPath\":[\"children\",\"blog\",\"children\",\"$8\",\"children\"],\"error\":\"$undefined\",\"errorStyles\":\"$undefined\",\"errorScripts\":\"$undefined\",\"template\":[\"$\",\"$L9\",null,{}],\"templateStyles\":\"$undefined\",\"templateScripts\":\"$undefined\",\"notFound\":\"$undefined\",\"notFoundStyles\":\"$undefined\"}]],null]},[null,[\"$\",\"$L7\",null,{\"parallelRouterKey\":\"children\",\"segmentPath\":[\"children\",\"blog\",\"children\"],\"error\":\"$undefined\",\"errorStyles\":\"$undefined\",\"errorScripts\":\"$undefined\",\"template\":[\"$\",\"$L9\",null,{}],\"templateStyles\":\"$undefined\",\"templateScripts\":\"$undefined\",\"notFound\":\"$undefined\",\"notFoundStyles\":\"$undefined\"}]],null]},[[[[\"$\",\"link\",\"0\",{\"rel\":\"stylesheet\",\"href\":\"/devbench-tech/_next/static/css/c877e59dbcb00f11.css\",\"precedence\":\"next\",\"crossOrigin\":\"$undefined\"}]],[\"$\",\"html\",null,{\"lang\":\"en\",\"className\":\"dark\",\"children\":[\"$\",\"body\",null,{\"className\":\"flex flex-col min-h-screen\",\"children\":[[\"$\",\"script\",null,{\"type\":\"application/ld+json\",\"dangerouslySetInnerHTML\":{\"__html\":\"{\\\"@context\\\":\\\"https://schema.org\\\",\\\"@type\\\":\\\"WebSite\\\",\\\"name\\\":\\\"DevBench\\\",\\\"url\\\":\\\"https://devbench-roan.vercel.app\\\",\\\"description\\\":\\\"Free developer tools for everyday use: JSON formatter, Base64 encoder/decoder, UUID generator, regex tester, benchmarks, and more.\\\",\\\"potentialAction\\\":{\\\"@type\\\":\\\"SearchAction\\\",\\\"target\\\":\\\"https://devbench-roan.vercel.app/tools?q={search_term_string}\\\",\\\"query-input\\\":\\\"required name=search_term_string\\\"}}\"}}],[\"$\",\"$La\",null,{}],[\"$\",\"main\",null,{\"className\":\"flex-1\",\"children\":[\"$\",\"$L7\",null,{\"parallelRouterKey\":\"children\",\"segmentPath\":[\"children\"],\"error\":\"$undefined\",\"errorStyles\":\"$undefined\",\"errorScripts\":\"$undefined\",\"template\":[\"$\",\"$L9\",null,{}],\"templateStyles\":\"$undefined\",\"templateScripts\":\"$undefined\",\"notFound\":[[\"$\",\"title\",null,{\"children\":\"404: This page could not be found.\"}],[\"$\",\"div\",null,{\"style\":{\"fontFamily\":\"system-ui,\\\"Segoe UI\\\",Roboto,Helvetica,Arial,sans-serif,\\\"Apple Color Emoji\\\",\\\"Segoe UI Emoji\\\"\",\"height\":\"100vh\",\"textAlign\":\"center\",\"display\":\"flex\",\"flexDirection\":\"column\",\"alignItems\":\"center\",\"justifyContent\":\"center\"},\"children\":[\"$\",\"div\",null,{\"children\":[[\"$\",\"style\",null,{\"dangerouslySetInnerHTML\":{\"__html\":\"body{color:#000;background:#fff;margin:0}.next-error-h1{border-right:1px solid rgba(0,0,0,.3)}@media (prefers-color-scheme:dark){body{color:#fff;background:#000}.next-error-h1{border-right:1px solid rgba(255,255,255,.3)}}\"}}],[\"$\",\"h1\",null,{\"className\":\"next-error-h1\",\"style\":{\"display\":\"inline-block\",\"margin\":\"0 20px 0 0\",\"padding\":\"0 23px 0 0\",\"fontSize\":24,\"fontWeight\":500,\"verticalAlign\":\"top\",\"lineHeight\":\"49px\"},\"children\":\"404\"}],[\"$\",\"div\",null,{\"style\":{\"display\":\"inline-block\"},\"children\":[\"$\",\"h2\",null,{\"style\":{\"fontSize\":14,\"fontWeight\":400,\"lineHeight\":\"49px\",\"margin\":0},\"children\":\"This page could not be found.\"}]}]]}]}]],\"notFoundStyles\":[]}]}],[\"$\",\"footer\",null,{\"className\":\"bg-surface-light border-t border-slate-700/50 mt-auto\",\"children\":[\"$\",\"div\",null,{\"className\":\"max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12\",\"children\":[[\"$\",\"div\",null,{\"className\":\"grid grid-cols-1 md:grid-cols-3 gap-8\",\"children\":[[\"$\",\"div\",null,{\"children\":[[\"$\",\"$L4\",null,{\"href\":\"/\",\"className\":\"flex items-center gap-2.5 mb-3\",\"children\":[[\"$\",\"div\",null,{\"className\":\"w-7 h-7 bg-brand-500 rounded-lg flex items-center justify-center\",\"children\":[\"$\",\"svg\",null,{\"xmlns\":\"http://www.w3.org/2000/svg\",\"width\":24,\"height\":24,\"viewBox\":\"0 0 24 24\",\"fill\":\"none\",\"stroke\":\"currentColor\",\"strokeWidth\":2,\"strokeLinecap\":\"round\",\"strokeLinejoin\":\"round\",\"className\":\"lucide lucide-terminal w-3.5 h-3.5 text-white\",\"children\":[[\"$\",\"polyline\",\"akl6gq\",{\"points\":\"4 17 10 11 4 5\"}],[\"$\",\"line\",\"q2wloq\",{\"x1\":\"12\",\"x2\":\"20\",\"y1\":\"19\",\"y2\":\"19\"}],\"$undefined\"]}]}],[\"$\",\"span\",null,{\"className\":\"text-lg font-bold text-white\",\"children\":[\"Dev\",[\"$\",\"span\",null,{\"className\":\"gradient-text\",\"children\":\"Bench\"}]]}]]}],[\"$\",\"p\",null,{\"className\":\"text-slate-400 text-sm leading-relaxed\",\"children\":\"Free developer tools, benchmarks, and calculators. Built for developers, by developers.\"}]]}],[\"$\",\"div\",null,{\"children\":[[\"$\",\"h3\",null,{\"className\":\"text-sm font-semibold text-slate-300 uppercase tracking-wider mb-4\",\"children\":\"Tools\"}],[\"$\",\"ul\",null,{\"className\":\"space-y-2\",\"children\":[[\"$\",\"li\",\"/tools/json-formatter\",{\"children\":[\"$\",\"$L4\",null,{\"href\":\"/tools/json-formatter\",\"className\":\"text-slate-400 hover:text-brand-400 text-sm transition-colors\",\"children\":\"JSON Formatter\"}]}],[\"$\",\"li\",\"/tools/base64\",{\"children\":[\"$\",\"$L4\",null,{\"href\":\"/tools/base64\",\"className\":\"text-slate-400 hover:text-brand-400 text-sm transition-colors\",\"children\":\"Base64 Encoder/Decoder\"}]}],[\"$\",\"li\",\"/tools/uuid-generator\",{\"children\":[\"$\",\"$L4\",null,{\"href\":\"/tools/uuid-generator\",\"className\":\"text-slate-400 hover:text-brand-400 text-sm transition-colors\",\"children\":\"UUID Generator\"}]}],[\"$\",\"li\",\"/tools/regex-tester\",{\"children\":[\"$\",\"$L4\",null,{\"href\":\"/tools/regex-tester\",\"className\":\"text-slate-400 hover:text-brand-400 text-sm transition-colors\",\"children\":\"Regex Tester\"}]}]]}]]}],[\"$\",\"div\",null,{\"children\":[[\"$\",\"h3\",null,{\"className\":\"text-sm font-semibold text-slate-300 uppercase tracking-wider mb-4\",\"children\":\"Resources\"}],[\"$\",\"ul\",null,{\"className\":\"space-y-2\",\"children\":[[\"$\",\"li\",\"/blog\",{\"children\":[\"$\",\"$L4\",null,{\"href\":\"/blog\",\"className\":\"text-slate-400 hover:text-brand-400 text-sm transition-colors\",\"children\":\"Blog\"}]}],[\"$\",\"li\",\"/benchmarks\",{\"children\":[\"$\",\"$L4\",null,{\"href\":\"/benchmarks\",\"className\":\"text-slate-400 hover:text-brand-400 text-sm transition-colors\",\"children\":\"Benchmarks\"}]}],[\"$\",\"li\",\"/about\",{\"children\":[\"$\",\"$L4\",null,{\"href\":\"/about\",\"className\":\"text-slate-400 hover:text-brand-400 text-sm transition-colors\",\"children\":\"About\"}]}]]}]]}]]}],[\"$\",\"div\",null,{\"className\":\"mt-10 pt-6 border-t border-slate-700/50 flex flex-col sm:flex-row items-center justify-between gap-4\",\"children\":[[\"$\",\"p\",null,{\"className\":\"text-slate-500 text-sm flex items-center gap-1\",\"children\":[\"Made with \",[\"$\",\"svg\",null,{\"xmlns\":\"http://www.w3.org/2000/svg\",\"width\":24,\"height\":24,\"viewBox\":\"0 0 24 24\",\"fill\":\"none\",\"stroke\":\"currentColor\",\"strokeWidth\":2,\"strokeLinecap\":\"round\",\"strokeLinejoin\":\"round\",\"className\":\"lucide lucide-heart w-3.5 h-3.5 text-red-500 fill-red-500\",\"children\":[[\"$\",\"path\",\"c3ymky\",{\"d\":\"M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z\"}],\"$undefined\"]}],\" by the DevBench team © \",2026]}],[\"$\",\"a\",null,{\"href\":\"https://github.com\",\"target\":\"_blank\",\"rel\":\"noopener noreferrer\",\"className\":\"text-slate-500 hover:text-slate-300 transition-colors\",\"aria-label\":\"GitHub\",\"children\":[\"$\",\"svg\",null,{\"xmlns\":\"http://www.w3.org/2000/svg\",\"width\":24,\"height\":24,\"viewBox\":\"0 0 24 24\",\"fill\":\"none\",\"stroke\":\"currentColor\",\"strokeWidth\":2,\"strokeLinecap\":\"round\",\"strokeLinejoin\":\"round\",\"className\":\"lucide lucide-github w-5 h-5\",\"children\":[[\"$\",\"path\",\"tonef\",{\"d\":\"M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4\"}],[\"$\",\"path\",\"9comsn\",{\"d\":\"M9 18c-4.51 2-5-2-7-2\"}],\"$undefined\"]}]}]]}]]}]}],[\"$\",\"$Lb\",null,{}],[\"$\",\"$Lc\",null,{\"position\":\"bottom-right\",\"toastOptions\":{\"style\":{\"background\":\"#1e293b\",\"color\":\"#e2e8f0\",\"border\":\"1px solid #334155\",\"fontSize\":\"14px\"}}}]]}]}]],null],null],\"couldBeIntercepted\":false,\"initialHead\":[null,\"$Ld\"],\"globalErrorComponent\":\"$e\",\"missingSlots\":\"$Wf\"}]\n"])</script><script>self.__next_f.push([1,"d:[[\"$\",\"meta\",\"0\",{\"name\":\"viewport\",\"content\":\"width=device-width, initial-scale=1\"}],[\"$\",\"meta\",\"1\",{\"charSet\":\"utf-8\"}],[\"$\",\"title\",\"2\",{\"children\":\"CSS :has() — The Parent Selector That Changes Everything | DevBench\"}],[\"$\",\"meta\",\"3\",{\"name\":\"description\",\"content\":\"The :has() pseudo-class is now Baseline across all major browsers. It's not just a 'parent selector' — it's a relational selector that unlocks patterns we've needed JavaScript for since the beginning of CSS. Here's the complete guide with real-world patterns.\"}],[\"$\",\"meta\",\"4\",{\"name\":\"author\",\"content\":\"DevBench\"}],[\"$\",\"meta\",\"5\",{\"name\":\"keywords\",\"content\":\"developer tools,JSON formatter,Base64,UUID generator,regex tester,benchmarks,dev tools\"}],[\"$\",\"meta\",\"6\",{\"property\":\"og:title\",\"content\":\"DevBench — Developer Tools \u0026 Calculators\"}],[\"$\",\"meta\",\"7\",{\"property\":\"og:description\",\"content\":\"Free developer tools for everyday use.\"}],[\"$\",\"meta\",\"8\",{\"property\":\"og:site_name\",\"content\":\"DevBench\"}],[\"$\",\"meta\",\"9\",{\"property\":\"og:locale\",\"content\":\"en_US\"}],[\"$\",\"meta\",\"10\",{\"property\":\"og:type\",\"content\":\"website\"}],[\"$\",\"meta\",\"11\",{\"name\":\"twitter:card\",\"content\":\"summary\"}],[\"$\",\"meta\",\"12\",{\"name\":\"twitter:title\",\"content\":\"DevBench — Developer Tools \u0026 Calculators\"}],[\"$\",\"meta\",\"13\",{\"name\":\"twitter:description\",\"content\":\"Free developer tools for everyday use.\"}],[\"$\",\"link\",\"14\",{\"rel\":\"icon\",\"href\":\"/favicon.svg\"}]]\n3:null\n"])</script></body></html>

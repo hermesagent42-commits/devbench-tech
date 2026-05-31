@@ -1,0 +1,443 @@
+<!DOCTYPE html><html lang="en" class="dark"><head><meta charSet="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/><link rel="stylesheet" href="/devbench-tech/_next/static/css/c877e59dbcb00f11.css" data-precedence="next"/><link rel="preload" as="script" fetchPriority="low" href="/devbench-tech/_next/static/chunks/webpack-b521a83317325026.js"/><script src="/devbench-tech/_next/static/chunks/fd9d1056-04e0aa683dc3c41f.js" async=""></script><script src="/devbench-tech/_next/static/chunks/2117-8374a93ea77a2be4.js" async=""></script><script src="/devbench-tech/_next/static/chunks/main-app-aaec773b36366bc0.js" async=""></script><script src="/devbench-tech/_next/static/chunks/2972-4aaa15d119eeb022.js" async=""></script><script src="/devbench-tech/_next/static/chunks/app/blog/%5Bslug%5D/page-a411190e7012c687.js" async=""></script><script src="/devbench-tech/_next/static/chunks/44530001-4ecf7a22b5b24163.js" async=""></script><script src="/devbench-tech/_next/static/chunks/8375-c77b8de36f6696fb.js" async=""></script><script src="/devbench-tech/_next/static/chunks/6829-f51803445ddf1872.js" async=""></script><script src="/devbench-tech/_next/static/chunks/app/layout-488e5c40aa6ffa72.js" async=""></script><title>CSS field-sizing in 2026: Auto-Resizing Form Inputs Without JavaScript | DevBench</title><meta name="description" content="The field-sizing: content CSS property lets text inputs and textareas auto-resize to fit their content — no JS, no hacks, no contenteditable divs. Learn every pattern with production-ready code and fallback strategies."/><meta name="author" content="DevBench"/><meta name="keywords" content="developer tools,JSON formatter,Base64,UUID generator,regex tester,benchmarks,dev tools"/><meta property="og:title" content="DevBench — Developer Tools &amp; Calculators"/><meta property="og:description" content="Free developer tools for everyday use."/><meta property="og:site_name" content="DevBench"/><meta property="og:locale" content="en_US"/><meta property="og:type" content="website"/><meta name="twitter:card" content="summary"/><meta name="twitter:title" content="DevBench — Developer Tools &amp; Calculators"/><meta name="twitter:description" content="Free developer tools for everyday use."/><link rel="icon" href="/favicon.svg"/><script src="/devbench-tech/_next/static/chunks/polyfills-42372ed130431b0a.js" noModule=""></script></head><body class="flex flex-col min-h-screen"><script type="application/ld+json">{"@context":"https://schema.org","@type":"WebSite","name":"DevBench","url":"https://devbench-roan.vercel.app","description":"Free developer tools for everyday use: JSON formatter, Base64 encoder/decoder, UUID generator, regex tester, benchmarks, and more.","potentialAction":{"@type":"SearchAction","target":"https://devbench-roan.vercel.app/tools?q={search_term_string}","query-input":"required name=search_term_string"}}</script><header class="sticky top-0 z-50 transition-all duration-300 bg-surface border-b border-transparent"><div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8"><div class="flex items-center justify-between h-16"><a class="flex items-center gap-2.5 group" href="/devbench-tech/"><div class="w-8 h-8 bg-brand-500 rounded-lg flex items-center justify-center group-hover:bg-brand-400 transition-colors"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-terminal w-4 h-4 text-white"><polyline points="4 17 10 11 4 5"></polyline><line x1="12" x2="20" y1="19" y2="19"></line></svg></div><span class="text-xl font-bold text-white tracking-tight">Dev<span class="gradient-text">Bench</span></span></a><nav class="hidden md:flex items-center gap-1"><a class="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 text-slate-400 hover:text-slate-200 hover:bg-surface-lighter" href="/devbench-tech/tools/"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-wrench w-4 h-4"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path></svg>Tools</a><a class="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 text-slate-400 hover:text-slate-200 hover:bg-surface-lighter" href="/devbench-tech/benchmarks/"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-bar-chart3 w-4 h-4"><path d="M3 3v18h18"></path><path d="M18 17V9"></path><path d="M13 17V5"></path><path d="M8 17v-3"></path></svg>Benchmarks</a><a class="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 bg-brand-500/10 text-brand-400" href="/devbench-tech/blog/"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-book-open w-4 h-4"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg>Blog</a><a class="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 text-slate-400 hover:text-slate-200 hover:bg-surface-lighter" href="/devbench-tech/about/"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-info w-4 h-4"><circle cx="12" cy="12" r="10"></circle><path d="M12 16v-4"></path><path d="M12 8h.01"></path></svg>About</a></nav><button class="md:hidden p-2 rounded-lg text-slate-400 hover:text-white hover:bg-surface-lighter transition-colors" aria-label="Toggle menu"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-menu w-5 h-5"><line x1="4" x2="20" y1="12" y2="12"></line><line x1="4" x2="20" y1="6" y2="6"></line><line x1="4" x2="20" y1="18" y2="18"></line></svg></button></div></div></header><main class="flex-1"><article class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-20"><script type="application/ld+json">{"@context":"https://schema.org","@type":"Article","headline":"CSS field-sizing in 2026: Auto-Resizing Form Inputs Without JavaScript","description":"The field-sizing: content CSS property lets text inputs and textareas auto-resize to fit their content — no JS, no hacks, no contenteditable divs. Learn every pattern with production-ready code and fallback strategies.","datePublished":"2026-05-28","author":{"@type":"Organization","name":"DevBench"},"publisher":{"@type":"Organization","name":"DevBench","url":"https://devbench-roan.vercel.app"}}</script><script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://devbench-roan.vercel.app"},{"@type":"ListItem","position":2,"name":"Blog","item":"https://devbench-roan.vercel.app/blog"},{"@type":"ListItem","position":3,"name":"CSS field-sizing in 2026: Auto-Resizing Form Inputs Without JavaScript"}]}</script><a class="inline-flex items-center gap-1.5 text-slate-400 hover:text-brand-400 text-sm transition-colors mb-8" href="/devbench-tech/blog/"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-arrow-left w-4 h-4"><path d="m12 19-7-7 7-7"></path><path d="M19 12H5"></path></svg>Back to Blog</a><header class="mb-10"><h1 class="text-3xl sm:text-4xl font-bold text-white leading-tight mb-4">CSS field-sizing in 2026: Auto-Resizing Form Inputs Without JavaScript</h1><div class="flex flex-wrap items-center gap-4 text-sm text-slate-400"><span class="flex items-center gap-1.5"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-calendar w-4 h-4"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"></rect><line x1="16" x2="16" y1="2" y2="6"></line><line x1="8" x2="8" y1="2" y2="6"></line><line x1="3" x2="21" y1="10" y2="10"></line></svg>2026-05-28</span><div class="flex flex-wrap gap-1.5"><span class="badge-secondary flex items-center gap-1"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-tag w-3 h-3"><path d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"></path><path d="M7 7h.01"></path></svg>[&quot;CSS&quot;</span><span class="badge-secondary flex items-center gap-1"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-tag w-3 h-3"><path d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"></path><path d="M7 7h.01"></path></svg>&quot;field-sizing&quot;</span><span class="badge-secondary flex items-center gap-1"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-tag w-3 h-3"><path d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"></path><path d="M7 7h.01"></path></svg>&quot;Forms&quot;</span><span class="badge-secondary flex items-center gap-1"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-tag w-3 h-3"><path d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"></path><path d="M7 7h.01"></path></svg>&quot;UX&quot;</span><span class="badge-secondary flex items-center gap-1"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-tag w-3 h-3"><path d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"></path><path d="M7 7h.01"></path></svg>&quot;Input&quot;</span><span class="badge-secondary flex items-center gap-1"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-tag w-3 h-3"><path d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"></path><path d="M7 7h.01"></path></svg>&quot;Baseline 2026&quot;</span><span class="badge-secondary flex items-center gap-1"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-tag w-3 h-3"><path d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"></path><path d="M7 7h.01"></path></svg>&quot;2026&quot;]</span></div></div></header><div class="blog-content prose-p:text-slate-300 prose-p:leading-relaxed prose-p:mb-4">
+<h2 class="post-h2">The Input Sizing Problem</h2>
+
+<p class="post-p">
+Since the dawn of the web, there's been an awkward mismatch: <code class="inline-code">&lt;input&gt;</code> and <code class="inline-code">&lt;textarea&gt;</code> elements have fixed sizes, but users type variable-length content. A credit card field is always 16 characters, but a title? A bio? A comment? Those vary wildly.
+</p>
+
+<p class="post-p">
+The classic workarounds are all ugly:
+</p>
+
+<ul class="post-ul"><li class="post-li"><strong>Oversized inputs</strong> — waste space and look sloppy</li>
+<li class="post-li"><strong>JavaScript resize listeners</strong> — add complexity, break with <code class="inline-code">font-size</code> changes, and lag behind typing</li>
+<li class="post-li"><strong><code class="inline-code">contenteditable</code> divs</strong> — lose native form semantics, accessibility, and validation</li>
+<li class="post-li"><strong>The <code class="inline-code">input</code> event + <code class="inline-code">scrollWidth</code> hack</strong> — brittle, font-dependent, and slow</li>
+</ul>
+<p class="post-p">
+None of these are good. Enter <code class="inline-code">field-sizing: content</code>.
+</p>
+
+<h2 class="post-h2">What <code class="inline-code">field-sizing</code> Does</h2>
+
+<pre class="code-block"><code class="language-css">input[type="text"],
+<p class="post-p">
+textarea {
+field-sizing: content;
+}
+</code></pre>
+</p>
+
+<p class="post-p">
+That's it. The input now grows and shrinks automatically to fit whatever the user types. The browser handles this natively — no JavaScript, no layout thrashing, no accessibility regressions.
+</p>
+
+<p class="post-p">
+It works on: <code class="inline-code">&lt;input type="text"&gt;</code>, <code class="inline-code">&lt;input type="email"&gt;</code>, <code class="inline-code">&lt;input type="url"&gt;</code>, <code class="inline-code">&lt;input type="number"&gt;</code>, <code class="inline-code">&lt;input type="search"&gt;</code>, <code class="inline-code">&lt;input type="password"&gt;</code>, <code class="inline-code">&lt;textarea&gt;</code>, and <code class="inline-code">&lt;select&gt;</code> (experimental in some engines). Notably does <strong>not</strong> work on <code class="inline-code">type="date"</code>, <code class="inline-code">type="color"</code>, <code class="inline-code">type="range"</code>, or <code class="inline-code">type="file"</code> — those have widget-defined widths.
+</p>
+
+<h2 class="post-h2">The Two Values</h2>
+
+<pre class="code-block"><code class="language-css">/<em> Default behavior — size is determined by CSS/size attribute </em>/
+<p class="post-p">
+field-sizing: fixed;
+</p>
+
+<p class="post-p">
+/<em> Auto-grow and auto-shrink to fit content </em>/
+field-sizing: content;
+</code></pre>
+</p>
+
+<p class="post-p">
+<code class="inline-code">fixed</code> is the default and preserves existing behavior. <code class="inline-code">content</code> enables the magic.
+</p>
+
+<h2 class="post-h2">Production-Ready Patterns</h2>
+
+<h3 class="post-h3">Pattern 1: Auto-Growing Single-Line Inputs</h3>
+
+<pre class="code-block"><code class="language-css">.token-input,
+<p class="post-p">
+.tag-input,
+.search-input {
+field-sizing: content;
+min-inline-size: 8ch;
+max-inline-size: 100%;
+padding: 0.5rem 0.75rem;
+border: 1px solid #d1d5db;
+border-radius: 0.5rem;
+font: inherit;
+}
+</code></pre>
+</p>
+
+<p class="post-p">
+The <code class="inline-code">min-inline-size</code> ensures tiny values don't collapse to nothing. The <code class="inline-code">max-inline-size</code> prevents the input from overflowing its container.
+</p>
+
+<h3 class="post-h3">Pattern 2: Textareas That Grow to Fit</h3>
+
+<pre class="code-block"><code class="language-css">textarea {
+<p class="post-p">
+field-sizing: content;
+min-block-size: 3lh;
+max-block-size: 20lh;
+resize: none; /<em> Let field-sizing handle it </em>/
+padding: 0.75rem;
+border: 1px solid #d1d5db;
+border-radius: 0.5rem;
+font: inherit;
+line-height: 1.5;
+}
+</code></pre>
+</p>
+
+<p class="post-p">
+The <code class="inline-code">min-block-size: 3lh</code> gives you a three-line minimum height using the <code class="inline-code">lh</code> unit. <code class="inline-code">max-block-size: 20lh</code> caps the growth at 20 lines. No more scrollbars inside 2-line textareas.
+</p>
+
+<h3 class="post-h3">Pattern 3: Inline Editable Fields</h3>
+
+<pre class="code-block"><code class="language-css">.editable-heading {
+<p class="post-p">
+field-sizing: content;
+min-inline-size: 4ch;
+font-size: 2rem;
+font-weight: 700;
+border: none;
+border-bottom: 2px dashed transparent;
+background: transparent;
+outline: none;
+transition: border-color 0.15s;
+}
+</p>
+
+<p class="post-p">
+.editable-heading:hover,
+.editable-heading:focus {
+border-bottom-color: #3b82f6;
+}
+</code></pre>
+</p>
+
+<p class="post-p">
+Now you can have <code class="inline-code">&lt;h1&gt;</code>-sized inputs that grow to fit their content — perfect for document titles, form headers, or inline editing UIs.
+</p>
+
+<h3 class="post-h3">Pattern 4: Comma-Separated Tag Inputs</h3>
+
+<pre class="code-block"><code class="language-css">.tag-field {
+<p class="post-p">
+field-sizing: content;
+min-inline-size: 6ch;
+padding: 0.375rem 0.625rem;
+border: 1px solid #d1d5db;
+border-radius: 1.5rem;
+font-size: 0.875rem;
+}
+</code></pre>
+</p>
+
+<p class="post-p">
+As users type tags separated by commas, the input grows. When they delete tags, it shrinks. No JavaScript required.
+</p>
+
+<h3 class="post-h3">Pattern 5: Auto-Sizing Search Bar</h3>
+
+<pre class="code-block"><code class="language-css">.search-bar {
+<p class="post-p">
+field-sizing: content;
+min-inline-size: 12ch;
+max-inline-size: 40ch;
+padding: 0.625rem 1rem 0.625rem 2.5rem;
+border: 1px solid #e5e7eb;
+border-radius: 2rem;
+background: #f9fafb url('search-icon.svg') 0.875rem center no-repeat;
+background-size: 1.25rem;
+font-size: 0.9375rem;
+transition: max-inline-size 0.2s ease;
+}
+</p>
+
+<p class="post-p">
+.search-bar:focus {
+max-inline-size: 60ch;
+background-color: #ffffff;
+border-color: #3b82f6;
+box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+}
+</code></pre>
+</p>
+
+<p class="post-p">
+Combine <code class="inline-code">field-sizing</code> with a <code class="inline-code">:focus</code> transition to get an expanding search bar that also grows to fit your query — double the fluidity.
+</p>
+
+<h2 class="post-h2">The Baseline Story</h2>
+
+<p class="post-p">
+As of May 2026, <code class="inline-code">field-sizing</code> is <strong>Baseline 2026</strong> — supported in all modern browsers:
+</p>
+
+<p class="post-p">
+| Browser | Since | Status |
+|---------|-------|--------|
+| Chrome  | 123   | ✅ Supported |
+| Edge    | 123   | ✅ Supported |
+| Firefox | 128   | ✅ Supported |
+| Safari  | 17.4  | ✅ Supported |
+| Opera   | 109   | ✅ Supported |
+| Samsung Internet | 25 | ✅ Supported |
+</p>
+
+<p class="post-p">
+This is rare — a genuinely useful form primitive that hit cross-browser support within a single year.
+</p>
+
+<h2 class="post-h2">Graceful Degradation</h2>
+
+<p class="post-p">
+If you need to support older browsers, you can use <code class="inline-code">@supports</code>:
+</p>
+
+<pre class="code-block"><code class="language-css">input[type="text"],
+<p class="post-p">
+textarea {
+/<em> Fallback: reasonable fixed size </em>/
+inline-size: 20ch;
+}
+</p>
+
+<p class="post-p">
+@supports (field-sizing: content) {
+input[type="text"],
+textarea {
+field-sizing: content;
+inline-size: auto;
+min-inline-size: 8ch;
+max-inline-size: 100%;
+}
+}
+</code></pre>
+</p>
+
+<p class="post-p">
+Older browsers get a fixed but reasonable width. Modern browsers get full auto-sizing. No polyfill needed.
+</p>
+
+<pre class="code-block"><code class="language-js">const supportsFieldSizing = CSS.supports('field-sizing', 'content');
+<p class="post-p">
+if (!supportsFieldSizing) {
+// Optional: load a lightweight JS polyfill
+import('./field-sizing-polyfill.js');
+}
+</code></pre>
+</p>
+
+<h2 class="post-h2">Performance Implications</h2>
+
+<p class="post-p">
+Because <code class="inline-code">field-sizing</code> is implemented in the browser's layout engine, it's dramatically faster than JavaScript-based solutions:
+</p>
+
+<p class="post-p">
+| Approach | Operations per Resize | Layout Thrashing |
+|----------|----------------------|-------------------|
+| <code class="inline-code">field-sizing: content</code> | 0 JS operations | No |
+| <code class="inline-code">input</code> event + <code class="inline-code">scrollWidth</code> | Force layout + style write | Yes |
+| <code class="inline-code">contenteditable</code> div | Full re-render | Sometimes |
+| <code class="inline-code">ResizeObserver</code> polyfill | Observer callback + DOM write | Often |
+</p>
+
+<p class="post-p">
+Every JavaScript-based solution forces at least one synchronous layout recalculation per keystroke. <code class="inline-code">field-sizing</code> avoids this entirely — the browser handles it as part of its normal layout pass.
+</p>
+
+<h2 class="post-h2">Combining with Other Modern CSS</h2>
+
+<p class="post-p">
+<code class="inline-code">field-sizing</code> pairs beautifully with other recent CSS additions:
+</p>
+
+<pre class="code-block"><code class="language-css">.modern-input {
+<p class="post-p">
+field-sizing: content;
+min-inline-size: 10ch;
+</p>
+
+<p class="post-p">
+/<em> Smooth entry animations </em>/
+@starting-style {
+opacity: 0;
+transform: translateY(-4px);
+}
+opacity: 1;
+transform: translateY(0);
+transition: opacity 0.2s, transform 0.2s;
+</p>
+
+<p class="post-p">
+/<em> Container query for responsive context </em>/
+container-type: inline-size;
+}
+</p>
+
+<p class="post-p">
+@container (inline-size &amp;lt; 20rem) {
+.modern-input {
+font-size: 0.875rem;
+padding: 0.375rem 0.5rem;
+}
+}
+</code></pre>
+</p>
+
+<h2 class="post-h2">Design System Integration</h2>
+
+<p class="post-p">
+If you're using a design system or component library, <code class="inline-code">field-sizing</code> slots in cleanly:
+</p>
+
+<pre class="code-block"><code class="language-css">/<em> Tailwind utility (once browser support is confirmed) </em>/
+<p class="post-p">
+.input-auto {
+field-sizing: content;
+min-inline-size: 6ch;
+}
+</p>
+
+<p class="post-p">
+/<em> Or as a Tailwind plugin </em>/
+plugin(function({ addUtilities }) {
+addUtilities({
+'.field-sizing-content': {
+'field-sizing': 'content',
+},
+'.field-sizing-fixed': {
+'field-sizing': 'fixed',
+},
+});
+});
+</code></pre>
+</p>
+
+<h2 class="post-h2">When NOT to Use <code class="inline-code">field-sizing</code></h2>
+
+<p class="post-p">
+Despite its power, there are cases where fixed sizing is better:
+</p>
+
+<ul class="post-ul"><li class="post-li"><strong>Layout grids</strong> — inputs inside a CSS Grid with <code class="inline-code">grid-template-columns: 1fr</code> should stay fixed so the grid doesn't shift</li>
+<li class="post-li"><strong>Numeric fields</strong> — credit card numbers, ZIP codes, phone numbers have known lengths</li>
+<li class="post-li"><strong>Forms with labels above</strong> — inline-size changes can misalign stacked label-input pairs</li>
+<li class="post-li"><strong>Tightly spaced UIs</strong> — growing inputs could overflow constrained spaces</li>
+</ul>
+<p class="post-p">
+The rule of thumb: use <code class="inline-code">field-sizing: content</code> when the content length is unpredictable and the layout can accommodate growth. Use <code class="inline-code">fixed</code> when layout stability matters more than content-fit.
+</p>
+
+<h2 class="post-h2">Accessibility Notes</h2>
+
+<p class="post-p">
+One of the best things about <code class="inline-code">field-sizing</code> is that it preserves <strong>all</strong> native accessibility:
+</p>
+
+<ul class="post-ul"><li class="post-li">✅ Screen readers still announce the element as an input</li>
+<li class="post-li">✅ <code class="inline-code">aria-label</code> and <code class="inline-code">aria-describedby</code> work normally</li>
+<li class="post-li">✅ Tab order is unaffected</li>
+<li class="post-li">✅ Form validation (<code class="inline-code">required</code>, <code class="inline-code">pattern</code>, <code class="inline-code">minlength</code>) still fires</li>
+<li class="post-li">✅ Autofill and password managers work correctly</li>
+</ul>
+<p class="post-p">
+Compare this to <code class="inline-code">contenteditable</code> divs, which break all of these unless you carefully re-implement each one with ARIA.
+</p>
+
+<h2 class="post-h2">Real-World Example: Comment Form</h2>
+
+<p class="post-p">
+Here's a complete comment form using <code class="inline-code">field-sizing</code>:
+</p>
+
+<pre class="code-block"><code class="language-html">&amp;lt;form class="comment-form"&amp;gt;
+<p class="post-p">
+&amp;lt;div class="field-group"&amp;gt;
+&amp;lt;label for="name"&amp;gt;Name&amp;lt;/label&amp;gt;
+&amp;lt;input id="name" type="text" class="auto-size" placeholder="Your name" required /&amp;gt;
+&amp;lt;/div&amp;gt;
+&amp;lt;div class="field-group"&amp;gt;
+&amp;lt;label for="email"&amp;gt;Email&amp;lt;/label&amp;gt;
+&amp;lt;input id="email" type="email" class="auto-size" placeholder="you@example.com" /&amp;gt;
+&amp;lt;/div&amp;gt;
+&amp;lt;div class="field-group"&amp;gt;
+&amp;lt;label for="comment"&amp;gt;Comment&amp;lt;/label&amp;gt;
+&amp;lt;textarea id="comment" class="auto-size" placeholder="Write your comment..." rows="3" required&amp;gt;&amp;lt;/textarea&amp;gt;
+&amp;lt;/div&amp;gt;
+&amp;lt;button type="submit"&amp;gt;Post Comment&amp;lt;/button&amp;gt;
+&amp;lt;/form&amp;gt;
+</p>
+
+<p class="post-p">
+&amp;lt;style&amp;gt;
+.auto-size {
+field-sizing: content;
+min-inline-size: 100%;
+max-inline-size: 100%;
+padding: 0.625rem 0.75rem;
+border: 1px solid #d1d5db;
+border-radius: 0.5rem;
+font: inherit;
+transition: border-color 0.15s;
+}
+.auto-size:focus {
+border-color: #3b82f6;
+outline: none;
+box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+}
+textarea.auto-size {
+min-block-size: 4lh;
+max-block-size: 15lh;
+resize: none;
+line-height: 1.5;
+}
+&amp;lt;/style&amp;gt;
+</code></pre>
+</p>
+
+<p class="post-p">
+The text inputs grow as the user types their name, email, and comment. The textarea expands from 4 lines to up to 15 lines. No JavaScript. No layout bugs. Just clean, semantic HTML with modern CSS.
+</p>
+
+<h2 class="post-h2">Summary</h2>
+
+<p class="post-p">
+<code class="inline-code">field-sizing: content</code> is one of those rare CSS features that's simultaneously simple to use, broadly supported, and genuinely improves the user experience. It eliminates a whole category of JavaScript hacks and makes forms feel more fluid and responsive.
+</p>
+
+<p class="post-p">
+<strong>Key takeaways:</strong>
+</p>
+<ul class="post-ul"><li class="post-li">Add <code class="inline-code">field-sizing: content</code> to any text input or textarea whose content length is unpredictable</li>
+<li class="post-li">Always set <code class="inline-code">min-inline-size</code> (to prevent collapse) and <code class="inline-code">max-inline-size</code> (to prevent overflow)</li>
+<li class="post-li">Use <code class="inline-code">min-block-size</code> / <code class="inline-code">max-block-size</code> on textareas for height boundaries</li>
+<li class="post-li">Pair with <code class="inline-code">@supports</code> for graceful degradation</li>
+<li class="post-li">It's fully accessible — no ARIA gymnastics needed</li>
+<li class="post-li">It's Baseline 2026 — ship it today</li>
+</ul></div><style>
+        .blog-content .post-h1 { font-size: 1.75rem; font-weight: 700; color: #ffffff; margin-top: 2rem; margin-bottom: 1rem; }
+        .blog-content .post-h2 { font-size: 1.5rem; font-weight: 600; color: #f1f5f9; margin-top: 1.75rem; margin-bottom: 0.75rem; padding-bottom: 0.5rem; border-bottom: 1px solid #334155; }
+        .blog-content .post-h3 { font-size: 1.25rem; font-weight: 600; color: #e2e8f0; margin-top: 1.5rem; margin-bottom: 0.5rem; }
+        .blog-content .post-h4 { font-size: 1.1rem; font-weight: 600; color: #e2e8f0; margin-top: 1.25rem; margin-bottom: 0.5rem; }
+        .blog-content .post-p { color: #cbd5e1; line-height: 1.75; margin-bottom: 1rem; }
+        .blog-content .code-block { background: #0f172a; border: 1px solid #334155; border-radius: 0.5rem; padding: 1rem; overflow-x: auto; margin: 1rem 0; font-family: 'JetBrains Mono', monospace; font-size: 0.875rem; color: #e2e8f0; }
+        .blog-content .inline-code { background: #1e293b; color: #38bdf8; padding: 0.15rem 0.4rem; border-radius: 0.25rem; font-family: 'JetBrains Mono', monospace; font-size: 0.875em; }
+        .blog-content .post-link { color: #38bdf8; text-decoration: underline; transition: color 0.2s; }
+        .blog-content .post-link:hover { color: #7dd3fc; }
+        .blog-content .post-ul { list-style: disc; padding-left: 1.5rem; margin: 0.75rem 0; color: #cbd5e1; }
+        .blog-content .post-li { margin-bottom: 0.25rem; line-height: 1.6; }
+        .blog-content .post-blockquote { border-left: 3px solid #0ea5e9; padding: 0.5rem 1rem; margin: 1rem 0; background: rgba(14, 165, 233, 0.05); border-radius: 0 0.5rem 0.5rem 0; }
+        .blog-content .post-blockquote p { color: #94a3b8; font-style: italic; }
+        .blog-content .post-hr { border: none; border-top: 1px solid #334155; margin: 2rem 0; }
+        .blog-content strong { color: #f1f5f9; font-weight: 600; }
+        .blog-content em { font-style: italic; }
+        </style></article></main><footer class="bg-surface-light border-t border-slate-700/50 mt-auto"><div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12"><div class="grid grid-cols-1 md:grid-cols-3 gap-8"><div><a class="flex items-center gap-2.5 mb-3" href="/devbench-tech/"><div class="w-7 h-7 bg-brand-500 rounded-lg flex items-center justify-center"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-terminal w-3.5 h-3.5 text-white"><polyline points="4 17 10 11 4 5"></polyline><line x1="12" x2="20" y1="19" y2="19"></line></svg></div><span class="text-lg font-bold text-white">Dev<span class="gradient-text">Bench</span></span></a><p class="text-slate-400 text-sm leading-relaxed">Free developer tools, benchmarks, and calculators. Built for developers, by developers.</p></div><div><h3 class="text-sm font-semibold text-slate-300 uppercase tracking-wider mb-4">Tools</h3><ul class="space-y-2"><li><a class="text-slate-400 hover:text-brand-400 text-sm transition-colors" href="/devbench-tech/tools/json-formatter/">JSON Formatter</a></li><li><a class="text-slate-400 hover:text-brand-400 text-sm transition-colors" href="/devbench-tech/tools/base64/">Base64 Encoder/Decoder</a></li><li><a class="text-slate-400 hover:text-brand-400 text-sm transition-colors" href="/devbench-tech/tools/uuid-generator/">UUID Generator</a></li><li><a class="text-slate-400 hover:text-brand-400 text-sm transition-colors" href="/devbench-tech/tools/regex-tester/">Regex Tester</a></li></ul></div><div><h3 class="text-sm font-semibold text-slate-300 uppercase tracking-wider mb-4">Resources</h3><ul class="space-y-2"><li><a class="text-slate-400 hover:text-brand-400 text-sm transition-colors" href="/devbench-tech/blog/">Blog</a></li><li><a class="text-slate-400 hover:text-brand-400 text-sm transition-colors" href="/devbench-tech/benchmarks/">Benchmarks</a></li><li><a class="text-slate-400 hover:text-brand-400 text-sm transition-colors" href="/devbench-tech/about/">About</a></li></ul></div></div><div class="mt-10 pt-6 border-t border-slate-700/50 flex flex-col sm:flex-row items-center justify-between gap-4"><p class="text-slate-500 text-sm flex items-center gap-1">Made with <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-heart w-3.5 h-3.5 text-red-500 fill-red-500"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"></path></svg> by the DevBench team © <!-- -->2026</p><a href="https://github.com" target="_blank" rel="noopener noreferrer" class="text-slate-500 hover:text-slate-300 transition-colors" aria-label="GitHub"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-github w-5 h-5"><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"></path><path d="M9 18c-4.51 2-5-2-7-2"></path></svg></a></div></div></footer><div data-rht-toaster="" style="position:fixed;z-index:9999;top:16px;left:16px;right:16px;bottom:16px;pointer-events:none"></div><script src="/devbench-tech/_next/static/chunks/webpack-b521a83317325026.js" async=""></script><script>(self.__next_f=self.__next_f||[]).push([0]);self.__next_f.push([2,null])</script><script>self.__next_f.push([1,"1:HL[\"/devbench-tech/_next/static/css/c877e59dbcb00f11.css\",\"style\"]\n"])</script><script>self.__next_f.push([1,"2:I[12846,[],\"\"]\n4:I[72972,[\"2972\",\"static/chunks/2972-4aaa15d119eeb022.js\",\"308\",\"static/chunks/app/blog/%5Bslug%5D/page-a411190e7012c687.js\"],\"\"]\n7:I[4707,[],\"\"]\n9:I[36423,[],\"\"]\na:I[39295,[\"9762\",\"static/chunks/44530001-4ecf7a22b5b24163.js\",\"2972\",\"static/chunks/2972-4aaa15d119eeb022.js\",\"8375\",\"static/chunks/8375-c77b8de36f6696fb.js\",\"6829\",\"static/chunks/6829-f51803445ddf1872.js\",\"3185\",\"static/chunks/app/layout-488e5c40aa6ffa72.js\"],\"Header\"]\nb:I[66506,[\"9762\",\"static/chunks/44530001-4ecf7a22b5b24163.js\",\"2972\",\"static/chunks/2972-4aaa15d119eeb022.js\",\"8375\",\"static/chunks/8375-c77b8de36f6696fb.js\",\"6829\",\"static/chunks/6829-f51803445ddf1872.js\",\"3185\",\"static/chunks/app/layout-488e5c40aa6ffa72.js\"],\"Analytics\"]\nc:I[69064,[\"9762\",\"static/chunks/44530001-4ecf7a22b5b24163.js\",\"2972\",\"static/chunks/2972-4aaa15d119eeb022.js\",\"8375\",\"static/chunks/8375-c77b8de36f6696fb.js\",\"6829\",\"static/chunks/6829-f51803445ddf1872.js\",\"3185\",\"static/chunks/app/layout-488e5c40aa6ffa72.js\"],\"Toaster\"]\ne:I[61060,[],\"\"]\n5:T3bb5,"])</script><script>self.__next_f.push([1,"\n\u003ch2 class=\"post-h2\"\u003eThe Input Sizing Problem\u003c/h2\u003e\n\n\u003cp class=\"post-p\"\u003e\nSince the dawn of the web, there's been an awkward mismatch: \u003ccode class=\"inline-code\"\u003e\u0026lt;input\u0026gt;\u003c/code\u003e and \u003ccode class=\"inline-code\"\u003e\u0026lt;textarea\u0026gt;\u003c/code\u003e elements have fixed sizes, but users type variable-length content. A credit card field is always 16 characters, but a title? A bio? A comment? Those vary wildly.\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\nThe classic workarounds are all ugly:\n\u003c/p\u003e\n\n\u003cul class=\"post-ul\"\u003e\u003cli class=\"post-li\"\u003e\u003cstrong\u003eOversized inputs\u003c/strong\u003e — waste space and look sloppy\u003c/li\u003e\n\u003cli class=\"post-li\"\u003e\u003cstrong\u003eJavaScript resize listeners\u003c/strong\u003e — add complexity, break with \u003ccode class=\"inline-code\"\u003efont-size\u003c/code\u003e changes, and lag behind typing\u003c/li\u003e\n\u003cli class=\"post-li\"\u003e\u003cstrong\u003e\u003ccode class=\"inline-code\"\u003econtenteditable\u003c/code\u003e divs\u003c/strong\u003e — lose native form semantics, accessibility, and validation\u003c/li\u003e\n\u003cli class=\"post-li\"\u003e\u003cstrong\u003eThe \u003ccode class=\"inline-code\"\u003einput\u003c/code\u003e event + \u003ccode class=\"inline-code\"\u003escrollWidth\u003c/code\u003e hack\u003c/strong\u003e — brittle, font-dependent, and slow\u003c/li\u003e\n\u003c/ul\u003e\n\u003cp class=\"post-p\"\u003e\nNone of these are good. Enter \u003ccode class=\"inline-code\"\u003efield-sizing: content\u003c/code\u003e.\n\u003c/p\u003e\n\n\u003ch2 class=\"post-h2\"\u003eWhat \u003ccode class=\"inline-code\"\u003efield-sizing\u003c/code\u003e Does\u003c/h2\u003e\n\n\u003cpre class=\"code-block\"\u003e\u003ccode class=\"language-css\"\u003einput[type=\"text\"],\n\u003cp class=\"post-p\"\u003e\ntextarea {\nfield-sizing: content;\n}\n\u003c/code\u003e\u003c/pre\u003e\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\nThat's it. The input now grows and shrinks automatically to fit whatever the user types. The browser handles this natively — no JavaScript, no layout thrashing, no accessibility regressions.\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\nIt works on: \u003ccode class=\"inline-code\"\u003e\u0026lt;input type=\"text\"\u0026gt;\u003c/code\u003e, \u003ccode class=\"inline-code\"\u003e\u0026lt;input type=\"email\"\u0026gt;\u003c/code\u003e, \u003ccode class=\"inline-code\"\u003e\u0026lt;input type=\"url\"\u0026gt;\u003c/code\u003e, \u003ccode class=\"inline-code\"\u003e\u0026lt;input type=\"number\"\u0026gt;\u003c/code\u003e, \u003ccode class=\"inline-code\"\u003e\u0026lt;input type=\"search\"\u0026gt;\u003c/code\u003e, \u003ccode class=\"inline-code\"\u003e\u0026lt;input type=\"password\"\u0026gt;\u003c/code\u003e, \u003ccode class=\"inline-code\"\u003e\u0026lt;textarea\u0026gt;\u003c/code\u003e, and \u003ccode class=\"inline-code\"\u003e\u0026lt;select\u0026gt;\u003c/code\u003e (experimental in some engines). Notably does \u003cstrong\u003enot\u003c/strong\u003e work on \u003ccode class=\"inline-code\"\u003etype=\"date\"\u003c/code\u003e, \u003ccode class=\"inline-code\"\u003etype=\"color\"\u003c/code\u003e, \u003ccode class=\"inline-code\"\u003etype=\"range\"\u003c/code\u003e, or \u003ccode class=\"inline-code\"\u003etype=\"file\"\u003c/code\u003e — those have widget-defined widths.\n\u003c/p\u003e\n\n\u003ch2 class=\"post-h2\"\u003eThe Two Values\u003c/h2\u003e\n\n\u003cpre class=\"code-block\"\u003e\u003ccode class=\"language-css\"\u003e/\u003cem\u003e Default behavior — size is determined by CSS/size attribute \u003c/em\u003e/\n\u003cp class=\"post-p\"\u003e\nfield-sizing: fixed;\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n/\u003cem\u003e Auto-grow and auto-shrink to fit content \u003c/em\u003e/\nfield-sizing: content;\n\u003c/code\u003e\u003c/pre\u003e\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n\u003ccode class=\"inline-code\"\u003efixed\u003c/code\u003e is the default and preserves existing behavior. \u003ccode class=\"inline-code\"\u003econtent\u003c/code\u003e enables the magic.\n\u003c/p\u003e\n\n\u003ch2 class=\"post-h2\"\u003eProduction-Ready Patterns\u003c/h2\u003e\n\n\u003ch3 class=\"post-h3\"\u003ePattern 1: Auto-Growing Single-Line Inputs\u003c/h3\u003e\n\n\u003cpre class=\"code-block\"\u003e\u003ccode class=\"language-css\"\u003e.token-input,\n\u003cp class=\"post-p\"\u003e\n.tag-input,\n.search-input {\nfield-sizing: content;\nmin-inline-size: 8ch;\nmax-inline-size: 100%;\npadding: 0.5rem 0.75rem;\nborder: 1px solid #d1d5db;\nborder-radius: 0.5rem;\nfont: inherit;\n}\n\u003c/code\u003e\u003c/pre\u003e\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\nThe \u003ccode class=\"inline-code\"\u003emin-inline-size\u003c/code\u003e ensures tiny values don't collapse to nothing. The \u003ccode class=\"inline-code\"\u003emax-inline-size\u003c/code\u003e prevents the input from overflowing its container.\n\u003c/p\u003e\n\n\u003ch3 class=\"post-h3\"\u003ePattern 2: Textareas That Grow to Fit\u003c/h3\u003e\n\n\u003cpre class=\"code-block\"\u003e\u003ccode class=\"language-css\"\u003etextarea {\n\u003cp class=\"post-p\"\u003e\nfield-sizing: content;\nmin-block-size: 3lh;\nmax-block-size: 20lh;\nresize: none; /\u003cem\u003e Let field-sizing handle it \u003c/em\u003e/\npadding: 0.75rem;\nborder: 1px solid #d1d5db;\nborder-radius: 0.5rem;\nfont: inherit;\nline-height: 1.5;\n}\n\u003c/code\u003e\u003c/pre\u003e\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\nThe \u003ccode class=\"inline-code\"\u003emin-block-size: 3lh\u003c/code\u003e gives you a three-line minimum height using the \u003ccode class=\"inline-code\"\u003elh\u003c/code\u003e unit. \u003ccode class=\"inline-code\"\u003emax-block-size: 20lh\u003c/code\u003e caps the growth at 20 lines. No more scrollbars inside 2-line textareas.\n\u003c/p\u003e\n\n\u003ch3 class=\"post-h3\"\u003ePattern 3: Inline Editable Fields\u003c/h3\u003e\n\n\u003cpre class=\"code-block\"\u003e\u003ccode class=\"language-css\"\u003e.editable-heading {\n\u003cp class=\"post-p\"\u003e\nfield-sizing: content;\nmin-inline-size: 4ch;\nfont-size: 2rem;\nfont-weight: 700;\nborder: none;\nborder-bottom: 2px dashed transparent;\nbackground: transparent;\noutline: none;\ntransition: border-color 0.15s;\n}\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n.editable-heading:hover,\n.editable-heading:focus {\nborder-bottom-color: #3b82f6;\n}\n\u003c/code\u003e\u003c/pre\u003e\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\nNow you can have \u003ccode class=\"inline-code\"\u003e\u0026lt;h1\u0026gt;\u003c/code\u003e-sized inputs that grow to fit their content — perfect for document titles, form headers, or inline editing UIs.\n\u003c/p\u003e\n\n\u003ch3 class=\"post-h3\"\u003ePattern 4: Comma-Separated Tag Inputs\u003c/h3\u003e\n\n\u003cpre class=\"code-block\"\u003e\u003ccode class=\"language-css\"\u003e.tag-field {\n\u003cp class=\"post-p\"\u003e\nfield-sizing: content;\nmin-inline-size: 6ch;\npadding: 0.375rem 0.625rem;\nborder: 1px solid #d1d5db;\nborder-radius: 1.5rem;\nfont-size: 0.875rem;\n}\n\u003c/code\u003e\u003c/pre\u003e\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\nAs users type tags separated by commas, the input grows. When they delete tags, it shrinks. No JavaScript required.\n\u003c/p\u003e\n\n\u003ch3 class=\"post-h3\"\u003ePattern 5: Auto-Sizing Search Bar\u003c/h3\u003e\n\n\u003cpre class=\"code-block\"\u003e\u003ccode class=\"language-css\"\u003e.search-bar {\n\u003cp class=\"post-p\"\u003e\nfield-sizing: content;\nmin-inline-size: 12ch;\nmax-inline-size: 40ch;\npadding: 0.625rem 1rem 0.625rem 2.5rem;\nborder: 1px solid #e5e7eb;\nborder-radius: 2rem;\nbackground: #f9fafb url('search-icon.svg') 0.875rem center no-repeat;\nbackground-size: 1.25rem;\nfont-size: 0.9375rem;\ntransition: max-inline-size 0.2s ease;\n}\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n.search-bar:focus {\nmax-inline-size: 60ch;\nbackground-color: #ffffff;\nborder-color: #3b82f6;\nbox-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);\n}\n\u003c/code\u003e\u003c/pre\u003e\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\nCombine \u003ccode class=\"inline-code\"\u003efield-sizing\u003c/code\u003e with a \u003ccode class=\"inline-code\"\u003e:focus\u003c/code\u003e transition to get an expanding search bar that also grows to fit your query — double the fluidity.\n\u003c/p\u003e\n\n\u003ch2 class=\"post-h2\"\u003eThe Baseline Story\u003c/h2\u003e\n\n\u003cp class=\"post-p\"\u003e\nAs of May 2026, \u003ccode class=\"inline-code\"\u003efield-sizing\u003c/code\u003e is \u003cstrong\u003eBaseline 2026\u003c/strong\u003e — supported in all modern browsers:\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n| Browser | Since | Status |\n|---------|-------|--------|\n| Chrome  | 123   | ✅ Supported |\n| Edge    | 123   | ✅ Supported |\n| Firefox | 128   | ✅ Supported |\n| Safari  | 17.4  | ✅ Supported |\n| Opera   | 109   | ✅ Supported |\n| Samsung Internet | 25 | ✅ Supported |\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\nThis is rare — a genuinely useful form primitive that hit cross-browser support within a single year.\n\u003c/p\u003e\n\n\u003ch2 class=\"post-h2\"\u003eGraceful Degradation\u003c/h2\u003e\n\n\u003cp class=\"post-p\"\u003e\nIf you need to support older browsers, you can use \u003ccode class=\"inline-code\"\u003e@supports\u003c/code\u003e:\n\u003c/p\u003e\n\n\u003cpre class=\"code-block\"\u003e\u003ccode class=\"language-css\"\u003einput[type=\"text\"],\n\u003cp class=\"post-p\"\u003e\ntextarea {\n/\u003cem\u003e Fallback: reasonable fixed size \u003c/em\u003e/\ninline-size: 20ch;\n}\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n@supports (field-sizing: content) {\ninput[type=\"text\"],\ntextarea {\nfield-sizing: content;\ninline-size: auto;\nmin-inline-size: 8ch;\nmax-inline-size: 100%;\n}\n}\n\u003c/code\u003e\u003c/pre\u003e\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\nOlder browsers get a fixed but reasonable width. Modern browsers get full auto-sizing. No polyfill needed.\n\u003c/p\u003e\n\n\u003cpre class=\"code-block\"\u003e\u003ccode class=\"language-js\"\u003econst supportsFieldSizing = CSS.supports('field-sizing', 'content');\n\u003cp class=\"post-p\"\u003e\nif (!supportsFieldSizing) {\n// Optional: load a lightweight JS polyfill\nimport('./field-sizing-polyfill.js');\n}\n\u003c/code\u003e\u003c/pre\u003e\n\u003c/p\u003e\n\n\u003ch2 class=\"post-h2\"\u003ePerformance Implications\u003c/h2\u003e\n\n\u003cp class=\"post-p\"\u003e\nBecause \u003ccode class=\"inline-code\"\u003efield-sizing\u003c/code\u003e is implemented in the browser's layout engine, it's dramatically faster than JavaScript-based solutions:\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n| Approach | Operations per Resize | Layout Thrashing |\n|----------|----------------------|-------------------|\n| \u003ccode class=\"inline-code\"\u003efield-sizing: content\u003c/code\u003e | 0 JS operations | No |\n| \u003ccode class=\"inline-code\"\u003einput\u003c/code\u003e event + \u003ccode class=\"inline-code\"\u003escrollWidth\u003c/code\u003e | Force layout + style write | Yes |\n| \u003ccode class=\"inline-code\"\u003econtenteditable\u003c/code\u003e div | Full re-render | Sometimes |\n| \u003ccode class=\"inline-code\"\u003eResizeObserver\u003c/code\u003e polyfill | Observer callback + DOM write | Often |\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\nEvery JavaScript-based solution forces at least one synchronous layout recalculation per keystroke. \u003ccode class=\"inline-code\"\u003efield-sizing\u003c/code\u003e avoids this entirely — the browser handles it as part of its normal layout pass.\n\u003c/p\u003e\n\n\u003ch2 class=\"post-h2\"\u003eCombining with Other Modern CSS\u003c/h2\u003e\n\n\u003cp class=\"post-p\"\u003e\n\u003ccode class=\"inline-code\"\u003efield-sizing\u003c/code\u003e pairs beautifully with other recent CSS additions:\n\u003c/p\u003e\n\n\u003cpre class=\"code-block\"\u003e\u003ccode class=\"language-css\"\u003e.modern-input {\n\u003cp class=\"post-p\"\u003e\nfield-sizing: content;\nmin-inline-size: 10ch;\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n/\u003cem\u003e Smooth entry animations \u003c/em\u003e/\n@starting-style {\nopacity: 0;\ntransform: translateY(-4px);\n}\nopacity: 1;\ntransform: translateY(0);\ntransition: opacity 0.2s, transform 0.2s;\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n/\u003cem\u003e Container query for responsive context \u003c/em\u003e/\ncontainer-type: inline-size;\n}\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n@container (inline-size \u0026amp;lt; 20rem) {\n.modern-input {\nfont-size: 0.875rem;\npadding: 0.375rem 0.5rem;\n}\n}\n\u003c/code\u003e\u003c/pre\u003e\n\u003c/p\u003e\n\n\u003ch2 class=\"post-h2\"\u003eDesign System Integration\u003c/h2\u003e\n\n\u003cp class=\"post-p\"\u003e\nIf you're using a design system or component library, \u003ccode class=\"inline-code\"\u003efield-sizing\u003c/code\u003e slots in cleanly:\n\u003c/p\u003e\n\n\u003cpre class=\"code-block\"\u003e\u003ccode class=\"language-css\"\u003e/\u003cem\u003e Tailwind utility (once browser support is confirmed) \u003c/em\u003e/\n\u003cp class=\"post-p\"\u003e\n.input-auto {\nfield-sizing: content;\nmin-inline-size: 6ch;\n}\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n/\u003cem\u003e Or as a Tailwind plugin \u003c/em\u003e/\nplugin(function({ addUtilities }) {\naddUtilities({\n'.field-sizing-content': {\n'field-sizing': 'content',\n},\n'.field-sizing-fixed': {\n'field-sizing': 'fixed',\n},\n});\n});\n\u003c/code\u003e\u003c/pre\u003e\n\u003c/p\u003e\n\n\u003ch2 class=\"post-h2\"\u003eWhen NOT to Use \u003ccode class=\"inline-code\"\u003efield-sizing\u003c/code\u003e\u003c/h2\u003e\n\n\u003cp class=\"post-p\"\u003e\nDespite its power, there are cases where fixed sizing is better:\n\u003c/p\u003e\n\n\u003cul class=\"post-ul\"\u003e\u003cli class=\"post-li\"\u003e\u003cstrong\u003eLayout grids\u003c/strong\u003e — inputs inside a CSS Grid with \u003ccode class=\"inline-code\"\u003egrid-template-columns: 1fr\u003c/code\u003e should stay fixed so the grid doesn't shift\u003c/li\u003e\n\u003cli class=\"post-li\"\u003e\u003cstrong\u003eNumeric fields\u003c/strong\u003e — credit card numbers, ZIP codes, phone numbers have known lengths\u003c/li\u003e\n\u003cli class=\"post-li\"\u003e\u003cstrong\u003eForms with labels above\u003c/strong\u003e — inline-size changes can misalign stacked label-input pairs\u003c/li\u003e\n\u003cli class=\"post-li\"\u003e\u003cstrong\u003eTightly spaced UIs\u003c/strong\u003e — growing inputs could overflow constrained spaces\u003c/li\u003e\n\u003c/ul\u003e\n\u003cp class=\"post-p\"\u003e\nThe rule of thumb: use \u003ccode class=\"inline-code\"\u003efield-sizing: content\u003c/code\u003e when the content length is unpredictable and the layout can accommodate growth. Use \u003ccode class=\"inline-code\"\u003efixed\u003c/code\u003e when layout stability matters more than content-fit.\n\u003c/p\u003e\n\n\u003ch2 class=\"post-h2\"\u003eAccessibility Notes\u003c/h2\u003e\n\n\u003cp class=\"post-p\"\u003e\nOne of the best things about \u003ccode class=\"inline-code\"\u003efield-sizing\u003c/code\u003e is that it preserves \u003cstrong\u003eall\u003c/strong\u003e native accessibility:\n\u003c/p\u003e\n\n\u003cul class=\"post-ul\"\u003e\u003cli class=\"post-li\"\u003e✅ Screen readers still announce the element as an input\u003c/li\u003e\n\u003cli class=\"post-li\"\u003e✅ \u003ccode class=\"inline-code\"\u003earia-label\u003c/code\u003e and \u003ccode class=\"inline-code\"\u003earia-describedby\u003c/code\u003e work normally\u003c/li\u003e\n\u003cli class=\"post-li\"\u003e✅ Tab order is unaffected\u003c/li\u003e\n\u003cli class=\"post-li\"\u003e✅ Form validation (\u003ccode class=\"inline-code\"\u003erequired\u003c/code\u003e, \u003ccode class=\"inline-code\"\u003epattern\u003c/code\u003e, \u003ccode class=\"inline-code\"\u003eminlength\u003c/code\u003e) still fires\u003c/li\u003e\n\u003cli class=\"post-li\"\u003e✅ Autofill and password managers work correctly\u003c/li\u003e\n\u003c/ul\u003e\n\u003cp class=\"post-p\"\u003e\nCompare this to \u003ccode class=\"inline-code\"\u003econtenteditable\u003c/code\u003e divs, which break all of these unless you carefully re-implement each one with ARIA.\n\u003c/p\u003e\n\n\u003ch2 class=\"post-h2\"\u003eReal-World Example: Comment Form\u003c/h2\u003e\n\n\u003cp class=\"post-p\"\u003e\nHere's a complete comment form using \u003ccode class=\"inline-code\"\u003efield-sizing\u003c/code\u003e:\n\u003c/p\u003e\n\n\u003cpre class=\"code-block\"\u003e\u003ccode class=\"language-html\"\u003e\u0026amp;lt;form class=\"comment-form\"\u0026amp;gt;\n\u003cp class=\"post-p\"\u003e\n\u0026amp;lt;div class=\"field-group\"\u0026amp;gt;\n\u0026amp;lt;label for=\"name\"\u0026amp;gt;Name\u0026amp;lt;/label\u0026amp;gt;\n\u0026amp;lt;input id=\"name\" type=\"text\" class=\"auto-size\" placeholder=\"Your name\" required /\u0026amp;gt;\n\u0026amp;lt;/div\u0026amp;gt;\n\u0026amp;lt;div class=\"field-group\"\u0026amp;gt;\n\u0026amp;lt;label for=\"email\"\u0026amp;gt;Email\u0026amp;lt;/label\u0026amp;gt;\n\u0026amp;lt;input id=\"email\" type=\"email\" class=\"auto-size\" placeholder=\"you@example.com\" /\u0026amp;gt;\n\u0026amp;lt;/div\u0026amp;gt;\n\u0026amp;lt;div class=\"field-group\"\u0026amp;gt;\n\u0026amp;lt;label for=\"comment\"\u0026amp;gt;Comment\u0026amp;lt;/label\u0026amp;gt;\n\u0026amp;lt;textarea id=\"comment\" class=\"auto-size\" placeholder=\"Write your comment...\" rows=\"3\" required\u0026amp;gt;\u0026amp;lt;/textarea\u0026amp;gt;\n\u0026amp;lt;/div\u0026amp;gt;\n\u0026amp;lt;button type=\"submit\"\u0026amp;gt;Post Comment\u0026amp;lt;/button\u0026amp;gt;\n\u0026amp;lt;/form\u0026amp;gt;\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n\u0026amp;lt;style\u0026amp;gt;\n.auto-size {\nfield-sizing: content;\nmin-inline-size: 100%;\nmax-inline-size: 100%;\npadding: 0.625rem 0.75rem;\nborder: 1px solid #d1d5db;\nborder-radius: 0.5rem;\nfont: inherit;\ntransition: border-color 0.15s;\n}\n.auto-size:focus {\nborder-color: #3b82f6;\noutline: none;\nbox-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);\n}\ntextarea.auto-size {\nmin-block-size: 4lh;\nmax-block-size: 15lh;\nresize: none;\nline-height: 1.5;\n}\n\u0026amp;lt;/style\u0026amp;gt;\n\u003c/code\u003e\u003c/pre\u003e\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\nThe text inputs grow as the user types their name, email, and comment. The textarea expands from 4 lines to up to 15 lines. No JavaScript. No layout bugs. Just clean, semantic HTML with modern CSS.\n\u003c/p\u003e\n\n\u003ch2 class=\"post-h2\"\u003eSummary\u003c/h2\u003e\n\n\u003cp class=\"post-p\"\u003e\n\u003ccode class=\"inline-code\"\u003efield-sizing: content\u003c/code\u003e is one of those rare CSS features that's simultaneously simple to use, broadly supported, and genuinely improves the user experience. It eliminates a whole category of JavaScript hacks and makes forms feel more fluid and responsive.\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n\u003cstrong\u003eKey takeaways:\u003c/strong\u003e\n\u003c/p\u003e\n\u003cul class=\"post-ul\"\u003e\u003cli class=\"post-li\"\u003eAdd \u003ccode class=\"inline-code\"\u003efield-sizing: content\u003c/code\u003e to any text input or textarea whose content length is unpredictable\u003c/li\u003e\n\u003cli class=\"post-li\"\u003eAlways set \u003ccode class=\"inline-code\"\u003emin-inline-size\u003c/code\u003e (to prevent collapse) and \u003ccode class=\"inline-code\"\u003emax-inline-size\u003c/code\u003e (to prevent overflow)\u003c/li\u003e\n\u003cli class=\"post-li\"\u003eUse \u003ccode class=\"inline-code\"\u003emin-block-size\u003c/code\u003e / \u003ccode class=\"inline-code\"\u003emax-block-size\u003c/code\u003e on textareas for height boundaries\u003c/li\u003e\n\u003cli class=\"post-li\"\u003ePair with \u003ccode class=\"inline-code\"\u003e@supports\u003c/code\u003e for graceful degradation\u003c/li\u003e\n\u003cli class=\"post-li\"\u003eIt's fully accessible — no ARIA gymnastics needed\u003c/li\u003e\n\u003cli class=\"post-li\"\u003eIt's Baseline 2026 — ship it today\u003c/li\u003e\n\u003c/ul\u003e"])</script><script>self.__next_f.push([1,"6:T78f,\n        .blog-content .post-h1 { font-size: 1.75rem; font-weight: 700; color: #ffffff; margin-top: 2rem; margin-bottom: 1rem; }\n        .blog-content .post-h2 { font-size: 1.5rem; font-weight: 600; color: #f1f5f9; margin-top: 1.75rem; margin-bottom: 0.75rem; padding-bottom: 0.5rem; border-bottom: 1px solid #334155; }\n        .blog-content .post-h3 { font-size: 1.25rem; font-weight: 600; color: #e2e8f0; margin-top: 1.5rem; margin-bottom: 0.5rem; }\n        .blog-content .post-h4 { font-size: 1.1rem; font-weight: 600; color: #e2e8f0; margin-top: 1.25rem; margin-bottom: 0.5rem; }\n        .blog-content .post-p { color: #cbd5e1; line-height: 1.75; margin-bottom: 1rem; }\n        .blog-content .code-block { background: #0f172a; border: 1px solid #334155; border-radius: 0.5rem; padding: 1rem; overflow-x: auto; margin: 1rem 0; font-family: 'JetBrains Mono', monospace; font-size: 0.875rem; color: #e2e8f0; }\n        .blog-content .inline-code { background: #1e293b; color: #38bdf8; padding: 0.15rem 0.4rem; border-radius: 0.25rem; font-family: 'JetBrains Mono', monospace; font-size: 0.875em; }\n        .blog-content .post-link { color: #38bdf8; text-decoration: underline; transition: color 0.2s; }\n        .blog-content .post-link:hover { color: #7dd3fc; }\n        .blog-content .post-ul { list-style: disc; padding-left: 1.5rem; margin: 0.75rem 0; color: #cbd5e1; }\n        .blog-content .post-li { margin-bottom: 0.25rem; line-height: 1.6; }\n        .blog-content .post-blockquote { border-left: 3px solid #0ea5e9; padding: 0.5rem 1rem; margin: 1rem 0; background: rgba(14, 165, 233, 0.05); border-radius: 0 0.5rem 0.5rem 0; }\n        .blog-content .post-blockquote p { color: #94a3b8; font-style: italic; }\n        .blog-content .post-hr { border: none; border-top: 1px solid #334155; margin: 2rem 0; }\n        .blog-content strong { color: #f1f5f9; font-weight: 600; }\n        .blog-content em { font-style: italic; }\n        8:[\"slug\",\"css-field-sizing-2026\",\"d\"]\nf:[]\n"])</script><script>self.__next_f.push([1,"0:[\"$\",\"$L2\",null,{\"buildId\":\"wLkx3_e9eF0HmBHirJWLm\",\"assetPrefix\":\"/devbench-tech\",\"urlParts\":[\"\",\"blog\",\"css-field-sizing-2026\",\"\"],\"initialTree\":[\"\",{\"children\":[\"blog\",{\"children\":[[\"slug\",\"css-field-sizing-2026\",\"d\"],{\"children\":[\"__PAGE__?{\\\"slug\\\":\\\"css-field-sizing-2026\\\"}\",{}]}]}]},\"$undefined\",\"$undefined\",true],\"initialSeedData\":[\"\",{\"children\":[\"blog\",{\"children\":[[\"slug\",\"css-field-sizing-2026\",\"d\"],{\"children\":[\"__PAGE__\",{},[[\"$L3\",[\"$\",\"article\",null,{\"className\":\"max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-20\",\"children\":[[\"$\",\"script\",null,{\"type\":\"application/ld+json\",\"dangerouslySetInnerHTML\":{\"__html\":\"{\\\"@context\\\":\\\"https://schema.org\\\",\\\"@type\\\":\\\"Article\\\",\\\"headline\\\":\\\"CSS field-sizing in 2026: Auto-Resizing Form Inputs Without JavaScript\\\",\\\"description\\\":\\\"The field-sizing: content CSS property lets text inputs and textareas auto-resize to fit their content — no JS, no hacks, no contenteditable divs. Learn every pattern with production-ready code and fallback strategies.\\\",\\\"datePublished\\\":\\\"2026-05-28\\\",\\\"author\\\":{\\\"@type\\\":\\\"Organization\\\",\\\"name\\\":\\\"DevBench\\\"},\\\"publisher\\\":{\\\"@type\\\":\\\"Organization\\\",\\\"name\\\":\\\"DevBench\\\",\\\"url\\\":\\\"https://devbench-roan.vercel.app\\\"}}\"}}],[\"$\",\"script\",null,{\"type\":\"application/ld+json\",\"dangerouslySetInnerHTML\":{\"__html\":\"{\\\"@context\\\":\\\"https://schema.org\\\",\\\"@type\\\":\\\"BreadcrumbList\\\",\\\"itemListElement\\\":[{\\\"@type\\\":\\\"ListItem\\\",\\\"position\\\":1,\\\"name\\\":\\\"Home\\\",\\\"item\\\":\\\"https://devbench-roan.vercel.app\\\"},{\\\"@type\\\":\\\"ListItem\\\",\\\"position\\\":2,\\\"name\\\":\\\"Blog\\\",\\\"item\\\":\\\"https://devbench-roan.vercel.app/blog\\\"},{\\\"@type\\\":\\\"ListItem\\\",\\\"position\\\":3,\\\"name\\\":\\\"CSS field-sizing in 2026: Auto-Resizing Form Inputs Without JavaScript\\\"}]}\"}}],[\"$\",\"$L4\",null,{\"href\":\"/blog\",\"className\":\"inline-flex items-center gap-1.5 text-slate-400 hover:text-brand-400 text-sm transition-colors mb-8\",\"children\":[[\"$\",\"svg\",null,{\"xmlns\":\"http://www.w3.org/2000/svg\",\"width\":24,\"height\":24,\"viewBox\":\"0 0 24 24\",\"fill\":\"none\",\"stroke\":\"currentColor\",\"strokeWidth\":2,\"strokeLinecap\":\"round\",\"strokeLinejoin\":\"round\",\"className\":\"lucide lucide-arrow-left w-4 h-4\",\"children\":[[\"$\",\"path\",\"1l729n\",{\"d\":\"m12 19-7-7 7-7\"}],[\"$\",\"path\",\"x3x0zl\",{\"d\":\"M19 12H5\"}],\"$undefined\"]}],\"Back to Blog\"]}],[\"$\",\"header\",null,{\"className\":\"mb-10\",\"children\":[[\"$\",\"h1\",null,{\"className\":\"text-3xl sm:text-4xl font-bold text-white leading-tight mb-4\",\"children\":\"CSS field-sizing in 2026: Auto-Resizing Form Inputs Without JavaScript\"}],[\"$\",\"div\",null,{\"className\":\"flex flex-wrap items-center gap-4 text-sm text-slate-400\",\"children\":[[\"$\",\"span\",null,{\"className\":\"flex items-center gap-1.5\",\"children\":[[\"$\",\"svg\",null,{\"xmlns\":\"http://www.w3.org/2000/svg\",\"width\":24,\"height\":24,\"viewBox\":\"0 0 24 24\",\"fill\":\"none\",\"stroke\":\"currentColor\",\"strokeWidth\":2,\"strokeLinecap\":\"round\",\"strokeLinejoin\":\"round\",\"className\":\"lucide lucide-calendar w-4 h-4\",\"children\":[[\"$\",\"rect\",\"eu3xkr\",{\"width\":\"18\",\"height\":\"18\",\"x\":\"3\",\"y\":\"4\",\"rx\":\"2\",\"ry\":\"2\"}],[\"$\",\"line\",\"m3sa8f\",{\"x1\":\"16\",\"x2\":\"16\",\"y1\":\"2\",\"y2\":\"6\"}],[\"$\",\"line\",\"18kwsl\",{\"x1\":\"8\",\"x2\":\"8\",\"y1\":\"2\",\"y2\":\"6\"}],[\"$\",\"line\",\"xt86sb\",{\"x1\":\"3\",\"x2\":\"21\",\"y1\":\"10\",\"y2\":\"10\"}],\"$undefined\"]}],\"2026-05-28\"]}],[\"$\",\"div\",null,{\"className\":\"flex flex-wrap gap-1.5\",\"children\":[[\"$\",\"span\",\"[\\\"CSS\\\"\",{\"className\":\"badge-secondary flex items-center gap-1\",\"children\":[[\"$\",\"svg\",null,{\"xmlns\":\"http://www.w3.org/2000/svg\",\"width\":24,\"height\":24,\"viewBox\":\"0 0 24 24\",\"fill\":\"none\",\"stroke\":\"currentColor\",\"strokeWidth\":2,\"strokeLinecap\":\"round\",\"strokeLinejoin\":\"round\",\"className\":\"lucide lucide-tag w-3 h-3\",\"children\":[[\"$\",\"path\",\"14b2ls\",{\"d\":\"M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z\"}],[\"$\",\"path\",\"7u93v4\",{\"d\":\"M7 7h.01\"}],\"$undefined\"]}],\"[\\\"CSS\\\"\"]}],[\"$\",\"span\",\"\\\"field-sizing\\\"\",{\"className\":\"badge-secondary flex items-center gap-1\",\"children\":[[\"$\",\"svg\",null,{\"xmlns\":\"http://www.w3.org/2000/svg\",\"width\":24,\"height\":24,\"viewBox\":\"0 0 24 24\",\"fill\":\"none\",\"stroke\":\"currentColor\",\"strokeWidth\":2,\"strokeLinecap\":\"round\",\"strokeLinejoin\":\"round\",\"className\":\"lucide lucide-tag w-3 h-3\",\"children\":[[\"$\",\"path\",\"14b2ls\",{\"d\":\"M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z\"}],[\"$\",\"path\",\"7u93v4\",{\"d\":\"M7 7h.01\"}],\"$undefined\"]}],\"\\\"field-sizing\\\"\"]}],[\"$\",\"span\",\"\\\"Forms\\\"\",{\"className\":\"badge-secondary flex items-center gap-1\",\"children\":[[\"$\",\"svg\",null,{\"xmlns\":\"http://www.w3.org/2000/svg\",\"width\":24,\"height\":24,\"viewBox\":\"0 0 24 24\",\"fill\":\"none\",\"stroke\":\"currentColor\",\"strokeWidth\":2,\"strokeLinecap\":\"round\",\"strokeLinejoin\":\"round\",\"className\":\"lucide lucide-tag w-3 h-3\",\"children\":[[\"$\",\"path\",\"14b2ls\",{\"d\":\"M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z\"}],[\"$\",\"path\",\"7u93v4\",{\"d\":\"M7 7h.01\"}],\"$undefined\"]}],\"\\\"Forms\\\"\"]}],[\"$\",\"span\",\"\\\"UX\\\"\",{\"className\":\"badge-secondary flex items-center gap-1\",\"children\":[[\"$\",\"svg\",null,{\"xmlns\":\"http://www.w3.org/2000/svg\",\"width\":24,\"height\":24,\"viewBox\":\"0 0 24 24\",\"fill\":\"none\",\"stroke\":\"currentColor\",\"strokeWidth\":2,\"strokeLinecap\":\"round\",\"strokeLinejoin\":\"round\",\"className\":\"lucide lucide-tag w-3 h-3\",\"children\":[[\"$\",\"path\",\"14b2ls\",{\"d\":\"M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z\"}],[\"$\",\"path\",\"7u93v4\",{\"d\":\"M7 7h.01\"}],\"$undefined\"]}],\"\\\"UX\\\"\"]}],[\"$\",\"span\",\"\\\"Input\\\"\",{\"className\":\"badge-secondary flex items-center gap-1\",\"children\":[[\"$\",\"svg\",null,{\"xmlns\":\"http://www.w3.org/2000/svg\",\"width\":24,\"height\":24,\"viewBox\":\"0 0 24 24\",\"fill\":\"none\",\"stroke\":\"currentColor\",\"strokeWidth\":2,\"strokeLinecap\":\"round\",\"strokeLinejoin\":\"round\",\"className\":\"lucide lucide-tag w-3 h-3\",\"children\":[[\"$\",\"path\",\"14b2ls\",{\"d\":\"M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z\"}],[\"$\",\"path\",\"7u93v4\",{\"d\":\"M7 7h.01\"}],\"$undefined\"]}],\"\\\"Input\\\"\"]}],[\"$\",\"span\",\"\\\"Baseline 2026\\\"\",{\"className\":\"badge-secondary flex items-center gap-1\",\"children\":[[\"$\",\"svg\",null,{\"xmlns\":\"http://www.w3.org/2000/svg\",\"width\":24,\"height\":24,\"viewBox\":\"0 0 24 24\",\"fill\":\"none\",\"stroke\":\"currentColor\",\"strokeWidth\":2,\"strokeLinecap\":\"round\",\"strokeLinejoin\":\"round\",\"className\":\"lucide lucide-tag w-3 h-3\",\"children\":[[\"$\",\"path\",\"14b2ls\",{\"d\":\"M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z\"}],[\"$\",\"path\",\"7u93v4\",{\"d\":\"M7 7h.01\"}],\"$undefined\"]}],\"\\\"Baseline 2026\\\"\"]}],[\"$\",\"span\",\"\\\"2026\\\"]\",{\"className\":\"badge-secondary flex items-center gap-1\",\"children\":[[\"$\",\"svg\",null,{\"xmlns\":\"http://www.w3.org/2000/svg\",\"width\":24,\"height\":24,\"viewBox\":\"0 0 24 24\",\"fill\":\"none\",\"stroke\":\"currentColor\",\"strokeWidth\":2,\"strokeLinecap\":\"round\",\"strokeLinejoin\":\"round\",\"className\":\"lucide lucide-tag w-3 h-3\",\"children\":[[\"$\",\"path\",\"14b2ls\",{\"d\":\"M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z\"}],[\"$\",\"path\",\"7u93v4\",{\"d\":\"M7 7h.01\"}],\"$undefined\"]}],\"\\\"2026\\\"]\"]}]]}]]}]]}],[\"$\",\"div\",null,{\"className\":\"blog-content prose-p:text-slate-300 prose-p:leading-relaxed prose-p:mb-4\",\"dangerouslySetInnerHTML\":{\"__html\":\"$5\"}}],[\"$\",\"style\",null,{\"dangerouslySetInnerHTML\":{\"__html\":\"$6\"}}]]}],null],null],null]},[null,[\"$\",\"$L7\",null,{\"parallelRouterKey\":\"children\",\"segmentPath\":[\"children\",\"blog\",\"children\",\"$8\",\"children\"],\"error\":\"$undefined\",\"errorStyles\":\"$undefined\",\"errorScripts\":\"$undefined\",\"template\":[\"$\",\"$L9\",null,{}],\"templateStyles\":\"$undefined\",\"templateScripts\":\"$undefined\",\"notFound\":\"$undefined\",\"notFoundStyles\":\"$undefined\"}]],null]},[null,[\"$\",\"$L7\",null,{\"parallelRouterKey\":\"children\",\"segmentPath\":[\"children\",\"blog\",\"children\"],\"error\":\"$undefined\",\"errorStyles\":\"$undefined\",\"errorScripts\":\"$undefined\",\"template\":[\"$\",\"$L9\",null,{}],\"templateStyles\":\"$undefined\",\"templateScripts\":\"$undefined\",\"notFound\":\"$undefined\",\"notFoundStyles\":\"$undefined\"}]],null]},[[[[\"$\",\"link\",\"0\",{\"rel\":\"stylesheet\",\"href\":\"/devbench-tech/_next/static/css/c877e59dbcb00f11.css\",\"precedence\":\"next\",\"crossOrigin\":\"$undefined\"}]],[\"$\",\"html\",null,{\"lang\":\"en\",\"className\":\"dark\",\"children\":[\"$\",\"body\",null,{\"className\":\"flex flex-col min-h-screen\",\"children\":[[\"$\",\"script\",null,{\"type\":\"application/ld+json\",\"dangerouslySetInnerHTML\":{\"__html\":\"{\\\"@context\\\":\\\"https://schema.org\\\",\\\"@type\\\":\\\"WebSite\\\",\\\"name\\\":\\\"DevBench\\\",\\\"url\\\":\\\"https://devbench-roan.vercel.app\\\",\\\"description\\\":\\\"Free developer tools for everyday use: JSON formatter, Base64 encoder/decoder, UUID generator, regex tester, benchmarks, and more.\\\",\\\"potentialAction\\\":{\\\"@type\\\":\\\"SearchAction\\\",\\\"target\\\":\\\"https://devbench-roan.vercel.app/tools?q={search_term_string}\\\",\\\"query-input\\\":\\\"required name=search_term_string\\\"}}\"}}],[\"$\",\"$La\",null,{}],[\"$\",\"main\",null,{\"className\":\"flex-1\",\"children\":[\"$\",\"$L7\",null,{\"parallelRouterKey\":\"children\",\"segmentPath\":[\"children\"],\"error\":\"$undefined\",\"errorStyles\":\"$undefined\",\"errorScripts\":\"$undefined\",\"template\":[\"$\",\"$L9\",null,{}],\"templateStyles\":\"$undefined\",\"templateScripts\":\"$undefined\",\"notFound\":[[\"$\",\"title\",null,{\"children\":\"404: This page could not be found.\"}],[\"$\",\"div\",null,{\"style\":{\"fontFamily\":\"system-ui,\\\"Segoe UI\\\",Roboto,Helvetica,Arial,sans-serif,\\\"Apple Color Emoji\\\",\\\"Segoe UI Emoji\\\"\",\"height\":\"100vh\",\"textAlign\":\"center\",\"display\":\"flex\",\"flexDirection\":\"column\",\"alignItems\":\"center\",\"justifyContent\":\"center\"},\"children\":[\"$\",\"div\",null,{\"children\":[[\"$\",\"style\",null,{\"dangerouslySetInnerHTML\":{\"__html\":\"body{color:#000;background:#fff;margin:0}.next-error-h1{border-right:1px solid rgba(0,0,0,.3)}@media (prefers-color-scheme:dark){body{color:#fff;background:#000}.next-error-h1{border-right:1px solid rgba(255,255,255,.3)}}\"}}],[\"$\",\"h1\",null,{\"className\":\"next-error-h1\",\"style\":{\"display\":\"inline-block\",\"margin\":\"0 20px 0 0\",\"padding\":\"0 23px 0 0\",\"fontSize\":24,\"fontWeight\":500,\"verticalAlign\":\"top\",\"lineHeight\":\"49px\"},\"children\":\"404\"}],[\"$\",\"div\",null,{\"style\":{\"display\":\"inline-block\"},\"children\":[\"$\",\"h2\",null,{\"style\":{\"fontSize\":14,\"fontWeight\":400,\"lineHeight\":\"49px\",\"margin\":0},\"children\":\"This page could not be found.\"}]}]]}]}]],\"notFoundStyles\":[]}]}],[\"$\",\"footer\",null,{\"className\":\"bg-surface-light border-t border-slate-700/50 mt-auto\",\"children\":[\"$\",\"div\",null,{\"className\":\"max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12\",\"children\":[[\"$\",\"div\",null,{\"className\":\"grid grid-cols-1 md:grid-cols-3 gap-8\",\"children\":[[\"$\",\"div\",null,{\"children\":[[\"$\",\"$L4\",null,{\"href\":\"/\",\"className\":\"flex items-center gap-2.5 mb-3\",\"children\":[[\"$\",\"div\",null,{\"className\":\"w-7 h-7 bg-brand-500 rounded-lg flex items-center justify-center\",\"children\":[\"$\",\"svg\",null,{\"xmlns\":\"http://www.w3.org/2000/svg\",\"width\":24,\"height\":24,\"viewBox\":\"0 0 24 24\",\"fill\":\"none\",\"stroke\":\"currentColor\",\"strokeWidth\":2,\"strokeLinecap\":\"round\",\"strokeLinejoin\":\"round\",\"className\":\"lucide lucide-terminal w-3.5 h-3.5 text-white\",\"children\":[[\"$\",\"polyline\",\"akl6gq\",{\"points\":\"4 17 10 11 4 5\"}],[\"$\",\"line\",\"q2wloq\",{\"x1\":\"12\",\"x2\":\"20\",\"y1\":\"19\",\"y2\":\"19\"}],\"$undefined\"]}]}],[\"$\",\"span\",null,{\"className\":\"text-lg font-bold text-white\",\"children\":[\"Dev\",[\"$\",\"span\",null,{\"className\":\"gradient-text\",\"children\":\"Bench\"}]]}]]}],[\"$\",\"p\",null,{\"className\":\"text-slate-400 text-sm leading-relaxed\",\"children\":\"Free developer tools, benchmarks, and calculators. Built for developers, by developers.\"}]]}],[\"$\",\"div\",null,{\"children\":[[\"$\",\"h3\",null,{\"className\":\"text-sm font-semibold text-slate-300 uppercase tracking-wider mb-4\",\"children\":\"Tools\"}],[\"$\",\"ul\",null,{\"className\":\"space-y-2\",\"children\":[[\"$\",\"li\",\"/tools/json-formatter\",{\"children\":[\"$\",\"$L4\",null,{\"href\":\"/tools/json-formatter\",\"className\":\"text-slate-400 hover:text-brand-400 text-sm transition-colors\",\"children\":\"JSON Formatter\"}]}],[\"$\",\"li\",\"/tools/base64\",{\"children\":[\"$\",\"$L4\",null,{\"href\":\"/tools/base64\",\"className\":\"text-slate-400 hover:text-brand-400 text-sm transition-colors\",\"children\":\"Base64 Encoder/Decoder\"}]}],[\"$\",\"li\",\"/tools/uuid-generator\",{\"children\":[\"$\",\"$L4\",null,{\"href\":\"/tools/uuid-generator\",\"className\":\"text-slate-400 hover:text-brand-400 text-sm transition-colors\",\"children\":\"UUID Generator\"}]}],[\"$\",\"li\",\"/tools/regex-tester\",{\"children\":[\"$\",\"$L4\",null,{\"href\":\"/tools/regex-tester\",\"className\":\"text-slate-400 hover:text-brand-400 text-sm transition-colors\",\"children\":\"Regex Tester\"}]}]]}]]}],[\"$\",\"div\",null,{\"children\":[[\"$\",\"h3\",null,{\"className\":\"text-sm font-semibold text-slate-300 uppercase tracking-wider mb-4\",\"children\":\"Resources\"}],[\"$\",\"ul\",null,{\"className\":\"space-y-2\",\"children\":[[\"$\",\"li\",\"/blog\",{\"children\":[\"$\",\"$L4\",null,{\"href\":\"/blog\",\"className\":\"text-slate-400 hover:text-brand-400 text-sm transition-colors\",\"children\":\"Blog\"}]}],[\"$\",\"li\",\"/benchmarks\",{\"children\":[\"$\",\"$L4\",null,{\"href\":\"/benchmarks\",\"className\":\"text-slate-400 hover:text-brand-400 text-sm transition-colors\",\"children\":\"Benchmarks\"}]}],[\"$\",\"li\",\"/about\",{\"children\":[\"$\",\"$L4\",null,{\"href\":\"/about\",\"className\":\"text-slate-400 hover:text-brand-400 text-sm transition-colors\",\"children\":\"About\"}]}]]}]]}]]}],[\"$\",\"div\",null,{\"className\":\"mt-10 pt-6 border-t border-slate-700/50 flex flex-col sm:flex-row items-center justify-between gap-4\",\"children\":[[\"$\",\"p\",null,{\"className\":\"text-slate-500 text-sm flex items-center gap-1\",\"children\":[\"Made with \",[\"$\",\"svg\",null,{\"xmlns\":\"http://www.w3.org/2000/svg\",\"width\":24,\"height\":24,\"viewBox\":\"0 0 24 24\",\"fill\":\"none\",\"stroke\":\"currentColor\",\"strokeWidth\":2,\"strokeLinecap\":\"round\",\"strokeLinejoin\":\"round\",\"className\":\"lucide lucide-heart w-3.5 h-3.5 text-red-500 fill-red-500\",\"children\":[[\"$\",\"path\",\"c3ymky\",{\"d\":\"M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z\"}],\"$undefined\"]}],\" by the DevBench team © \",2026]}],[\"$\",\"a\",null,{\"href\":\"https://github.com\",\"target\":\"_blank\",\"rel\":\"noopener noreferrer\",\"className\":\"text-slate-500 hover:text-slate-300 transition-colors\",\"aria-label\":\"GitHub\",\"children\":[\"$\",\"svg\",null,{\"xmlns\":\"http://www.w3.org/2000/svg\",\"width\":24,\"height\":24,\"viewBox\":\"0 0 24 24\",\"fill\":\"none\",\"stroke\":\"currentColor\",\"strokeWidth\":2,\"strokeLinecap\":\"round\",\"strokeLinejoin\":\"round\",\"className\":\"lucide lucide-github w-5 h-5\",\"children\":[[\"$\",\"path\",\"tonef\",{\"d\":\"M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4\"}],[\"$\",\"path\",\"9comsn\",{\"d\":\"M9 18c-4.51 2-5-2-7-2\"}],\"$undefined\"]}]}]]}]]}]}],[\"$\",\"$Lb\",null,{}],[\"$\",\"$Lc\",null,{\"position\":\"bottom-right\",\"toastOptions\":{\"style\":{\"background\":\"#1e293b\",\"color\":\"#e2e8f0\",\"border\":\"1px solid #334155\",\"fontSize\":\"14px\"}}}]]}]}]],null],null],\"couldBeIntercepted\":false,\"initialHead\":[null,\"$Ld\"],\"globalErrorComponent\":\"$e\",\"missingSlots\":\"$Wf\"}]\n"])</script><script>self.__next_f.push([1,"d:[[\"$\",\"meta\",\"0\",{\"name\":\"viewport\",\"content\":\"width=device-width, initial-scale=1\"}],[\"$\",\"meta\",\"1\",{\"charSet\":\"utf-8\"}],[\"$\",\"title\",\"2\",{\"children\":\"CSS field-sizing in 2026: Auto-Resizing Form Inputs Without JavaScript | DevBench\"}],[\"$\",\"meta\",\"3\",{\"name\":\"description\",\"content\":\"The field-sizing: content CSS property lets text inputs and textareas auto-resize to fit their content — no JS, no hacks, no contenteditable divs. Learn every pattern with production-ready code and fallback strategies.\"}],[\"$\",\"meta\",\"4\",{\"name\":\"author\",\"content\":\"DevBench\"}],[\"$\",\"meta\",\"5\",{\"name\":\"keywords\",\"content\":\"developer tools,JSON formatter,Base64,UUID generator,regex tester,benchmarks,dev tools\"}],[\"$\",\"meta\",\"6\",{\"property\":\"og:title\",\"content\":\"DevBench — Developer Tools \u0026 Calculators\"}],[\"$\",\"meta\",\"7\",{\"property\":\"og:description\",\"content\":\"Free developer tools for everyday use.\"}],[\"$\",\"meta\",\"8\",{\"property\":\"og:site_name\",\"content\":\"DevBench\"}],[\"$\",\"meta\",\"9\",{\"property\":\"og:locale\",\"content\":\"en_US\"}],[\"$\",\"meta\",\"10\",{\"property\":\"og:type\",\"content\":\"website\"}],[\"$\",\"meta\",\"11\",{\"name\":\"twitter:card\",\"content\":\"summary\"}],[\"$\",\"meta\",\"12\",{\"name\":\"twitter:title\",\"content\":\"DevBench — Developer Tools \u0026 Calculators\"}],[\"$\",\"meta\",\"13\",{\"name\":\"twitter:description\",\"content\":\"Free developer tools for everyday use.\"}],[\"$\",\"link\",\"14\",{\"rel\":\"icon\",\"href\":\"/favicon.svg\"}]]\n3:null\n"])</script></body></html>

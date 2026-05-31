@@ -1,0 +1,635 @@
+<!DOCTYPE html><html lang="en" class="dark"><head><meta charSet="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/><link rel="stylesheet" href="/devbench-tech/_next/static/css/c877e59dbcb00f11.css" data-precedence="next"/><link rel="preload" as="script" fetchPriority="low" href="/devbench-tech/_next/static/chunks/webpack-b521a83317325026.js"/><script src="/devbench-tech/_next/static/chunks/fd9d1056-04e0aa683dc3c41f.js" async=""></script><script src="/devbench-tech/_next/static/chunks/2117-8374a93ea77a2be4.js" async=""></script><script src="/devbench-tech/_next/static/chunks/main-app-aaec773b36366bc0.js" async=""></script><script src="/devbench-tech/_next/static/chunks/2972-4aaa15d119eeb022.js" async=""></script><script src="/devbench-tech/_next/static/chunks/app/blog/%5Bslug%5D/page-a411190e7012c687.js" async=""></script><script src="/devbench-tech/_next/static/chunks/44530001-4ecf7a22b5b24163.js" async=""></script><script src="/devbench-tech/_next/static/chunks/8375-c77b8de36f6696fb.js" async=""></script><script src="/devbench-tech/_next/static/chunks/6829-f51803445ddf1872.js" async=""></script><script src="/devbench-tech/_next/static/chunks/app/layout-488e5c40aa6ffa72.js" async=""></script><title>CSS Custom Properties Unleashed: Beyond Simple Variables | DevBench</title><meta name="description" content="CSS custom properties are far more than &#x27;CSS variables.&#x27; With @property, typed values, animation support, and integration with style queries, they&#x27;re the most powerful primitive in modern CSS. Learn advanced patterns — the space toggle, staggered animations, dynamic theming, and computed design tokens — that will change how you write CSS."/><meta name="author" content="DevBench"/><meta name="keywords" content="developer tools,JSON formatter,Base64,UUID generator,regex tester,benchmarks,dev tools"/><meta property="og:title" content="DevBench — Developer Tools &amp; Calculators"/><meta property="og:description" content="Free developer tools for everyday use."/><meta property="og:site_name" content="DevBench"/><meta property="og:locale" content="en_US"/><meta property="og:type" content="website"/><meta name="twitter:card" content="summary"/><meta name="twitter:title" content="DevBench — Developer Tools &amp; Calculators"/><meta name="twitter:description" content="Free developer tools for everyday use."/><link rel="icon" href="/favicon.svg"/><script src="/devbench-tech/_next/static/chunks/polyfills-42372ed130431b0a.js" noModule=""></script></head><body class="flex flex-col min-h-screen"><script type="application/ld+json">{"@context":"https://schema.org","@type":"WebSite","name":"DevBench","url":"https://devbench-roan.vercel.app","description":"Free developer tools for everyday use: JSON formatter, Base64 encoder/decoder, UUID generator, regex tester, benchmarks, and more.","potentialAction":{"@type":"SearchAction","target":"https://devbench-roan.vercel.app/tools?q={search_term_string}","query-input":"required name=search_term_string"}}</script><header class="sticky top-0 z-50 transition-all duration-300 bg-surface border-b border-transparent"><div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8"><div class="flex items-center justify-between h-16"><a class="flex items-center gap-2.5 group" href="/devbench-tech/"><div class="w-8 h-8 bg-brand-500 rounded-lg flex items-center justify-center group-hover:bg-brand-400 transition-colors"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-terminal w-4 h-4 text-white"><polyline points="4 17 10 11 4 5"></polyline><line x1="12" x2="20" y1="19" y2="19"></line></svg></div><span class="text-xl font-bold text-white tracking-tight">Dev<span class="gradient-text">Bench</span></span></a><nav class="hidden md:flex items-center gap-1"><a class="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 text-slate-400 hover:text-slate-200 hover:bg-surface-lighter" href="/devbench-tech/tools/"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-wrench w-4 h-4"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path></svg>Tools</a><a class="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 text-slate-400 hover:text-slate-200 hover:bg-surface-lighter" href="/devbench-tech/benchmarks/"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-bar-chart3 w-4 h-4"><path d="M3 3v18h18"></path><path d="M18 17V9"></path><path d="M13 17V5"></path><path d="M8 17v-3"></path></svg>Benchmarks</a><a class="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 bg-brand-500/10 text-brand-400" href="/devbench-tech/blog/"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-book-open w-4 h-4"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg>Blog</a><a class="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 text-slate-400 hover:text-slate-200 hover:bg-surface-lighter" href="/devbench-tech/about/"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-info w-4 h-4"><circle cx="12" cy="12" r="10"></circle><path d="M12 16v-4"></path><path d="M12 8h.01"></path></svg>About</a></nav><button class="md:hidden p-2 rounded-lg text-slate-400 hover:text-white hover:bg-surface-lighter transition-colors" aria-label="Toggle menu"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-menu w-5 h-5"><line x1="4" x2="20" y1="12" y2="12"></line><line x1="4" x2="20" y1="6" y2="6"></line><line x1="4" x2="20" y1="18" y2="18"></line></svg></button></div></div></header><main class="flex-1"><article class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-20"><script type="application/ld+json">{"@context":"https://schema.org","@type":"Article","headline":"CSS Custom Properties Unleashed: Beyond Simple Variables","description":"CSS custom properties are far more than 'CSS variables.' With @property, typed values, animation support, and integration with style queries, they're the most powerful primitive in modern CSS. Learn advanced patterns — the space toggle, staggered animations, dynamic theming, and computed design tokens — that will change how you write CSS.","datePublished":"2026-05-25","author":{"@type":"Organization","name":"DevBench"},"publisher":{"@type":"Organization","name":"DevBench","url":"https://devbench-roan.vercel.app"}}</script><script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://devbench-roan.vercel.app"},{"@type":"ListItem","position":2,"name":"Blog","item":"https://devbench-roan.vercel.app/blog"},{"@type":"ListItem","position":3,"name":"CSS Custom Properties Unleashed: Beyond Simple Variables"}]}</script><a class="inline-flex items-center gap-1.5 text-slate-400 hover:text-brand-400 text-sm transition-colors mb-8" href="/devbench-tech/blog/"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-arrow-left w-4 h-4"><path d="m12 19-7-7 7-7"></path><path d="M19 12H5"></path></svg>Back to Blog</a><header class="mb-10"><h1 class="text-3xl sm:text-4xl font-bold text-white leading-tight mb-4">CSS Custom Properties Unleashed: Beyond Simple Variables</h1><div class="flex flex-wrap items-center gap-4 text-sm text-slate-400"><span class="flex items-center gap-1.5"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-calendar w-4 h-4"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"></rect><line x1="16" x2="16" y1="2" y2="6"></line><line x1="8" x2="8" y1="2" y2="6"></line><line x1="3" x2="21" y1="10" y2="10"></line></svg>2026-05-25</span><div class="flex flex-wrap gap-1.5"><span class="badge-secondary flex items-center gap-1"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-tag w-3 h-3"><path d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"></path><path d="M7 7h.01"></path></svg>CSS</span><span class="badge-secondary flex items-center gap-1"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-tag w-3 h-3"><path d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"></path><path d="M7 7h.01"></path></svg>Custom Properties</span><span class="badge-secondary flex items-center gap-1"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-tag w-3 h-3"><path d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"></path><path d="M7 7h.01"></path></svg>@property</span><span class="badge-secondary flex items-center gap-1"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-tag w-3 h-3"><path d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"></path><path d="M7 7h.01"></path></svg>Variables</span><span class="badge-secondary flex items-center gap-1"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-tag w-3 h-3"><path d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"></path><path d="M7 7h.01"></path></svg>Theming</span><span class="badge-secondary flex items-center gap-1"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-tag w-3 h-3"><path d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"></path><path d="M7 7h.01"></path></svg>Animation</span><span class="badge-secondary flex items-center gap-1"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-tag w-3 h-3"><path d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"></path><path d="M7 7h.01"></path></svg>Style Queries</span><span class="badge-secondary flex items-center gap-1"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-tag w-3 h-3"><path d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"></path><path d="M7 7h.01"></path></svg>Houdini</span><span class="badge-secondary flex items-center gap-1"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-tag w-3 h-3"><path d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"></path><path d="M7 7h.01"></path></svg>Web Platform</span></div></div></header><div class="blog-content prose-p:text-slate-300 prose-p:leading-relaxed prose-p:mb-4">
+<p class="post-p">
+CSS custom properties (<code class="inline-code">--my-var</code>) have been Baseline since 2017. For years, we've used them for simple theming — define a few color tokens, swap them in a dark mode, done. But custom properties in 2026 are a completely different beast.
+</p>
+
+<p class="post-p">
+With <code class="inline-code">@property</code> landing everywhere, custom properties now have <strong>types, default values, and animation support</strong>. Combined with style queries (part of Interop 2026), they unlock patterns that were previously impossible without JavaScript or preprocessors.
+</p>
+
+<p class="post-p">
+Let's go beyond <code class="inline-code">--primary: blue</code> and see what custom properties can really do.
+</p>
+
+<h2 class="post-h2">The Foundation: What Custom Properties Actually Are</h2>
+
+<p class="post-p">
+Custom properties aren't just "variables." They're <strong>live values that participate in the cascade, inherit, and can be read by JavaScript</strong>. This makes them fundamentally different from Sass variables (compile-time) or CSS preprocessor variables (static).
+</p>
+
+<pre class="code-block"><code class="language-css">:root {
+<p class="post-p">
+--brand: oklch(0.6 0.2 250);
+--spacing: 1rem;
+}
+</p>
+
+<p class="post-p">
+.card {
+/<em> These resolve at computed-value time, not parse time </em>/
+background: var(--brand);
+padding: var(--spacing);
+}
+</p>
+
+<p class="post-p">
+.card--compact {
+/<em> Override inherits through the cascade </em>/
+--spacing: 0.5rem;
+}
+</code></pre>
+</p>
+
+<p class="post-p">
+Three properties that make custom properties unique:
+</p>
+
+<ul class="post-ul"><li class="post-li"><strong>They inherit</strong> — unlike most CSS properties, custom properties inherit by default. Set <code class="inline-code">--spacing</code> on a parent, and every child sees it.</li>
+<li class="post-li"><strong>They're live</strong> — change <code class="inline-code">--brand</code> with JavaScript via <code class="inline-code">element.style.setProperty('--brand', 'red')</code>, and every element that references it updates instantly.</li>
+<li class="post-li"><strong>They cascade</strong> — you can override them at any level of specificity. This is the superpower.</li>
+</ul>
+<h2 class="post-h2">@property: Typed Custom Properties</h2>
+
+<p class="post-p">
+The <code class="inline-code">@property</code> at-rule (part of CSS Houdini) lets you <strong>register a custom property with a type, default value, and inheritance behavior</strong>. This unlocks three things you can't do with unregistered properties:
+</p>
+
+<h3 class="post-h3">1. Animation and Transitions</h3>
+
+<p class="post-p">
+Unregistered custom properties can't animate — the browser treats them as strings. Registered properties with a syntax type can:
+</p>
+
+<pre class="code-block"><code class="language-css">@property --angle {
+<p class="post-p">
+syntax: '&amp;lt;angle&amp;gt;';
+initial-value: 0deg;
+inherits: false;
+}
+</p>
+
+<p class="post-p">
+.spinner {
+--angle: 0deg;
+animation: spin 1s linear infinite;
+transform: rotate(var(--angle));
+}
+</p>
+
+<p class="post-p">
+@keyframes spin {
+to { --angle: 360deg; }
+}
+</code></pre>
+</p>
+
+<p class="post-p">
+This is huge: <strong>you can now animate any CSS value that accepts a typed custom property</strong>. Colors, lengths, percentages, angles, numbers, even <code class="inline-code">&lt;transform-function&gt;</code> — all animatable through custom properties.
+</p>
+
+<h3 class="post-h3">2. Default Values at Parse Time</h3>
+
+<p class="post-p">
+Without <code class="inline-code">@property</code>, if a custom property is undefined, <code class="inline-code">var()</code> falls back to whatever you specify inline. But with <code class="inline-code">@property</code>, the browser knows the type at parse time:
+</p>
+
+<pre class="code-block"><code class="language-css">@property --gradient-angle {
+<p class="post-p">
+syntax: '&amp;lt;angle&amp;gt;';
+initial-value: 180deg;
+inherits: false;
+}
+</p>
+
+<p class="post-p">
+.hero {
+/<em> If --gradient-angle isn't set, defaults to 180deg </em>/
+background: linear-gradient(
+var(--gradient-angle),
+var(--brand, oklch(0.6 0.2 250)),
+var(--accent, oklch(0.7 0.15 180))
+);
+}
+</code></pre>
+</p>
+
+<h3 class="post-h3">3. Validation and Error Recovery</h3>
+
+<p class="post-p">
+Registered properties reject invalid values and fall back to their initial-value. Unregistered properties accept anything — including typos:
+</p>
+
+<pre class="code-block"><code class="language-css">@property --columns {
+<p class="post-p">
+syntax: '&amp;lt;integer&amp;gt;';
+initial-value: 3;
+inherits: false;
+}
+</p>
+
+<p class="post-p">
+.grid {
+--columns: 4;          /<em> valid integer </em>/
+grid-template-columns: repeat(var(--columns), 1fr);
+}
+</p>
+
+<p class="post-p">
+.grid--broken {
+--columns: auto;       /<em> invalid — falls back to 3 </em>/
+/<em> Browser silently uses initial-value: 3 </em>/
+}
+</code></pre>
+</p>
+
+<h3 class="post-h3">Available Syntax Types</h3>
+
+<p class="post-p">
+<code class="inline-code">@property</code> supports these syntax strings:
+</p>
+
+<p class="post-p">
+| Type | Example | Animateable |
+|------|---------|-------------|
+| <code class="inline-code">&lt;length&gt;</code> | <code class="inline-code">10px</code>, <code class="inline-code">2rem</code>, <code class="inline-code">5vw</code> | Yes |
+| <code class="inline-code">&lt;percentage&gt;</code> | <code class="inline-code">50%</code>, <code class="inline-code">-10%</code> | Yes |
+| <code class="inline-code">&lt;length-percentage&gt;</code> | <code class="inline-code">10px</code> or <code class="inline-code">50%</code> | Yes |
+| <code class="inline-code">&lt;number&gt;</code> | <code class="inline-code">0</code>, <code class="inline-code">1.5</code>, <code class="inline-code">-3</code> | Yes |
+| <code class="inline-code">&lt;integer&gt;</code> | <code class="inline-code">1</code>, <code class="inline-code">42</code> | No (discrete) |
+| <code class="inline-code">&lt;angle&gt;</code> | <code class="inline-code">45deg</code>, <code class="inline-code">1turn</code> | Yes |
+| <code class="inline-code">&lt;time&gt;</code> | <code class="inline-code">1s</code>, <code class="inline-code">500ms</code> | No |
+| <code class="inline-code">&lt;color&gt;</code> | <code class="inline-code">red</code>, <code class="inline-code">#ff0000</code>, <code class="inline-code">oklch(...)</code> | Yes |
+| <code class="inline-code">&lt;transform-function&gt;</code> | <code class="inline-code">rotate(45deg)</code> | Yes |
+| <code class="inline-code">&lt;transform-list&gt;</code> | <code class="inline-code">rotate(45deg) scale(1.2)</code> | Yes |
+| <code class="inline-code">&lt;url&gt;</code> | <code class="inline-code">url(...)</code> | No |
+| <code class="inline-code">&lt;image&gt;</code> | <code class="inline-code">&lt;url&gt;</code>, <code class="inline-code">&lt;gradient&gt;</code> | No |
+| <code class="inline-code">*</code> | Any value (no type checking) | No |
+</p>
+
+<h2 class="post-h2">Pattern 1: The Space Toggle</h2>
+
+<p class="post-p">
+The "space toggle" is one of the most elegant custom property patterns. It uses <code class="inline-code">--var: ;</code> (a space) vs <code class="inline-code">--var: initial</code> to toggle between two values:
+</p>
+
+<pre class="code-block"><code class="language-css">:root {
+<p class="post-p">
+--is-dark: ;  /<em> space = false </em>/
+}
+</p>
+
+<p class="post-p">
+@media (prefers-color-scheme: dark) {
+:root {
+--is-dark: initial;  /<em> initial = true </em>/
+}
+}
+</p>
+
+<p class="post-p">
+.card {
+/<em> When --is-dark is a space: background = white, color = black </em>/
+/<em> When --is-dark is initial: background = var(--bg-dark) = #1a1a2e </em>/
+--bg: var(--is-dark, #1a1a2e);
+--fg: var(--is-dark, #e0e0e0);
+</p>
+
+<p class="post-p">
+background: var(--bg, white);
+color: var(--fg, black);
+}
+</code></pre>
+</p>
+
+<p class="post-p">
+How it works: <code class="inline-code">var(--is-dark, #1a1a2e)</code> resolves to <code class="inline-code">#1a1a2e</code> when <code class="inline-code">--is-dark</code> is <code class="inline-code">initial</code> (any value), and falls back to nothing (empty) when <code class="inline-code">--is-dark</code> is a space (empty/whitespace custom property). Then the outer <code class="inline-code">var(--bg, white)</code> falls back to <code class="inline-code">white</code>.
+</p>
+
+<p class="post-p">
+This lets you chain multiple toggles:
+</p>
+
+<pre class="code-block"><code class="language-css">.button {
+<p class="post-p">
+padding: var(--is-compact, 0.25rem 0.5rem) var(--spacing, 0.75rem 1.5rem);
+font-size: var(--is-compact, 0.75rem) var(--font-size, 0.875rem);
+border-radius: var(--is-pill, 9999px) var(--radius, 0.375rem);
+}
+</code></pre>
+</p>
+
+<h2 class="post-h2">Pattern 2: Staggered Animations Without nth-child</h2>
+
+<p class="post-p">
+Custom properties let you stagger animations using a single animation and cascaded custom properties:
+</p>
+
+<pre class="code-block"><code class="language-css">.list-item {
+<p class="post-p">
+--index: 0;
+--delay: calc(var(--index) * 100ms);
+animation: slide-in 0.4s ease-out var(--delay) both;
+}
+</p>
+
+<p class="post-p">
+.list-item:nth-child(1) { --index: 1; }
+.list-item:nth-child(2) { --index: 2; }
+.list-item:nth-child(3) { --index: 3; }
+.list-item:nth-child(4) { --index: 4; }
+.list-item:nth-child(5) { --index: 5; }
+</p>
+
+<p class="post-p">
+@keyframes slide-in {
+from {
+opacity: 0;
+transform: translateY(20px);
+}
+}
+</code></pre>
+</p>
+
+<p class="post-p">
+Better yet, with <code class="inline-code">@property</code> and a single <code class="inline-code">@keyframes</code>:
+</p>
+
+<pre class="code-block"><code class="language-css">@property --item-delay {
+<p class="post-p">
+syntax: '&amp;lt;time&amp;gt;';
+initial-value: 0ms;
+inherits: true;
+}
+</p>
+
+<p class="post-p">
+.list-item {
+animation: slide-in 0.4s ease-out var(--item-delay) both;
+}
+</code></pre>
+</p>
+
+<h2 class="post-h2">Pattern 3: Computed Design Tokens</h2>
+
+<p class="post-p">
+Custom properties can compute values from other custom properties using <code class="inline-code">calc()</code>:
+</p>
+
+<pre class="code-block"><code class="language-css">:root {
+<p class="post-p">
+--base-size: 1rem;
+--ratio: 1.25;
+</p>
+
+<p class="post-p">
+/<em> Computed from base and ratio </em>/
+--size-sm: calc(var(--base-size) / var(--ratio));
+--size-md: var(--base-size);
+--size-lg: calc(var(--base-size) * var(--ratio));
+--size-xl: calc(var(--base-size) <em> var(--ratio) </em> var(--ratio));
+--size-2xl: calc(var(--base-size) <em> var(--ratio) </em> var(--ratio) * var(--ratio));
+</p>
+
+<p class="post-p">
+/<em> Derived color tokens </em>/
+--surface-hue: 250;
+--surface-lightness: 15%;
+--surface-1: oklch(var(--surface-lightness) 0.02 var(--surface-hue));
+--surface-2: oklch(calc(var(--surface-lightness) + 5%) 0.03 var(--surface-hue));
+--surface-3: oklch(calc(var(--surface-lightness) + 10%) 0.04 var(--surface-hue));
+}
+</code></pre>
+</p>
+
+<p class="post-p">
+Now changing <code class="inline-code">--base-size</code> or <code class="inline-code">--ratio</code> propagates through the entire design system. This is impossible with preprocessor variables — they're baked in at compile time.
+</p>
+
+<h2 class="post-h2">Pattern 4: Custom Properties + Style Queries</h2>
+
+<p class="post-p">
+Style queries (part of Interop 2026) let you query <strong>computed styles</strong> of a container. Combined with custom properties, you get truly context-aware components:
+</p>
+
+<pre class="code-block"><code class="language-css">.component-container {
+<p class="post-p">
+container-type: inline-size;
+/<em> Set these as "props" for children to query </em>/
+--theme: dark;
+--density: compact;
+}
+</p>
+
+<p class="post-p">
+/<em> Child queries the container's custom property values </em>/
+@container style(--theme: dark) {
+.card {
+background: oklch(0.15 0.02 250);
+color: oklch(0.9 0.01 250);
+}
+}
+</p>
+
+<p class="post-p">
+@container style(--density: compact) {
+.card {
+padding: 0.5rem;
+font-size: 0.8125rem;
+}
+}
+</code></pre>
+</p>
+
+<p class="post-p">
+This is essentially <strong>component props in CSS</strong> — a component can change its entire appearance based on custom properties set on any ancestor container.
+</p>
+
+<h2 class="post-h2">Pattern 5: Dynamic Gradients and Effects</h2>
+
+<p class="post-p">
+With <code class="inline-code">@property</code>-typed <code class="inline-code">&lt;angle&gt;</code> and <code class="inline-code">&lt;color&gt;</code> properties, you can animate gradients and visual effects that were previously JavaScript territory:
+</p>
+
+<pre class="code-block"><code class="language-css">@property --gradient-1 {
+<p class="post-p">
+syntax: '&amp;lt;color&amp;gt;';
+initial-value: oklch(0.6 0.2 300);
+inherits: false;
+}
+</p>
+
+<p class="post-p">
+@property --gradient-2 {
+syntax: '&amp;lt;color&amp;gt;';
+initial-value: oklch(0.6 0.2 200);
+inherits: false;
+}
+</p>
+
+<p class="post-p">
+@property --angle {
+syntax: '&amp;lt;angle&amp;gt;';
+initial-value: 0deg;
+inherits: false;
+}
+</p>
+
+<p class="post-p">
+.animated-gradient {
+--gradient-1: oklch(0.6 0.2 300);
+--gradient-2: oklch(0.6 0.2 200);
+--angle: 0deg;
+</p>
+
+<p class="post-p">
+background: linear-gradient(
+var(--angle),
+var(--gradient-1),
+var(--gradient-2)
+);
+</p>
+
+<p class="post-p">
+animation: gradient-shift 4s ease-in-out infinite;
+}
+</p>
+
+<p class="post-p">
+@keyframes gradient-shift {
+0%, 100% {
+--gradient-1: oklch(0.6 0.2 300);
+--gradient-2: oklch(0.6 0.2 200);
+--angle: 0deg;
+}
+50% {
+--gradient-1: oklch(0.6 0.2 150);
+--gradient-2: oklch(0.6 0.2 50);
+--angle: 180deg;
+}
+}
+</code></pre>
+</p>
+
+<h2 class="post-h2">Pattern 6: The "Defensive" var() Fallback Chain</h2>
+
+<p class="post-p">
+<code class="inline-code">var()</code> supports fallback chains — but there's a subtlety with how they resolve:
+</p>
+
+<pre class="code-block"><code class="language-css">/<em> BAD: only one fallback </em>/
+<p class="post-p">
+color: var(--text-color, black);
+</p>
+
+<p class="post-p">
+/<em> GOOD: chain of custom properties, then a hard value </em>/
+color: var(--text-color, var(--text-color-component, var(--text-color-global, black)));
+</p>
+
+<p class="post-p">
+/<em> BEST: component-scoped with theme fallback </em>/
+.component {
+--_text: var(--text-color, var(--theme-text, CanvasText));
+</p>
+
+<p class="post-p">
+color: var(--_text);
+background: var(--surface-color, var(--theme-surface, Canvas));
+}
+</code></pre>
+</p>
+
+<p class="post-p">
+The key insight: custom properties can fall back to <strong>other custom properties</strong>, which can fall back to hard values. This creates a hierarchy: component override → theme token → system default.
+</p>
+
+<h2 class="post-h2">Real-World: A Complete Theming System</h2>
+
+<p class="post-p">
+Here's a production theming system using everything we've covered:
+</p>
+
+<pre class="code-block"><code class="language-css">/<em> ===== Design Tokens (computed) ===== </em>/
+<p class="post-p">
+:root {
+/<em> Core scale </em>/
+--size-base: 1rem;
+--size-ratio: 1.25;
+--size-0: calc(var(--size-base) / var(--size-ratio) / var(--size-ratio));
+--size-1: calc(var(--size-base) / var(--size-ratio));
+--size-2: var(--size-base);
+--size-3: calc(var(--size-base) * var(--size-ratio));
+--size-4: calc(var(--size-base) <em> var(--size-ratio) </em> var(--size-ratio));
+</p>
+
+<p class="post-p">
+/<em> Light theme (default) </em>/
+--color-surface: oklch(0.98 0 0);
+--color-surface-raised: oklch(1 0 0);
+--color-text: oklch(0.15 0 0);
+--color-text-muted: oklch(0.45 0 0);
+--color-border: oklch(0.85 0 0);
+--color-accent: oklch(0.6 0.2 250);
+}
+</p>
+
+<p class="post-p">
+/<em> ===== Dark Theme ===== </em>/
+[data-theme="dark"] {
+--color-surface: oklch(0.12 0.01 250);
+--color-surface-raised: oklch(0.18 0.01 250);
+--color-text: oklch(0.9 0.01 250);
+--color-text-muted: oklch(0.6 0.01 250);
+--color-border: oklch(0.25 0.01 250);
+}
+</p>
+
+<p class="post-p">
+/<em> ===== High Contrast Theme ===== </em>/
+[data-theme="high-contrast"] {
+--color-surface: black;
+--color-surface-raised: oklch(0.1 0 0);
+--color-text: white;
+--color-text-muted: oklch(0.85 0 0);
+--color-border: oklch(0.5 0 0);
+--color-accent: oklch(0.75 0.15 110);  /<em> bright green </em>/
+}
+</p>
+
+<p class="post-p">
+/<em> ===== Typed animation properties ===== </em>/
+@property --hover-raise {
+syntax: '&amp;lt;length&amp;gt;';
+initial-value: 0px;
+inherits: false;
+}
+</p>
+
+<p class="post-p">
+/<em> ===== Component: Card ===== </em>/
+.card {
+--_surface: var(--card-surface, var(--color-surface-raised));
+--_padding: var(--card-padding, var(--size-3));
+</p>
+
+<p class="post-p">
+background: var(--_surface);
+padding: var(--_padding);
+border: 1px solid var(--color-border);
+border-radius: var(--size-1);
+</p>
+
+<p class="post-p">
+--hover-raise: 0px;
+transform: translateY(var(--hover-raise));
+transition: --hover-raise 0.2s ease, box-shadow 0.2s ease;
+}
+</p>
+
+<p class="post-p">
+.card:hover {
+--hover-raise: -4px;
+box-shadow: 0 8px 24px oklch(0 0 0 / 0.12);
+}
+</p>
+
+<p class="post-p">
+/<em> ===== Component: Button ===== </em>/
+.button {
+--_bg: var(--button-bg, var(--color-accent));
+--_fg: var(--button-fg, white);
+--_pad-inline: var(--button-pad, var(--size-2) var(--size-3));
+--_radius: var(--button-radius, var(--size-0));
+</p>
+
+<p class="post-p">
+background: var(--_bg);
+color: var(--_fg);
+padding: var(--_pad-inline);
+border-radius: var(--_radius);
+border: none;
+cursor: pointer;
+</p>
+
+<p class="post-p">
+transition: opacity 0.15s ease;
+}
+</p>
+
+<p class="post-p">
+.button:hover {
+opacity: 0.85;
+}
+</p>
+
+<p class="post-p">
+/<em> Override at the instance level </em>/
+.button--danger {
+--button-bg: oklch(0.55 0.2 15);
+}
+</p>
+
+<p class="post-p">
+.button--ghost {
+--button-bg: transparent;
+--button-fg: var(--color-accent);
+border: 1px solid var(--color-border);
+}
+</code></pre>
+</p>
+
+<h2 class="post-h2">Browser Support (May 2026)</h2>
+
+<p class="post-p">
+| Feature | Chrome | Firefox | Safari | Baseline |
+|---------|--------|---------|--------|----------|
+| Custom Properties | 49 | 31 | 9.1 | Yes (2017) |
+| <code class="inline-code">@property</code> | 85 | 128 | 15.4 | Yes (2024) |
+| Style Queries (<code class="inline-code">style()</code>) | 115 | — | 26 | Chrome+Safari |
+| <code class="inline-code">var()</code> in <code class="inline-code">@keyframes</code> | 85 | 128 | 15.4 | Yes (2024) |
+</p>
+
+<p class="post-p">
+Firefox is the holdout on style queries, but the feature works in Chrome and Safari today. For Firefox, wrap <code class="inline-code">@container style()</code> blocks in <code class="inline-code">@supports</code> queries for graceful degradation.
+</p>
+
+<h2 class="post-h2">When NOT to Use Custom Properties</h2>
+
+<p class="post-p">
+Custom properties are powerful but not always the right tool:
+</p>
+
+<ul class="post-ul"><li class="post-li"><strong>Static design tokens that never change</strong> — Preprocessor variables or just hardcoding values may be simpler. Custom properties have a small runtime cost from inheritance.</li>
+<li class="post-li"><strong>Values used in media queries</strong> — You can't use <code class="inline-code">var()</code> in <code class="inline-code">@media</code> queries. Media queries resolve at parse time, custom properties at computed-value time.</li>
+<li class="post-li"><strong>Selectors or property names</strong> — Custom properties store values, not property names or selectors. <code class="inline-code">var(--some-prop): value;</code> doesn't work.</li>
+<li class="post-li"><strong>Extreme performance-critical rendering</strong> — Custom properties that change frequently (on scroll, every frame) trigger style recalculations on all inheriting descendants. Use <code class="inline-code">inherits: false</code> with <code class="inline-code">@property</code> to limit the blast radius.</li>
+</ul>
+<h2 class="post-h2">Key Takeaways</h2>
+
+<ul class="post-ul"><li class="post-li"><strong>Register with <code class="inline-code">@property</code></strong> — Unlocks animation, type safety, and default values. Do this for every design token.</li>
+<li class="post-li"><strong>Compute, don't duplicate</strong> — Design tokens that derive from a few base values are easier to maintain. Use <code class="inline-code">calc()</code>.</li>
+<li class="post-li"><strong>The cascade is your component API</strong> — Set custom properties on containers and let children query them with <code class="inline-code">@container style()</code>.</li>
+<li class="post-li"><strong>Chain your fallbacks</strong> — <code class="inline-code">var(--component, var(--theme, var(--global, hard-fallback)))</code> gives you a full override hierarchy.</li>
+<li class="post-li"><strong>Use <code class="inline-code">inherits: false</code></strong> — Unless inheritance is explicitly needed, false prevents accidental style leakage.</li>
+</ul>
+<p class="post-p">
+Custom properties are no longer just "CSS variables." They're the backbone of modern CSS architecture — typed, animatable, and context-aware. If you're still treating them as simple color swaps, you're missing 90% of what they can do.
+</p>
+</div><style>
+        .blog-content .post-h1 { font-size: 1.75rem; font-weight: 700; color: #ffffff; margin-top: 2rem; margin-bottom: 1rem; }
+        .blog-content .post-h2 { font-size: 1.5rem; font-weight: 600; color: #f1f5f9; margin-top: 1.75rem; margin-bottom: 0.75rem; padding-bottom: 0.5rem; border-bottom: 1px solid #334155; }
+        .blog-content .post-h3 { font-size: 1.25rem; font-weight: 600; color: #e2e8f0; margin-top: 1.5rem; margin-bottom: 0.5rem; }
+        .blog-content .post-h4 { font-size: 1.1rem; font-weight: 600; color: #e2e8f0; margin-top: 1.25rem; margin-bottom: 0.5rem; }
+        .blog-content .post-p { color: #cbd5e1; line-height: 1.75; margin-bottom: 1rem; }
+        .blog-content .code-block { background: #0f172a; border: 1px solid #334155; border-radius: 0.5rem; padding: 1rem; overflow-x: auto; margin: 1rem 0; font-family: 'JetBrains Mono', monospace; font-size: 0.875rem; color: #e2e8f0; }
+        .blog-content .inline-code { background: #1e293b; color: #38bdf8; padding: 0.15rem 0.4rem; border-radius: 0.25rem; font-family: 'JetBrains Mono', monospace; font-size: 0.875em; }
+        .blog-content .post-link { color: #38bdf8; text-decoration: underline; transition: color 0.2s; }
+        .blog-content .post-link:hover { color: #7dd3fc; }
+        .blog-content .post-ul { list-style: disc; padding-left: 1.5rem; margin: 0.75rem 0; color: #cbd5e1; }
+        .blog-content .post-li { margin-bottom: 0.25rem; line-height: 1.6; }
+        .blog-content .post-blockquote { border-left: 3px solid #0ea5e9; padding: 0.5rem 1rem; margin: 1rem 0; background: rgba(14, 165, 233, 0.05); border-radius: 0 0.5rem 0.5rem 0; }
+        .blog-content .post-blockquote p { color: #94a3b8; font-style: italic; }
+        .blog-content .post-hr { border: none; border-top: 1px solid #334155; margin: 2rem 0; }
+        .blog-content strong { color: #f1f5f9; font-weight: 600; }
+        .blog-content em { font-style: italic; }
+        </style></article></main><footer class="bg-surface-light border-t border-slate-700/50 mt-auto"><div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12"><div class="grid grid-cols-1 md:grid-cols-3 gap-8"><div><a class="flex items-center gap-2.5 mb-3" href="/devbench-tech/"><div class="w-7 h-7 bg-brand-500 rounded-lg flex items-center justify-center"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-terminal w-3.5 h-3.5 text-white"><polyline points="4 17 10 11 4 5"></polyline><line x1="12" x2="20" y1="19" y2="19"></line></svg></div><span class="text-lg font-bold text-white">Dev<span class="gradient-text">Bench</span></span></a><p class="text-slate-400 text-sm leading-relaxed">Free developer tools, benchmarks, and calculators. Built for developers, by developers.</p></div><div><h3 class="text-sm font-semibold text-slate-300 uppercase tracking-wider mb-4">Tools</h3><ul class="space-y-2"><li><a class="text-slate-400 hover:text-brand-400 text-sm transition-colors" href="/devbench-tech/tools/json-formatter/">JSON Formatter</a></li><li><a class="text-slate-400 hover:text-brand-400 text-sm transition-colors" href="/devbench-tech/tools/base64/">Base64 Encoder/Decoder</a></li><li><a class="text-slate-400 hover:text-brand-400 text-sm transition-colors" href="/devbench-tech/tools/uuid-generator/">UUID Generator</a></li><li><a class="text-slate-400 hover:text-brand-400 text-sm transition-colors" href="/devbench-tech/tools/regex-tester/">Regex Tester</a></li></ul></div><div><h3 class="text-sm font-semibold text-slate-300 uppercase tracking-wider mb-4">Resources</h3><ul class="space-y-2"><li><a class="text-slate-400 hover:text-brand-400 text-sm transition-colors" href="/devbench-tech/blog/">Blog</a></li><li><a class="text-slate-400 hover:text-brand-400 text-sm transition-colors" href="/devbench-tech/benchmarks/">Benchmarks</a></li><li><a class="text-slate-400 hover:text-brand-400 text-sm transition-colors" href="/devbench-tech/about/">About</a></li></ul></div></div><div class="mt-10 pt-6 border-t border-slate-700/50 flex flex-col sm:flex-row items-center justify-between gap-4"><p class="text-slate-500 text-sm flex items-center gap-1">Made with <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-heart w-3.5 h-3.5 text-red-500 fill-red-500"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"></path></svg> by the DevBench team © <!-- -->2026</p><a href="https://github.com" target="_blank" rel="noopener noreferrer" class="text-slate-500 hover:text-slate-300 transition-colors" aria-label="GitHub"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-github w-5 h-5"><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"></path><path d="M9 18c-4.51 2-5-2-7-2"></path></svg></a></div></div></footer><div data-rht-toaster="" style="position:fixed;z-index:9999;top:16px;left:16px;right:16px;bottom:16px;pointer-events:none"></div><script src="/devbench-tech/_next/static/chunks/webpack-b521a83317325026.js" async=""></script><script>(self.__next_f=self.__next_f||[]).push([0]);self.__next_f.push([2,null])</script><script>self.__next_f.push([1,"1:HL[\"/devbench-tech/_next/static/css/c877e59dbcb00f11.css\",\"style\"]\n"])</script><script>self.__next_f.push([1,"2:I[12846,[],\"\"]\n4:I[72972,[\"2972\",\"static/chunks/2972-4aaa15d119eeb022.js\",\"308\",\"static/chunks/app/blog/%5Bslug%5D/page-a411190e7012c687.js\"],\"\"]\n7:I[4707,[],\"\"]\n9:I[36423,[],\"\"]\na:I[39295,[\"9762\",\"static/chunks/44530001-4ecf7a22b5b24163.js\",\"2972\",\"static/chunks/2972-4aaa15d119eeb022.js\",\"8375\",\"static/chunks/8375-c77b8de36f6696fb.js\",\"6829\",\"static/chunks/6829-f51803445ddf1872.js\",\"3185\",\"static/chunks/app/layout-488e5c40aa6ffa72.js\"],\"Header\"]\nb:I[66506,[\"9762\",\"static/chunks/44530001-4ecf7a22b5b24163.js\",\"2972\",\"static/chunks/2972-4aaa15d119eeb022.js\",\"8375\",\"static/chunks/8375-c77b8de36f6696fb.js\",\"6829\",\"static/chunks/6829-f51803445ddf1872.js\",\"3185\",\"static/chunks/app/layout-488e5c40aa6ffa72.js\"],\"Analytics\"]\nc:I[69064,[\"9762\",\"static/chunks/44530001-4ecf7a22b5b24163.js\",\"2972\",\"static/chunks/2972-4aaa15d119eeb022.js\",\"8375\",\"static/chunks/8375-c77b8de36f6696fb.js\",\"6829\",\"static/chunks/6829-f51803445ddf1872.js\",\"3185\",\"static/chunks/app/layout-488e5c40aa6ffa72.js\"],\"Toaster\"]\ne:I[61060,[],\"\"]\n5:T51ed,"])</script><script>self.__next_f.push([1,"\n\u003cp class=\"post-p\"\u003e\nCSS custom properties (\u003ccode class=\"inline-code\"\u003e--my-var\u003c/code\u003e) have been Baseline since 2017. For years, we've used them for simple theming — define a few color tokens, swap them in a dark mode, done. But custom properties in 2026 are a completely different beast.\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\nWith \u003ccode class=\"inline-code\"\u003e@property\u003c/code\u003e landing everywhere, custom properties now have \u003cstrong\u003etypes, default values, and animation support\u003c/strong\u003e. Combined with style queries (part of Interop 2026), they unlock patterns that were previously impossible without JavaScript or preprocessors.\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\nLet's go beyond \u003ccode class=\"inline-code\"\u003e--primary: blue\u003c/code\u003e and see what custom properties can really do.\n\u003c/p\u003e\n\n\u003ch2 class=\"post-h2\"\u003eThe Foundation: What Custom Properties Actually Are\u003c/h2\u003e\n\n\u003cp class=\"post-p\"\u003e\nCustom properties aren't just \"variables.\" They're \u003cstrong\u003elive values that participate in the cascade, inherit, and can be read by JavaScript\u003c/strong\u003e. This makes them fundamentally different from Sass variables (compile-time) or CSS preprocessor variables (static).\n\u003c/p\u003e\n\n\u003cpre class=\"code-block\"\u003e\u003ccode class=\"language-css\"\u003e:root {\n\u003cp class=\"post-p\"\u003e\n--brand: oklch(0.6 0.2 250);\n--spacing: 1rem;\n}\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n.card {\n/\u003cem\u003e These resolve at computed-value time, not parse time \u003c/em\u003e/\nbackground: var(--brand);\npadding: var(--spacing);\n}\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n.card--compact {\n/\u003cem\u003e Override inherits through the cascade \u003c/em\u003e/\n--spacing: 0.5rem;\n}\n\u003c/code\u003e\u003c/pre\u003e\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\nThree properties that make custom properties unique:\n\u003c/p\u003e\n\n\u003cul class=\"post-ul\"\u003e\u003cli class=\"post-li\"\u003e\u003cstrong\u003eThey inherit\u003c/strong\u003e — unlike most CSS properties, custom properties inherit by default. Set \u003ccode class=\"inline-code\"\u003e--spacing\u003c/code\u003e on a parent, and every child sees it.\u003c/li\u003e\n\u003cli class=\"post-li\"\u003e\u003cstrong\u003eThey're live\u003c/strong\u003e — change \u003ccode class=\"inline-code\"\u003e--brand\u003c/code\u003e with JavaScript via \u003ccode class=\"inline-code\"\u003eelement.style.setProperty('--brand', 'red')\u003c/code\u003e, and every element that references it updates instantly.\u003c/li\u003e\n\u003cli class=\"post-li\"\u003e\u003cstrong\u003eThey cascade\u003c/strong\u003e — you can override them at any level of specificity. This is the superpower.\u003c/li\u003e\n\u003c/ul\u003e\n\u003ch2 class=\"post-h2\"\u003e@property: Typed Custom Properties\u003c/h2\u003e\n\n\u003cp class=\"post-p\"\u003e\nThe \u003ccode class=\"inline-code\"\u003e@property\u003c/code\u003e at-rule (part of CSS Houdini) lets you \u003cstrong\u003eregister a custom property with a type, default value, and inheritance behavior\u003c/strong\u003e. This unlocks three things you can't do with unregistered properties:\n\u003c/p\u003e\n\n\u003ch3 class=\"post-h3\"\u003e1. Animation and Transitions\u003c/h3\u003e\n\n\u003cp class=\"post-p\"\u003e\nUnregistered custom properties can't animate — the browser treats them as strings. Registered properties with a syntax type can:\n\u003c/p\u003e\n\n\u003cpre class=\"code-block\"\u003e\u003ccode class=\"language-css\"\u003e@property --angle {\n\u003cp class=\"post-p\"\u003e\nsyntax: '\u0026amp;lt;angle\u0026amp;gt;';\ninitial-value: 0deg;\ninherits: false;\n}\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n.spinner {\n--angle: 0deg;\nanimation: spin 1s linear infinite;\ntransform: rotate(var(--angle));\n}\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n@keyframes spin {\nto { --angle: 360deg; }\n}\n\u003c/code\u003e\u003c/pre\u003e\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\nThis is huge: \u003cstrong\u003eyou can now animate any CSS value that accepts a typed custom property\u003c/strong\u003e. Colors, lengths, percentages, angles, numbers, even \u003ccode class=\"inline-code\"\u003e\u0026lt;transform-function\u0026gt;\u003c/code\u003e — all animatable through custom properties.\n\u003c/p\u003e\n\n\u003ch3 class=\"post-h3\"\u003e2. Default Values at Parse Time\u003c/h3\u003e\n\n\u003cp class=\"post-p\"\u003e\nWithout \u003ccode class=\"inline-code\"\u003e@property\u003c/code\u003e, if a custom property is undefined, \u003ccode class=\"inline-code\"\u003evar()\u003c/code\u003e falls back to whatever you specify inline. But with \u003ccode class=\"inline-code\"\u003e@property\u003c/code\u003e, the browser knows the type at parse time:\n\u003c/p\u003e\n\n\u003cpre class=\"code-block\"\u003e\u003ccode class=\"language-css\"\u003e@property --gradient-angle {\n\u003cp class=\"post-p\"\u003e\nsyntax: '\u0026amp;lt;angle\u0026amp;gt;';\ninitial-value: 180deg;\ninherits: false;\n}\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n.hero {\n/\u003cem\u003e If --gradient-angle isn't set, defaults to 180deg \u003c/em\u003e/\nbackground: linear-gradient(\nvar(--gradient-angle),\nvar(--brand, oklch(0.6 0.2 250)),\nvar(--accent, oklch(0.7 0.15 180))\n);\n}\n\u003c/code\u003e\u003c/pre\u003e\n\u003c/p\u003e\n\n\u003ch3 class=\"post-h3\"\u003e3. Validation and Error Recovery\u003c/h3\u003e\n\n\u003cp class=\"post-p\"\u003e\nRegistered properties reject invalid values and fall back to their initial-value. Unregistered properties accept anything — including typos:\n\u003c/p\u003e\n\n\u003cpre class=\"code-block\"\u003e\u003ccode class=\"language-css\"\u003e@property --columns {\n\u003cp class=\"post-p\"\u003e\nsyntax: '\u0026amp;lt;integer\u0026amp;gt;';\ninitial-value: 3;\ninherits: false;\n}\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n.grid {\n--columns: 4;          /\u003cem\u003e valid integer \u003c/em\u003e/\ngrid-template-columns: repeat(var(--columns), 1fr);\n}\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n.grid--broken {\n--columns: auto;       /\u003cem\u003e invalid — falls back to 3 \u003c/em\u003e/\n/\u003cem\u003e Browser silently uses initial-value: 3 \u003c/em\u003e/\n}\n\u003c/code\u003e\u003c/pre\u003e\n\u003c/p\u003e\n\n\u003ch3 class=\"post-h3\"\u003eAvailable Syntax Types\u003c/h3\u003e\n\n\u003cp class=\"post-p\"\u003e\n\u003ccode class=\"inline-code\"\u003e@property\u003c/code\u003e supports these syntax strings:\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n| Type | Example | Animateable |\n|------|---------|-------------|\n| \u003ccode class=\"inline-code\"\u003e\u0026lt;length\u0026gt;\u003c/code\u003e | \u003ccode class=\"inline-code\"\u003e10px\u003c/code\u003e, \u003ccode class=\"inline-code\"\u003e2rem\u003c/code\u003e, \u003ccode class=\"inline-code\"\u003e5vw\u003c/code\u003e | Yes |\n| \u003ccode class=\"inline-code\"\u003e\u0026lt;percentage\u0026gt;\u003c/code\u003e | \u003ccode class=\"inline-code\"\u003e50%\u003c/code\u003e, \u003ccode class=\"inline-code\"\u003e-10%\u003c/code\u003e | Yes |\n| \u003ccode class=\"inline-code\"\u003e\u0026lt;length-percentage\u0026gt;\u003c/code\u003e | \u003ccode class=\"inline-code\"\u003e10px\u003c/code\u003e or \u003ccode class=\"inline-code\"\u003e50%\u003c/code\u003e | Yes |\n| \u003ccode class=\"inline-code\"\u003e\u0026lt;number\u0026gt;\u003c/code\u003e | \u003ccode class=\"inline-code\"\u003e0\u003c/code\u003e, \u003ccode class=\"inline-code\"\u003e1.5\u003c/code\u003e, \u003ccode class=\"inline-code\"\u003e-3\u003c/code\u003e | Yes |\n| \u003ccode class=\"inline-code\"\u003e\u0026lt;integer\u0026gt;\u003c/code\u003e | \u003ccode class=\"inline-code\"\u003e1\u003c/code\u003e, \u003ccode class=\"inline-code\"\u003e42\u003c/code\u003e | No (discrete) |\n| \u003ccode class=\"inline-code\"\u003e\u0026lt;angle\u0026gt;\u003c/code\u003e | \u003ccode class=\"inline-code\"\u003e45deg\u003c/code\u003e, \u003ccode class=\"inline-code\"\u003e1turn\u003c/code\u003e | Yes |\n| \u003ccode class=\"inline-code\"\u003e\u0026lt;time\u0026gt;\u003c/code\u003e | \u003ccode class=\"inline-code\"\u003e1s\u003c/code\u003e, \u003ccode class=\"inline-code\"\u003e500ms\u003c/code\u003e | No |\n| \u003ccode class=\"inline-code\"\u003e\u0026lt;color\u0026gt;\u003c/code\u003e | \u003ccode class=\"inline-code\"\u003ered\u003c/code\u003e, \u003ccode class=\"inline-code\"\u003e#ff0000\u003c/code\u003e, \u003ccode class=\"inline-code\"\u003eoklch(...)\u003c/code\u003e | Yes |\n| \u003ccode class=\"inline-code\"\u003e\u0026lt;transform-function\u0026gt;\u003c/code\u003e | \u003ccode class=\"inline-code\"\u003erotate(45deg)\u003c/code\u003e | Yes |\n| \u003ccode class=\"inline-code\"\u003e\u0026lt;transform-list\u0026gt;\u003c/code\u003e | \u003ccode class=\"inline-code\"\u003erotate(45deg) scale(1.2)\u003c/code\u003e | Yes |\n| \u003ccode class=\"inline-code\"\u003e\u0026lt;url\u0026gt;\u003c/code\u003e | \u003ccode class=\"inline-code\"\u003eurl(...)\u003c/code\u003e | No |\n| \u003ccode class=\"inline-code\"\u003e\u0026lt;image\u0026gt;\u003c/code\u003e | \u003ccode class=\"inline-code\"\u003e\u0026lt;url\u0026gt;\u003c/code\u003e, \u003ccode class=\"inline-code\"\u003e\u0026lt;gradient\u0026gt;\u003c/code\u003e | No |\n| \u003ccode class=\"inline-code\"\u003e*\u003c/code\u003e | Any value (no type checking) | No |\n\u003c/p\u003e\n\n\u003ch2 class=\"post-h2\"\u003ePattern 1: The Space Toggle\u003c/h2\u003e\n\n\u003cp class=\"post-p\"\u003e\nThe \"space toggle\" is one of the most elegant custom property patterns. It uses \u003ccode class=\"inline-code\"\u003e--var: ;\u003c/code\u003e (a space) vs \u003ccode class=\"inline-code\"\u003e--var: initial\u003c/code\u003e to toggle between two values:\n\u003c/p\u003e\n\n\u003cpre class=\"code-block\"\u003e\u003ccode class=\"language-css\"\u003e:root {\n\u003cp class=\"post-p\"\u003e\n--is-dark: ;  /\u003cem\u003e space = false \u003c/em\u003e/\n}\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n@media (prefers-color-scheme: dark) {\n:root {\n--is-dark: initial;  /\u003cem\u003e initial = true \u003c/em\u003e/\n}\n}\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n.card {\n/\u003cem\u003e When --is-dark is a space: background = white, color = black \u003c/em\u003e/\n/\u003cem\u003e When --is-dark is initial: background = var(--bg-dark) = #1a1a2e \u003c/em\u003e/\n--bg: var(--is-dark, #1a1a2e);\n--fg: var(--is-dark, #e0e0e0);\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\nbackground: var(--bg, white);\ncolor: var(--fg, black);\n}\n\u003c/code\u003e\u003c/pre\u003e\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\nHow it works: \u003ccode class=\"inline-code\"\u003evar(--is-dark, #1a1a2e)\u003c/code\u003e resolves to \u003ccode class=\"inline-code\"\u003e#1a1a2e\u003c/code\u003e when \u003ccode class=\"inline-code\"\u003e--is-dark\u003c/code\u003e is \u003ccode class=\"inline-code\"\u003einitial\u003c/code\u003e (any value), and falls back to nothing (empty) when \u003ccode class=\"inline-code\"\u003e--is-dark\u003c/code\u003e is a space (empty/whitespace custom property). Then the outer \u003ccode class=\"inline-code\"\u003evar(--bg, white)\u003c/code\u003e falls back to \u003ccode class=\"inline-code\"\u003ewhite\u003c/code\u003e.\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\nThis lets you chain multiple toggles:\n\u003c/p\u003e\n\n\u003cpre class=\"code-block\"\u003e\u003ccode class=\"language-css\"\u003e.button {\n\u003cp class=\"post-p\"\u003e\npadding: var(--is-compact, 0.25rem 0.5rem) var(--spacing, 0.75rem 1.5rem);\nfont-size: var(--is-compact, 0.75rem) var(--font-size, 0.875rem);\nborder-radius: var(--is-pill, 9999px) var(--radius, 0.375rem);\n}\n\u003c/code\u003e\u003c/pre\u003e\n\u003c/p\u003e\n\n\u003ch2 class=\"post-h2\"\u003ePattern 2: Staggered Animations Without nth-child\u003c/h2\u003e\n\n\u003cp class=\"post-p\"\u003e\nCustom properties let you stagger animations using a single animation and cascaded custom properties:\n\u003c/p\u003e\n\n\u003cpre class=\"code-block\"\u003e\u003ccode class=\"language-css\"\u003e.list-item {\n\u003cp class=\"post-p\"\u003e\n--index: 0;\n--delay: calc(var(--index) * 100ms);\nanimation: slide-in 0.4s ease-out var(--delay) both;\n}\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n.list-item:nth-child(1) { --index: 1; }\n.list-item:nth-child(2) { --index: 2; }\n.list-item:nth-child(3) { --index: 3; }\n.list-item:nth-child(4) { --index: 4; }\n.list-item:nth-child(5) { --index: 5; }\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n@keyframes slide-in {\nfrom {\nopacity: 0;\ntransform: translateY(20px);\n}\n}\n\u003c/code\u003e\u003c/pre\u003e\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\nBetter yet, with \u003ccode class=\"inline-code\"\u003e@property\u003c/code\u003e and a single \u003ccode class=\"inline-code\"\u003e@keyframes\u003c/code\u003e:\n\u003c/p\u003e\n\n\u003cpre class=\"code-block\"\u003e\u003ccode class=\"language-css\"\u003e@property --item-delay {\n\u003cp class=\"post-p\"\u003e\nsyntax: '\u0026amp;lt;time\u0026amp;gt;';\ninitial-value: 0ms;\ninherits: true;\n}\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n.list-item {\nanimation: slide-in 0.4s ease-out var(--item-delay) both;\n}\n\u003c/code\u003e\u003c/pre\u003e\n\u003c/p\u003e\n\n\u003ch2 class=\"post-h2\"\u003ePattern 3: Computed Design Tokens\u003c/h2\u003e\n\n\u003cp class=\"post-p\"\u003e\nCustom properties can compute values from other custom properties using \u003ccode class=\"inline-code\"\u003ecalc()\u003c/code\u003e:\n\u003c/p\u003e\n\n\u003cpre class=\"code-block\"\u003e\u003ccode class=\"language-css\"\u003e:root {\n\u003cp class=\"post-p\"\u003e\n--base-size: 1rem;\n--ratio: 1.25;\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n/\u003cem\u003e Computed from base and ratio \u003c/em\u003e/\n--size-sm: calc(var(--base-size) / var(--ratio));\n--size-md: var(--base-size);\n--size-lg: calc(var(--base-size) * var(--ratio));\n--size-xl: calc(var(--base-size) \u003cem\u003e var(--ratio) \u003c/em\u003e var(--ratio));\n--size-2xl: calc(var(--base-size) \u003cem\u003e var(--ratio) \u003c/em\u003e var(--ratio) * var(--ratio));\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n/\u003cem\u003e Derived color tokens \u003c/em\u003e/\n--surface-hue: 250;\n--surface-lightness: 15%;\n--surface-1: oklch(var(--surface-lightness) 0.02 var(--surface-hue));\n--surface-2: oklch(calc(var(--surface-lightness) + 5%) 0.03 var(--surface-hue));\n--surface-3: oklch(calc(var(--surface-lightness) + 10%) 0.04 var(--surface-hue));\n}\n\u003c/code\u003e\u003c/pre\u003e\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\nNow changing \u003ccode class=\"inline-code\"\u003e--base-size\u003c/code\u003e or \u003ccode class=\"inline-code\"\u003e--ratio\u003c/code\u003e propagates through the entire design system. This is impossible with preprocessor variables — they're baked in at compile time.\n\u003c/p\u003e\n\n\u003ch2 class=\"post-h2\"\u003ePattern 4: Custom Properties + Style Queries\u003c/h2\u003e\n\n\u003cp class=\"post-p\"\u003e\nStyle queries (part of Interop 2026) let you query \u003cstrong\u003ecomputed styles\u003c/strong\u003e of a container. Combined with custom properties, you get truly context-aware components:\n\u003c/p\u003e\n\n\u003cpre class=\"code-block\"\u003e\u003ccode class=\"language-css\"\u003e.component-container {\n\u003cp class=\"post-p\"\u003e\ncontainer-type: inline-size;\n/\u003cem\u003e Set these as \"props\" for children to query \u003c/em\u003e/\n--theme: dark;\n--density: compact;\n}\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n/\u003cem\u003e Child queries the container's custom property values \u003c/em\u003e/\n@container style(--theme: dark) {\n.card {\nbackground: oklch(0.15 0.02 250);\ncolor: oklch(0.9 0.01 250);\n}\n}\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n@container style(--density: compact) {\n.card {\npadding: 0.5rem;\nfont-size: 0.8125rem;\n}\n}\n\u003c/code\u003e\u003c/pre\u003e\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\nThis is essentially \u003cstrong\u003ecomponent props in CSS\u003c/strong\u003e — a component can change its entire appearance based on custom properties set on any ancestor container.\n\u003c/p\u003e\n\n\u003ch2 class=\"post-h2\"\u003ePattern 5: Dynamic Gradients and Effects\u003c/h2\u003e\n\n\u003cp class=\"post-p\"\u003e\nWith \u003ccode class=\"inline-code\"\u003e@property\u003c/code\u003e-typed \u003ccode class=\"inline-code\"\u003e\u0026lt;angle\u0026gt;\u003c/code\u003e and \u003ccode class=\"inline-code\"\u003e\u0026lt;color\u0026gt;\u003c/code\u003e properties, you can animate gradients and visual effects that were previously JavaScript territory:\n\u003c/p\u003e\n\n\u003cpre class=\"code-block\"\u003e\u003ccode class=\"language-css\"\u003e@property --gradient-1 {\n\u003cp class=\"post-p\"\u003e\nsyntax: '\u0026amp;lt;color\u0026amp;gt;';\ninitial-value: oklch(0.6 0.2 300);\ninherits: false;\n}\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n@property --gradient-2 {\nsyntax: '\u0026amp;lt;color\u0026amp;gt;';\ninitial-value: oklch(0.6 0.2 200);\ninherits: false;\n}\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n@property --angle {\nsyntax: '\u0026amp;lt;angle\u0026amp;gt;';\ninitial-value: 0deg;\ninherits: false;\n}\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n.animated-gradient {\n--gradient-1: oklch(0.6 0.2 300);\n--gradient-2: oklch(0.6 0.2 200);\n--angle: 0deg;\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\nbackground: linear-gradient(\nvar(--angle),\nvar(--gradient-1),\nvar(--gradient-2)\n);\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\nanimation: gradient-shift 4s ease-in-out infinite;\n}\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n@keyframes gradient-shift {\n0%, 100% {\n--gradient-1: oklch(0.6 0.2 300);\n--gradient-2: oklch(0.6 0.2 200);\n--angle: 0deg;\n}\n50% {\n--gradient-1: oklch(0.6 0.2 150);\n--gradient-2: oklch(0.6 0.2 50);\n--angle: 180deg;\n}\n}\n\u003c/code\u003e\u003c/pre\u003e\n\u003c/p\u003e\n\n\u003ch2 class=\"post-h2\"\u003ePattern 6: The \"Defensive\" var() Fallback Chain\u003c/h2\u003e\n\n\u003cp class=\"post-p\"\u003e\n\u003ccode class=\"inline-code\"\u003evar()\u003c/code\u003e supports fallback chains — but there's a subtlety with how they resolve:\n\u003c/p\u003e\n\n\u003cpre class=\"code-block\"\u003e\u003ccode class=\"language-css\"\u003e/\u003cem\u003e BAD: only one fallback \u003c/em\u003e/\n\u003cp class=\"post-p\"\u003e\ncolor: var(--text-color, black);\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n/\u003cem\u003e GOOD: chain of custom properties, then a hard value \u003c/em\u003e/\ncolor: var(--text-color, var(--text-color-component, var(--text-color-global, black)));\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n/\u003cem\u003e BEST: component-scoped with theme fallback \u003c/em\u003e/\n.component {\n--_text: var(--text-color, var(--theme-text, CanvasText));\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\ncolor: var(--_text);\nbackground: var(--surface-color, var(--theme-surface, Canvas));\n}\n\u003c/code\u003e\u003c/pre\u003e\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\nThe key insight: custom properties can fall back to \u003cstrong\u003eother custom properties\u003c/strong\u003e, which can fall back to hard values. This creates a hierarchy: component override → theme token → system default.\n\u003c/p\u003e\n\n\u003ch2 class=\"post-h2\"\u003eReal-World: A Complete Theming System\u003c/h2\u003e\n\n\u003cp class=\"post-p\"\u003e\nHere's a production theming system using everything we've covered:\n\u003c/p\u003e\n\n\u003cpre class=\"code-block\"\u003e\u003ccode class=\"language-css\"\u003e/\u003cem\u003e ===== Design Tokens (computed) ===== \u003c/em\u003e/\n\u003cp class=\"post-p\"\u003e\n:root {\n/\u003cem\u003e Core scale \u003c/em\u003e/\n--size-base: 1rem;\n--size-ratio: 1.25;\n--size-0: calc(var(--size-base) / var(--size-ratio) / var(--size-ratio));\n--size-1: calc(var(--size-base) / var(--size-ratio));\n--size-2: var(--size-base);\n--size-3: calc(var(--size-base) * var(--size-ratio));\n--size-4: calc(var(--size-base) \u003cem\u003e var(--size-ratio) \u003c/em\u003e var(--size-ratio));\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n/\u003cem\u003e Light theme (default) \u003c/em\u003e/\n--color-surface: oklch(0.98 0 0);\n--color-surface-raised: oklch(1 0 0);\n--color-text: oklch(0.15 0 0);\n--color-text-muted: oklch(0.45 0 0);\n--color-border: oklch(0.85 0 0);\n--color-accent: oklch(0.6 0.2 250);\n}\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n/\u003cem\u003e ===== Dark Theme ===== \u003c/em\u003e/\n[data-theme=\"dark\"] {\n--color-surface: oklch(0.12 0.01 250);\n--color-surface-raised: oklch(0.18 0.01 250);\n--color-text: oklch(0.9 0.01 250);\n--color-text-muted: oklch(0.6 0.01 250);\n--color-border: oklch(0.25 0.01 250);\n}\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n/\u003cem\u003e ===== High Contrast Theme ===== \u003c/em\u003e/\n[data-theme=\"high-contrast\"] {\n--color-surface: black;\n--color-surface-raised: oklch(0.1 0 0);\n--color-text: white;\n--color-text-muted: oklch(0.85 0 0);\n--color-border: oklch(0.5 0 0);\n--color-accent: oklch(0.75 0.15 110);  /\u003cem\u003e bright green \u003c/em\u003e/\n}\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n/\u003cem\u003e ===== Typed animation properties ===== \u003c/em\u003e/\n@property --hover-raise {\nsyntax: '\u0026amp;lt;length\u0026amp;gt;';\ninitial-value: 0px;\ninherits: false;\n}\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n/\u003cem\u003e ===== Component: Card ===== \u003c/em\u003e/\n.card {\n--_surface: var(--card-surface, var(--color-surface-raised));\n--_padding: var(--card-padding, var(--size-3));\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\nbackground: var(--_surface);\npadding: var(--_padding);\nborder: 1px solid var(--color-border);\nborder-radius: var(--size-1);\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n--hover-raise: 0px;\ntransform: translateY(var(--hover-raise));\ntransition: --hover-raise 0.2s ease, box-shadow 0.2s ease;\n}\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n.card:hover {\n--hover-raise: -4px;\nbox-shadow: 0 8px 24px oklch(0 0 0 / 0.12);\n}\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n/\u003cem\u003e ===== Component: Button ===== \u003c/em\u003e/\n.button {\n--_bg: var(--button-bg, var(--color-accent));\n--_fg: var(--button-fg, white);\n--_pad-inline: var(--button-pad, var(--size-2) var(--size-3));\n--_radius: var(--button-radius, var(--size-0));\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\nbackground: var(--_bg);\ncolor: var(--_fg);\npadding: var(--_pad-inline);\nborder-radius: var(--_radius);\nborder: none;\ncursor: pointer;\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\ntransition: opacity 0.15s ease;\n}\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n.button:hover {\nopacity: 0.85;\n}\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n/\u003cem\u003e Override at the instance level \u003c/em\u003e/\n.button--danger {\n--button-bg: oklch(0.55 0.2 15);\n}\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n.button--ghost {\n--button-bg: transparent;\n--button-fg: var(--color-accent);\nborder: 1px solid var(--color-border);\n}\n\u003c/code\u003e\u003c/pre\u003e\n\u003c/p\u003e\n\n\u003ch2 class=\"post-h2\"\u003eBrowser Support (May 2026)\u003c/h2\u003e\n\n\u003cp class=\"post-p\"\u003e\n| Feature | Chrome | Firefox | Safari | Baseline |\n|---------|--------|---------|--------|----------|\n| Custom Properties | 49 | 31 | 9.1 | Yes (2017) |\n| \u003ccode class=\"inline-code\"\u003e@property\u003c/code\u003e | 85 | 128 | 15.4 | Yes (2024) |\n| Style Queries (\u003ccode class=\"inline-code\"\u003estyle()\u003c/code\u003e) | 115 | — | 26 | Chrome+Safari |\n| \u003ccode class=\"inline-code\"\u003evar()\u003c/code\u003e in \u003ccode class=\"inline-code\"\u003e@keyframes\u003c/code\u003e | 85 | 128 | 15.4 | Yes (2024) |\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\nFirefox is the holdout on style queries, but the feature works in Chrome and Safari today. For Firefox, wrap \u003ccode class=\"inline-code\"\u003e@container style()\u003c/code\u003e blocks in \u003ccode class=\"inline-code\"\u003e@supports\u003c/code\u003e queries for graceful degradation.\n\u003c/p\u003e\n\n\u003ch2 class=\"post-h2\"\u003eWhen NOT to Use Custom Properties\u003c/h2\u003e\n\n\u003cp class=\"post-p\"\u003e\nCustom properties are powerful but not always the right tool:\n\u003c/p\u003e\n\n\u003cul class=\"post-ul\"\u003e\u003cli class=\"post-li\"\u003e\u003cstrong\u003eStatic design tokens that never change\u003c/strong\u003e — Preprocessor variables or just hardcoding values may be simpler. Custom properties have a small runtime cost from inheritance.\u003c/li\u003e\n\u003cli class=\"post-li\"\u003e\u003cstrong\u003eValues used in media queries\u003c/strong\u003e — You can't use \u003ccode class=\"inline-code\"\u003evar()\u003c/code\u003e in \u003ccode class=\"inline-code\"\u003e@media\u003c/code\u003e queries. Media queries resolve at parse time, custom properties at computed-value time.\u003c/li\u003e\n\u003cli class=\"post-li\"\u003e\u003cstrong\u003eSelectors or property names\u003c/strong\u003e — Custom properties store values, not property names or selectors. \u003ccode class=\"inline-code\"\u003evar(--some-prop): value;\u003c/code\u003e doesn't work.\u003c/li\u003e\n\u003cli class=\"post-li\"\u003e\u003cstrong\u003eExtreme performance-critical rendering\u003c/strong\u003e — Custom properties that change frequently (on scroll, every frame) trigger style recalculations on all inheriting descendants. Use \u003ccode class=\"inline-code\"\u003einherits: false\u003c/code\u003e with \u003ccode class=\"inline-code\"\u003e@property\u003c/code\u003e to limit the blast radius.\u003c/li\u003e\n\u003c/ul\u003e\n\u003ch2 class=\"post-h2\"\u003eKey Takeaways\u003c/h2\u003e\n\n\u003cul class=\"post-ul\"\u003e\u003cli class=\"post-li\"\u003e\u003cstrong\u003eRegister with \u003ccode class=\"inline-code\"\u003e@property\u003c/code\u003e\u003c/strong\u003e — Unlocks animation, type safety, and default values. Do this for every design token.\u003c/li\u003e\n\u003cli class=\"post-li\"\u003e\u003cstrong\u003eCompute, don't duplicate\u003c/strong\u003e — Design tokens that derive from a few base values are easier to maintain. Use \u003ccode class=\"inline-code\"\u003ecalc()\u003c/code\u003e.\u003c/li\u003e\n\u003cli class=\"post-li\"\u003e\u003cstrong\u003eThe cascade is your component API\u003c/strong\u003e — Set custom properties on containers and let children query them with \u003ccode class=\"inline-code\"\u003e@container style()\u003c/code\u003e.\u003c/li\u003e\n\u003cli class=\"post-li\"\u003e\u003cstrong\u003eChain your fallbacks\u003c/strong\u003e — \u003ccode class=\"inline-code\"\u003evar(--component, var(--theme, var(--global, hard-fallback)))\u003c/code\u003e gives you a full override hierarchy.\u003c/li\u003e\n\u003cli class=\"post-li\"\u003e\u003cstrong\u003eUse \u003ccode class=\"inline-code\"\u003einherits: false\u003c/code\u003e\u003c/strong\u003e — Unless inheritance is explicitly needed, false prevents accidental style leakage.\u003c/li\u003e\n\u003c/ul\u003e\n\u003cp class=\"post-p\"\u003e\nCustom properties are no longer just \"CSS variables.\" They're the backbone of modern CSS architecture — typed, animatable, and context-aware. If you're still treating them as simple color swaps, you're missing 90% of what they can do.\n\u003c/p\u003e\n"])</script><script>self.__next_f.push([1,"6:T78f,\n        .blog-content .post-h1 { font-size: 1.75rem; font-weight: 700; color: #ffffff; margin-top: 2rem; margin-bottom: 1rem; }\n        .blog-content .post-h2 { font-size: 1.5rem; font-weight: 600; color: #f1f5f9; margin-top: 1.75rem; margin-bottom: 0.75rem; padding-bottom: 0.5rem; border-bottom: 1px solid #334155; }\n        .blog-content .post-h3 { font-size: 1.25rem; font-weight: 600; color: #e2e8f0; margin-top: 1.5rem; margin-bottom: 0.5rem; }\n        .blog-content .post-h4 { font-size: 1.1rem; font-weight: 600; color: #e2e8f0; margin-top: 1.25rem; margin-bottom: 0.5rem; }\n        .blog-content .post-p { color: #cbd5e1; line-height: 1.75; margin-bottom: 1rem; }\n        .blog-content .code-block { background: #0f172a; border: 1px solid #334155; border-radius: 0.5rem; padding: 1rem; overflow-x: auto; margin: 1rem 0; font-family: 'JetBrains Mono', monospace; font-size: 0.875rem; color: #e2e8f0; }\n        .blog-content .inline-code { background: #1e293b; color: #38bdf8; padding: 0.15rem 0.4rem; border-radius: 0.25rem; font-family: 'JetBrains Mono', monospace; font-size: 0.875em; }\n        .blog-content .post-link { color: #38bdf8; text-decoration: underline; transition: color 0.2s; }\n        .blog-content .post-link:hover { color: #7dd3fc; }\n        .blog-content .post-ul { list-style: disc; padding-left: 1.5rem; margin: 0.75rem 0; color: #cbd5e1; }\n        .blog-content .post-li { margin-bottom: 0.25rem; line-height: 1.6; }\n        .blog-content .post-blockquote { border-left: 3px solid #0ea5e9; padding: 0.5rem 1rem; margin: 1rem 0; background: rgba(14, 165, 233, 0.05); border-radius: 0 0.5rem 0.5rem 0; }\n        .blog-content .post-blockquote p { color: #94a3b8; font-style: italic; }\n        .blog-content .post-hr { border: none; border-top: 1px solid #334155; margin: 2rem 0; }\n        .blog-content strong { color: #f1f5f9; font-weight: 600; }\n        .blog-content em { font-style: italic; }\n        8:[\"slug\",\"css-custom-properties-advanced\",\"d\"]\nf:[]\n"])</script><script>self.__next_f.push([1,"0:[\"$\",\"$L2\",null,{\"buildId\":\"wLkx3_e9eF0HmBHirJWLm\",\"assetPrefix\":\"/devbench-tech\",\"urlParts\":[\"\",\"blog\",\"css-custom-properties-advanced\",\"\"],\"initialTree\":[\"\",{\"children\":[\"blog\",{\"children\":[[\"slug\",\"css-custom-properties-advanced\",\"d\"],{\"children\":[\"__PAGE__?{\\\"slug\\\":\\\"css-custom-properties-advanced\\\"}\",{}]}]}]},\"$undefined\",\"$undefined\",true],\"initialSeedData\":[\"\",{\"children\":[\"blog\",{\"children\":[[\"slug\",\"css-custom-properties-advanced\",\"d\"],{\"children\":[\"__PAGE__\",{},[[\"$L3\",[\"$\",\"article\",null,{\"className\":\"max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-20\",\"children\":[[\"$\",\"script\",null,{\"type\":\"application/ld+json\",\"dangerouslySetInnerHTML\":{\"__html\":\"{\\\"@context\\\":\\\"https://schema.org\\\",\\\"@type\\\":\\\"Article\\\",\\\"headline\\\":\\\"CSS Custom Properties Unleashed: Beyond Simple Variables\\\",\\\"description\\\":\\\"CSS custom properties are far more than 'CSS variables.' With @property, typed values, animation support, and integration with style queries, they're the most powerful primitive in modern CSS. Learn advanced patterns — the space toggle, staggered animations, dynamic theming, and computed design tokens — that will change how you write CSS.\\\",\\\"datePublished\\\":\\\"2026-05-25\\\",\\\"author\\\":{\\\"@type\\\":\\\"Organization\\\",\\\"name\\\":\\\"DevBench\\\"},\\\"publisher\\\":{\\\"@type\\\":\\\"Organization\\\",\\\"name\\\":\\\"DevBench\\\",\\\"url\\\":\\\"https://devbench-roan.vercel.app\\\"}}\"}}],[\"$\",\"script\",null,{\"type\":\"application/ld+json\",\"dangerouslySetInnerHTML\":{\"__html\":\"{\\\"@context\\\":\\\"https://schema.org\\\",\\\"@type\\\":\\\"BreadcrumbList\\\",\\\"itemListElement\\\":[{\\\"@type\\\":\\\"ListItem\\\",\\\"position\\\":1,\\\"name\\\":\\\"Home\\\",\\\"item\\\":\\\"https://devbench-roan.vercel.app\\\"},{\\\"@type\\\":\\\"ListItem\\\",\\\"position\\\":2,\\\"name\\\":\\\"Blog\\\",\\\"item\\\":\\\"https://devbench-roan.vercel.app/blog\\\"},{\\\"@type\\\":\\\"ListItem\\\",\\\"position\\\":3,\\\"name\\\":\\\"CSS Custom Properties Unleashed: Beyond Simple Variables\\\"}]}\"}}],[\"$\",\"$L4\",null,{\"href\":\"/blog\",\"className\":\"inline-flex items-center gap-1.5 text-slate-400 hover:text-brand-400 text-sm transition-colors mb-8\",\"children\":[[\"$\",\"svg\",null,{\"xmlns\":\"http://www.w3.org/2000/svg\",\"width\":24,\"height\":24,\"viewBox\":\"0 0 24 24\",\"fill\":\"none\",\"stroke\":\"currentColor\",\"strokeWidth\":2,\"strokeLinecap\":\"round\",\"strokeLinejoin\":\"round\",\"className\":\"lucide lucide-arrow-left w-4 h-4\",\"children\":[[\"$\",\"path\",\"1l729n\",{\"d\":\"m12 19-7-7 7-7\"}],[\"$\",\"path\",\"x3x0zl\",{\"d\":\"M19 12H5\"}],\"$undefined\"]}],\"Back to Blog\"]}],[\"$\",\"header\",null,{\"className\":\"mb-10\",\"children\":[[\"$\",\"h1\",null,{\"className\":\"text-3xl sm:text-4xl font-bold text-white leading-tight mb-4\",\"children\":\"CSS Custom Properties Unleashed: Beyond Simple Variables\"}],[\"$\",\"div\",null,{\"className\":\"flex flex-wrap items-center gap-4 text-sm text-slate-400\",\"children\":[[\"$\",\"span\",null,{\"className\":\"flex items-center gap-1.5\",\"children\":[[\"$\",\"svg\",null,{\"xmlns\":\"http://www.w3.org/2000/svg\",\"width\":24,\"height\":24,\"viewBox\":\"0 0 24 24\",\"fill\":\"none\",\"stroke\":\"currentColor\",\"strokeWidth\":2,\"strokeLinecap\":\"round\",\"strokeLinejoin\":\"round\",\"className\":\"lucide lucide-calendar w-4 h-4\",\"children\":[[\"$\",\"rect\",\"eu3xkr\",{\"width\":\"18\",\"height\":\"18\",\"x\":\"3\",\"y\":\"4\",\"rx\":\"2\",\"ry\":\"2\"}],[\"$\",\"line\",\"m3sa8f\",{\"x1\":\"16\",\"x2\":\"16\",\"y1\":\"2\",\"y2\":\"6\"}],[\"$\",\"line\",\"18kwsl\",{\"x1\":\"8\",\"x2\":\"8\",\"y1\":\"2\",\"y2\":\"6\"}],[\"$\",\"line\",\"xt86sb\",{\"x1\":\"3\",\"x2\":\"21\",\"y1\":\"10\",\"y2\":\"10\"}],\"$undefined\"]}],\"2026-05-25\"]}],[\"$\",\"div\",null,{\"className\":\"flex flex-wrap gap-1.5\",\"children\":[[\"$\",\"span\",\"CSS\",{\"className\":\"badge-secondary flex items-center gap-1\",\"children\":[[\"$\",\"svg\",null,{\"xmlns\":\"http://www.w3.org/2000/svg\",\"width\":24,\"height\":24,\"viewBox\":\"0 0 24 24\",\"fill\":\"none\",\"stroke\":\"currentColor\",\"strokeWidth\":2,\"strokeLinecap\":\"round\",\"strokeLinejoin\":\"round\",\"className\":\"lucide lucide-tag w-3 h-3\",\"children\":[[\"$\",\"path\",\"14b2ls\",{\"d\":\"M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z\"}],[\"$\",\"path\",\"7u93v4\",{\"d\":\"M7 7h.01\"}],\"$undefined\"]}],\"CSS\"]}],[\"$\",\"span\",\"Custom Properties\",{\"className\":\"badge-secondary flex items-center gap-1\",\"children\":[[\"$\",\"svg\",null,{\"xmlns\":\"http://www.w3.org/2000/svg\",\"width\":24,\"height\":24,\"viewBox\":\"0 0 24 24\",\"fill\":\"none\",\"stroke\":\"currentColor\",\"strokeWidth\":2,\"strokeLinecap\":\"round\",\"strokeLinejoin\":\"round\",\"className\":\"lucide lucide-tag w-3 h-3\",\"children\":[[\"$\",\"path\",\"14b2ls\",{\"d\":\"M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z\"}],[\"$\",\"path\",\"7u93v4\",{\"d\":\"M7 7h.01\"}],\"$undefined\"]}],\"Custom Properties\"]}],[\"$\",\"span\",\"@property\",{\"className\":\"badge-secondary flex items-center gap-1\",\"children\":[[\"$\",\"svg\",null,{\"xmlns\":\"http://www.w3.org/2000/svg\",\"width\":24,\"height\":24,\"viewBox\":\"0 0 24 24\",\"fill\":\"none\",\"stroke\":\"currentColor\",\"strokeWidth\":2,\"strokeLinecap\":\"round\",\"strokeLinejoin\":\"round\",\"className\":\"lucide lucide-tag w-3 h-3\",\"children\":[[\"$\",\"path\",\"14b2ls\",{\"d\":\"M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z\"}],[\"$\",\"path\",\"7u93v4\",{\"d\":\"M7 7h.01\"}],\"$undefined\"]}],\"@property\"]}],[\"$\",\"span\",\"Variables\",{\"className\":\"badge-secondary flex items-center gap-1\",\"children\":[[\"$\",\"svg\",null,{\"xmlns\":\"http://www.w3.org/2000/svg\",\"width\":24,\"height\":24,\"viewBox\":\"0 0 24 24\",\"fill\":\"none\",\"stroke\":\"currentColor\",\"strokeWidth\":2,\"strokeLinecap\":\"round\",\"strokeLinejoin\":\"round\",\"className\":\"lucide lucide-tag w-3 h-3\",\"children\":[[\"$\",\"path\",\"14b2ls\",{\"d\":\"M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z\"}],[\"$\",\"path\",\"7u93v4\",{\"d\":\"M7 7h.01\"}],\"$undefined\"]}],\"Variables\"]}],[\"$\",\"span\",\"Theming\",{\"className\":\"badge-secondary flex items-center gap-1\",\"children\":[[\"$\",\"svg\",null,{\"xmlns\":\"http://www.w3.org/2000/svg\",\"width\":24,\"height\":24,\"viewBox\":\"0 0 24 24\",\"fill\":\"none\",\"stroke\":\"currentColor\",\"strokeWidth\":2,\"strokeLinecap\":\"round\",\"strokeLinejoin\":\"round\",\"className\":\"lucide lucide-tag w-3 h-3\",\"children\":[[\"$\",\"path\",\"14b2ls\",{\"d\":\"M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z\"}],[\"$\",\"path\",\"7u93v4\",{\"d\":\"M7 7h.01\"}],\"$undefined\"]}],\"Theming\"]}],[\"$\",\"span\",\"Animation\",{\"className\":\"badge-secondary flex items-center gap-1\",\"children\":[[\"$\",\"svg\",null,{\"xmlns\":\"http://www.w3.org/2000/svg\",\"width\":24,\"height\":24,\"viewBox\":\"0 0 24 24\",\"fill\":\"none\",\"stroke\":\"currentColor\",\"strokeWidth\":2,\"strokeLinecap\":\"round\",\"strokeLinejoin\":\"round\",\"className\":\"lucide lucide-tag w-3 h-3\",\"children\":[[\"$\",\"path\",\"14b2ls\",{\"d\":\"M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z\"}],[\"$\",\"path\",\"7u93v4\",{\"d\":\"M7 7h.01\"}],\"$undefined\"]}],\"Animation\"]}],[\"$\",\"span\",\"Style Queries\",{\"className\":\"badge-secondary flex items-center gap-1\",\"children\":[[\"$\",\"svg\",null,{\"xmlns\":\"http://www.w3.org/2000/svg\",\"width\":24,\"height\":24,\"viewBox\":\"0 0 24 24\",\"fill\":\"none\",\"stroke\":\"currentColor\",\"strokeWidth\":2,\"strokeLinecap\":\"round\",\"strokeLinejoin\":\"round\",\"className\":\"lucide lucide-tag w-3 h-3\",\"children\":[[\"$\",\"path\",\"14b2ls\",{\"d\":\"M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z\"}],[\"$\",\"path\",\"7u93v4\",{\"d\":\"M7 7h.01\"}],\"$undefined\"]}],\"Style Queries\"]}],[\"$\",\"span\",\"Houdini\",{\"className\":\"badge-secondary flex items-center gap-1\",\"children\":[[\"$\",\"svg\",null,{\"xmlns\":\"http://www.w3.org/2000/svg\",\"width\":24,\"height\":24,\"viewBox\":\"0 0 24 24\",\"fill\":\"none\",\"stroke\":\"currentColor\",\"strokeWidth\":2,\"strokeLinecap\":\"round\",\"strokeLinejoin\":\"round\",\"className\":\"lucide lucide-tag w-3 h-3\",\"children\":[[\"$\",\"path\",\"14b2ls\",{\"d\":\"M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z\"}],[\"$\",\"path\",\"7u93v4\",{\"d\":\"M7 7h.01\"}],\"$undefined\"]}],\"Houdini\"]}],[\"$\",\"span\",\"Web Platform\",{\"className\":\"badge-secondary flex items-center gap-1\",\"children\":[[\"$\",\"svg\",null,{\"xmlns\":\"http://www.w3.org/2000/svg\",\"width\":24,\"height\":24,\"viewBox\":\"0 0 24 24\",\"fill\":\"none\",\"stroke\":\"currentColor\",\"strokeWidth\":2,\"strokeLinecap\":\"round\",\"strokeLinejoin\":\"round\",\"className\":\"lucide lucide-tag w-3 h-3\",\"children\":[[\"$\",\"path\",\"14b2ls\",{\"d\":\"M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z\"}],[\"$\",\"path\",\"7u93v4\",{\"d\":\"M7 7h.01\"}],\"$undefined\"]}],\"Web Platform\"]}]]}]]}]]}],[\"$\",\"div\",null,{\"className\":\"blog-content prose-p:text-slate-300 prose-p:leading-relaxed prose-p:mb-4\",\"dangerouslySetInnerHTML\":{\"__html\":\"$5\"}}],[\"$\",\"style\",null,{\"dangerouslySetInnerHTML\":{\"__html\":\"$6\"}}]]}],null],null],null]},[null,[\"$\",\"$L7\",null,{\"parallelRouterKey\":\"children\",\"segmentPath\":[\"children\",\"blog\",\"children\",\"$8\",\"children\"],\"error\":\"$undefined\",\"errorStyles\":\"$undefined\",\"errorScripts\":\"$undefined\",\"template\":[\"$\",\"$L9\",null,{}],\"templateStyles\":\"$undefined\",\"templateScripts\":\"$undefined\",\"notFound\":\"$undefined\",\"notFoundStyles\":\"$undefined\"}]],null]},[null,[\"$\",\"$L7\",null,{\"parallelRouterKey\":\"children\",\"segmentPath\":[\"children\",\"blog\",\"children\"],\"error\":\"$undefined\",\"errorStyles\":\"$undefined\",\"errorScripts\":\"$undefined\",\"template\":[\"$\",\"$L9\",null,{}],\"templateStyles\":\"$undefined\",\"templateScripts\":\"$undefined\",\"notFound\":\"$undefined\",\"notFoundStyles\":\"$undefined\"}]],null]},[[[[\"$\",\"link\",\"0\",{\"rel\":\"stylesheet\",\"href\":\"/devbench-tech/_next/static/css/c877e59dbcb00f11.css\",\"precedence\":\"next\",\"crossOrigin\":\"$undefined\"}]],[\"$\",\"html\",null,{\"lang\":\"en\",\"className\":\"dark\",\"children\":[\"$\",\"body\",null,{\"className\":\"flex flex-col min-h-screen\",\"children\":[[\"$\",\"script\",null,{\"type\":\"application/ld+json\",\"dangerouslySetInnerHTML\":{\"__html\":\"{\\\"@context\\\":\\\"https://schema.org\\\",\\\"@type\\\":\\\"WebSite\\\",\\\"name\\\":\\\"DevBench\\\",\\\"url\\\":\\\"https://devbench-roan.vercel.app\\\",\\\"description\\\":\\\"Free developer tools for everyday use: JSON formatter, Base64 encoder/decoder, UUID generator, regex tester, benchmarks, and more.\\\",\\\"potentialAction\\\":{\\\"@type\\\":\\\"SearchAction\\\",\\\"target\\\":\\\"https://devbench-roan.vercel.app/tools?q={search_term_string}\\\",\\\"query-input\\\":\\\"required name=search_term_string\\\"}}\"}}],[\"$\",\"$La\",null,{}],[\"$\",\"main\",null,{\"className\":\"flex-1\",\"children\":[\"$\",\"$L7\",null,{\"parallelRouterKey\":\"children\",\"segmentPath\":[\"children\"],\"error\":\"$undefined\",\"errorStyles\":\"$undefined\",\"errorScripts\":\"$undefined\",\"template\":[\"$\",\"$L9\",null,{}],\"templateStyles\":\"$undefined\",\"templateScripts\":\"$undefined\",\"notFound\":[[\"$\",\"title\",null,{\"children\":\"404: This page could not be found.\"}],[\"$\",\"div\",null,{\"style\":{\"fontFamily\":\"system-ui,\\\"Segoe UI\\\",Roboto,Helvetica,Arial,sans-serif,\\\"Apple Color Emoji\\\",\\\"Segoe UI Emoji\\\"\",\"height\":\"100vh\",\"textAlign\":\"center\",\"display\":\"flex\",\"flexDirection\":\"column\",\"alignItems\":\"center\",\"justifyContent\":\"center\"},\"children\":[\"$\",\"div\",null,{\"children\":[[\"$\",\"style\",null,{\"dangerouslySetInnerHTML\":{\"__html\":\"body{color:#000;background:#fff;margin:0}.next-error-h1{border-right:1px solid rgba(0,0,0,.3)}@media (prefers-color-scheme:dark){body{color:#fff;background:#000}.next-error-h1{border-right:1px solid rgba(255,255,255,.3)}}\"}}],[\"$\",\"h1\",null,{\"className\":\"next-error-h1\",\"style\":{\"display\":\"inline-block\",\"margin\":\"0 20px 0 0\",\"padding\":\"0 23px 0 0\",\"fontSize\":24,\"fontWeight\":500,\"verticalAlign\":\"top\",\"lineHeight\":\"49px\"},\"children\":\"404\"}],[\"$\",\"div\",null,{\"style\":{\"display\":\"inline-block\"},\"children\":[\"$\",\"h2\",null,{\"style\":{\"fontSize\":14,\"fontWeight\":400,\"lineHeight\":\"49px\",\"margin\":0},\"children\":\"This page could not be found.\"}]}]]}]}]],\"notFoundStyles\":[]}]}],[\"$\",\"footer\",null,{\"className\":\"bg-surface-light border-t border-slate-700/50 mt-auto\",\"children\":[\"$\",\"div\",null,{\"className\":\"max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12\",\"children\":[[\"$\",\"div\",null,{\"className\":\"grid grid-cols-1 md:grid-cols-3 gap-8\",\"children\":[[\"$\",\"div\",null,{\"children\":[[\"$\",\"$L4\",null,{\"href\":\"/\",\"className\":\"flex items-center gap-2.5 mb-3\",\"children\":[[\"$\",\"div\",null,{\"className\":\"w-7 h-7 bg-brand-500 rounded-lg flex items-center justify-center\",\"children\":[\"$\",\"svg\",null,{\"xmlns\":\"http://www.w3.org/2000/svg\",\"width\":24,\"height\":24,\"viewBox\":\"0 0 24 24\",\"fill\":\"none\",\"stroke\":\"currentColor\",\"strokeWidth\":2,\"strokeLinecap\":\"round\",\"strokeLinejoin\":\"round\",\"className\":\"lucide lucide-terminal w-3.5 h-3.5 text-white\",\"children\":[[\"$\",\"polyline\",\"akl6gq\",{\"points\":\"4 17 10 11 4 5\"}],[\"$\",\"line\",\"q2wloq\",{\"x1\":\"12\",\"x2\":\"20\",\"y1\":\"19\",\"y2\":\"19\"}],\"$undefined\"]}]}],[\"$\",\"span\",null,{\"className\":\"text-lg font-bold text-white\",\"children\":[\"Dev\",[\"$\",\"span\",null,{\"className\":\"gradient-text\",\"children\":\"Bench\"}]]}]]}],[\"$\",\"p\",null,{\"className\":\"text-slate-400 text-sm leading-relaxed\",\"children\":\"Free developer tools, benchmarks, and calculators. Built for developers, by developers.\"}]]}],[\"$\",\"div\",null,{\"children\":[[\"$\",\"h3\",null,{\"className\":\"text-sm font-semibold text-slate-300 uppercase tracking-wider mb-4\",\"children\":\"Tools\"}],[\"$\",\"ul\",null,{\"className\":\"space-y-2\",\"children\":[[\"$\",\"li\",\"/tools/json-formatter\",{\"children\":[\"$\",\"$L4\",null,{\"href\":\"/tools/json-formatter\",\"className\":\"text-slate-400 hover:text-brand-400 text-sm transition-colors\",\"children\":\"JSON Formatter\"}]}],[\"$\",\"li\",\"/tools/base64\",{\"children\":[\"$\",\"$L4\",null,{\"href\":\"/tools/base64\",\"className\":\"text-slate-400 hover:text-brand-400 text-sm transition-colors\",\"children\":\"Base64 Encoder/Decoder\"}]}],[\"$\",\"li\",\"/tools/uuid-generator\",{\"children\":[\"$\",\"$L4\",null,{\"href\":\"/tools/uuid-generator\",\"className\":\"text-slate-400 hover:text-brand-400 text-sm transition-colors\",\"children\":\"UUID Generator\"}]}],[\"$\",\"li\",\"/tools/regex-tester\",{\"children\":[\"$\",\"$L4\",null,{\"href\":\"/tools/regex-tester\",\"className\":\"text-slate-400 hover:text-brand-400 text-sm transition-colors\",\"children\":\"Regex Tester\"}]}]]}]]}],[\"$\",\"div\",null,{\"children\":[[\"$\",\"h3\",null,{\"className\":\"text-sm font-semibold text-slate-300 uppercase tracking-wider mb-4\",\"children\":\"Resources\"}],[\"$\",\"ul\",null,{\"className\":\"space-y-2\",\"children\":[[\"$\",\"li\",\"/blog\",{\"children\":[\"$\",\"$L4\",null,{\"href\":\"/blog\",\"className\":\"text-slate-400 hover:text-brand-400 text-sm transition-colors\",\"children\":\"Blog\"}]}],[\"$\",\"li\",\"/benchmarks\",{\"children\":[\"$\",\"$L4\",null,{\"href\":\"/benchmarks\",\"className\":\"text-slate-400 hover:text-brand-400 text-sm transition-colors\",\"children\":\"Benchmarks\"}]}],[\"$\",\"li\",\"/about\",{\"children\":[\"$\",\"$L4\",null,{\"href\":\"/about\",\"className\":\"text-slate-400 hover:text-brand-400 text-sm transition-colors\",\"children\":\"About\"}]}]]}]]}]]}],[\"$\",\"div\",null,{\"className\":\"mt-10 pt-6 border-t border-slate-700/50 flex flex-col sm:flex-row items-center justify-between gap-4\",\"children\":[[\"$\",\"p\",null,{\"className\":\"text-slate-500 text-sm flex items-center gap-1\",\"children\":[\"Made with \",[\"$\",\"svg\",null,{\"xmlns\":\"http://www.w3.org/2000/svg\",\"width\":24,\"height\":24,\"viewBox\":\"0 0 24 24\",\"fill\":\"none\",\"stroke\":\"currentColor\",\"strokeWidth\":2,\"strokeLinecap\":\"round\",\"strokeLinejoin\":\"round\",\"className\":\"lucide lucide-heart w-3.5 h-3.5 text-red-500 fill-red-500\",\"children\":[[\"$\",\"path\",\"c3ymky\",{\"d\":\"M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z\"}],\"$undefined\"]}],\" by the DevBench team © \",2026]}],[\"$\",\"a\",null,{\"href\":\"https://github.com\",\"target\":\"_blank\",\"rel\":\"noopener noreferrer\",\"className\":\"text-slate-500 hover:text-slate-300 transition-colors\",\"aria-label\":\"GitHub\",\"children\":[\"$\",\"svg\",null,{\"xmlns\":\"http://www.w3.org/2000/svg\",\"width\":24,\"height\":24,\"viewBox\":\"0 0 24 24\",\"fill\":\"none\",\"stroke\":\"currentColor\",\"strokeWidth\":2,\"strokeLinecap\":\"round\",\"strokeLinejoin\":\"round\",\"className\":\"lucide lucide-github w-5 h-5\",\"children\":[[\"$\",\"path\",\"tonef\",{\"d\":\"M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4\"}],[\"$\",\"path\",\"9comsn\",{\"d\":\"M9 18c-4.51 2-5-2-7-2\"}],\"$undefined\"]}]}]]}]]}]}],[\"$\",\"$Lb\",null,{}],[\"$\",\"$Lc\",null,{\"position\":\"bottom-right\",\"toastOptions\":{\"style\":{\"background\":\"#1e293b\",\"color\":\"#e2e8f0\",\"border\":\"1px solid #334155\",\"fontSize\":\"14px\"}}}]]}]}]],null],null],\"couldBeIntercepted\":false,\"initialHead\":[null,\"$Ld\"],\"globalErrorComponent\":\"$e\",\"missingSlots\":\"$Wf\"}]\n"])</script><script>self.__next_f.push([1,"d:[[\"$\",\"meta\",\"0\",{\"name\":\"viewport\",\"content\":\"width=device-width, initial-scale=1\"}],[\"$\",\"meta\",\"1\",{\"charSet\":\"utf-8\"}],[\"$\",\"title\",\"2\",{\"children\":\"CSS Custom Properties Unleashed: Beyond Simple Variables | DevBench\"}],[\"$\",\"meta\",\"3\",{\"name\":\"description\",\"content\":\"CSS custom properties are far more than 'CSS variables.' With @property, typed values, animation support, and integration with style queries, they're the most powerful primitive in modern CSS. Learn advanced patterns — the space toggle, staggered animations, dynamic theming, and computed design tokens — that will change how you write CSS.\"}],[\"$\",\"meta\",\"4\",{\"name\":\"author\",\"content\":\"DevBench\"}],[\"$\",\"meta\",\"5\",{\"name\":\"keywords\",\"content\":\"developer tools,JSON formatter,Base64,UUID generator,regex tester,benchmarks,dev tools\"}],[\"$\",\"meta\",\"6\",{\"property\":\"og:title\",\"content\":\"DevBench — Developer Tools \u0026 Calculators\"}],[\"$\",\"meta\",\"7\",{\"property\":\"og:description\",\"content\":\"Free developer tools for everyday use.\"}],[\"$\",\"meta\",\"8\",{\"property\":\"og:site_name\",\"content\":\"DevBench\"}],[\"$\",\"meta\",\"9\",{\"property\":\"og:locale\",\"content\":\"en_US\"}],[\"$\",\"meta\",\"10\",{\"property\":\"og:type\",\"content\":\"website\"}],[\"$\",\"meta\",\"11\",{\"name\":\"twitter:card\",\"content\":\"summary\"}],[\"$\",\"meta\",\"12\",{\"name\":\"twitter:title\",\"content\":\"DevBench — Developer Tools \u0026 Calculators\"}],[\"$\",\"meta\",\"13\",{\"name\":\"twitter:description\",\"content\":\"Free developer tools for everyday use.\"}],[\"$\",\"link\",\"14\",{\"rel\":\"icon\",\"href\":\"/favicon.svg\"}]]\n3:null\n"])</script></body></html>
