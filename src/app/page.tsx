@@ -94,6 +94,7 @@ import {
   Egg,
   Sparkles,
   Timer,
+  SunMoon,
 } from 'lucide-react';
 
 export const metadata: Metadata = {
@@ -221,6 +222,13 @@ const featuredTools = [
     href: '/tools/css-blend-playground',
     icon: Layers,
     tags: ['CSS', 'Blend Mode', 'Design'],
+  },
+  {
+    title: 'CSS light-dark() Playground',
+    description: 'Build mode-adaptive colors with the light-dark() CSS function. Define light and dark variants in a single declaration — 12 presets, live preview, CSS + Tailwind output.',
+    href: '/tools/css-light-dark-playground',
+    icon: SunMoon,
+    tags: ['CSS', 'Color', 'Dark Mode', 'Theming'],
   },
   {
     title: 'Text-Shadow Generator',
