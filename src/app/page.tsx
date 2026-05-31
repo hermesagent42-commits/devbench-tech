@@ -1048,6 +1048,13 @@ const featuredTools = [
     icon: Code2,
     tags: ['HTML', 'CSS', 'JavaScript', 'Playground', 'Editor'],
   },
+  {
+    title: 'Cookie Consent Banner Generator',
+    description: 'Design GDPR/CCPA-compliant cookie consent banners with live preview. 6 presets, full color/text/position control, and production-ready HTML, CSS & JavaScript output.',
+    href: '/tools/cookie-consent-generator',
+    icon: ShieldCheck,
+    tags: ['GDPR', 'CCPA', 'Cookie', 'Banner', 'Privacy'],
+  },
 ];
 const sampleBlogPosts = [
   {
