@@ -73,6 +73,7 @@ import {
   HardDrive,
   Play,
   Wifi,
+  Sun,
   Focus,
   MousePointer2,
   Folders,
@@ -513,6 +514,13 @@ const allTools = [
     href: '/tools/websocket-tester',
     icon: Wifi,
     tags: ['WebSocket', 'Tester', 'Real-time'],
+  },
+  {
+    title: 'Wake Lock Playground',
+    description: 'Explore the Wake Lock API — prevent screen dimming and sleep. See browser support, event log, and live status.',
+    href: '/tools/wake-lock-playground',
+    icon: Sun,
+    tags: ['Wake Lock', 'Web API', 'Screen'],
   },
   {
     title: 'CSS :has() Selector Playground',
