@@ -1,0 +1,354 @@
+---
+title: "JavaScript Iterator Helpers: .map(), .filter(), and .take() on Every Iterable"
+date: "2026-05-31"
+excerpt: "Iterator Helpers bring the full array method chain to generators, Sets, Maps, and any iterable — lazily evaluated, memory-efficient, and composable. Here's everything you need to know with production-ready patterns."
+tags: ["JavaScript", "Iterators", "Generators", "Web Platform", "ES2025", "2026", "Functional Programming"]
+---
+
+## The Problem: Arrays Aren't Always the Answer
+
+JavaScript developers love chaining array methods:
+
+```javascript
+const result = data
+  .filter(item => item.active)
+  .map(item => item.name)
+  .slice(0, 10);
+```
+
+This pattern is clean, readable, and declarative. But it has a hidden cost: **each step creates a new intermediate array**. With 10,000 items, that's three full passes and two temporary arrays. With a generator yielding infinite values, it flat-out doesn't work.
+
+Enter **Iterator Helpers** — the same `.map()`, `.filter()`, `.take()`, `.drop()`, `.flatMap()`, `.reduce()`, `.find()`, `.some()`, `.every()`, and `.forEach()` methods, but on **any iterable** (generators, Sets, Maps, strings, NodeLists, custom iterators) — lazily evaluated, zero intermediate arrays.
+
+```javascript
+// Instead of:
+[...set].filter(x => x > 5).map(x => x * 2);
+
+// You write:
+set.values().filter(x => x > 5).map(x => x * 2).toArray();
+```
+
+No intermediate arrays. Just a pipeline of lazy transformations.
+
+## The Iterator Namespace
+
+Every iterable's `.values()` method (or the iterable itself via `Iterator.from()`) now exposes a full chainable API:
+
+```javascript
+// On any iterable
+const it = Iterator.from(someIterable);
+
+// Or directly on built-in iterators
+const it = map.values(); // MapIterator
+const it = set.values(); // SetIterator
+const it = generator();  // Generator object
+```
+
+All of these now have `.map()`, `.filter()`, `.take()`, and the rest.
+
+## Every Iterator Helper Method
+
+### `.map(fn)` — Transform each value
+
+```javascript
+function* fibonacci() {
+  let a = 0, b = 1;
+  while (true) { yield a; [a, b] = [b, a + b]; }
+}
+
+// Square the first 10 fibonacci numbers — all lazy, no infinite loop
+const squares = fibonacci()
+  .take(10)
+  .map(n => n * n)
+  .toArray();
+// [0, 1, 1, 4, 9, 25, 64, 169, 441, 1156]
+```
+
+Notice: `.take(10)` stops the infinite generator, and `.map()` only transforms the 10 values that make it through. No wasted work.
+
+### `.filter(fn)` — Keep only matching values
+
+```javascript
+// Get active admins from a Map of user records
+const users = new Map([
+  ['alice', { role: 'admin', active: true }],
+  ['bob',   { role: 'user',  active: true }],
+  ['carol', { role: 'admin', active: false }],
+  ['dave',  { role: 'admin', active: true }],
+]);
+
+const activeAdmins = users.values()
+  .filter(u => u.role === 'admin')
+  .filter(u => u.active)
+  .toArray();
+// [{ role: 'admin', active: true }, { role: 'admin', active: true }]
+```
+
+### `.take(n)` — Take the first N values
+
+```javascript
+// Read first 5 lines of a large file (via streaming generator)
+function* readLines(stream) {
+  // ... streaming file read
+}
+
+const preview = readLines(hugeFile)
+  .take(5)
+  .toArray();
+```
+
+This is the killer feature for infinite generators and large datasets. Stop processing after N items without reading everything.
+
+### `.drop(n)` — Skip the first N values
+
+```javascript
+// Skip header row, then process
+const csvLines = rawLines.drop(1).map(parseRow).toArray();
+```
+
+### `.flatMap(fn)` — Map and flatten
+
+```javascript
+// Expand each user's roles
+const allRoles = users.values()
+  .flatMap(u => u.roles)  // Each user.roles is an array
+  .toArray();
+```
+
+### `.reduce(fn, initial)` — Fold values into a single result
+
+```javascript
+const total = orders.values()
+  .map(o => o.total)
+  .reduce((sum, val) => sum + val, 0);
+```
+
+### `.find(fn)` — Return first match (or undefined)
+
+```javascript
+const firstAdmin = users.values().find(u => u.role === 'admin');
+```
+
+### `.some(fn)` — Does any value satisfy the predicate?
+
+```javascript
+const hasInactive = users.values().some(u => !u.active);
+```
+
+### `.every(fn)` — Do all values satisfy the predicate?
+
+```javascript
+const allActive = users.values().every(u => u.active);
+```
+
+### `.forEach(fn)` — Execute for each value (terminal)
+
+```javascript
+// Log each active user — processes lazily, one at a time
+users.values()
+  .filter(u => u.active)
+  .forEach(u => console.log(u.name));
+```
+
+### `.toArray()` — Collect into an array (terminal)
+
+The most common terminal operation. Collects all remaining values into a regular array.
+
+```javascript
+const result = pipeline.filter(...).map(...).take(10).toArray();
+```
+
+## Lazy Evaluation: The Secret Superpower
+
+The key difference from array methods: **nothing executes until a terminal method is called**.
+
+```javascript
+function* count() {
+  let i = 0;
+  while (true) {
+    console.log('yielding', i);
+    yield i++;
+  }
+}
+
+// This creates the pipeline — but NOTHING logs yet
+const pipeline = count()
+  .filter(n => n % 2 === 0)
+  .map(n => n * 10)
+  .take(3);
+
+// Still nothing logged. The pipeline is just a description.
+
+// NOW it executes — and logs exactly 5 yields to produce 3 even numbers
+const result = pipeline.toArray();
+// yielding 0   ← 0 even, mapped
+// yielding 1   ← filtered out
+// yielding 2   ← 2 even, mapped
+// yielding 3   ← filtered out
+// yielding 4   ← 4 even, mapped — we have 3, stop!
+// result: [0, 20, 40]
+```
+
+Only 5 yields for 3 results. With arrays, every value would be processed through every step.
+
+## Production Pattern: Paginated API Client
+
+```typescript
+async function* paginatedFetch<T>(url: string): AsyncGenerator<T> {
+  let page = 1;
+  let hasMore = true;
+
+  while (hasMore) {
+    const res = await fetch(`${url}?page=${page}&limit=100`);
+    const data = await res.json();
+    for (const item of data.items) yield item;
+    hasMore = data.hasMore;
+    page++;
+  }
+}
+
+// Consume with iterator helpers
+const filtered = Iterator.from(
+  await paginatedFetch<User>('/api/users')
+).filter(u => u.active)
+ .take(500)
+ .map(u => ({ id: u.id, name: u.name }))
+ .toArray();
+```
+
+Memory-efficient even with millions of records — only 500 are held in memory at the end, and the fetch stops once we have enough.
+
+## Production Pattern: DOM Traversal
+
+```typescript
+function* walkDOM(root: Element): Generator<Element> {
+  yield root;
+  for (const child of root.children) {
+    yield* walkDOM(child);
+  }
+}
+
+// Find all buttons with a specific aria-label — lazily, stops at first match
+const button = walkDOM(document.body)
+  .filter(el => el.tagName === 'BUTTON')
+  .find(el => el.getAttribute('aria-label') === 'Submit');
+
+// Find all elements matching a selector, take first 5
+const firstFiveLinks = walkDOM(document.body)
+  .filter(el => el.matches('a[href^="https"]'))
+  .take(5)
+  .toArray();
+```
+
+No more `document.querySelectorAll()` collecting every match when you only need a few.
+
+## Production Pattern: Data Pipeline Composition
+
+```typescript
+// Compose reusable pipeline stages
+const byStatus = (status: string) =>
+  function* <T extends { status: string }>(items: Iterable<T>) {
+    yield* Iterator.from(items).filter(item => item.status === status);
+  };
+
+const topN = <T>(n: number) =>
+  function* (items: Iterable<T>) {
+    yield* Iterator.from(items).take(n);
+  };
+
+const pluck = <T, K extends keyof T>(key: K) =>
+  function* (items: Iterable<T>) {
+    yield* Iterator.from(items).map(item => item[key]);
+  };
+
+// Compose them
+const pipeline = pipe(
+  byStatus('active'),
+  topN(10),
+  pluck('name'),
+);
+
+const names = pipeline(items).toArray();
+```
+
+## Async Iterator Helpers
+
+Async iterators (`for await...of`) get their own parallel set of helpers via `Iterator.from()`:
+
+```typescript
+async function* eventStream(url: string) {
+  const response = await fetch(url);
+  const reader = response.body!.getReader();
+  // ... SSE parsing
+}
+
+const recentEvents = Iterator.from(eventStream('/api/events'))
+  .filter(e => e.severity === 'critical')
+  .take(20)
+  .map(e => e.message);
+```
+
+Async methods return async iterators, and terminal methods return promises.
+
+## Comparison: Array vs Iterator Approaches
+
+| Aspect | Array Methods | Iterator Helpers |
+|--------|--------------|------------------|
+| Intermediate allocations | One new array per method | Zero |
+| Works with infinite iterables | No | Yes |
+| Works with generators | Only after `.toArray()` | Natively |
+| Memory for 100K items, 3-step pipeline | ~300K items allocated | ~100K (only terminal) |
+| Early termination | Process everything | Stop when done |
+| Debuggability | Logs at each step | Logs at yield time |
+
+## Browser Support (May 2026)
+
+Iterator Helpers are shipping:
+
+- **Chrome 131+** — full support
+- **Firefox 137+** — full support  
+- **Safari 26+** — full support
+- **Node.js 22+** — full support
+- **Deno 2.0+** — full support
+- **Bun 1.2+** — full support
+
+For older environments, core-js provides a polyfill:
+
+```bash
+npm install core-js
+```
+
+```javascript
+import 'core-js/proposals/iterator-helpers';
+```
+
+## The One Gotcha: Iterator Exhaustion
+
+Iterators are stateful. Once consumed, they're empty:
+
+```javascript
+const it = [1, 2, 3].values().map(n => n * 2);
+
+it.toArray(); // [2, 4, 6]
+it.toArray(); // [] — exhausted!
+
+// Fix: create fresh iterators or tee them
+```
+
+If you need multiple passes over the same data, either `.toArray()` early or create fresh iterators.
+
+## Takeaway
+
+Iterator Helpers close the gap between the elegant array method chain and the efficiency of lazy iterators. The key insights:
+
+1. **Everything is lazy** — no intermediate arrays, no wasted work
+2. **Works on anything iterable** — generators, Maps, Sets, NodeLists, strings, custom iterators
+3. **`.take()` and `.drop()` are game-changers** for pagination and infinite sequences
+4. **Composable pipelines** — build reusable transformation stages
+5. **Shipping now** — no transpilation needed in modern browsers
+
+The next time you write `.filter().map().slice()` on an array, ask yourself: could this be an iterator pipeline instead?
+
+---
+
+*Want hands-on practice? Try the [Regex Tester](/tools/regex-tester) or [JSON Formatter](/tools/json-formatter) on DevBench — both built with iterator patterns under the hood.*
