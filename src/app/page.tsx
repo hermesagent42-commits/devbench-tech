@@ -1023,6 +1023,13 @@ const featuredTools = [
 ];
 const sampleBlogPosts = [
   {
+    title: 'JavaScript Error Handling in 2026: Error.cause, AggregateError, and Structured Error Patterns',
+    date: '2026-05-31',
+    excerpt: "Modern JavaScript ships powerful error-handling primitives that most developers aren't using: Error.cause for chaining, AggregateError for batching, custom error subclasses with instanceof, and async error propagation. A complete guide to production-grade error handling.",
+    slug: 'javascript-error-handling-2026',
+    tags: ['JavaScript', 'Error Handling', 'Error.cause', 'AggregateError'],
+  },
+  {
     title: 'Build PWAs Faster: The Complete Guide to Manifest.json',
     date: '2026-05-29',
     excerpt: 'Every Progressive Web App starts with a manifest.json — learn every field, best practices for icons, screenshots, shortcuts, and how to make your app installable across all platforms.',

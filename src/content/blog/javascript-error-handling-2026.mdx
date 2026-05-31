@@ -1,0 +1,473 @@
+---
+title: "JavaScript Error Handling in 2026: Error.cause, AggregateError, and Structured Error Patterns"
+date: 2026-05-31
+excerpt: "Modern JavaScript ships powerful error-handling primitives that most developers aren't using: Error.cause for chaining, AggregateError for batching, custom error subclasses with instanceof, and async error propagation. A complete guide to production-grade error handling in 2026 with real-world patterns for APIs, validation, and background workers."
+tags: ["JavaScript", "Error Handling", "Error.cause", "AggregateError", "Patterns", "Async", "Node.js", "TypeScript", "Best Practices", "2026"]
+---
+
+JavaScript error handling has quietly gotten **much** better. `Error.cause` (Baseline 2023), `AggregateError` (ES2021), and a rich ecosystem of patterns mean you can now build error systems that are traceable, composable, and debuggable — without third-party libraries. Yet most codebases still throw raw strings or use `console.error` and call it a day.
+
+Let's fix that. Here's everything you need to know about structured error handling in 2026, from the language primitives to production patterns.
+
+## Error.cause: Chaining Errors with Context
+
+The `cause` property on the `Error` constructor lets you chain errors while preserving the original stack trace and context. If you've ever caught an error, wrapped it, and lost the original — this is for you.
+
+```javascript
+async function fetchUser(id) {
+  try {
+    const response = await fetch(`/api/users/${id}`);
+    if (!response.ok) {
+      throw new Error(`User fetch failed: ${response.status}`, {
+        cause: { status: response.status, id, endpoint: `/api/users/${id}` }
+      });
+    }
+    return response.json();
+  } catch (err) {
+    if (err instanceof TypeError) {
+      throw new Error('Network error fetching user', { cause: err });
+    }
+    throw err;
+  }
+}
+
+try {
+  await fetchUser('usr_123');
+} catch (err) {
+  console.log(err.message);        // "Network error fetching user"
+  console.log(err.cause.message);  // "Failed to fetch" (original TypeError)
+  // Full chain is preserved in err.stack
+}
+```
+
+The `cause` value can be **any JavaScript value** — another error, an object, a string. The browser/Node.js will include it in the stack trace automatically when it's an `Error` instance:
+
+```
+Error: Network error fetching user
+    at fetchUser (api.js:12:13)
+Caused by: TypeError: Failed to fetch
+    at fetchUser (api.js:9:17)
+```
+
+### Real pattern: API layer error enrichment
+
+```javascript
+class APIError extends Error {
+  constructor(message, { status, body, endpoint, cause }) {
+    super(message, { cause });
+    this.name = 'APIError';
+    this.status = status;
+    this.body = body;
+    this.endpoint = endpoint;
+  }
+}
+
+async function apiCall(path, options = {}) {
+  const response = await fetch(`https://api.example.com${path}`, options);
+  const body = await response.json().catch(() => null);
+
+  if (!response.ok) {
+    throw new APIError(`API ${response.status}: ${path}`, {
+      status: response.status,
+      body,
+      endpoint: path,
+      cause: body?.error ? new Error(body.error) : undefined,
+    });
+  }
+
+  return body;
+}
+```
+
+Now every layer in your call stack can inspect the full causal chain without parsing error messages.
+
+## AggregateError: Handling Multiple Failures
+
+`AggregateError` collects multiple errors into one. Essential for batch operations, `Promise.allSettled()`, and validation.
+
+```javascript
+// Promise.allSettled() naturally pairs with AggregateError
+async function loadMultipleResources(urls) {
+  const results = await Promise.allSettled(urls.map(u => fetch(u)));
+
+  const failures = results
+    .filter(r => r.status === 'rejected')
+    .map((r, i) => new Error(`Failed to load ${urls[i]}: ${r.reason.message}`, {
+      cause: r.reason
+    }));
+
+  if (failures.length > 0) {
+    throw new AggregateError(failures, `${failures.length} of ${urls.length} resources failed to load`);
+  }
+
+  return results.map(r => r.value);
+}
+
+try {
+  await loadMultipleResources(['/a.json', '/b.json', '/c.json']);
+} catch (err) {
+  if (err instanceof AggregateError) {
+    console.log(err.message);          // "2 of 3 resources failed to load"
+    for (const e of err.errors) {      // err.errors is the array of sub-errors
+      console.log(' -', e.message);
+    }
+  }
+}
+```
+
+### Pattern: Form validation with AggregateError
+
+```javascript
+function validateUser(data) {
+  const errors = [];
+
+  if (!data.email?.includes('@')) {
+    errors.push(new RangeError('Invalid email', { cause: { field: 'email', value: data.email } }));
+  }
+  if (!data.age || data.age < 13) {
+    errors.push(new RangeError('Must be 13 or older', { cause: { field: 'age', value: data.age } }));
+  }
+  if (!data.username?.match(/^[a-z0-9_]{3,30}$/)) {
+    errors.push(new RangeError('Invalid username format', { cause: { field: 'username', value: data.username } }));
+  }
+
+  if (errors.length > 0) {
+    throw new AggregateError(errors, `Validation failed: ${errors.length} invalid fields`);
+  }
+}
+```
+
+The frontend can iterate `err.errors`, highlight specific fields, and show inline messages — without string parsing.
+
+## Custom Error Classes: instanceof Actually Works
+
+JavaScript errors have a class hierarchy waiting to be used. Stop throwing raw strings.
+
+```javascript
+class AppError extends Error {
+  constructor(message, options = {}) {
+    super(message, options);
+    this.name = this.constructor.name;
+    this.timestamp = new Date().toISOString();
+    this.code = options.code ?? 'UNKNOWN_ERROR';
+    this.severity = options.severity ?? 'error';   // 'warn' | 'error' | 'fatal'
+  }
+
+  toJSON() {
+    return {
+      name: this.name,
+      message: this.message,
+      code: this.code,
+      severity: this.severity,
+      timestamp: this.timestamp,
+      cause: this.cause instanceof Error ? this.cause.message : this.cause,
+    };
+  }
+}
+
+class ValidationError extends AppError {
+  constructor(message, { fields, ...rest } = {}) {
+    super(message, { code: 'VALIDATION_ERROR', severity: 'warn', ...rest });
+    this.fields = fields ?? {};
+  }
+}
+
+class DatabaseError extends AppError {
+  constructor(message, { query, params, ...rest } = {}) {
+    super(message, { code: 'DB_ERROR', severity: 'error', ...rest });
+    this.query = query;
+    this.params = params;
+  }
+}
+
+class AuthError extends AppError {
+  constructor(message, options = {}) {
+    super(message, { code: 'AUTH_ERROR', severity: 'warn', ...options });
+  }
+}
+```
+
+Now you can discriminate errors cleanly:
+
+```javascript
+try {
+  await processRequest(req);
+} catch (err) {
+  if (err instanceof ValidationError) {
+    return res.status(400).json({ errors: err.fields });
+  }
+  if (err instanceof AuthError) {
+    return res.status(401).json({ error: err.message });
+  }
+  if (err instanceof DatabaseError) {
+    logger.error('DB failure', { query: err.query, cause: err.cause });
+    return res.status(500).json({ error: 'Internal server error' });
+  }
+  // Unknown error — don't leak details to client
+  logger.fatal('Unhandled error', { error: err });
+  return res.status(500).json({ error: 'Internal server error' });
+}
+```
+
+### TypeScript bonus: discriminated errors
+
+```typescript
+type AppErrorType = ValidationError | DatabaseError | AuthError | AppError;
+
+function handleError(err: AppErrorType): HTTPResponse {
+  switch (err.code) {
+    case 'VALIDATION_ERROR': return { status: 400, body: (err as ValidationError).fields };
+    case 'DB_ERROR':         return { status: 500, body: 'Internal error' };
+    case 'AUTH_ERROR':       return { status: 401, body: err.message };
+    default:                return { status: 500, body: 'Internal error' };
+  }
+}
+```
+
+## Async Error Propagation: The 4 Patterns That Actually Work
+
+### 1. async/await with try/catch (recommended)
+
+```javascript
+async function handler(req, res) {
+  try {
+    const user = await getUser(req.params.id);
+    const posts = await getPosts(user.id);
+    res.json({ user, posts });
+  } catch (err) {
+    next(err);  // Express-style error middleware
+  }
+}
+```
+
+### 2. .catch() chaining (for pipelines)
+
+```javascript
+function processData(input) {
+  return validateInput(input)
+    .then(normalizeData)
+    .then(enrichData)
+    .catch(err => {
+      if (err instanceof ValidationError) {
+        return { valid: false, reason: err.fields };
+      }
+      throw new AppError('Processing pipeline failed', { cause: err });
+    });
+}
+```
+
+### 3. Error boundaries (React-style, but generalizable)
+
+```javascript
+function withErrorBoundary(fn, fallback) {
+  return async (...args) => {
+    try {
+      return await fn(...args);
+    } catch (err) {
+      logger.error('Boundary caught error', { fn: fn.name, err });
+      return fallback(err, ...args);
+    }
+  };
+}
+
+const safeFetchUser = withErrorBoundary(
+  fetchUser,
+  (err, id) => ({ id, error: true, message: 'User unavailable' })
+);
+```
+
+### 4. EventEmitter / AbortController patterns
+
+```javascript
+const ac = new AbortController();
+
+async function fetchWithTimeout(url, ms) {
+  const timer = setTimeout(() => ac.abort(new Error(`Timeout after ${ms}ms`)), ms);
+  try {
+    const res = await fetch(url, { signal: ac.signal });
+    return res.json();
+  } catch (err) {
+    if (err.name === 'AbortError') {
+      throw new AppError('Request aborted', { cause: ac.signal.reason });
+    }
+    throw err;
+  } finally {
+    clearTimeout(timer);
+  }
+}
+```
+
+## Production Error Logging: What to Capture
+
+A production error object should carry enough context to debug without reproducing the issue. Here's a structured logging pattern:
+
+```javascript
+function createErrorContext(req) {
+  return {
+    requestId: req.headers['x-request-id'] ?? crypto.randomUUID(),
+    userId: req.user?.id,
+    path: req.path,
+    method: req.method,
+    userAgent: req.headers['user-agent'],
+    timestamp: new Date().toISOString(),
+  };
+}
+
+function logError(err, context = {}) {
+  const payload = {
+    name: err.name,
+    message: err.message,
+    code: err.code ?? 'UNKNOWN',
+    severity: err.severity ?? 'error',
+    stack: err.stack,
+    cause: err.cause instanceof Error
+      ? { message: err.cause.message, name: err.cause.name }
+      : err.cause,
+    ...context,
+  };
+
+  // In production, ship this to your observability platform
+  if (typeof window === 'undefined') {
+    // Node.js: structured JSON logging
+    console.error(JSON.stringify(payload));
+  } else {
+    // Browser: send to error tracking service
+    console.error('[AppError]', payload);
+  }
+
+  return payload;
+}
+
+// Usage in Express middleware
+app.use((err, req, res, next) => {
+  const context = createErrorContext(req);
+  const payload = logError(err, context);
+
+  if (err instanceof ValidationError) {
+    return res.status(400).json({ errors: err.fields });
+  }
+  if (err instanceof AuthError) {
+    return res.status(401).json({ error: 'Unauthorized' });
+  }
+
+  // Don't leak internal details
+  res.status(500).json({
+    error: 'Internal server error',
+    requestId: payload.requestId,
+  });
+});
+```
+
+## The Error Hierarchy Pattern
+
+Structure your errors in a tree. This makes catch clauses precise and logging consistent:
+
+```
+Error
+└── AppError (base class for your app)
+    ├── ValidationError (400)
+    ├── AuthError (401)
+    ├── ForbiddenError (403)
+    ├── NotFoundError (404)
+    ├── ConflictError (409)
+    ├── RateLimitError (429)
+    ├── DatabaseError (500)
+    └── ExternalServiceError (502/504)
+```
+
+```javascript
+class NotFoundError extends AppError {
+  constructor(resource, id) {
+    super(`${resource} not found: ${id}`, {
+      code: 'NOT_FOUND',
+      severity: 'warn',
+      cause: { resource, id },
+    });
+  }
+}
+
+class RateLimitError extends AppError {
+  constructor({ retryAfter, limit, remaining }) {
+    super('Rate limit exceeded', {
+      code: 'RATE_LIMITED',
+      severity: 'warn',
+      cause: { retryAfter, limit, remaining },
+    });
+    this.retryAfter = retryAfter;
+  }
+}
+```
+
+Now your HTTP layer becomes a straightforward map:
+
+```javascript
+const ERROR_STATUS_MAP = new Map([
+  [ValidationError, 400],
+  [AuthError, 401],
+  [ForbiddenError, 403],
+  [NotFoundError, 404],
+  [ConflictError, 409],
+  [RateLimitError, 429],
+]);
+
+function errorToResponse(err) {
+  for (const [ErrorClass, status] of ERROR_STATUS_MAP) {
+    if (err instanceof ErrorClass) {
+      return { status, body: err.toJSON() };
+    }
+  }
+  return { status: 500, body: { error: 'Internal server error' } };
+}
+```
+
+## The One Thing Most Teams Get Wrong
+
+The most common anti-pattern: **catching too broadly and swallowing errors**.
+
+```javascript
+// ❌ BAD: swallows all errors, loses context
+try {
+  await processOrder(order);
+} catch (err) {
+  console.log('Order failed');
+  // Order is silently dropped. No retry. No alert.
+}
+
+// ✅ GOOD: specific handling with escalation
+try {
+  await processOrder(order);
+} catch (err) {
+  if (err instanceof ValidationError) {
+    notifyCustomer(order.userId, 'Please correct your order', err.fields);
+    return;
+  }
+  if (err instanceof PaymentError) {
+    await retryPayment(order, err.cause);
+    return;
+  }
+  // Unknown errors: escalate loudly
+  logError(err, { orderId: order.id, severity: 'fatal' });
+  await alertOnCall(`Order ${order.id} failed with unknown error`, err);
+}
+```
+
+The rule: **only catch errors you can handle**. If you can't meaningfully recover, let them propagate to a top-level boundary.
+
+## Quick Reference: Error API Cheatsheet
+
+| API | When to Use | Example |
+|-----|------------|---------|
+| `new Error(msg, { cause })` | Wrapping errors with context | `throw new Error('API fail', { cause: fetchErr })` |
+| `AggregateError(errors, msg)` | Multiple failures at once | `Promise.allSettled()` results, batch validation |
+| `err.cause` | Inspecting the origin error | `err.cause.message` or `err.cause.status` |
+| `err.stack` | Debugging — contains `Caused by:` chain | Log in development, strip in production |
+| `instanceof` | Discriminating error types | `err instanceof ValidationError` |
+| Custom `Error` subclasses | Domain-specific errors | `class PaymentError extends AppError` |
+| `err.toJSON()` | Structured serialization | API responses, payload logging |
+| `AbortController.signal.reason` | Cancellation reason | `err.cause === signal.reason` |
+
+## Conclusion
+
+JavaScript's error handling primitives have matured. `Error.cause` gives you causal chains without losing context. `AggregateError` handles batch failures cleanly. Custom error classes with `instanceof` eliminate fragile string matching. And a consistent error hierarchy makes your entire stack debuggable.
+
+The key shift: **treat errors as data, not strings**. Structure them, type them, chain them. Your future self debugging a production incident at 3 AM will thank you.
