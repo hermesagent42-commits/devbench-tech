@@ -1,0 +1,255 @@
+---
+title: "TypeScript Patterns That Ship Faster Code — Advanced Types You'll Actually Use"
+date: "2026-05-31"
+excerpt: "Move beyond basic interfaces. Branded types, template literal magic, discriminated unions, and the patterns that make TypeScript work for you instead of fighting you."
+tags: ["typescript", "patterns", "type-system", "productivity"]
+---
+
+## Stop Writing `any` — Start Writing Types That Enforce Correctness
+
+TypeScript is everywhere. But most developers use about 20% of its type system. They write interfaces, sprinkle in some generics, and fall back to `as any` when things get tricky. That's leaving a massive productivity multiplier on the table.
+
+This post covers the TypeScript patterns that separate "it compiles" from "it's correct" — patterns that catch bugs at compile time, make refactoring fearless, and serve as living documentation.
+
+## 1. Branded Types — When `string` Isn't Enough
+
+A user ID and a session ID are both strings. But passing a user ID to a function expecting a session ID is a bug. Branded types prevent this.
+
+```typescript
+type UserId = string & { readonly __brand: 'UserId' };
+type SessionId = string & { readonly __brand: 'SessionId' };
+
+function createUser(id: UserId) { /* ... */ }
+function createSession(userId: UserId): SessionId {
+  return `${userId}-session-${Date.now()}` as SessionId;
+}
+
+const userId = 'usr_abc123' as UserId;
+const sessionId = createSession(userId);
+
+createUser(sessionId); // ❌ Error: SessionId is not UserId
+```
+
+This pattern costs nothing at runtime (it's erased) but prevents entire categories of argument-swapping bugs. Use it for IDs, tokens, URLs, and any domain string that has a specific meaning.
+
+## 2. Template Literal Types — Parse Strings at the Type Level
+
+Template literal types let you model string patterns in the type system. Instead of validating at runtime, you get autocomplete and compile-time errors.
+
+```typescript
+type HttpMethod = 'GET' | 'POST' | 'PUT' | 'DELETE';
+type ApiRoute = `/${string}`;
+type Endpoint = `${HttpMethod} ${ApiRoute}`;
+
+function fetchEndpoint(endpoint: Endpoint) {
+  // endpoint is guaranteed to match the pattern
+}
+
+fetchEndpoint('GET /users');       // ✅
+fetchEndpoint('POST /users');      // ✅
+fetchEndpoint('FETCH /users');     // ❌ Type error
+fetchEndpoint('GET users');        // ❌ Missing slash
+```
+
+Real-world example — CSS unit types:
+
+```typescript
+type CSSUnit = 'px' | 'rem' | 'em' | 'vh' | 'vw' | '%';
+type CSSValue = `${number}${CSSUnit}`;
+
+function setWidth(value: CSSValue) { /* ... */ }
+
+setWidth('100px');   // ✅
+setWidth('2.5rem');  // ✅
+setWidth('100');     // ❌ Missing unit
+setWidth('10ch');    // ❌ 'ch' not in CSSUnit
+```
+
+Combine with conditional types for even more power:
+
+```typescript
+type EventName = `on${Capitalize<string>}`;
+
+type EventHandler<E extends EventName> = 
+  E extends `on${infer Name}` ? `handle${Name}` : never;
+
+type ClickHandler = EventHandler<'onClick'>; // 'handleClick'
+type ChangeHandler = EventHandler<'onChange'>; // 'handleChange'
+```
+
+## 3. Discriminated Unions — The Pattern That Replaces `switch(true)`
+
+Instead of a bag of optional properties, use a discriminant property to narrow the type.
+
+```typescript
+// ❌ Bad — nothing prevents impossible states
+type ApiState = {
+  loading: boolean;
+  data?: Data;
+  error?: Error;
+};
+
+// ✅ Good — only valid states are representable
+type ApiState =
+  | { status: 'idle' }
+  | { status: 'loading' }
+  | { status: 'success'; data: Data }
+  | { status: 'error'; error: Error };
+
+function render(state: ApiState) {
+  switch (state.status) {
+    case 'idle':     return <Empty />;
+    case 'loading':  return <Spinner />;
+    case 'success':  return <List data={state.data} />;  // data is non-nullable
+    case 'error':    return <ErrorBanner error={state.error} />; // error is non-nullable
+  }
+}
+```
+
+For event-driven systems, discriminated unions on `type` fields are the standard:
+
+```typescript
+type AppEvent =
+  | { type: 'USER_LOGIN'; userId: string; timestamp: number }
+  | { type: 'ITEM_ADDED'; itemId: string; quantity: number }
+  | { type: 'CHECKOUT'; cartId: string; paymentMethod: 'card' | 'paypal' };
+
+function handleEvent(event: AppEvent) {
+  switch (event.type) {
+    case 'USER_LOGIN':
+      // event.userId is string, event.quantity doesn't exist
+      trackLogin(event.userId, event.timestamp);
+      break;
+    case 'ITEM_ADDED':
+      // TypeScript knows event.itemId and event.quantity exist
+      updateCart(event.itemId, event.quantity);
+      break;
+  }
+}
+```
+
+## 4. The `satisfies` Operator — Type-Check Without Widening
+
+Introduced in TypeScript 4.9, `satisfies` checks that a value conforms to a type without changing its inferred type. This preserves literal types and `const`-like narrowing.
+
+```typescript
+// ❌ With type annotation, 'red' becomes string
+const colors: Record<string, string> = {
+  primary: 'red',
+  secondary: 'blue',
+};
+colors.primary.toUpperCase(); // ✅ works, but we lost literal info
+
+// ✅ With satisfies, 'red' stays as 'red'
+const colors = {
+  primary: 'red',
+  secondary: 'blue',
+} satisfies Record<string, string>;
+
+type PrimaryColor = typeof colors.primary; // 'red' — not string!
+```
+
+The killer use case: defining a config object and deriving its type simultaneously:
+
+```typescript
+const routes = {
+  home: '/',
+  about: '/about',
+  blog: '/blog/[slug]',
+  api: '/api/v1',
+} satisfies Record<string, string>;
+
+// Type is exactly the object shape, but validated
+type Route = keyof typeof routes; // 'home' | 'about' | 'blog' | 'api'
+
+function navigate(route: Route) {
+  window.location.href = routes[route];
+}
+```
+
+## 5. `as const` — Freeze Your Data Into Its Most Specific Type
+
+`as const` tells TypeScript: treat this as deeply immutable and infer the narrowest possible types.
+
+```typescript
+const statuses = ['active', 'inactive', 'pending'] as const;
+type Status = typeof statuses[number]; // 'active' | 'inactive' | 'pending'
+
+const config = {
+  api: { baseUrl: 'https://api.devbench.com', version: 2 },
+  features: { darkMode: true, analytics: false },
+} as const;
+
+// All deeply readonly and literal
+config.api.version; // 2 (not number)
+config.features.darkMode; // true (not boolean)
+```
+
+This pairs beautifully with `keyof` and indexed access types:
+
+```typescript
+const FONTS = {
+  heading: ['Inter', 'sans-serif'],
+  body: ['Georgia', 'serif'],
+  mono: ['JetBrains Mono', 'monospace'],
+} as const;
+
+type FontFamily = keyof typeof FONTS; // 'heading' | 'body' | 'mono'
+type FontStack = typeof FONTS[FontFamily]; // readonly [string, string]
+```
+
+## 6. The `NoInfer<T>` Utility — Prevent Inference Contamination
+
+TypeScript 5.4 introduced `NoInfer<T>`. It prevents a type parameter from being inferred from a particular position:
+
+```typescript
+declare function createSelect<
+  TOption extends string
+>(
+  options: TOption[],
+  defaultValue: NoInfer<TOption>,
+): void;
+
+// Without NoInfer, this would infer TOption as 'a' | 'b' | 'default'
+// With NoInfer, defaultValue doesn't contribute to inference
+createSelect(['a', 'b', 'c'], 'a');    // ✅ TOption is 'a' | 'b' | 'c'
+createSelect(['a', 'b', 'c'], 'd');    // ❌ 'd' is not in TOption
+```
+
+## 7. Exhaustiveness Checking — Never Miss a Case
+
+TypeScript's `never` type is the secret weapon for ensuring you handle every variant:
+
+```typescript
+function assertNever(value: never): never {
+  throw new Error(`Unexpected value: ${value}`);
+}
+
+type Shape =
+  | { kind: 'circle'; radius: number }
+  | { kind: 'square'; side: number }
+  | { kind: 'triangle'; base: number; height: number };
+
+function area(shape: Shape): number {
+  switch (shape.kind) {
+    case 'circle':   return Math.PI * shape.radius ** 2;
+    case 'square':   return shape.side ** 2;
+    case 'triangle': return (shape.base * shape.height) / 2;
+    default:         return assertNever(shape); // ✅ Compiler ensures exhaustiveness
+  }
+}
+
+// Later, when someone adds { kind: 'rectangle'; width: number; height: number }
+// to the Shape union, the default case will produce a type error:
+// "Argument of type '{ kind: "rectangle"; ... }' is not assignable to parameter of type 'never'"
+```
+
+## The Payoff
+
+These patterns share a philosophy: **make invalid states unrepresentable**. When your types encode business rules, the compiler becomes your first reviewer. It catches swapped arguments, missing cases, and impossible states before they reach production.
+
+The best part? All of these patterns compile to zero runtime overhead. They're erased, leaving only the logic that matters. That's TypeScript at its best — maximum safety, minimum cost.
+
+---
+
+*DevBench has tools that complement your TypeScript workflow: the [JSON to TypeScript converter](/tools/json-to-typescript) for generating interfaces from API responses, the [Regex Tester](/tools/regex-tester) for building type-safe validation patterns, and the [JSON Schema generator](/tools/json-schema-generator) for creating runtime validators from your types.*
