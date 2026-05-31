@@ -280,6 +280,13 @@ const featuredTools = [
     tags: ['Favicon', 'Icon', 'Design', 'Canvas'],
   },
   {
+    title: 'Placeholder Image Generator',
+    description: 'Generate custom placeholder images for mockups — set dimensions, colors, text, and download as PNG/JPEG/WebP. 12 presets, copy as data URL, HTML, or CSS.',
+    href: '/tools/placeholder-image-generator',
+    icon: Image,
+    tags: ['Placeholder', 'Image', 'Mockup', 'Canvas', 'Design'],
+  },
+  {
     title: 'SQL Formatter',
     description: 'Format, beautify, and minify SQL queries with syntax highlighting. Supports MySQL, PostgreSQL, SQLite and more.',
     href: '/tools/sql-formatter',
