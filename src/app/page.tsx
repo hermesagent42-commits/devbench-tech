@@ -1020,6 +1020,13 @@ const featuredTools = [
     icon: Shield,
     tags: ['Chmod', 'Permissions', 'Linux', 'Unix'],
   },
+  {
+    title: 'CSS Subgrid Playground',
+    description: 'Visually build CSS subgrid layouts — align nested grid items to parent tracks. 6 presets, live preview, and instant CSS output. Baseline 2024 across all browsers.',
+    href: '/tools/css-subgrid-playground',
+    icon: Grid3X3,
+    tags: ['CSS', 'Subgrid', 'Layout', 'Baseline 2024'],
+  },
 ];
 const sampleBlogPosts = [
   {
