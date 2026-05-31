@@ -95,6 +95,7 @@ import {
   Repeat,
   RefreshCw,
   Slash,
+  Printer,
 } from 'lucide-react';
 
 export const metadata: Metadata = {
@@ -817,6 +818,13 @@ const allTools = [
     href: '/tools/csv-viewer',
     icon: FileSpreadsheet,
     tags: ['CSV', 'Table', 'Editor', 'Data', 'Spreadsheet'],
+  },
+  {
+    title: 'CSS Print Stylesheet Generator',
+    description: 'Build production-ready @media print stylesheets. Configure @page rules, page breaks, link display, typography, and hidden elements — live preview and one-click CSS copy.',
+    href: '/tools/css-print-generator',
+    icon: Printer,
+    tags: ['CSS', 'Print', '@media', '@page', 'Stylesheet'],
   },
   {
     title: 'CSS Popover API Playground',
