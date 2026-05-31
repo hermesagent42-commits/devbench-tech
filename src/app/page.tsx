@@ -1027,6 +1027,13 @@ const featuredTools = [
     icon: Grid3X3,
     tags: ['CSS', 'Subgrid', 'Layout', 'Baseline 2024'],
   },
+  {
+    title: 'HTML Playground',
+    description: 'Live HTML, CSS & JS code editor with instant preview. Prototype ideas, test snippets, and experiment — all in your browser with templates to get started.',
+    href: '/tools/html-playground',
+    icon: Code2,
+    tags: ['HTML', 'CSS', 'JavaScript', 'Playground', 'Editor'],
+  },
 ];
 const sampleBlogPosts = [
   {
