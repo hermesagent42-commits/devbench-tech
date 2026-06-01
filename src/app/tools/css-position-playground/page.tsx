@@ -2,596 +2,570 @@
 
 import { useState, useCallback, useMemo } from 'react';
 import { ToolLayout } from '@/components/ToolLayout';
-import { Copy, RotateCcw, MoveHorizontal, MoveVertical, ArrowUp, ArrowDown, ArrowLeft, ArrowRight } from 'lucide-react';
+import { Copy, RotateCcw, Layers, Eye, ArrowUpDown, Crosshair, Move } from 'lucide-react';
 import toast from 'react-hot-toast';
+
+// ── Types ──────────────────────────────────────────────────────────────────
 
 type PositionValue = 'static' | 'relative' | 'absolute' | 'fixed' | 'sticky';
 
-interface ParentConfig {
-  width: number;
-  height: number;
-  padding: number;
-  overflowEnabled: boolean;
-}
-
-interface ChildConfig {
-  width: number;
-  height: number;
+interface PositionConfig {
+  position: PositionValue;
   top: number;
   right: number;
   bottom: number;
   left: number;
-  position: PositionValue;
   zIndex: number;
-  opacity: number;
 }
 
-const POSITION_INFO: Record<PositionValue, { title: string; description: string; icon: string }> = {
-  static: {
-    title: 'Static',
-    description: 'Default. Element flows normally in the document. top/right/bottom/left and z-index have no effect.',
-    icon: '📄',
-  },
-  relative: {
-    title: 'Relative',
-    description: 'Positioned relative to its normal position. Offset with top/right/bottom/left. Other content still occupies the original space.',
-    icon: '📌',
-  },
-  absolute: {
-    title: 'Absolute',
-    description: 'Removed from normal flow. Positioned relative to the nearest positioned ancestor (or initial containing block). No space reserved.',
-    icon: '🎯',
-  },
-  fixed: {
-    title: 'Fixed',
-    description: 'Removed from normal flow. Positioned relative to the viewport. Stays in place during scrolling. No space reserved.',
-    icon: '📍',
-  },
-  sticky: {
-    title: 'Sticky',
-    description: 'Hybrid of relative and fixed. Scrolls normally until it hits a threshold, then sticks. Requires a top/right/bottom/left value.',
-    icon: '🧲',
-  },
-};
+interface Preset {
+  name: string;
+  description: string;
+  config: PositionConfig;
+  html: string;
+  containerCss: string;
+  tooltip: string;
+}
 
-const POSITION_COLORS: Record<PositionValue, string> = {
-  static: '#94a3b8',
-  relative: '#38bdf8',
-  absolute: '#f43f5e',
-  fixed: '#22c55e',
-  sticky: '#f59e0b',
-};
+// ── Presets ────────────────────────────────────────────────────────────────
 
-const PRESETS = [
+const PRESETS: Preset[] = [
   {
-    name: 'Default (Static)',
-    child: { position: 'static' as PositionValue, top: 0, right: 0, bottom: 0, left: 0, zIndex: 0, width: 120, height: 80, opacity: 1 },
-    parent: { width: 500, height: 350, padding: 24, overflowEnabled: true },
+    name: 'Static (Default)',
+    description: 'Element flows normally in document. Offsets & z-index have no effect.',
+    config: { position: 'static', top: 0, right: 0, bottom: 0, left: 0, zIndex: 0 },
+    html: 'I am static',
+    containerCss: 'position: relative; border: 2px dashed #64748b; padding: 24px; height: 200px;',
+    tooltip: 'position: static is the default for every element. Top/right/bottom/left and z-index are ignored.',
   },
   {
     name: 'Relative Offset',
-    child: { position: 'relative' as PositionValue, top: 40, right: 0, bottom: 0, left: 60, zIndex: 5, width: 120, height: 80, opacity: 1 },
-    parent: { width: 500, height: 350, padding: 24, overflowEnabled: true },
+    description: 'Element stays in flow but offsets from its original position. Other elements still "see" the original spot.',
+    config: { position: 'relative', top: -20, right: 0, bottom: 0, left: 40, zIndex: 1 },
+    html: 'relative →',
+    containerCss: 'position: relative; border: 2px dashed #64748b; padding: 24px; height: 200px;',
+    tooltip: 'position: relative offsets the element from its normal position without affecting surrounding layout. The space it would occupy is preserved.',
   },
   {
-    name: 'Absolute Corner',
-    child: { position: 'absolute' as PositionValue, top: 0, right: 0, bottom: 0, left: 0, zIndex: 10, width: 100, height: 100, opacity: 0.9 },
-    parent: { width: 500, height: 350, padding: 24, overflowEnabled: false },
+    name: 'Absolute Anchored',
+    description: 'Removed from flow, positioned relative to nearest positioned ancestor (the dashed container).',
+    config: { position: 'absolute', top: 16, right: 16, bottom: 0, left: 0, zIndex: 2 },
+    html: 'ABS',
+    containerCss: 'position: relative; border: 2px dashed #64748b; padding: 24px; height: 200px;',
+    tooltip: 'position: absolute removes the element from the normal flow. It positions relative to the nearest positioned ancestor (position ≠ static). The container here has position: relative — so the box anchors to it.',
+  },
+  {
+    name: 'Absolute Centered',
+    description: 'The classic centering trick — all edges at 0 + margin auto on a sized element.',
+    config: { position: 'absolute', top: 0, right: 0, bottom: 0, left: 0, zIndex: 2 },
+    html: 'CENTER',
+    containerCss: 'position: relative; border: 2px dashed #64748b; padding: 24px; height: 200px;',
+    tooltip: 'Setting all four sides to 0 and then using margin: auto centers absolutely positioned elements of known dimensions. A classic CSS centering pattern.',
   },
   {
     name: 'Fixed Badge',
-    child: { position: 'fixed' as PositionValue, top: 16, right: 16, bottom: 0, left: 0, zIndex: 999, width: 60, height: 60, opacity: 0.95 },
-    parent: { width: 500, height: 350, padding: 24, overflowEnabled: true },
+    description: 'Fixed to the viewport — scrolls with the user. Perfect for cookie notices, chat widgets, or nav.',
+    config: { position: 'fixed', top: 16, right: 16, bottom: 0, left: 0, zIndex: 100 },
+    html: '🔔',
+    containerCss: 'position: relative; border: 2px dashed #64748b; padding: 24px; height: 200px; overflow-y: auto;',
+    tooltip: 'position: fixed removes the element from flow and positions it relative to the browser viewport. It stays in place even when the page scrolls.',
   },
   {
     name: 'Sticky Header',
-    child: { position: 'sticky' as PositionValue, top: 0, right: 0, bottom: 0, left: 0, zIndex: 20, width: 120, height: 50, opacity: 1 },
-    parent: { width: 500, height: 350, padding: 24, overflowEnabled: true },
+    description: 'Scrolls normally until reaching the edge, then "sticks." Essential for sticky headers.',
+    config: { position: 'sticky', top: 0, right: 0, bottom: 0, left: 0, zIndex: 10 },
+    html: '📌 Sticky! Scroll the container ↓',
+    containerCss: 'position: relative; border: 2px dashed #64748b; padding: 0; height: 200px; overflow-y: auto;',
+    tooltip: 'position: sticky toggles between relative and fixed based on scroll position. The element scrolls normally until it hits the defined edge, then sticks. Requires a scrollable ancestor.',
+  },
+  {
+    name: 'Overlapping Cards',
+    description: 'Use relative + z-index to layer elements — each card offset slightly from the last.',
+    config: { position: 'relative', top: -10, right: 0, bottom: 0, left: 20, zIndex: 5 },
+    html: 'Card →',
+    containerCss: 'position: relative; border: 2px dashed #64748b; padding: 24px; height: 200px; display: flex; align-items: center; gap: 8px;',
+    tooltip: 'Combining relative positioning with z-index lets you create layered, overlapping interfaces — cards, avatars, or timelines.',
+  },
+  {
+    name: 'Tooltip / Popover',
+    description: 'Absolute child inside a relative parent — the go-to pattern for tooltips, dropdowns, and popovers.',
+    config: { position: 'absolute', top: -8, right: -8, bottom: 0, left: 0, zIndex: 50 },
+    html: '💡',
+    containerCss: 'position: relative; border: 2px dashed #64748b; padding: 24px; height: 200px;',
+    tooltip: 'Place a relative container, then put an absolute child inside it. Offsets are relative to the container — this is how every tooltip library works under the hood.',
   },
 ];
 
-function generateCSS(child: ChildConfig, parent: ParentConfig): string {
-  const parentLines = [
-    '.parent {',
-    `  width: ${parent.width}px;`,
-    `  height: ${parent.height}px;`,
-    `  padding: ${parent.padding}px;`,
-  ];
-  if (child.position === 'absolute' || child.position === 'sticky') {
-    parentLines.push('  position: relative;');
-  }
-  if (parent.overflowEnabled) {
-    parentLines.push('  overflow: auto;');
-  }
-  parentLines.push('}');
+// ── Offset slider component ────────────────────────────────────────────────
 
-  const childLines = [
-    '',
-    '.child {',
-    `  position: ${child.position};`,
-    `  width: ${child.width}px;`,
-    `  height: ${child.height}px;`,
-  ];
-
-  if (child.position !== 'static') {
-    childLines.push(`  top: ${child.top}px;`);
-    childLines.push(`  right: ${child.right}px;`);
-    childLines.push(`  bottom: ${child.bottom}px;`);
-    childLines.push(`  left: ${child.left}px;`);
-    childLines.push(`  z-index: ${child.zIndex};`);
-  }
-
-  if (child.opacity < 1) {
-    childLines.push(`  opacity: ${child.opacity};`);
-  }
-
-  childLines.push('}');
-
-  return [...parentLines, ...childLines].join('\n');
+function OffsetSlider({
+  label,
+  value,
+  onChange,
+  disabled,
+}: {
+  label: string;
+  value: number;
+  onChange: (v: number) => void;
+  disabled: boolean;
+}) {
+  return (
+    <div className="flex items-center gap-2">
+      <span className="text-xs font-mono text-slate-400 w-10 text-right">{label}</span>
+      <input
+        type="range"
+        min={-200}
+        max={200}
+        value={value}
+        onChange={(e) => onChange(Number(e.target.value))}
+        disabled={disabled}
+        className="flex-1 h-1.5 bg-slate-700 rounded-full appearance-none cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed
+          [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-brand-400 [&::-webkit-slider-thumb]:cursor-pointer
+          disabled:[&::-webkit-slider-thumb]:cursor-not-allowed"
+      />
+      <span className="text-xs font-mono text-slate-300 w-10">{value}px</span>
+    </div>
+  );
 }
 
-export default function CssPositionPlaygroundPage() {
-  const [child, setChild] = useState<ChildConfig>({
-    position: 'relative',
-    top: 40,
-    right: 0,
-    bottom: 0,
-    left: 60,
-    zIndex: 5,
-    width: 120,
-    height: 80,
-    opacity: 1,
-  });
+// ── Z-index slider ─────────────────────────────────────────────────────────
 
-  const [parent, setParent] = useState<ParentConfig>({
-    width: 500,
-    height: 350,
-    padding: 24,
-    overflowEnabled: true,
-  });
+function ZIndexSlider({
+  value,
+  onChange,
+  disabled,
+}: {
+  value: number;
+  onChange: (v: number) => void;
+  disabled: boolean;
+}) {
+  return (
+    <div className="flex items-center gap-2">
+      <span className="text-xs font-mono text-slate-400 w-12">z-index</span>
+      <input
+        type="range"
+        min={-10}
+        max={100}
+        value={value}
+        onChange={(e) => onChange(Number(e.target.value))}
+        disabled={disabled}
+        className="flex-1 h-1.5 bg-slate-700 rounded-full appearance-none cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed
+          [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-amber-400 [&::-webkit-slider-thumb]:cursor-pointer
+          disabled:[&::-webkit-slider-thumb]:cursor-not-allowed"
+      />
+      <span className="text-xs font-mono text-slate-300 w-8">{value}</span>
+    </div>
+  );
+}
 
-  const [copiedLabel, setCopiedLabel] = useState<string | null>(null);
+// ── Position button ────────────────────────────────────────────────────────
 
-  const applyPreset = useCallback((preset: typeof PRESETS[number]) => {
-    setChild({ ...preset.child });
-    setParent({ ...preset.parent });
+const POSITIONS: { value: PositionValue; label: string; icon: string }[] = [
+  { value: 'static', label: 'Static', icon: '⬜' },
+  { value: 'relative', label: 'Relative', icon: '↔️' },
+  { value: 'absolute', label: 'Absolute', icon: '🎯' },
+  { value: 'fixed', label: 'Fixed', icon: '📌' },
+  { value: 'sticky', label: 'Sticky', icon: '🧲' },
+];
+
+// ── CSS Generator ──────────────────────────────────────────────────────────
+
+function generateCSS(config: PositionConfig, html: string): string {
+  const lines: string[] = [];
+  lines.push('.positioned-box {');
+  lines.push(`  position: ${config.position};`);
+  if (config.position !== 'static') {
+    if (config.top !== 0) lines.push(`  top: ${config.top}px;`);
+    if (config.right !== 0) lines.push(`  right: ${config.right}px;`);
+    if (config.bottom !== 0) lines.push(`  bottom: ${config.bottom}px;`);
+    if (config.left !== 0) lines.push(`  left: ${config.left}px;`);
+    if (config.zIndex !== 0) lines.push(`  z-index: ${config.zIndex};`);
+  }
+  lines.push('}');
+  if (config.position === 'absolute' && config.top === 0 && config.right === 0 && config.bottom === 0 && config.left === 0) {
+    lines.push('');
+    lines.push('/* Classic centering trick — add to .positioned-box: */');
+    lines.push('/* margin: auto; */');
+    lines.push('/* width: fit-content; */');
+    lines.push('/* height: fit-content; */');
+  }
+  return lines.join('\n');
+}
+
+// ── Main component ─────────────────────────────────────────────────────────
+
+export default function CSSPositionPlayground() {
+  const [config, setConfig] = useState<PositionConfig>(PRESETS[0].config);
+  const [html, setHtml] = useState(PRESETS[0].html);
+  const [selectedPreset, setSelectedPreset] = useState(0);
+  const [cssView, setCssView] = useState(false);
+  const [tooltip, setTooltip] = useState(PRESETS[0].tooltip);
+
+  const isStatic = config.position === 'static';
+
+  const updateConfig = useCallback((partial: Partial<PositionConfig>) => {
+    setConfig((prev) => ({
+      ...prev,
+      ...partial,
+      ...(partial.position === 'static' ? { top: 0, right: 0, bottom: 0, left: 0, zIndex: 0 } : {}),
+    }));
+  }, []);
+
+  const applyPreset = useCallback((idx: number) => {
+    const preset = PRESETS[idx];
+    setConfig(preset.config);
+    setHtml(preset.html);
+    setSelectedPreset(idx);
+    setTooltip(preset.tooltip);
   }, []);
 
   const reset = useCallback(() => {
-    setChild({
-      position: 'static',
-      top: 0,
-      right: 0,
-      bottom: 0,
-      left: 0,
-      zIndex: 0,
-      width: 120,
-      height: 80,
-      opacity: 1,
-    });
-    setParent({
-      width: 500,
-      height: 350,
-      padding: 24,
-      overflowEnabled: true,
-    });
-  }, []);
+    applyPreset(0);
+  }, [applyPreset]);
 
-  const updateChild = useCallback(
-    <K extends keyof ChildConfig>(key: K, value: ChildConfig[K]) => {
-      setChild((prev) => ({ ...prev, [key]: value }));
-    },
-    [],
-  );
+  const cssOutput = useMemo(() => generateCSS(config, html), [config, html]);
 
-  const updateParent = useCallback(
-    <K extends keyof ParentConfig>(key: K, value: ParentConfig[K]) => {
-      setParent((prev) => ({ ...prev, [key]: value }));
-    },
-    [],
-  );
-
-  const cssOutput = useMemo(() => generateCSS(child, parent), [child, parent]);
-
-  const copyCSS = useCallback(() => {
-    navigator.clipboard.writeText(cssOutput).then(
-      () => {
-        setCopiedLabel('CSS');
-        setTimeout(() => setCopiedLabel(null), 1500);
-        toast.success('CSS copied!');
-      },
-      () => toast.error('Failed to copy'),
-    );
+  const handleCopy = useCallback(() => {
+    navigator.clipboard.writeText(cssOutput);
+    toast.success('CSS copied!');
   }, [cssOutput]);
 
-  const info = POSITION_INFO[child.position];
-  const color = POSITION_COLORS[child.position];
-
-  const childStyle: React.CSSProperties = {
-    position: child.position as React.CSSProperties['position'],
-    width: child.width,
-    height: child.height,
-    backgroundColor: color,
-    zIndex: child.zIndex,
-    opacity: child.opacity,
-    borderRadius: 8,
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    transition: 'all 0.3s ease',
-    fontWeight: 600,
-    fontSize: 13,
-    color: '#0f172a',
-    boxShadow: '0 4px 12px ' + color + '40',
-    border: '2px solid ' + color,
-    cursor: 'default',
-    userSelect: 'none',
-  };
-
-  if (child.position !== 'static') {
-    childStyle.top = child.top;
-    childStyle.right = child.right;
-    childStyle.bottom = child.bottom;
-    childStyle.left = child.left;
-  }
-
-  const parentStyle: React.CSSProperties = {
-    width: parent.width,
-    height: parent.height,
-    padding: parent.padding,
-    overflow: parent.overflowEnabled ? 'auto' : 'visible',
-    backgroundColor: '#1e293b',
-    borderRadius: 12,
-    border: '2px dashed #475569',
-    position: (child.position === 'absolute' || child.position === 'sticky') ? 'relative' : 'static',
-    transition: 'all 0.3s ease',
-  };
+  // ── Box display styles ───────────────────────────────────────────────────
+  const isSmallBox = html === '🔔' || html === '💡';
+  const boxSize = config.position === 'absolute' && config.top === 0 && config.right === 0 && config.bottom === 0 && config.left === 0
+    ? { width: 'fit-content' as const, height: 'fit-content' as const, margin: 'auto' as const }
+    : isSmallBox
+      ? { width: '36px' as const, height: '36px' as const }
+      : { width: 'auto' as const, height: 'auto' as const };
 
   return (
     <ToolLayout
       title="CSS Position Playground"
-      description="Visually experiment with CSS position values — static, relative, absolute, fixed, and sticky. See how each one behaves in real-time with interactive controls."
+      description="Visually learn and experiment with all 5 CSS position values — static, relative, absolute, fixed, and sticky. Adjust offsets, z-index, and see exactly how each value changes layout behavior."
     >
-      <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
-        {/* LEFT: Controls */}
-        <div className="xl:col-span-1 space-y-4">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* ── Controls ──────────────────────────────────────────────────── */}
+        <div className="lg:col-span-1 space-y-5">
           {/* Position selector */}
-          <div className="card">
-            <h3 className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3">
+          <div className="bg-slate-800/50 border border-slate-700 rounded-xl p-4 space-y-3">
+            <div className="flex items-center gap-2 text-sm font-medium text-slate-300">
+              <Move className="w-4 h-4 text-brand-400" />
               Position Value
-            </h3>
-            <div className="space-y-1.5">
-              {(Object.keys(POSITION_INFO) as PositionValue[]).map((pos) => (
+            </div>
+            <div className="grid grid-cols-2 gap-2">
+              {POSITIONS.map((pos) => (
                 <button
-                  key={pos}
-                  onClick={() => updateChild('position', pos)}
-                  className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-left text-sm font-medium transition-all ${
-                    child.position === pos
-                      ? 'bg-brand-500/15 text-white border border-brand-500/30 shadow-sm'
-                      : 'text-slate-400 hover:text-slate-200 hover:bg-surface border border-transparent'
+                  key={pos.value}
+                  onClick={() => updateConfig({ position: pos.value })}
+                  className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium transition-all border ${
+                    config.position === pos.value
+                      ? 'bg-brand-500/10 border-brand-400/30 text-brand-400'
+                      : 'bg-slate-800 border-slate-700 text-slate-400 hover:border-slate-600 hover:text-slate-300'
                   }`}
                 >
-                  <span className="text-base">{POSITION_INFO[pos].icon}</span>
-                  <div>
-                    <div className="font-medium">{pos.charAt(0).toUpperCase() + pos.slice(1)}</div>
-                    <div className="text-[10px] text-slate-500 leading-tight mt-0.5">
-                      {POSITION_INFO[pos].description.slice(0, 60)}...
-                    </div>
-                  </div>
+                  <span>{pos.icon}</span>
+                  <span>{pos.label}</span>
                 </button>
               ))}
             </div>
           </div>
 
-          {/* Offset controls */}
-          {child.position !== 'static' && (
-            <div className="card">
-              <h3 className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3">
-                Offsets (px)
-              </h3>
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="text-[10px] text-slate-500 flex items-center gap-1 mb-1">
-                    <ArrowUp className="w-3 h-3" /> Top
-                  </label>
-                  <input
-                    type="number"
-                    value={child.top}
-                    onChange={(e) => updateChild('top', Number(e.target.value))}
-                    className="input-field w-full text-center text-sm"
-                  />
-                </div>
-                <div>
-                  <label className="text-[10px] text-slate-500 flex items-center gap-1 mb-1">
-                    <ArrowDown className="w-3 h-3" /> Bottom
-                  </label>
-                  <input
-                    type="number"
-                    value={child.bottom}
-                    onChange={(e) => updateChild('bottom', Number(e.target.value))}
-                    className="input-field w-full text-center text-sm"
-                  />
-                </div>
-                <div>
-                  <label className="text-[10px] text-slate-500 flex items-center gap-1 mb-1">
-                    <ArrowLeft className="w-3 h-3" /> Left
-                  </label>
-                  <input
-                    type="number"
-                    value={child.left}
-                    onChange={(e) => updateChild('left', Number(e.target.value))}
-                    className="input-field w-full text-center text-sm"
-                  />
-                </div>
-                <div>
-                  <label className="text-[10px] text-slate-500 flex items-center gap-1 mb-1">
-                    <ArrowRight className="w-3 h-3" /> Right
-                  </label>
-                  <input
-                    type="number"
-                    value={child.right}
-                    onChange={(e) => updateChild('right', Number(e.target.value))}
-                    className="input-field w-full text-center text-sm"
-                  />
-                </div>
-              </div>
+          {/* Offsets */}
+          <div className="bg-slate-800/50 border border-slate-700 rounded-xl p-4 space-y-3">
+            <div className="flex items-center gap-2 text-sm font-medium text-slate-300">
+              <Crosshair className="w-4 h-4 text-brand-400" />
+              Offsets
+              {isStatic && (
+                <span className="text-xs text-amber-400 ml-auto">disabled for static</span>
+              )}
             </div>
-          )}
-
-          {/* Dimensions */}
-          <div className="card">
-            <h3 className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3">
-              Element Size
-            </h3>
-            <div className="grid grid-cols-2 gap-3 mb-3">
-              <div>
-                <label className="text-[10px] text-slate-500 flex items-center gap-1 mb-1">
-                  <MoveHorizontal className="w-3 h-3" /> Width
-                </label>
-                <input
-                  type="number"
-                  min={20}
-                  max={400}
-                  value={child.width}
-                  onChange={(e) => updateChild('width', Number(e.target.value))}
-                  className="input-field w-full text-center text-sm"
-                />
-              </div>
-              <div>
-                <label className="text-[10px] text-slate-500 flex items-center gap-1 mb-1">
-                  <MoveVertical className="w-3 h-3" /> Height
-                </label>
-                <input
-                  type="number"
-                  min={20}
-                  max={400}
-                  value={child.height}
-                  onChange={(e) => updateChild('height', Number(e.target.value))}
-                  className="input-field w-full text-center text-sm"
-                />
-              </div>
-            </div>
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <label className="text-[10px] text-slate-500 mb-1 block">Z-Index</label>
-                <input
-                  type="number"
-                  min={0}
-                  max={100}
-                  value={child.zIndex}
-                  onChange={(e) => updateChild('zIndex', Number(e.target.value))}
-                  className="input-field w-full text-center text-sm"
-                />
-              </div>
-              <div>
-                <label className="text-[10px] text-slate-500 mb-1 block">Opacity</label>
-                <input
-                  type="range"
-                  min={0.1}
-                  max={1}
-                  step={0.05}
-                  value={child.opacity}
-                  onChange={(e) => updateChild('opacity', Number(e.target.value))}
-                  className="w-full mt-1 accent-brand-500"
-                />
-                <div className="text-center text-[10px] text-slate-500">{Math.round(child.opacity * 100)}%</div>
-              </div>
+            <div className="space-y-2.5">
+              <OffsetSlider label="top" value={config.top} onChange={(v) => updateConfig({ top: v })} disabled={isStatic} />
+              <OffsetSlider label="right" value={config.right} onChange={(v) => updateConfig({ right: v })} disabled={isStatic} />
+              <OffsetSlider label="bottom" value={config.bottom} onChange={(v) => updateConfig({ bottom: v })} disabled={isStatic} />
+              <OffsetSlider label="left" value={config.left} onChange={(v) => updateConfig({ left: v })} disabled={isStatic} />
             </div>
           </div>
 
-          {/* Parent container config */}
-          <div className="card">
-            <h3 className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3">
-              Parent Container
-            </h3>
-            <div className="grid grid-cols-2 gap-3 mb-3">
-              <div>
-                <label className="text-[10px] text-slate-500 mb-1 block">Width</label>
-                <input
-                  type="number"
-                  min={200}
-                  max={800}
-                  step={10}
-                  value={parent.width}
-                  onChange={(e) => updateParent('width', Number(e.target.value))}
-                  className="input-field w-full text-center text-sm"
-                />
-              </div>
-              <div>
-                <label className="text-[10px] text-slate-500 mb-1 block">Height</label>
-                <input
-                  type="number"
-                  min={150}
-                  max={600}
-                  step={10}
-                  value={parent.height}
-                  onChange={(e) => updateParent('height', Number(e.target.value))}
-                  className="input-field w-full text-center text-sm"
-                />
-              </div>
+          {/* Z-index */}
+          <div className="bg-slate-800/50 border border-slate-700 rounded-xl p-4 space-y-3">
+            <div className="flex items-center gap-2 text-sm font-medium text-slate-300">
+              <Layers className="w-4 h-4 text-amber-400" />
+              Z-Index
+              {isStatic && (
+                <span className="text-xs text-amber-400 ml-auto">disabled for static</span>
+              )}
             </div>
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <label className="text-[10px] text-slate-500 mb-1 block">Padding</label>
-                <input
-                  type="number"
-                  min={0}
-                  max={80}
-                  value={parent.padding}
-                  onChange={(e) => updateParent('padding', Number(e.target.value))}
-                  className="input-field w-full text-center text-sm"
-                />
-              </div>
-              <div className="flex items-end">
-                <label className="flex items-center gap-2 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={parent.overflowEnabled}
-                    onChange={(e) => updateParent('overflowEnabled', e.target.checked)}
-                    className="rounded bg-surface border-slate-600 accent-brand-500"
-                  />
-                  <span className="text-xs text-slate-400">Overflow: auto</span>
-                </label>
-              </div>
+            <ZIndexSlider value={config.zIndex} onChange={(v) => updateConfig({ zIndex: v })} disabled={isStatic} />
+            {!isStatic && (
+              <p className="text-xs text-slate-500">
+                {config.zIndex < 0
+                  ? 'Negative z-index places element behind stacking context'
+                  : config.zIndex === 0
+                  ? 'Default stacking level (auto)'
+                  : `Stacked above elements with z-index < ${config.zIndex}`}
+              </p>
+            )}
+          </div>
+
+          {/* Html label */}
+          <div className="bg-slate-800/50 border border-slate-700 rounded-xl p-4 space-y-2">
+            <div className="flex items-center gap-2 text-sm font-medium text-slate-300">
+              <Eye className="w-4 h-4 text-brand-400" />
+              Box Label
+            </div>
+            <input
+              type="text"
+              value={html}
+              onChange={(e) => setHtml(e.target.value)}
+              className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-200 font-mono focus:outline-none focus:border-brand-400/50"
+            />
+          </div>
+
+          {/* Actions */}
+          <div className="flex gap-2">
+            <button
+              onClick={handleCopy}
+              className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg text-xs font-medium bg-slate-800 border border-slate-700 text-slate-300 hover:bg-slate-700 transition-colors"
+            >
+              <Copy className="w-3.5 h-3.5" />
+              Copy CSS
+            </button>
+            <button
+              onClick={reset}
+              className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg text-xs font-medium bg-slate-800 border border-slate-700 text-slate-300 hover:bg-slate-700 transition-colors"
+            >
+              <RotateCcw className="w-3.5 h-3.5" />
+              Reset
+            </button>
+          </div>
+
+          {/* CSS Output */}
+          <div className="bg-slate-900 border border-slate-700 rounded-xl p-4 space-y-2">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-medium text-slate-400 uppercase tracking-wider">Generated CSS</span>
+              <button
+                onClick={() => setCssView(!cssView)}
+                className="text-xs text-brand-400 hover:text-brand-300 transition-colors"
+              >
+                {cssView ? 'Hide' : 'Show'}
+              </button>
+            </div>
+            {cssView && (
+              <pre className="text-xs text-slate-300 font-mono bg-slate-950 rounded-lg p-3 overflow-x-auto">
+                {cssOutput}
+              </pre>
+            )}
+          </div>
+        </div>
+
+        {/* ── Preview ────────────────────────────────────────────────────── */}
+        <div className="lg:col-span-2 space-y-5">
+          {/* Tooltip / explainer */}
+          <div className="bg-brand-500/5 border border-brand-400/20 rounded-xl p-4">
+            <p className="text-sm text-slate-300 leading-relaxed">{tooltip}</p>
+          </div>
+
+          {/* Live preview */}
+          <div className="bg-slate-800/50 border border-slate-700 rounded-xl p-4 space-y-3">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-medium text-slate-400 uppercase tracking-wider">Live Preview</span>
+              <span className="text-xs text-slate-500 font-mono">
+                {config.position === 'static' ? 'Static — offsets & z-index ignored' : `${config.position}, z: ${config.zIndex}`}
+              </span>
+            </div>
+
+            {/* Preview container with relative positioning context */}
+            <div
+              className="rounded-xl overflow-hidden relative"
+              style={{
+                position: 'relative',
+                border: '2px dashed #475569',
+                padding: config.position === 'sticky' ? '0' : '24px',
+                height: config.position === 'sticky' ? '200px' : '240px',
+                overflowY: config.position === 'sticky' || config.position === 'fixed' ? 'auto' : 'visible',
+                background: 'repeating-linear-gradient(0deg, transparent, transparent 39px, rgba(71,85,105,0.15) 39px, rgba(71,85,105,0.15) 40px), repeating-linear-gradient(90deg, transparent, transparent 39px, rgba(71,85,105,0.15) 39px, rgba(71,85,105,0.15) 40px)',
+              }}
+            >
+              {/* Ghost — shows original position for relative */}
+              {config.position === 'relative' && (
+                <div
+                  className="absolute rounded-lg border border-dashed border-amber-500/30 flex items-center justify-center pointer-events-none"
+                  style={{
+                    top: 24,
+                    left: 24,
+                    width: 'fit-content',
+                    height: 'auto',
+                    padding: '16px 20px',
+                    fontSize: '14px',
+                  }}
+                >
+                  <span className="text-amber-400/40 text-xs font-mono">original position</span>
+                </div>
+              )}
+
+              {/* Anchor indicator for absolute */}
+              {config.position === 'absolute' && (
+                <div className="absolute top-3 right-3 text-[10px] font-mono text-brand-400/60 pointer-events-none">
+                  ← positioned ancestor
+                </div>
+              )}
+
+              {/* Extra elements to show layering context */}
+              {!isStatic && (
+                <>
+                  <div className="absolute top-4 left-4 w-16 h-16 rounded-lg bg-purple-500/10 border border-purple-500/20 flex items-center justify-center text-xs text-purple-400/50 z-0 pointer-events-none">
+                    z:0
+                  </div>
+                  <div className="absolute top-8 left-8 w-16 h-16 rounded-lg bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-xs text-blue-400/50 z-0 pointer-events-none">
+                    z:0
+                  </div>
+                </>
+              )}
+
+              {/* Sticky content area — extra scrollable content */}
+              {config.position === 'sticky' && (
+                <div className="min-h-[300px] space-y-3 p-6">
+                  <p className="text-xs text-slate-500 text-center">↑ Scroll the container to see sticky behavior ↑</p>
+                  {/* Sticky element rendered below */}
+                  {(() => {
+                    const stickyStyle: React.CSSProperties = {
+                      position: 'sticky',
+                      top: `${config.top}px`,
+                      zIndex: config.zIndex || 1,
+                      background: 'linear-gradient(135deg, rgba(14,165,233,0.15), rgba(99,102,241,0.15))',
+                      border: '2px solid rgba(14,165,233,0.4)',
+                      color: '#e2e8f0',
+                      padding: '8px 16px',
+                      borderRadius: '8px',
+                      fontSize: '13px',
+                      fontWeight: 600,
+                      display: 'inline-block',
+                    };
+                    return <div style={stickyStyle}>{html}</div>;
+                  })()}
+                  {Array.from({ length: 8 }).map((_, i) => (
+                    <p key={i} className="text-xs text-slate-600">
+                      Scrollable content line {i + 1} — keep scrolling to see the sticky element detach and stick to the top.
+                    </p>
+                  ))}
+                </div>
+              )}
+
+              {/* The positioned box (non-sticky) */}
+              {config.position !== 'sticky' && (
+                <div
+                  className="rounded-lg flex items-center justify-center font-semibold select-none transition-all duration-150"
+                  style={{
+                    position: config.position,
+                    top: config.position !== 'static' ? `${config.top}px` : undefined,
+                    right: config.position !== 'static' ? `${config.right}px` : undefined,
+                    bottom: config.position !== 'static' ? `${config.bottom}px` : undefined,
+                    left: config.position !== 'static' ? `${24 + config.left}px` : undefined,
+                    zIndex: config.position !== 'static' ? config.zIndex : undefined,
+                    background: 'linear-gradient(135deg, rgba(14,165,233,0.15), rgba(99,102,241,0.15))',
+                    border: `2px solid ${config.position === 'fixed' ? 'rgba(239,68,68,0.5)' : 'rgba(14,165,233,0.4)'}`,
+                    color: '#e2e8f0',
+                    padding: '16px 20px',
+                    fontSize: isSmallBox ? '18px' : '14px',
+                    width: boxSize.width,
+                    height: boxSize.height,
+                    boxShadow: config.position !== 'static'
+                      ? '0 4px 12px rgba(0,0,0,0.3), 0 0 0 1px rgba(14,165,233,0.1)'
+                      : undefined,
+                  }}
+                >
+                  {html}
+                </div>
+              )}
+
+              {/* Fixed position indicator */}
+              {config.position === 'fixed' && (
+                <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                  <span className="text-[10px] font-mono text-red-400/40 bg-slate-900/80 px-2 py-0.5 rounded">
+                    viewport-relative
+                  </span>
+                </div>
+              )}
             </div>
           </div>
 
           {/* Presets */}
-          <div className="card">
-            <h3 className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3">
-              Presets
-            </h3>
-            <div className="space-y-1.5">
-              {PRESETS.map((preset) => (
+          <div className="bg-slate-800/50 border border-slate-700 rounded-xl p-4 space-y-3">
+            <span className="text-xs font-medium text-slate-400 uppercase tracking-wider">Presets</span>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+              {PRESETS.map((preset, idx) => (
                 <button
                   key={preset.name}
-                  onClick={() => applyPreset(preset)}
-                  className="w-full text-left px-3 py-2 rounded-lg text-xs text-slate-400 hover:text-slate-200 hover:bg-surface border border-transparent hover:border-slate-600/50 transition-all"
+                  onClick={() => applyPreset(idx)}
+                  className={`text-left p-3 rounded-lg border transition-all ${
+                    selectedPreset === idx
+                      ? 'bg-brand-500/10 border-brand-400/30'
+                      : 'bg-slate-800 border-slate-700 hover:border-slate-600'
+                  }`}
                 >
-                  {preset.name}
+                  <div className={`text-xs font-medium ${selectedPreset === idx ? 'text-brand-400' : 'text-slate-300'}`}>
+                    {preset.name}
+                  </div>
+                  <div className="text-[10px] text-slate-500 mt-0.5 leading-tight">{preset.description}</div>
                 </button>
               ))}
-              <button
-                onClick={reset}
-                className="w-full flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg text-xs text-slate-500 hover:text-red-400 hover:bg-red-500/5 border border-transparent hover:border-red-500/20 transition-all mt-2"
-              >
-                <RotateCcw className="w-3 h-3" />
-                Reset All
-              </button>
-            </div>
-          </div>
-        </div>
-
-        {/* RIGHT: Preview + Output */}
-        <div className="xl:col-span-2 space-y-6">
-          {/* Info banner */}
-          <div className="card" style={{ borderLeft: '4px solid ' + color }}>
-            <div className="flex items-start gap-3">
-              <span className="text-2xl">{info.icon}</span>
-              <div>
-                <h3 className="text-white font-semibold text-sm">{info.title} Positioning</h3>
-                <p className="text-slate-400 text-xs mt-1 leading-relaxed">{info.description}</p>
-              </div>
             </div>
           </div>
 
-          {/* Visual Preview */}
-          <div className="card">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-white font-semibold text-sm uppercase tracking-wider">
-                Visual Preview
-              </h3>
-              <div className="text-[10px] text-slate-500 font-mono">
-                Parent: {parent.width}×{parent.height}px
-              </div>
+          {/* Reference table */}
+          <div className="bg-slate-800/50 border border-slate-700 rounded-xl p-4 space-y-3">
+            <span className="text-xs font-medium text-slate-400 uppercase tracking-wider">Quick Reference</span>
+            <div className="overflow-x-auto">
+              <table className="w-full text-xs">
+                <thead>
+                  <tr className="border-b border-slate-700">
+                    <th className="text-left py-2 px-3 text-slate-400 font-medium">Value</th>
+                    <th className="text-left py-2 px-3 text-slate-400 font-medium">In Flow?</th>
+                    <th className="text-left py-2 px-3 text-slate-400 font-medium">Offsets Work?</th>
+                    <th className="text-left py-2 px-3 text-slate-400 font-medium">Z-index Works?</th>
+                    <th className="text-left py-2 px-3 text-slate-400 font-medium">Relative To</th>
+                  </tr>
+                </thead>
+                <tbody className="text-slate-300">
+                  <tr className="border-b border-slate-700/50">
+                    <td className="py-2 px-3 font-mono text-brand-400">static</td>
+                    <td className="py-2 px-3">✅</td>
+                    <td className="py-2 px-3 text-slate-500">❌</td>
+                    <td className="py-2 px-3 text-slate-500">❌</td>
+                    <td className="py-2 px-3 text-slate-500">N/A</td>
+                  </tr>
+                  <tr className="border-b border-slate-700/50">
+                    <td className="py-2 px-3 font-mono text-green-400">relative</td>
+                    <td className="py-2 px-3">✅</td>
+                    <td className="py-2 px-3 text-green-400">✅</td>
+                    <td className="py-2 px-3 text-green-400">✅</td>
+                    <td className="py-2 px-3">Its normal position</td>
+                  </tr>
+                  <tr className="border-b border-slate-700/50">
+                    <td className="py-2 px-3 font-mono text-amber-400">absolute</td>
+                    <td className="py-2 px-3 text-slate-500">❌</td>
+                    <td className="py-2 px-3 text-green-400">✅</td>
+                    <td className="py-2 px-3 text-green-400">✅</td>
+                    <td className="py-2 px-3">Nearest positioned ancestor</td>
+                  </tr>
+                  <tr className="border-b border-slate-700/50">
+                    <td className="py-2 px-3 font-mono text-red-400">fixed</td>
+                    <td className="py-2 px-3 text-slate-500">❌</td>
+                    <td className="py-2 px-3 text-green-400">✅</td>
+                    <td className="py-2 px-3 text-green-400">✅</td>
+                    <td className="py-2 px-3">Browser viewport</td>
+                  </tr>
+                  <tr>
+                    <td className="py-2 px-3 font-mono text-purple-400">sticky</td>
+                    <td className="py-2 px-3">✅ (until stuck)</td>
+                    <td className="py-2 px-3 text-green-400">✅</td>
+                    <td className="py-2 px-3 text-green-400">✅</td>
+                    <td className="py-2 px-3">Nearest scrolling ancestor</td>
+                  </tr>
+                </tbody>
+              </table>
             </div>
-
-            <div className="flex justify-center overflow-x-auto pb-2">
-              <div style={parentStyle} className="relative">
-                {child.position === 'relative' && (
-                  <div
-                    style={{
-                      position: 'absolute',
-                      top: parent.padding,
-                      left: parent.padding,
-                      width: child.width,
-                      height: child.height,
-                      border: '2px dashed #64748b',
-                      borderRadius: 8,
-                      opacity: 0.4,
-                      pointerEvents: 'none',
-                    }}
-                  />
-                )}
-                <div style={childStyle}>
-                  {child.position}
-                </div>
-                {parent.overflowEnabled && child.position === 'sticky' && (
-                  <>
-                    {Array.from({ length: 12 }, (_, i) => (
-                      <div
-                        key={i}
-                        style={{
-                          height: 36,
-                          margin: '3px 0',
-                          backgroundColor: '#334155',
-                          borderRadius: 4,
-                          opacity: 0.5,
-                          display: 'flex',
-                          alignItems: 'center',
-                          paddingLeft: 12,
-                          fontSize: 11,
-                          color: '#64748b',
-                        }}
-                      >
-                        Content row {i + 1}
-                      </div>
-                    ))}
-                  </>
-                )}
-              </div>
-            </div>
-
-            {/* Legend */}
-            <div className="flex flex-wrap gap-3 mt-4 pt-4 border-t border-slate-700/30">
-              <div className="flex items-center gap-1.5 text-[10px] text-slate-500">
-                <div className="w-3 h-3 rounded-sm border-2 border-dashed border-slate-500" />
-                Parent border
-              </div>
-              <div className="flex items-center gap-1.5 text-[10px] text-slate-500">
-                <div className="w-3 h-3 rounded-sm border-2 border-dashed opacity-40" style={{ borderColor: '#64748b' }} />
-                Original position (relative)
-              </div>
-              <div className="flex items-center gap-1.5 text-[10px] text-slate-500">
-                <div className="w-3 h-3 rounded-sm" style={{ backgroundColor: color, opacity: 0.6 }} />
-                Positioned element
-              </div>
-            </div>
-          </div>
-
-          {/* Generated CSS */}
-          <div className="card">
-            <div className="flex items-center justify-between mb-3">
-              <h3 className="text-white font-semibold text-sm uppercase tracking-wider">
-                Generated CSS
-              </h3>
-              <button
-                onClick={copyCSS}
-                className={`flex items-center gap-1.5 px-3 py-1.5 text-xs rounded-md transition-all ${
-                  copiedLabel === 'CSS'
-                    ? 'bg-green-500/20 text-green-400 border border-green-500/30'
-                    : 'bg-surface text-slate-400 hover:text-brand-400 hover:bg-brand-500/10 border border-slate-700/50'
-                }`}
-              >
-                <Copy className="w-3.5 h-3.5" />
-                {copiedLabel === 'CSS' ? 'Copied!' : 'Copy CSS'}
-              </button>
-            </div>
-            <pre className="bg-surface rounded-lg p-4 border border-slate-700/50 overflow-x-auto">
-              <code className="text-xs text-slate-300 font-mono leading-relaxed whitespace-pre">
-                {cssOutput}
-              </code>
-            </pre>
           </div>
         </div>
       </div>

@@ -96,6 +96,7 @@ import {
   Timer,
   SunMoon,
   FormInput,
+  Crosshair,
 } from 'lucide-react';
 
 export const metadata: Metadata = {
@@ -1127,6 +1128,13 @@ const featuredTools = [
     href: '/tools/css-bg-pattern-generator',
     icon: Paintbrush,
     tags: ['CSS', 'Pattern', 'Background', 'Design', 'Generator'],
+  },
+  {
+    title: 'CSS Position Playground',
+    description: 'Visually learn all 5 CSS position values — static, relative, absolute, fixed, and sticky. Adjust offsets, z-index, and see exactly how each value changes layout behavior.',
+    href: '/tools/css-position-playground',
+    icon: Crosshair,
+    tags: ['CSS', 'Position', 'Layout', 'Learning'],
   },
 ];
 const sampleBlogPosts = [
