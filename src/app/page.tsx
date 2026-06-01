@@ -253,6 +253,13 @@ const featuredTools = [
     tags: ['Color', 'Palette', 'Design', 'Harmony'],
   },
   {
+    title: 'WCAG Contrast Checker',
+    description: 'Check color contrast against WCAG 2.1 AA/AAA guidelines. Real-time calculation, visual text preview, UI element samples, and 12 common presets — all client-side.',
+    href: '/tools/contrast-checker',
+    icon: Eye,
+    tags: ['Accessibility', 'WCAG', 'Contrast', 'Color'],
+  },
+  {
     title: 'Cron Builder',
     description: 'Build cron expressions interactively with human-readable output, presets, and next execution preview.',
     href: '/tools/cron-builder',
