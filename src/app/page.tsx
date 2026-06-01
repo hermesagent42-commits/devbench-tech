@@ -813,6 +813,13 @@ const featuredTools = [
     tags: ['CSS', 'text-wrap', 'Typography'],
   },
   {
+    title: 'CSS white-space Playground',
+    description: 'Explore every white-space value — normal, nowrap, pre, pre-wrap, pre-line, and break-spaces. Visual behavior table, whitespace visualization, 7 presets, and live preview.',
+    href: '/tools/white-space-playground',
+    icon: FileText,
+    tags: ['CSS', 'white-space', 'Typography'],
+  },
+  {
     title: 'CSS Text Overflow & Clamp',
     description: 'Master text truncation — single-line ellipsis, multi-line clamp, word-break, overflow-wrap, and hyphens. Live preview with 8 presets, instant CSS + Tailwind output.',
     href: '/tools/css-text-overflow-playground',
