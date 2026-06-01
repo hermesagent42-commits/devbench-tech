@@ -150,6 +150,13 @@ const featuredTools = [
     tags: ['Keyboard', 'Events'],
   },
   {
+    title: 'ASCII Table',
+    description: 'Complete ASCII character reference — 0–127 with hex, binary, HTML entities, CSS escapes, and URL encoding. Grid or table view.',
+    href: '/tools/ascii-table',
+    icon: Table2,
+    tags: ['ASCII', 'Reference', 'Encoding'],
+  },
+  {
     title: 'URL Parser',
     description: 'Break down any URL into its components — protocol, hostname, path, query params, and hash. Edit interactively and rebuild.',
     href: '/tools/url-parser',
