@@ -97,6 +97,7 @@ import {
   SunMoon,
   FormInput,
   Crosshair,
+  ClipboardList,
 } from 'lucide-react';
 
 export const metadata: Metadata = {
@@ -154,6 +155,13 @@ const featuredTools = [
     href: '/tools/url-parser',
     icon: Search,
     tags: ['URL', 'Parser', 'Query'],
+  },
+  {
+    title: 'Clipboard Manager',
+    description: 'Track everything you copy — persistent clipboard history with search, pin, and one-click re-copy. Monitors clipboard in real-time with localStorage persistence.',
+    href: '/tools/clipboard-manager',
+    icon: ClipboardList,
+    tags: ['Clipboard', 'History', 'Productivity'],
   },
   {
     title: 'Hash Generator',
