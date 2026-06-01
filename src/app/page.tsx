@@ -206,6 +206,13 @@ const featuredTools = [
     tags: ['CSS', 'Grid', 'Layout'],
   },
   {
+    title: 'CSS Grid Template Areas',
+    description: 'Visually design named grid areas — header, sidebar, main, footer — with click-to-assign cells. 7 layout presets, live preview, instant CSS + JSX output.',
+    href: '/tools/css-grid-areas',
+    icon: Grid3X3,
+    tags: ['CSS', 'Grid', 'Template Areas', 'Layout'],
+  },
+  {
     title: 'Gradient Text Generator',
     description: 'Build stunning gradient text effects — linear, radial, and conic. Live preview, glow effects, 10 presets, instant CSS copy.',
     href: '/tools/gradient-text-generator',
