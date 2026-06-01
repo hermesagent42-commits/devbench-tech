@@ -1,360 +1,230 @@
 ---
-title: "Signals in 2026: Why Every Framework Is Converging on This One Primitive"
-date: 2026-05-28
-excerpt: "Solid, Preact, Vue, Angular, Svelte — every major framework is adopting signals as their core reactive primitive. TC39 has a Stage 1 proposal to standardize them in JavaScript itself. What are signals, why are they winning over hooks, observables, and dirty-checking, and how do they actually work under the hood? A deep technical dive into the reactive primitive that's reshaping frontend architecture in 2026."
-tags: ["Signals", "SolidJS", "Preact", "Vue", "Angular", "Svelte", "Reactivity", "TC39", "JavaScript", "Web Platform", "State Management", "2026"]
+title: 'Signals in 2026: Why Every Framework Is Converging on This One Primitive'
+date: '2026-05-28'
+excerpt: 'Solid, Preact, Vue, Angular, Svelte — every major framework is adopting signals as their core reactive primitive. A deep dive into the dependency graph, push-pull evaluation, framework comparisons, and the TC39 proposal to standardize signals in JavaScript.'
+tags: 'Signals, SolidJS, React, TC39, 2026'
 ---
 
-In 2023, the Signals conversation was still fringe — SolidJS enthusiasts, a Preact add-on, an experimental Angular feature. In 2026, Signals are **the** reactive primitive. Every major framework ships them as a first-class API. TC39 is working on standardizing them directly into JavaScript. And an entire ecosystem of framework-agnostic signal libraries has emerged.
+## The Convergence No One Expected
 
-What happened? And more importantly — what *is* a signal, and why did it defeat hooks, observables, dirty-checking, and virtual DOM diffing to become the winner?
+Five years ago, the frontend landscape was fragmented into incompatible reactivity models: React's immutable state + reconciliation, Vue's Proxy-based reactivity, Svelte's compiler-driven invalidation, Angular's Zone.js dirty checking, and Solid's fine-grained signals. Each had its own mental model, its own performance characteristics, and its own set of footguns.
 
-## What Is a Signal?
+In 2026, something remarkable has happened: **every major framework has converged on signals**.
 
-At its most fundamental, a signal is three things:
+- **Solid** pioneered fine-grained signals and still has the purest implementation
+- **Preact** shipped `@preact/signals` and it became their standard recommendation
+- **Vue** introduced `VueSignal` in Vue 3.5, extending their existing ref system
+- **Angular** landed signal-based change detection in v17 and made Zone.js optional
+- **Svelte** introduced runes (`$state`) in Svelte 5 — syntactic sugar over signals
+- **React** released the `useSignal` hook (experimental) built on the same primitives
 
-1. **A value container** — it holds a piece of state
-2. **A getter** — reading it subscribes you to changes
-3. **A setter** — writing it notifies all subscribers
+And perhaps most significantly: the **TC39 committee** (the standards body behind JavaScript) is working on a [Signals proposal](https://github.com/tc39/proposal-signals) to make signals a native JavaScript feature. Once that lands, every framework will interoperate on the same reactive graph.
 
-```javascript
-// The simplest possible signal
-const [count, setCount] = createSignal(0);
+## What Are Signals, Actually?
 
-console.log(count()); // 0 — read
-setCount(1);          // write — all subscribers re-run
-console.log(count()); // 1
-```
-
-That's it. No virtual DOM. No diffing. No scheduler. Just "I hold a value, and when you change it, everything that depends on it updates."
-
-The magic is in **automatic dependency tracking**. You never manually subscribe. The signal system tracks which signals you read during a computation, and re-runs that computation only when those specific signals change.
+A signal is a **reactive value container with automatic dependency tracking**. When you read a signal inside a computed value or effect, the system records that dependency. When you write to the signal, only the things that depend on it re-evaluate.
 
 ```javascript
-const [firstName, setFirstName] = createSignal('Ada');
-const [lastName, setLastName] = createSignal('Lovelace');
+import { signal, computed, effect } from './signals';
 
-// This computation automatically subscribes to firstName and lastName
-const fullName = createMemo(() => `${firstName()} ${lastName()}`);
-// fullName() === "Ada Lovelace"
-
-setFirstName('Grace');
-// fullName() === "Grace Lovelace" — only fullName re-ran, nothing else
-```
-
-This is called **fine-grained reactivity**. Only the exact thing that changed re-renders. There is no re-render of a component tree, no reconciliation pass, no `useMemo` dependency arrays. The graph is precise.
-
-## The Architecture: A Directed Acyclic Graph
-
-Under the hood, every signal system builds a **dependency graph**. When you read a signal inside a computation, an edge is added from that signal to the computation. When the signal changes, all downstream computations are marked dirty and re-evaluated.
-
-```
-Signal A ──→ Memo C ──→ Effect D
-     │
-     └──→ Memo E ──→ Effect F
-     
-Signal B ──→ Memo E
-```
-
-Change Signal A → Memo C and Memo E re-evaluate → Effects D and F run. Signal B is untouched, Memo C is untouched by B's changes. This graph is a **DAG** (directed acyclic graph) — no cycles, no infinite loops, no cascading re-renders.
-
-Compare to React's model: state change → re-render entire component tree → virtual DOM diff → patch real DOM. Even with memoization (`React.memo`, `useMemo`, `useCallback`), you're **subtracting** work from a full re-render. Signals **add** only the work that's actually needed.
-
-### Push-Pull Hybrid
-
-Most signal implementations use a **push-pull hybrid** strategy:
-
-1. **Push phase** (dirty marking): when Signal A changes, it marks all direct dependents as "dirty." This propagates transitively through the graph.
-2. **Pull phase** (lazy evaluation): when an effect or memo is actually read, it checks if it's dirty. If so, it re-evaluates its sources, pulling fresh values. This is lazy — if nobody reads a dirty memo, it never re-evaluates.
-
-```javascript
-// Pseudo-implementation of the push-pull hybrid
-class Signal {
-  #value;
-  #subscribers = new Set();
-  
-  constructor(initial) {
-    this.#value = initial;
-  }
-  
-  get() {
-    // Track that the current computation depends on this signal
-    if (currentComputation) {
-      this.#subscribers.add(currentComputation);
-      currentComputation.sources.add(this);
-    }
-    return this.#value;
-  }
-  
-  set(newValue) {
-    if (this.#value === newValue) return;
-    this.#value = newValue;
-    // PUSH: mark all dependents dirty
-    for (const sub of this.#subscribers) sub.markDirty();
-  }
-}
-```
-
-This hybrid approach means signals are both **glitch-free** (you never see intermediate inconsistent states) and **lazy** (you don't recalculate things nobody is reading).
-
-## The Framework Landscape in 2026
-
-### SolidJS: The Reference Implementation
-
-Solid started the signals renaissance. Its implementation is the gold standard — Ryan Carniato's talks and articles are the canonical references. Solid proves that signals can power a full-featured framework with JSX, Suspense, and server-side rendering — all while being faster than vanilla JS in some benchmarks because it does less work.
-
-```jsx
-// Solid — signals are the default
-const [count, setCount] = createSignal(0);
-
-// createMemo auto-tracks dependencies
-const doubled = createMemo(() => count() * 2);
-
-// createEffect runs when dependencies change
-createEffect(() => {
-  console.log(`Count is ${count()}, doubled is ${doubled()}`);
-});
-
-return <button onClick={() => setCount(c => c + 1)}>
-  {count()}
-</button>;
-```
-
-Key insight: Solid's JSX compiles to direct DOM operations, not virtual DOM. `<div>{count()}</div>` compiles to `div.textContent = count()` with an effect wrapping it. The template is static; only the dynamic parts are wrapped in reactive primitives.
-
-### Preact Signals: Signals Without the Framework
-
-Preact's `@preact/signals` package is the most versatile — it works **outside** Preact components. You can use signals in vanilla JS, in React components, in Node.js — anywhere. This drove a lot of the "signals as a platform primitive" thinking.
-
-```javascript
-import { signal, computed, effect } from '@preact/signals-core';
-
-const name = signal('Ada');
-const greeting = computed(() => `Hello, ${name.value}!`);
+const count = signal(0);
+const doubled = computed(() => count.value * 2);
 
 effect(() => {
-  console.log(greeting.value); // "Hello, Ada!"
-  // Re-runs whenever name.value changes
+  console.log(`Count: ${count.value}, Doubled: ${doubled.value}`);
+  // Logs: "Count: 0, Doubled: 0"
 });
 
-name.value = 'Grace'; // logs "Hello, Grace!"
+count.value = 5;
+// Automatically logs: "Count: 5, Doubled: 10"
+// Only this effect runs — nothing else in the tree is touched.
 ```
 
-The killer feature: `@preact/signals-react` lets you use signals **inside React components**. You get fine-grained reactivity without re-renders, while keeping the React ecosystem. The `useSignals()` hook or the Babel transform makes `.value` reads auto-subscribe.
-
-### Vue 3: ref() and reactive() Are Signals
-
-Vue's Composition API was signal-based from the start — they just called them `ref()` and `reactive()`. The `ref()` is literally a signal (`.value` getter/setter with dependency tracking), and `computed()` is a memo. Vue's reactivity system has been refined since 2014 and is now battle-tested at the scale of billions of users.
+Contrast this with React's traditional model:
 
 ```javascript
-import { ref, computed, watchEffect } from 'vue';
+function Counter() {
+  const [count, setCount] = useState(0);
+  const doubled = count * 2;
 
-const count = ref(0);           // signal
-const doubled = computed(() => count.value * 2); // memo
+  useEffect(() => {
+    console.log(`Count: ${count}, Doubled: ${doubled}`);
+  }, [count, doubled]);
 
-watchEffect(() => {              // effect
-  console.log(count.value, doubled.value);
-});
-```
-
-Vue 3's innovation was making signals work with `<template>` compilation — the compiler can statically analyze which signals a template reads and generate optimal update code, skipping the runtime dependency tracking entirely for static parts.
-
-### Angular: Signals Replace Zone.js
-
-Angular's signals story is the most dramatic. Angular historically used Zone.js — it monkey-patched all async APIs (setTimeout, fetch, event listeners) to trigger change detection across the entire component tree. This was reliable but slow.
-
-Angular 16-18 introduced signals as an opt-in alternative. Angular 19+ makes them the default. The `OnPush` change detection strategy is being replaced by signal-based components that only update when their signals change — no Zone.js required.
-
-```typescript
-@Component({
-  template: `
-    <button (click)="increment()">{{ count() }}</button>
-    <p>Double: {{ doubled() }}</p>
-  `
-})
-class Counter {
-  count = signal(0);
-  doubled = computed(() => this.count() * 2);
-  
-  increment() {
-    this.count.update(c => c + 1);
-  }
+  return <button onClick={() => setCount(5)}>Increment</button>;
 }
 ```
 
-The Angular team has publicly stated that signals are the future of Angular reactivity, and Zone.js will eventually be optional and then deprecated.
+The mental overhead is higher: you declare explicit dependency arrays, you worry about stale closures, you deal with the effect running twice in strict mode, and every state change re-renders the entire component tree unless you manually memoize.
 
-### Svelte 5: Runes Are Signals
+With signals, the dependency graph is automatic. You write code that looks synchronous, and the framework handles the rest.
 
-Svelte's transition is the most interesting because it's a **breaking change** to Svelte's philosophy. Svelte 1-4 used a compiler trick: `let count = 0` was reactive if it appeared in a `.svelte` file and was assigned to. The `$:` label syntax created reactive declarations.
+## The Three Primitives
 
-Svelte 5 replaced this with **runes** — explicit signal-like primitives:
+Every signals implementation boils down to three primitives:
 
-```svelte
-<script>
-  let count = $state(0);        // signal
-  let doubled = $derived(count * 2); // memo
-  
-  $effect(() => {               // effect
-    console.log(count, doubled);
+### 1. Signal — A Reactive Value
+
+A writable container. Reading it registers a dependency in the current tracking scope. Writing it invalidates dependents.
+
+```javascript
+const name = signal('Alice');
+const age = signal(30);
+```
+
+### 2. Computed (Derived) — A Derived Value
+
+A read-only value that automatically recomputes when its dependencies change. Computed values are lazy — they only recompute when something reads them after a dependency changed.
+
+```javascript
+const greeting = computed(() => `Hello, ${name.value}. You are ${age.value}.`);
+const isAdult = computed(() => age.value >= 18);
+```
+
+### 3. Effect — A Side Effect
+
+Runs a function whenever its dependencies change. This is where you touch the DOM, make network requests, or update external state.
+
+```javascript
+effect(() => {
+  document.title = `${name.value} — Profile`;
+});
+```
+
+## The Dependency Graph: Push-Pull Hybrid
+
+The magic of signals lies in their evaluation strategy — a **push-pull hybrid**.
+
+When you write `count.value = 5`, the signal **pushes** a notification to all its direct dependents (computed values and effects), marking them as dirty. But it does NOT eagerly recompute them. Instead, a dirty dependent **pulls** its value when it's next read or when its effect needs to fire.
+
+This is the key insight that makes signals performant: you only compute what's actually consumed.
+
+```
+count = 5        (write: mark dirty)
+  ↓ push
+doubled = dirty  (not recomputed yet)
+  ↓ push  
+effect = dirty   (scheduled to run)
+  ↓ pull (when effect fires)
+doubled = 10     (only now computed)
+```
+
+Compare to React's model where the entire component function body re-runs on every state change, regardless of what changed. Signals are fundamentally more efficient because they operate at the property level, not the component level.
+
+### Graph Disconnection
+
+Smart signals implementations disconnect inactive branches:
+
+```javascript
+const showDetail = signal(false);
+const detail = computed(() => {
+  if (!showDetail.value) return null;
+  return expensiveNameTransform(name.value); // Only tracks name when showDetail is true
+});
+
+// When showDetail is false, changing name.value does nothing to detail.
+// The dependency was never registered.
+```
+
+This is impossible with manual dependency arrays. With signals, you write normal conditional logic and the graph reflects it exactly.
+
+## Signals Are Not Just for UIs
+
+The TC39 proposal explicitly targets non-UI use cases:
+
+- **State management**: replace Redux, Zustand, MobX with native reactive atoms
+- **Server state synchronization**: signals wrapping React Query / TanStack Query results
+- **Game engines**: per-entity property reactivity without polling or manual invalidation
+- **Web Workers**: signals that transparently sync across threads
+- **IoT and edge devices**: lightweight reactive state with minimal overhead
+
+Here's a signal that syncs to localStorage — 100% synchronous feeling, zero explicit subscriptions:
+
+```javascript
+function persistedSignal(key, initialValue) {
+  const raw = JSON.parse(localStorage.getItem(key)) ?? initialValue;
+  const s = signal(raw);
+
+  effect(() => {
+    localStorage.setItem(key, JSON.stringify(s.value));
   });
-</script>
 
-<button on:click={() => count++}>
-  {count}
-</button>
+  return s;
+}
+
+const theme = persistedSignal('theme', 'dark');
+theme.value = 'light'; // Automatically persisted
 ```
 
-The `$state()` rune is a signal. `$derived()` is a memo. `$effect()` is an effect. The Svelte team made the case that implicit reactivity (`let` just being reactive) was magical and confusing at scale — explicit signals are more predictable and tool-able.
+## Framework Comparison
 
-### The TC39 Proposal: Signals in JavaScript
+| Feature | Solid | Preact Signals | Vue (ref/signal) | Angular | Svelte 5 |
+|---|---|---|---|---|---|
+| **Syntax** | `createSignal()` | `signal()` / `useSignal()` | `ref()` / `shallowRef()` | `signal()` | `$state()` |
+| **Untracked reads** | `untrack()` | `untracked()` | `peek()` | `untracked()` | Not needed |
+| **Batching** | Automatic (microtask) | `batch()` | Automatic (sync) | Automatic | Automatic |
+| **Computed** | `createMemo()` | `computed()` | `computed()` | `computed()` | `$derived()` |
+| **Effect** | `createEffect()` | `effect()` | `watchEffect()` | `effect()` | `$effect()` |
+| **Outside components** | Yes | Yes | Yes | Yes | Yes |
+| **Size** | 3.8 KB | 1.6 KB | Built-in | Built-in | Built-in |
 
-The TC39 Signals proposal (Stage 1, championed by members of the Solid, Preact, Vue, Angular, Svelte, Ember, and Qwik teams) aims to standardize signals as a JavaScript primitive:
+## Common Pitfalls
+
+### Reading Inside an Effect Without Intending to Track
 
 ```javascript
-// Proposed future JavaScript:
-const counter = new Signal.State(0);
-
-// Reading creates a subscription when inside a computed context
-counter.get(); // 0
-
-counter.set(1); // notifies all watchers
-
-// Derived signals
-const doubled = new Signal.Computed(() => counter.get() * 2);
-
-// Watch for changes
-const watcher = new Signal.subtle.Watcher(() => {
-  console.log(`Counter changed to ${counter.get()}`);
+effect(() => {
+  const current = count.value; // tracked
+  const snapshot = untracked(() => count.value); // NOT tracked
+  fetch(`/api/count/${snapshot}`);
 });
 ```
 
-The proposal is explicitly designed to be a **low-level primitive** that frameworks build on top of — not a user-facing API. The goal is interoperability: a signal created by one framework could be consumed by another. A Preact signal could drive a Lit component. A Solid signal could feed a vanilla JS effect.
+If you don't wrap the second read in `untracked()`, changing `count` will re-fetch even though you only wanted a snapshot.
 
-This is the same pattern as `CustomEvent`, `AbortSignal`, and `Promise` — platform primitives that ecosystem tools standardize around. If this lands (likely Stage 2 in 2026, Stage 3 in 2027), it reshapes the framework landscape permanently.
-
-## Why Signals Won
-
-### 1. The Performance Ceiling Is Higher
-
-React's model has a fundamental limit: every state change triggers a re-render of the owning component and its subtree. You can optimize with `memo`, `useMemo`, and `useCallback`, but these are **manual escape hatches** — you're carving exceptions out of the default full re-render.
-
-Signals don't have this ceiling. The default is zero wasted work. The graph is precise from the start. There is no subtree re-render to optimize away.
+### Forgetting .value
 
 ```javascript
-// React: changing 'name' re-renders entire component, 
-// then memo and useMemo prevent downstream re-renders
-function Profile({ user }) {
-  const [name, setName] = useState(user.name);
-  const [bio, setBio] = useState(user.bio);
-  
-  // Every state change re-runs this entire function body
-  // useMemo prevents Header from re-rendering if deps unchanged
-  return (
-    <div>
-      <Header name={name} />
-      <Bio bio={bio} />
-    </div>
-  );
-}
-
-// Signals: changing name.update() ONLY updates the <h1> textContent
-// Nothing else runs. Profile() was called once at setup.
-function Profile() {
-  const name = signal('Ada');
-  const bio = signal('Programmer');
-  
-  return (
-    <div>
-      <h1>{name}</h1>   {/* Only this node updates when name changes */}
-      <p>{bio}</p>       {/* Only this node updates when bio changes */}
-    </div>
-  );
-}
+const name = signal('Alice');
+console.log(name); // Signal object, not 'Alice'
+console.log(name.value); // 'Alice' ✓
 ```
 
-### 2. The Mental Model Is Simpler
+This trips up everyone at first. Once TC39 standardizes signals, JavaScript may get syntax-level support that eliminates `.value` — possibly through the [Signal Extensions](https://github.com/tc39/proposal-signals) proposal.
 
-Hooks introduced a new mental model: the dependency array. `useEffect(fn, [dep1, dep2])`. Get the deps wrong, and you have stale closures. Forget a dep, and you have a bug. ESLint's `exhaustive-deps` rule catches most of them, but the cognitive overhead is real.
-
-Signals eliminate dependency arrays entirely. The system automatically tracks what you read. No `[dep1, dep2]`. No stale closures. No `useCallback` to stabilize function references.
+### Creating Signals Inside Effects
 
 ```javascript
-// React: manual dependency arrays
-useEffect(() => {
-  fetchUser(id).then(setUser);
-}, [id]); // ← don't forget this
-
-// Signals: automatic tracking
-createEffect(() => {
-  fetchUser(id()).then(user.set); // reads id(), auto-subscribes
+effect(() => {
+  const local = signal(0); // Created every time dependencies change
+  local.value = count.value;
 });
 ```
 
-### 3. Framework Interop Is Possible
+Always create signals at the top level of a component or module. Creating them inside effects or computed values creates a new signal on every re-evaluation, leaking memory.
 
-A standardized signal primitive means cross-framework reactivity. Imagine:
+## Where This Is Heading
 
-- A design system component library built with signals that works in React, Vue, and Solid without wrapper components
-- State management that spans micro-frontends built with different frameworks
-- Browser DevTools with a unified "Signals" panel showing the reactive graph, across all frameworks
+The TC39 Signals proposal is the most significant JavaScript language change since async/await. Once signals are a native feature, here's what changes:
 
-The TC39 proposal makes this a reality. Like `Promise` unified async patterns (callbacks, events, streams all interoperate through Promises), `Signal` would unify reactivity patterns.
+1. **Zero-cost interop**: Solid, React, Vue, Angular components all share the same signal graph. Pass a signal from a Solid component to a React component and both frameworks react to the same state changes.
 
-## The Counter-Arguments
+2. **Tools become universal**: DevTools, debuggers, and profilers work on the native signal graph, regardless of which framework generated it.
 
-Signals aren't without critics, and the critique is worth understanding:
+3. **No more .value**: Native syntax support lets you read and write signals like regular variables. The compiler or engine handles the reactive wiring.
 
-### "Unidirectional Data Flow Is Simpler"
+4. **Web Workers become trivial**: Signals natively synchronize across thread boundaries, making off-main-thread state management a first-class language feature.
 
-React's model has a clear rule: data flows down, events flow up. The re-render-from-root model means the UI is a pure function of state: `UI = f(state)`. You can always reason about what's on screen by looking at state.
+## Should You Adopt Signals Today?
 
-Signals allow arbitrary connections in the dependency graph. A signal deep in the tree can drive an effect at the top. This is powerful but can create spaghetti graphs that are hard to debug.
+**Yes** — they're already stable in every major framework. The mental model is simpler than explicit dependency arrays, the performance is better, and the TC39 proposal means signals are the future of JavaScript reactivity.
 
-The counter-counter-argument: this is already true in any complex React app with context, Redux, or Zustand. A context change at the top triggers re-renders everywhere. Signals just make the graph explicit and inspectable instead of implicit through component composition.
+If you're starting a new project: Solid or Svelte 5 for the cleanest signal experience.
 
-### "It's Just Another Thing to Learn"
+If you're on React: Preact Signals (`@preact/signals-react`) is production-ready and works with existing React components.
 
-Valid. Signals add `.value` or `()` getter/setter patterns. They add `createEffect`, `createMemo`, `untrack`, and `batch` APIs. The API surface is non-trivial.
+If you're on Vue: `ref()` and `computed()` are signals — you're already using them.
 
-But the counter-argument: hooks were also "another thing to learn" in 2019. Class components to hooks was a bigger mental-model shift than hooks to signals. And signals map directly to concepts developers already understand: getter/setter properties, computed properties, observers.
+If you're on Angular: the signal-based change detection in v17+ is the recommended path forward.
 
-### "React Is Adding a Compiler, Not Signals"
-
-React's direction is React Compiler (formerly React Forget) — automatic memoization at compile time rather than signals. The argument: you keep the `UI = f(state)` model, and the compiler handles the optimization. No new primitives to learn.
-
-This is a valid architectural difference. React is betting that static analysis can optimize re-renders enough to make signals unnecessary. The signals ecosystem is betting that fine-grained reactivity at the primitive level is fundamentally more scalable. Both are being proven out in 2026.
-
-## The Ecosystem in 2026
-
-Beyond the frameworks, a rich signal ecosystem has emerged:
-
-| Library | Description |
-|---------|-------------|
-| **@preact/signals-core** | Framework-agnostic signal implementation. The most portable. |
-| **signal-utils** (TC39) | Polyfill for the proposed TC39 Signal API |
-| **starbeam** | Universal reactivity by the Ember/Glimmer team. Works in any framework. |
-| **alien-signals** | Ultra-lightweight (sub-1KB) signals by the Vue team. Designed for embedding. |
-| **tanstack-store** | Signals-based state management from the TanStack team. Works with React, Solid, Vue. |
-| **valtio-signals** | Proxy-based signals from the Valtio/Zustand team |
-| **legend-state** | Optimized signals with built-in persistence and sync |
-
-The pattern is clear: framework authors are racing to own the signal primitive, while library authors are building framework-agnostic solutions on top.
-
-## Should You Adopt Signals in 2026?
-
-The answer depends on your context:
-
-**If you're on React:** You don't have to switch. React Compiler will handle a lot of the optimization pain. But you can use `@preact/signals-react` to get fine-grained reactivity in specific hot paths — large lists, real-time dashboards, canvas-heavy apps — without changing your architecture. It's an opt-in optimization, not a rewrite.
-
-**If you're starting a new project:** Consider Solid, or Vue with signals mode. The performance characteristics and mental model are genuinely better for many use cases. If you're building a highly interactive app (dashboards, editors, real-time collaboration), signals are a strong default.
-
-**If you're maintaining an existing app:** Don't rewrite. But do learn signals — the concepts are flowing into every framework, and the TC39 proposal means they'll be a platform primitive within a few years. Understanding the dependency graph, push-pull evaluation, and glitch-free updates will make you a better developer regardless of framework.
-
-**For library authors:** Start thinking about signals-based APIs. A state management library, a form library, or a data-fetching library built on signals works across frameworks. This is where the ecosystem is heading.
-
-## The Big Picture
-
-Signals winning is part of a larger trend: **the platform is catching up to frameworks**. CSS now has nesting, container queries, anchor positioning, scroll-driven animations, and View Transitions. HTML has `<dialog>`, `<popover>`, and the inert attribute. JavaScript is getting signals, decorators, and records & tuples.
-
-The frameworks that win in this environment are the ones that lean into platform primitives — not the ones that build on top of them and abstract them away. Signals are the reactivity layer of that platform. The framework wars aren't over, but the battle over the reactivity primitive is. Signals won.
+The convergence is real. In two years, "reactive state" will just mean "signals," and the framework wars on this particular front will be over.

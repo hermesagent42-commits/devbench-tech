@@ -1,17 +1,19 @@
 ---
-title: "Build PWAs Faster: The Complete Guide to Manifest.json"
-date: "2026-05-29"
-excerpt: "Every Progressive Web App starts with a manifest.json — learn every field, best practices for icons, screenshots, shortcuts, and how to make your app installable across all platforms."
-tags: "PWA, Manifest, Mobile, Installable"
+title: 'Build PWAs Faster: The Complete Guide to Manifest.json'
+date: '2026-05-29'
+excerpt: 'Every Progressive Web App starts with a manifest.json — learn every field, best practices for icons, screenshots, shortcuts, and how to make your app installable across all platforms.'
+tags: 'PWA, Manifest, Mobile, Installable'
 ---
 
-The `manifest.json` file is the single source of truth for how your web app appears when installed on a user's device. It controls the app name, icon, theme color, display mode, and dozens of other details that transform a website into a native-like experience.
+## What manifest.json Actually Does
 
-Without it, there's no "Add to Home Screen" prompt, no splash screen, and no standalone window — just a browser tab.
+A web app manifest is a JSON file that tells the browser how your application should behave when installed on a device. It controls the name, icons, theme color, display mode, splash screen, and how your app appears in the app launcher.
+
+In 2026, PWAs are installable on every major platform — Windows, macOS, Linux, Android, iOS, iPadOS, and ChromeOS. A well-crafted manifest is the difference between your app feeling like a native application and feeling like a weird bookmark.
 
 ## The Minimum Viable Manifest
 
-A valid manifest needs only a few fields:
+Here's the absolute minimum you need for an installable PWA:
 
 ```json
 {
@@ -34,213 +36,261 @@ A valid manifest needs only a few fields:
 }
 ```
 
-Link it from every page with a single `<link>` tag in your `<head>`:
+Link it in your HTML:
 
 ```html
 <link rel="manifest" href="/manifest.json" />
 ```
 
-## Required vs. Recommended Fields
+Without at least a 192×192 and 512×512 icon, Chrome won't show the install prompt. Without `display: standalone`, your app opens in a browser tab. Without `start_url`, you get redirected to the wrong page on launch.
 
-### Required by Chrome for Install Prompt
+## Every Field, Explained
 
-Chrome's installability criteria (the "beforeinstallprompt" event requires):
+### Identity
 
-1. A valid `manifest.json` linked from the page
-2. At least a **192x192** and **512x512** icon
-3. `display` set to `standalone`, `fullscreen`, or `minimal-ui` (but not `browser`)
-4. The site served over HTTPS
-5. A registered service worker with a `fetch` event handler
+- **`name`** (required): The full app name. Used in the app launcher title, install prompt, and splash screen. Keep it under 45 characters for best display.
+- **`short_name`** (required): A 12-character max shorthand. Used on the home screen below the icon when space is tight.
+- **`description`**: A short description of your app. Android uses this in the app info screen.
+- **`lang`**: The primary language of `name` and `short_name`. Helps with accessibility and text rendering.
+- **`dir`**: Text direction: `ltr`, `rtl`, or `auto`. Use with `lang` for right-to-left languages.
 
-### Recommended for Quality
+### Display
 
-Beyond the minimum, these fields significantly improve the user experience:
+- **`display`** (required): How the app appears when launched:
+  - `standalone` — looks like a native app (no browser chrome). **This is what you want.**
+  - `fullscreen` — no status bar, no navigation. Only for games and immersive experiences.
+  - `minimal-ui` — minimal browser controls. Similar to standalone on most platforms.
+  - `browser` — opens in a regular browser tab. Don't use this for PWAs.
+
+- **`display_override`**: A priority list of display modes. If the browser supports `window-controls-overlay`, it'll use that. Otherwise falls back through the list.
 
 ```json
-{
-  "description": "A brief description of what your app does",
-  "theme_color": "#1a1a2e",
-  "background_color": "#0f0f1a",
-  "orientation": "portrait-primary",
-  "scope": "/app/",
-  "lang": "en",
-  "categories": ["productivity", "utilities"],
-  "screenshots": [
-    {
-      "src": "/screenshot-1.png",
-      "sizes": "1280x720",
-      "type": "image/png",
-      "label": "Home screen with dashboard"
-    }
-  ]
-}
+"display_override": ["window-controls-overlay", "standalone", "minimal-ui"]
 ```
 
-## Display Modes Explained
+- **`orientation`**: Lock the screen orientation: `portrait`, `landscape`, `any`, `natural`, `portrait-primary`, etc.
 
-The `display` field controls the browser chrome around your app:
+### Theme & Appearance
 
-| Mode | Browser Chrome | Status Bar | Best For |
-|------|---------------|------------|----------|
-| `standalone` | None (own window) | Yes | Most apps — looks native |
-| `fullscreen` | None at all | No | Games, immersive experiences |
-| `minimal-ui` | Back/forward/reload | Yes | Content-focused apps |
-| `browser` | Full browser chrome | Yes | Standard web page |
+- **`theme_color`**: The toolbar and status bar color. Sets the "brand" color of your PWA's window. Use your brand's primary color.
+- **`background_color`**: The splash screen background. Shows while the app loads. Should match your app's body background to avoid a flash.
+- **`scope`**: Limits which URLs the app can navigate to while staying in standalone mode. Defaults to the `start_url` directory.
 
-**Recommendation:** Use `standalone` for most apps. It gives you a native-looking window with a status bar but no URL bar or browser buttons.
+### Icons (Critical)
 
-## Icons: The Complete Story
-
-Icons are the make-or-break for a good PWA. Here's the recommended set:
+Icons are the most common failure point. Here's a production-quality icon set:
 
 ```json
 "icons": [
-  { "src": "/icon-48.png",  "sizes": "48x48",   "type": "image/png" },
-  { "src": "/icon-72.png",  "sizes": "72x72",   "type": "image/png" },
-  { "src": "/icon-96.png",  "sizes": "96x96",   "type": "image/png" },
-  { "src": "/icon-144.png", "sizes": "144x144", "type": "image/png" },
-  { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png" },
-  { "src": "/icon-256.png", "sizes": "256x256", "type": "image/png" },
-  { "src": "/icon-384.png", "sizes": "384x384", "type": "image/png" },
-  { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png" }
+  { "src": "/icons/icon-48.png", "sizes": "48x48", "type": "image/png" },
+  { "src": "/icons/icon-72.png", "sizes": "72x72", "type": "image/png" },
+  { "src": "/icons/icon-96.png", "sizes": "96x96", "type": "image/png" },
+  { "src": "/icons/icon-144.png", "sizes": "144x144", "type": "image/png" },
+  { "src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
+  { "src": "/icons/icon-512.png", "sizes": "512x512", "type": "image/png" },
+  { "src": "/icons/icon-192-maskable.png", "sizes": "192x192", "type": "image/png", "purpose": "maskable" },
+  { "src": "/icons/icon-512-maskable.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
 ]
 ```
 
-**Why so many sizes?** Different platforms use different sizes:
+Key points:
+- **Always include 192×192 and 512×512** — these are required for Chrome's install prompt.
+- **Always include maskable icons** — Android applies adaptive icon masking (circles, squircles, rounded squares). Without `purpose: "maskable"`, your icon gets a white background behind the mask and looks broken.
+- **Safe zone for maskable**: Keep your icon content within the center 80% of the canvas. The outer 20% may be clipped.
+- **Use PNG**: Every platform supports it. SVG is technically allowed but poorly supported across platforms.
+- **Include monochrome**: `"purpose": "monochrome"` icons for notification trays and system UI.
 
-- **Android** — Uses 192x192 for the home screen, 512x512 for the splash screen
-- **iOS (Safari)** — Uses the `apple-touch-icon` link tag (not manifest icons), typically 180x180
-- **Windows** — Uses 256x256 or larger for tiles
-- **ChromeOS** — Uses 512x512
+### Shortcuts
 
-**Pro tip:** Provide a maskable icon with a safe zone (padding) so Android can adapt it to any shape:
-
-```json
-{
-  "src": "/icon-maskable.png",
-  "sizes": "512x512",
-  "type": "image/png",
-  "purpose": "maskable"
-}
-```
-
-Maskable icons should have at least 40% padding (safe zone of 60% inner area). Use a tool like [Maskable.app](https://maskable.app) to test your icon.
-
-## Theme & Background Colors
-
-These two colors control the startup experience:
-
-- **`theme_color`** — The color of the status bar / toolbar in the standalone window
-- **`background_color`** — The color shown while the app loads (before any CSS)
-
-```json
-{
-  "theme_color": "#1a1a2e",
-  "background_color": "#0f0f1a"
-}
-```
-
-**Best practice:** Set `background_color` to the same value as your page's `<body>` background. This prevents a flash of white during app load. Set `theme_color` to your primary brand color for a cohesive native feel.
-
-## Screenshots: The Store Listing
-
-Screenshots appear in the app install dialog on Android and in app stores if you submit your PWA. Chrome requires at least one screenshot for the "richer install UI":
-
-```json
-"screenshots": [
-  {
-    "src": "/screenshot-wide.png",
-    "sizes": "1280x720",
-    "type": "image/png",
-    "label": "Dashboard view with analytics"
-  },
-  {
-    "src": "/screenshot-mobile.png",
-    "sizes": "750x1334",
-    "type": "image/png",
-    "label": "Mobile view with navigation"
-  }
-]
-```
-
-**Requirements:** Screenshots must be at least 320x320 and at most 3840x3840. Chrome recommends landscape (wider than tall) screenshots for the best presentation.
-
-## App Shortcuts
-
-Shortcuts appear when the user long-presses or right-clicks your app icon. They provide quick access to common tasks:
+App shortcuts let users jump directly to common actions from the app icon (right-click on desktop, long-press on mobile):
 
 ```json
 "shortcuts": [
   {
-    "name": "New Document",
-    "short_name": "New",
-    "description": "Create a blank document",
-    "url": "/new"
+    "name": "New Note",
+    "short_name": "Note",
+    "description": "Create a new note",
+    "url": "/notes/new",
+    "icons": [{ "src": "/icons/new-note.png", "sizes": "96x96" }]
   },
   {
-    "name": "View Recent",
-    "short_name": "Recent",
-    "description": "Browse recently edited files",
-    "url": "/recent"
+    "name": "Search",
+    "short_name": "Search",
+    "description": "Search your notes",
+    "url": "/search",
+    "icons": [{ "src": "/icons/search.png", "sizes": "96x96" }]
   }
 ]
 ```
 
-**Limits:** Chrome supports up to 10 shortcuts. Each must have at minimum a `name` and `url`.
+### Screenshots
 
-## Categories
-
-The `categories` field helps app stores and the OS understand what your app does:
+Screenshots appear in install dialogs and app stores (Microsoft Store, Google Play Trusted Web Activity):
 
 ```json
-"categories": ["productivity", "utilities", "education"]
+"screenshots": [
+  {
+    "src": "/screenshots/home-desktop.png",
+    "sizes": "1280x720",
+    "type": "image/png",
+    "form_factor": "wide",
+    "label": "Dashboard view on desktop"
+  },
+  {
+    "src": "/screenshots/home-mobile.png",
+    "sizes": "750x1334",
+    "type": "image/png",
+    "form_factor": "narrow",
+    "label": "Dashboard on mobile"
+  }
+]
 ```
 
-Choose from the [W3C's list of known categories](https://www.w3.org/TR/webappmanifest/#categories-member): books, business, education, entertainment, finance, fitness, food, games, health, kids, lifestyle, music, navigation, news, photo, productivity, shopping, social, sports, travel, utilities, weather.
+### Categories
+
+Helps app stores and search categorize your PWA:
+
+```json
+"categories": ["productivity", "utilities"]
+```
+
+Valid categories: `books`, `business`, `education`, `entertainment`, `finance`, `fitness`, `food`, `games`, `health`, `kids`, `lifestyle`, `music`, `navigation`, `news`, `personalization`, `photo`, `productivity`, `reference`, `shopping`, `social`, `sports`, `travel`, `utilities`, `weather`.
+
+### Protocol Handlers
+
+Register your PWA to handle custom URL schemes:
+
+```json
+"protocol_handlers": [
+  {
+    "protocol": "web+notes",
+    "url": "/open?note=%s"
+  }
+]
+```
+
+Now `web+notes:123` URLs open your PWA. The `%s` placeholder receives the URI content after the colon. This works with `mailto`, `web+*`, and more.
+
+### File Handlers
+
+Let your PWA register as a file handler — users can "Open with" your app from the file manager:
+
+```json
+"file_handlers": [
+  {
+    "action": "/open-file",
+    "accept": {
+      "text/plain": [".txt", ".md"],
+      "application/json": [".json"]
+    }
+  }
+]
+```
+
+### Related Applications
+
+Tell the platform about your native app counterparts:
+
+```json
+"related_applications": [
+  {
+    "platform": "play",
+    "url": "https://play.google.com/store/apps/details?id=com.example.app",
+    "id": "com.example.app"
+  }
+],
+"prefer_related_applications": false
+```
+
+When `prefer_related_applications` is `true`, the platform skips the PWA install prompt and directs users to the native app store instead. Keep it `false` unless you're intentionally pushing users away from the PWA.
+
+## Platform-Specific Requirements
+
+### iOS / iPadOS
+
+Apple doesn't read `manifest.json` directly. You also need:
+
+```html
+<!-- iOS meta tags -->
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="apple-mobile-web-app-title" content="My App" />
+
+<!-- iOS splash screens -->
+<link rel="apple-touch-startup-image" href="/splash/apple-splash-2048-2732.png"
+      media="(device-width: 1024px) and (device-height: 1366px)" />
+
+<!-- iOS icons -->
+<link rel="apple-touch-icon" href="/icons/icon-180.png" sizes="180x180" />
+```
+
+Safari 17+ reads `manifest.json` for the name, theme color, and display mode, but icons and splash screens still need `apple-touch-icon` and `apple-touch-startup-image`.
+
+### Windows
+
+Windows uses the manifest plus optional metadata for the Microsoft Store:
+
+- Set `display_override: ["window-controls-overlay"]` for native-feeling title bar customization
+- Use the `edge_side_panel` member for sidebar integration
+- The `screenshots` array and `description` feed the Microsoft Store listing
+
+### Android / Trusted Web Activity
+
+For Google Play distribution via TWA, the manifest must match your Play Store listing (name, icons, screenshots). Use `prefer_related_applications: false` so the PWA promotes itself rather than redirecting to the Play Store.
+
+## Validation Checklist
+
+Before shipping, verify:
+
+- [ ] `name` and `short_name` are set and different
+- [ ] `display` is `standalone` (not `browser`)
+- [ ] At least one 192×192 and 512×512 icon
+- [ ] Maskable icons with `purpose: "maskable"` and proper safe zones
+- [ ] `theme_color` matches your brand color
+- [ ] `background_color` matches your page background
+- [ ] `start_url` is `"/"` or the correct entry point
+- [ ] `scope` doesn't restrict navigation unexpectedly
+- [ ] Screenshots are 1280×720 (desktop) and ~750×1334 (mobile) PNGs
+- [ ] Categories match your app's purpose
 
 ## Testing Your Manifest
 
-1. **Chrome DevTools** → Application tab → Manifest panel. Shows all parsed fields and any errors.
-2. **Lighthouse** — Run an audit; it validates your manifest, icons, and installability.
-3. **Web App Manifest Validator** — Command line: `npx web-app-manifest-validator manifest.json`
-4. **DevBench PWA Manifest Generator** — [Build and preview manifest.json visually](/tools/pwa-manifest-generator)
+Open Chrome DevTools → Application → Manifest. You'll see every field parsed, icon previews, and any warnings. Chrome will flag missing maskable icons, undersized icons, and mismatched theme/background colors.
 
-## Common Mistakes
+For real install testing: serve over HTTPS on a real device. The install prompt won't appear on `localhost` unless you bypass engagement checks in `chrome://flags`.
 
-### 1. Missing 192x192 or 512x512 icon
+## A Production Template
 
-Chrome requires both. Without them, the install prompt won't fire. Check that your `sizes` field exactly matches the actual image dimensions.
+Here's a complete manifest you can adapt:
 
-### 2. `display: "browser"` (or missing `display`)
-
-This prevents the app from opening in standalone mode. Use `standalone`, `fullscreen`, or `minimal-ui`.
-
-### 3. Start URL outside of scope
-
-The `start_url` must be within the `scope`. If `scope` is `/app/`, the `start_url` cannot be `/`.
-
-### 4. No service worker
-
-A service worker with at minimum a `fetch` event listener is required for Chrome's install prompt. Even an empty one works:
-
-```js
-self.addEventListener('fetch', () => {});
+```json
+{
+  "name": "MyApp",
+  "short_name": "MyApp",
+  "description": "A description of MyApp for app stores and search results.",
+  "lang": "en",
+  "start_url": "/",
+  "display": "standalone",
+  "display_override": ["window-controls-overlay", "standalone"],
+  "theme_color": "#0f172a",
+  "background_color": "#0f172a",
+  "scope": "/",
+  "orientation": "any",
+  "categories": ["productivity"],
+  "icons": [
+    { "src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "/icons/icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "/icons/icon-192-maskable.png", "sizes": "192x192", "type": "image/png", "purpose": "maskable" },
+    { "src": "/icons/icon-512-maskable.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ],
+  "screenshots": [
+    { "src": "/screenshots/desktop.png", "sizes": "1280x720", "type": "image/png", "form_factor": "wide" },
+    { "src": "/screenshots/mobile.png", "sizes": "750x1334", "type": "image/png", "form_factor": "narrow" }
+  ],
+  "shortcuts": [
+    { "name": "Dashboard", "url": "/dashboard", "icons": [{ "src": "/icons/dashboard.png", "sizes": "96x96" }] }
+  ]
+}
 ```
 
-### 5. Non-HTTPS
-
-PWAs require HTTPS. The only exception is `localhost` for development.
-
-## Going Beyond
-
-Once your manifest is solid, the next steps for a complete PWA are:
-
-1. **Service Worker** — Cache your app shell for offline access
-2. **Web App Install Banner** — Customize the install experience
-3. **Push Notifications** — Engage users with timely updates
-4. **Background Sync** — Handle offline writes that sync when online
-5. **File Handling** — Register as a file handler for your app's document types
-
-The manifest.json is just the beginning — but it's the foundation everything else builds on. Get it right, and your PWA will install on Android, ChromeOS, and desktop Chrome with a polished, native-like experience.
-
-Use our [PWA Manifest Generator](/tools/pwa-manifest-generator) to build yours visually in seconds.
+PWAs are no longer experimental or "good enough." With a complete manifest, they're indistinguishable from native apps — and they ship with zero app store review process.
