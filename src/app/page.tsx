@@ -1107,6 +1107,13 @@ const featuredTools = [
     icon: Play,
     tags: ['Animation', 'JS', 'WAAPI', 'Keyframes'],
   },
+  {
+    title: 'CSS Background Pattern Generator',
+    description: 'Generate beautiful CSS-only background patterns — 16 patterns (dots, grid, stripes, checkerboard, waves, hexagons, and more). Tweak colors, scale, and opacity with live preview and instant CSS output.',
+    href: '/tools/css-bg-pattern-generator',
+    icon: Paintbrush,
+    tags: ['CSS', 'Pattern', 'Background', 'Design', 'Generator'],
+  },
 ];
 const sampleBlogPosts = [
   {
