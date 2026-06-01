@@ -996,6 +996,13 @@ const allTools = [
     icon: Braces,
     tags: ['JavaScript', 'Array', 'Methods', 'Reference', 'ES2023', 'ES2024'],
   },
+  {
+    title: 'Data URL Converter',
+    description: 'Encode files and text to data: URLs for inline embedding in HTML/CSS/JS — drag & drop files, view metadata and previews, decode existing data: URLs, download decoded content. 100% client-side with FileReader API.',
+    href: '/tools/data-url-converter',
+    icon: Link,
+    tags: ['Data URL', 'Encoder', 'Decoder', 'Base64', 'Embedding'],
+  },
 ];
 
 export default function ToolsPage() {
