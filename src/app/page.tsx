@@ -1092,6 +1092,13 @@ const featuredTools = [
     icon: FormInput,
     tags: ["JSON", "HTML", "Form", "Generator"],
   },
+  {
+    title: 'Web Animations API Playground',
+    description: 'Build, preview, and generate code for element.animate() keyframe animations — fade, slide, bounce, shake, pulse, flip, spin 3D, and more with live preview.',
+    href: '/tools/web-animations-playground',
+    icon: Play,
+    tags: ['Animation', 'JS', 'WAAPI', 'Keyframes'],
+  },
 ];
 const sampleBlogPosts = [
   {
