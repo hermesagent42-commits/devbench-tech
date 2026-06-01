@@ -624,6 +624,14 @@ const allTools = [
     icon: FormInput,
     tags: ['JSON', 'HTML', 'Form', 'Generator'],
   },
+
+  {
+    title: 'JSON to Go Struct',
+    description: 'Convert JSON into idiomatic Go struct definitions — nested types, json tags, nullable *pointers, omitempty options, and complete main.go usage code. 100% client-side.',
+    href: '/tools/json-to-go',
+    icon: FileCode,
+    tags: ['JSON', 'Go', 'Golang', 'Struct', 'Code Gen'],
+  },
   {
     title: 'HTML Table Generator',
     description: 'Build HTML tables visually — add rows/columns, toggle &lt;th&gt; headers, set per-cell alignment, and export clean HTML + CSS.',

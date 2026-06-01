@@ -1085,6 +1085,14 @@ const featuredTools = [
     icon: ShieldCheck,
     tags: ['JSON', 'Zod', 'Schema', 'Validation', 'TypeScript'],
   },
+
+  {
+    title: 'JSON → Go Struct',
+    description: 'Convert JSON to idiomatic Go struct definitions — nested types, json tags, nullable *pointers, omitempty, and full main.go usage code. 100% client-side.',
+    href: '/tools/json-to-go',
+    icon: FileCode,
+    tags: ['JSON', 'Go', 'Golang', 'Struct', 'Code Gen'],
+  },
   {
     title: "JSON to HTML Form",
     description: "Convert JSON objects into accessible, production-ready HTML forms with auto-detected field types — email, password, URL, date, color, select, textarea, checkbox, and more.",
