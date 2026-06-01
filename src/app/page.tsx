@@ -1151,6 +1151,13 @@ const featuredTools = [
     icon: Crosshair,
     tags: ['CSS', 'Position', 'Layout', 'Learning'],
   },
+  {
+    title: 'SVG Filter Playground',
+    description: 'Build powerful SVG filter effects visually — blur, drop-shadow, noise, duotone, gooey morph, neon glow, displacement maps, and text outlines. Apply to any HTML element with CSS filter: url().',
+    href: '/tools/svg-filter-playground',
+    icon: Sparkles,
+    tags: ['SVG', 'Filter', 'Effects', 'Design'],
+  },
 ];
 const sampleBlogPosts = [
   {
