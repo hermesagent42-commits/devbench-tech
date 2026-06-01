@@ -212,6 +212,13 @@ const featuredTools = [
     tags: ['CSS', 'Box-Shadow', 'Design'],
   },
   {
+    title: 'CSS Border-Radius Generator',
+    description: 'Design custom border‑radius shapes with control over all 8 values. 10 presets, live SVG preview, CSS + Tailwind output.',
+    href: '/tools/css-border-radius-generator',
+    icon: Radius,
+    tags: ['CSS', 'Border-Radius', 'Design', 'Shape'],
+  },
+  {
     title: 'CSS Aspect Ratio Playground',
     description: 'Visually build and test CSS aspect-ratio values — 15 presets, live preview at multiple device widths, CSS + Tailwind output.',
     href: '/tools/aspect-ratio-playground',
