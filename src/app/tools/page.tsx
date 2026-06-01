@@ -96,6 +96,7 @@ import {
   RefreshCw,
   Slash,
   Printer,
+  FormInput,
 } from 'lucide-react';
 
 export const metadata: Metadata = {
@@ -615,6 +616,13 @@ const allTools = [
     href: '/tools/json-html-table',
     icon: Table2,
     tags: ['JSON', 'HTML', 'Table', 'Converter'],
+  },
+  {
+    title: 'JSON to HTML Form',
+    description: 'Convert JSON objects into accessible, production-ready HTML forms with auto-detected field types — email, password, URL, date, color, select, textarea, checkbox, and more.',
+    href: '/tools/json-to-form',
+    icon: FormInput,
+    tags: ['JSON', 'HTML', 'Form', 'Generator'],
   },
   {
     title: 'HTML Table Generator',

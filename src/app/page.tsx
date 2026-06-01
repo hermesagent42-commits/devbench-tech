@@ -95,6 +95,7 @@ import {
   Sparkles,
   Timer,
   SunMoon,
+  FormInput,
 } from 'lucide-react';
 
 export const metadata: Metadata = {
@@ -1076,6 +1077,13 @@ const featuredTools = [
     href: '/tools/json-to-zod',
     icon: ShieldCheck,
     tags: ['JSON', 'Zod', 'Schema', 'Validation', 'TypeScript'],
+  },
+  {
+    title: "JSON to HTML Form",
+    description: "Convert JSON objects into accessible, production-ready HTML forms with auto-detected field types — email, password, URL, date, color, select, textarea, checkbox, and more.",
+    href: "/tools/json-to-form",
+    icon: FormInput,
+    tags: ["JSON", "HTML", "Form", "Generator"],
   },
 ];
 const sampleBlogPosts = [
