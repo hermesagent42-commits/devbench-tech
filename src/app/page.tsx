@@ -253,6 +253,13 @@ const featuredTools = [
     tags: ['Color', 'Palette', 'Design', 'Harmony'],
   },
   {
+    title: 'OKLCH Color Picker',
+    description: 'Explore the modern OKLCH color space — perceptually uniform lightness, adjustable chroma, and continuous hue. Live sRGB gamut preview and multi-format output (HEX, RGB, HSL).',
+    href: '/tools/oklch-color-picker',
+    icon: Palette,
+    tags: ['OKLCH', 'Color', 'CSS', 'Design'],
+  },
+  {
     title: 'WCAG Contrast Checker',
     description: 'Check color contrast against WCAG 2.1 AA/AAA guidelines. Real-time calculation, visual text preview, UI element samples, and 12 common presets — all client-side.',
     href: '/tools/contrast-checker',
