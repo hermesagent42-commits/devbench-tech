@@ -1210,6 +1210,13 @@ const featuredTools = [
     tags: ['CSS', 'Text Decoration', 'Typography'],
   },
   {
+    title: 'CSS Caret Playground',
+    description: 'Design accessible text cursors — caret-color, caret-shape (block, underscore), live textarea preview, WCAG contrast checker, and copy production-ready CSS.',
+    href: '/tools/css-caret-playground',
+    icon: Type,
+    tags: ['CSS', 'Caret', 'Accessibility', 'Forms'],
+  },
+  {
     title: 'CSS content-visibility Playground',
     description: 'Speed up rendering with content-visibility: auto — skip layout for off-screen content. Live scroll test, performance metrics, and production-ready CSS.',
     href: '/tools/content-visibility-playground',
