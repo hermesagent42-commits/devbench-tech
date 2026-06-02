@@ -1051,6 +1051,13 @@ const allTools = [
     icon: Gauge,
     tags: ['CSS', 'content-visibility', 'Performance', 'Rendering'],
   },
+  {
+    title: 'MutationObserver Playground',
+    description: 'Observe DOM mutations in real-time — child additions/removals, attribute changes, and character data edits. 5 presets, interactive demo box, configurable observer options — the browser\'s MutationObserver API, live.',
+    href: '/tools/mutation-observer-playground',
+    icon: Eye,
+    tags: ['Browser API', 'MutationObserver', 'Debug', 'DOM'],
+  },
 ];
 
 export default function ToolsPage() {

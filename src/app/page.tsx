@@ -1216,6 +1216,13 @@ const featuredTools = [
     icon: Gauge,
     tags: ['CSS', 'Performance', 'Rendering'],
   },
+  {
+    title: 'MutationObserver Playground',
+    description: 'Observe DOM mutations in real-time — child additions/removals, attribute changes, and character data edits. Interactive demo box, 5 presets — the browser\'s MutationObserver API, live.',
+    href: '/tools/mutation-observer-playground',
+    icon: Eye,
+    tags: ['Browser API', 'MutationObserver', 'DOM', 'Debug'],
+  },
 ];
 const sampleBlogPosts = [
   {
