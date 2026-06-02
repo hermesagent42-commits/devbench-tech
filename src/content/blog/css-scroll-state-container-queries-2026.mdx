@@ -1,0 +1,576 @@
+---
+title: "CSS scroll-state() Container Queries: Style Elements Based on Scroll Position — No JavaScript"
+date: "2026-06-02"
+excerpt: "CSS scroll-state() lets you query whether a container is scrollable, stuck, overflowing, or snapped — and style descendants accordingly. No IntersectionObserver, no scroll event listeners, no JavaScript at all. Complete guide with real-world patterns for sticky headers, scroll-aware layouts, and adaptive UIs."
+tags: ["CSS", "scroll-state", "Container Queries", "Scroll", "Web Platform", "Chrome 134", "2026"]
+---
+
+`scroll-state()` is the newest dimension of CSS container queries — it lets you query the **scroll state** of a container and style its descendants in response. If the container is overflowing, a child gets a shadow. If it's scrolled to the end, a button disappears. If it's snapped to a section, the nav changes. All in CSS, all without a single line of JavaScript.
+
+This is one of the most significant CSS features of 2026. Let's dive deep.
+
+## The Problem We're Solving
+
+Before `scroll-state()`, detecting scroll position required JavaScript — `IntersectionObserver`, scroll event listeners, or framework abstractions. Every approach had tradeoffs:
+
+```javascript
+// The old way: JavaScript for everything
+const container = document.querySelector('.scroll-container');
+const header = document.querySelector('.sticky-header');
+
+const observer = new IntersectionObserver(
+  ([entry]) => {
+    header.classList.toggle('scrolled', !entry.isIntersecting);
+  },
+  { root: container, threshold: 0 }
+);
+
+// Watch a sentinel element
+observer.observe(document.querySelector('.scroll-sentinel'));
+
+// Or throttle scroll events (worse)
+container.addEventListener('scroll', throttle(() => {
+  header.classList.toggle('scrolled', container.scrollTop > 0);
+}, 100));
+```
+
+This works, but it's verbose, imperative, and detached from the declarative model CSS gives us. `scroll-state()` puts scroll awareness directly into your stylesheets.
+
+## How scroll-state() Works
+
+`scroll-state()` is a **container query** — you define a containment context with `container-type`, then query its scroll state inside a `@container` block:
+
+```css
+.scroll-container {
+  container-type: scroll-state;
+  /* Enables scroll-state queries on this element */
+  overflow-y: auto;
+  max-height: 400px;
+}
+
+/* Style child when container is scrollable (has overflow) */
+@container scroll-state(scrollable: top) {
+  .scroll-shadow {
+    box-shadow: inset 0 2px 8px rgba(0,0,0,0.15);
+  }
+}
+
+@container scroll-state(scrollable: bottom) {
+  .scroll-shadow {
+    box-shadow: inset 0 -2px 8px rgba(0,0,0,0.15);
+  }
+}
+```
+
+The key insight: **`container-type: scroll-state`** is a separate containment type from `size` or `inline-size`. You can combine them:
+
+```css
+.card-list {
+  container-type: inline-size scroll-state;
+  container-name: card-list;
+}
+```
+
+## The Full scroll-state() Query Vocabulary
+
+`scroll-state()` supports these queries:
+
+| Query | Description | Example Values |
+|-------|-------------|----------------|
+| `scrollable` | Is the container scrollable in a direction? | `none`, `top`, `right`, `bottom`, `left`, `block-start`, `block-end`, `inline-start`, `inline-end` |
+| `stuck` | Is any sticky-positioned child stuck? | Same direction values |
+| `snapped` | Is the container snapped to a scroll-snap target? | `none`, `x`, `y`, `block`, `inline`, `both` |
+| `overflowing` | Is content overflowing in a direction? | Same direction values |
+
+### scrollable — The Core Query
+
+This is the one you'll use most. It tells you whether the container **can** scroll in a given direction:
+
+```css
+@container scroll-state(scrollable: top) {
+  /* Styles apply when the user CAN scroll up
+     (i.e., they're not at the very top) */
+  .back-to-top {
+    opacity: 1;
+    pointer-events: auto;
+  }
+}
+
+@container scroll-state(scrollable: bottom) {
+  /* Styles apply when the user CAN scroll down
+     (i.e., they're not at the very bottom) */
+  .load-more {
+    display: flex;
+  }
+}
+
+@container scroll-state(scrollable: none) {
+  /* Styles apply when the content fits entirely —
+     no scrolling possible at all */
+  .scroll-hint {
+    display: none;
+  }
+}
+```
+
+Note the mental model: `scrollable: top` means "scrolling **toward the top** is possible" — which is true when you're not at the top. It's NOT asking "is the top edge scrollable?" — it's asking "can the user scroll up from here?"
+
+### stuck — Detect Sticky Elements
+
+When a `position: sticky` element becomes "stuck" (pinned to its boundary), you can style everything around it:
+
+```css
+.section-container {
+  container-type: scroll-state;
+  overflow-y: auto;
+}
+
+.section-header {
+  position: sticky;
+  top: 0;
+  background: var(--bg);
+  transition: box-shadow 0.2s;
+}
+
+@container scroll-state(stuck: top) {
+  .section-header {
+    box-shadow: 0 2px 12px rgba(0,0,0,0.1);
+    border-bottom: 1px solid var(--border);
+  }
+}
+```
+
+This replaces IntersectionObserver-based "sticky sentinel" hacks with **zero JavaScript**.
+
+### snapped — Scroll Snap Awareness
+
+Style elements based on which snap point the container is currently at:
+
+```css
+.carousel {
+  container-type: scroll-state;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+}
+
+.carousel-slide {
+  scroll-snap-align: center;
+}
+
+@container scroll-state(snapped: x) {
+  /* The container is snapped to a horizontal snap point */
+  .carousel-dots .active {
+    /* You still need JS to know *which* dot,
+       but you can style the "snapped state" */
+  }
+}
+```
+
+### overflowing — Is Content Overflowing?
+
+Different from `scrollable` — `overflowing` asks whether content **exceeds** the container in a direction, regardless of whether scrolling is allowed:
+
+```css
+@container scroll-state(overflowing: block-end) {
+  /* Content overflows the bottom edge */
+  .content-fade {
+    opacity: 1;
+  }
+}
+```
+
+## Complete Real-World Patterns
+
+### Pattern 1: Scroll-Aware Sticky Header
+
+The classic — shadow appears when content scrolls under a sticky header:
+
+```html
+<div class="page">
+  <header class="sticky-header">
+    <h1>Dashboard</h1>
+  </header>
+  <main class="page-content">
+    <!-- long content -->
+  </main>
+</div>
+```
+
+```css
+.page {
+  container-type: scroll-state;
+  overflow-y: auto;
+  height: 100vh;
+}
+
+.sticky-header {
+  position: sticky;
+  top: 0;
+  background: white;
+  padding: 1rem 2rem;
+  transition: box-shadow 0.3s, background 0.3s;
+}
+
+/* NOT at the top → scrolled down → add shadow */
+@container scroll-state(scrollable: top) {
+  .sticky-header {
+    box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.08);
+    background: rgba(255,255,255,0.95);
+    backdrop-filter: blur(12px);
+  }
+}
+
+/* At the very top → no shadow */
+@container scroll-state(scrollable: none) {
+  .sticky-header {
+    box-shadow: none;
+    background: white;
+  }
+}
+```
+
+### Pattern 2: Auto-Hiding Scroll-to-Top Button
+
+```css
+.main-content {
+  container-type: scroll-state;
+  overflow-y: auto;
+  height: 100vh;
+}
+
+.back-to-top {
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  opacity: 0;
+  transform: translateY(1rem);
+  transition: opacity 0.3s, transform 0.3s;
+  pointer-events: none;
+}
+
+@container scroll-state(scrollable: top) {
+  .back-to-top {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+  }
+}
+```
+
+### Pattern 3: Overflow Gradient Fade
+
+Show a gradient fade at the bottom when more content exists to scroll:
+
+```css
+.feed {
+  container-type: scroll-state;
+  overflow-y: auto;
+  max-height: 600px;
+  position: relative;
+}
+
+.feed::after {
+  content: '';
+  position: sticky;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 60px;
+  background: linear-gradient(to top, var(--bg), transparent);
+  pointer-events: none;
+  transition: opacity 0.3s;
+}
+
+@container scroll-state(scrollable: bottom) {
+  .feed::after {
+    opacity: 1;
+  }
+}
+
+@container scroll-state(scrollable: none) {
+  .feed::after {
+    opacity: 0;
+  }
+}
+```
+
+### Pattern 4: Infinite Scroll "Load More" UI
+
+```css
+.infinite-scroll {
+  container-type: scroll-state;
+  overflow-y: auto;
+  height: 100%;
+}
+
+.load-more-indicator {
+  display: flex;
+  justify-content: center;
+  padding: 1rem;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+@container scroll-state(scrollable: bottom) {
+  .load-more-indicator {
+    opacity: 1;
+  }
+}
+
+/* No more content → hide the indicator entirely */
+@container scroll-state(scrollable: none) {
+  .load-more-indicator {
+    display: none;
+  }
+}
+```
+
+### Pattern 5: Collapsible Sections with Sticky Headers
+
+Sections with sticky headers that gain depth as you scroll through them:
+
+```css
+.guide {
+  container-type: scroll-state;
+  overflow-y: auto;
+  height: 100vh;
+}
+
+.guide-section {
+  /* Each section is a scroll-snap target */
+  scroll-snap-align: start;
+}
+
+.section-header {
+  position: sticky;
+  top: 0;
+  background: var(--bg);
+  padding: 0.75rem 1rem;
+  z-index: 1;
+  transition: box-shadow 0.2s, background 0.2s;
+}
+
+/* Style ALL section headers when ANY sticky header is stuck */
+@container scroll-state(stuck: top) {
+  .section-header {
+    background: var(--bg-elevated);
+  }
+}
+
+/* Add shadow only to the currently stuck header */
+.section-header:stuck {
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+```
+
+### Pattern 6: Scroll-Driven Progress Indicators
+
+Combine scroll-state with scroll-driven animations for reading progress:
+
+```css
+.article {
+  container-type: scroll-state;
+  overflow-y: auto;
+}
+
+.reading-progress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 3px;
+  background: var(--brand-500);
+  /* Animate width with scroll-timeline, hide when no scroll needed */
+  animation: progress linear;
+  animation-timeline: scroll(root);
+  transition: opacity 0.3s;
+}
+
+@container scroll-state(scrollable: none) {
+  .reading-progress {
+    opacity: 0;
+  }
+}
+```
+
+## Combining scroll-state() with Other Container Queries
+
+You can build powerful, multi-dimensional queries by combining scroll-state with size and style queries:
+
+```css
+.card-grid {
+  container-type: inline-size scroll-state;
+  container-name: card-grid;
+}
+
+/* Wide container + scrollable → show horizontal scroll hint */
+@container card-grid (min-width: 768px) and scroll-state(scrollable: inline-end) {
+  .scroll-hint-arrow {
+    display: flex;
+  }
+}
+
+/* Narrow container → different layout altogether */
+@container card-grid (max-width: 767px) {
+  .card {
+    flex-direction: column;
+  }
+}
+```
+
+## Browser Support (June 2026)
+
+| Browser | Version | scroll-state() |
+|---------|---------|:---:|
+| Chrome | 134+ | ✅ |
+| Edge | 134+ | ✅ |
+| Firefox | 138+ | ✅ |
+| Safari | 18.4+ | ✅ |
+
+As of June 2026, `scroll-state()` ships in all four major browsers. It's not yet Baseline, but it's close — and you can use it today with a simple fallback:
+
+## Progressive Enhancement Strategy
+
+```css
+/* Default: always show the shadow (safe fallback) */
+.sticky-header {
+  box-shadow: 0 1px 3px rgba(0,0,0,0.12);
+}
+
+/* Enhanced: hide shadow at top, show when scrolled */
+@container scroll-state(scrollable: none) {
+  .sticky-header {
+    box-shadow: none;
+  }
+}
+
+/* Browsers that don't support scroll-state() simply keep
+   the default shadow — no broken experience. */
+```
+
+For more critical uses, feature-detect with `@supports`:
+
+```css
+@supports (container-type: scroll-state) {
+  /* scroll-state() enhanced styles */
+  .app {
+    container-type: scroll-state;
+  }
+  
+  @container scroll-state(scrollable: top) {
+    .compact-header {
+      padding-block: 0.5rem;
+      font-size: 0.875rem;
+    }
+  }
+}
+
+/* Fallback for non-supporting browsers */
+.app {
+  /* Baseline styles */
+}
+```
+
+## Performance Considerations
+
+`scroll-state()` is **highly optimized** — the browser tracks scroll state internally and only triggers style recalculation when the scroll state actually changes (e.g., reaching the top or bottom edge). This is fundamentally cheaper than JavaScript scroll listeners:
+
+```javascript
+// ❌ Expensive — fires on every scroll pixel
+window.addEventListener('scroll', () => {
+  header.classList.toggle('scrolled', window.scrollY > 0);
+});
+
+// ✅ Efficient — browser only re-evaluates at edge transitions
+@container scroll-state(scrollable: top) {
+  .header { /* scrolled styles */ }
+}
+```
+
+The browser knows the exact moment `scrollable: top` changes from `false` to `true` (or vice versa) and only does work at those boundaries — not during the continuous scroll between them.
+
+## Combining with scroll-driven Animations
+
+`scroll-state()` and scroll-driven animations are complementary:
+
+- **scroll-driven animations**: Continuous interpolation based on scroll offset (e.g., parallax, progress bars)
+- **scroll-state()**: Discrete state changes at scroll boundaries (e.g., show/hide, shadow on/off)
+
+Use them together:
+
+```css
+.page {
+  container-type: scroll-state;
+}
+
+/* Continuous: progress bar follows scroll position */
+.progress-bar {
+  animation: progress auto linear;
+  animation-timeline: scroll(root);
+}
+
+/* Discrete: compact header only when scrolled */
+@container scroll-state(scrollable: top) {
+  .header {
+    padding-block: 0.5rem;
+    font-size: 0.875rem;
+  }
+}
+
+/* Discrete: show back-to-top only when scrolled past threshold */
+@container scroll-state(scrollable: top) {
+  .back-to-top {
+    opacity: 1;
+  }
+}
+```
+
+## The Bigger Picture: CSS Becoming State-Aware
+
+`scroll-state()` is part of a broader trend: CSS gaining awareness of **dynamic UI state** without JavaScript:
+
+| Feature | What It Queries |
+|---------|----------------|
+| `scroll-state()` | Container scroll position and state |
+| `style()` container queries | Computed style of ancestor |
+| `:has()` | Presence/state of descendants |
+| `:popover-open` | Whether a popover is open |
+| `:modal` | Whether a dialog is modal |
+| `:autofill` | Whether an input is autofilled |
+| Scroll-driven animations | Scroll offset for continuous interpolation |
+
+Together, these features dramatically reduce JavaScript's role in UI interactivity. A sticky header with scroll-triggered shadow used to require ~30 lines of JS across `scroll` + `IntersectionObserver`. Now it's 5 lines of CSS with `scroll-state()`.
+
+## What's Next: scroll-state() and View Timeline Integration
+
+The CSS Working Group is exploring combining `scroll-state()` with View Timeline — allowing you to query whether a **specific element** is visible in the scrollport:
+
+```css
+/* Future possibility — not yet shipped */
+@container scroll-state(element-visible: #section-3) {
+  .sidebar-link[href="#section-3"] {
+    color: var(--brand-500);
+    font-weight: 600;
+  }
+}
+```
+
+This would replace the common "active section in nav" pattern that currently requires `IntersectionObserver` watching every heading.
+
+## Summary
+
+`scroll-state()` gives you **native CSS queries for scroll position**. It replaces scroll-event-based class toggling with declarative, performant styles:
+
+- `container-type: scroll-state` enables the queries
+- Query `scrollable`, `stuck`, `snapped`, or `overflowing` in any direction
+- Combine with size container queries for multi-dimensional responsive+scroll-aware layouts
+- Progressive enhancement: non-supporting browsers gracefully ignore the `@container` block
+- Massively more performant than JavaScript scroll listeners
+
+The era of JavaScript-powered scroll effects is ending. CSS now has first-class scroll awareness — and `scroll-state()` is the centerpiece.
+
+---
+
+**Further reading:**
+- [CSS Container Queries spec — scroll-state()](https://drafts.csswg.org/css-contain-3/#scroll-state-container)
+- [Chrome 134 release notes](https://developer.chrome.com/blog/new-in-chrome-134)
+- [DevBench CSS Container Query Builder](/tools/container-query-builder) — build size + scroll-state queries visually
