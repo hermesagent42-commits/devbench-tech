@@ -1145,6 +1145,13 @@ const featuredTools = [
     icon: ShieldCheck,
     tags: ['JSON', 'Zod', 'Schema', 'Validation', 'TypeScript'],
   },
+  {
+    title: 'JSON → SQL Converter',
+    description: 'Convert JSON data into SQL CREATE TABLE and INSERT statements. Auto-detect column types, support PostgreSQL/MySQL/SQLite dialects — seed your database in seconds.',
+    href: '/tools/json-to-sql',
+    icon: Database,
+    tags: ['JSON', 'SQL', 'PostgreSQL', 'MySQL', 'SQLite', 'Code Gen'],
+  },
 
   {
     title: 'JSON → Go Struct',
