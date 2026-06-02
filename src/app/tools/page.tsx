@@ -635,6 +635,13 @@ const allTools = [
     tags: ['JSON', 'Go', 'Golang', 'Struct', 'Code Gen'],
   },
   {
+    title: 'JSON to Rust Struct',
+    description: 'Convert JSON data into idiomatic Rust struct definitions with serde — derive macros, Option types, snake_case fields, serde rename attributes, and nested structs. 100% client-side.',
+    href: '/tools/json-to-rust',
+    icon: FileCode,
+    tags: ['JSON', 'Rust', 'Serde', 'Struct', 'Code Gen'],
+  },
+  {
     title: 'HTML Table Generator',
     description: 'Build HTML tables visually — add rows/columns, toggle &lt;th&gt; headers, set per-cell alignment, and export clean HTML + CSS.',
     href: '/tools/html-table-generator',
