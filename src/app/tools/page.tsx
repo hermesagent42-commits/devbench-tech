@@ -97,6 +97,8 @@ import {
   Slash,
   Printer,
   FormInput,
+  Clipboard,
+  ClipboardPaste,
 } from 'lucide-react';
 
 export const metadata: Metadata = {
@@ -1002,6 +1004,13 @@ const allTools = [
     href: '/tools/data-url-converter',
     icon: Link,
     tags: ['Data URL', 'Encoder', 'Decoder', 'Base64', 'Embedding'],
+  },
+  {
+    title: 'Clipboard API Playground',
+    description: 'Explore the navigator.clipboard API — write/read text and rich content (images), monitor copy/cut/paste events, check permissions, and export code snippets. All client-side.',
+    href: '/tools/clipboard-playground',
+    icon: ClipboardPaste,
+    tags: ['Clipboard', 'Browser API', 'Permissions', 'Events'],
   },
 ];
 
