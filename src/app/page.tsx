@@ -1237,6 +1237,13 @@ const featuredTools = [
     icon: Eye,
     tags: ['Browser API', 'MutationObserver', 'DOM', 'Debug'],
   },
+  {
+    title: 'Sorting Visualizer',
+    description: 'Watch 8 sorting algorithms battle it out — bubble, selection, insertion, merge, quick, heap, shell, and cocktail shaker. Adjust speed (1x–32x), array size (10–200), pause/resume, and see every comparison and swap in real time.',
+    href: '/tools/sorting-visualizer',
+    icon: BarChart3,
+    tags: ['Algorithms', 'Sorting', 'Visualization', 'Education'],
+  },
 ];
 const sampleBlogPosts = [
   {
