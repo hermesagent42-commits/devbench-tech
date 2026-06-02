@@ -102,6 +102,7 @@ import {
   Crosshair,
   Gauge,
   Underline,
+  Timer,
 } from 'lucide-react';
 
 export const metadata: Metadata = {
@@ -916,6 +917,13 @@ const allTools = [
     href: '/tools/http-headers',
     icon: Heading,
     tags: ['HTTP', 'Headers', 'Reference', 'Security', 'CORS'],
+  },
+  {
+    title: 'Cache-Control Header Builder',
+    description: 'Visually construct Cache-Control HTTP headers — toggle directives (max-age, s-maxage, stale-while-revalidate, no-store, immutable), set durations with quick-pick values, apply presets, get usage examples for Nginx/Express/Next.js/Cloudflare/Apache, copy the result.',
+    href: '/tools/cache-control-builder',
+    icon: Timer,
+    tags: ['HTTP', 'Cache-Control', 'Caching', 'Headers', 'Builder'],
   },
   {
     title: 'PWA Manifest Generator',

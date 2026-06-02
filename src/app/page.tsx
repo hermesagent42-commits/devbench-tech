@@ -411,6 +411,13 @@ const featuredTools = [
     tags: ['DNS', 'Network', 'Lookup'],
   },
   {
+    title: 'Cache-Control Builder',
+    description: 'Visually construct Cache-Control headers with presets, duration pickers, and usage examples for every major server framework.',
+    href: '/tools/cache-control-builder',
+    icon: Timer,
+    tags: ['HTTP', 'Cache-Control', 'Caching'],
+  },
+  {
     title: 'Lorem Ipsum Generator',
     description: 'Generate placeholder text for mockups and prototypes. Customizable paragraphs, sentence count, and classic opening.',
     href: '/tools/lorem-ipsum',
