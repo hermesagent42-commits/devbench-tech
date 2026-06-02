@@ -1088,6 +1088,13 @@ const featuredTools = [
     tags: ['CSS', 'Highlight API', 'Baseline 2026', 'Browser API'],
   },
   {
+    title: 'CSS field-sizing Playground',
+    description: 'Build auto-resizing form inputs with field-sizing: content — no JS autoresize hacks needed. Inputs and textareas that grow to fit content. Side-by-side comparison, 6 presets, CSS + Tailwind output — Baseline 2026.',
+    href: '/tools/css-field-sizing-playground',
+    icon: FormInput,
+    tags: ['CSS', 'field-sizing', 'Forms', 'Baseline 2026'],
+  },
+  {
     title: 'Password Generator',
     description: 'Generate strong, cryptographically random passwords with full control — length, character sets, strength meter, and batch generation. 100% client-side.',
     href: '/tools/password-generator',
