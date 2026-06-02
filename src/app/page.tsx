@@ -1172,6 +1172,13 @@ const featuredTools = [
     icon: Sparkles,
     tags: ['SVG', 'Filter', 'Effects', 'Design'],
   },
+  {
+    title: 'CSS text-emphasis Playground',
+    description: 'Build text-emphasis marks — dots, circles, triangles, sesame, and custom characters. Explore filled/open styles, colors, positions, and 8 presets for CJK typography and visual emphasis.',
+    href: '/tools/css-text-emphasis-playground',
+    icon: Sparkles,
+    tags: ['CSS', 'text-emphasis', 'Typography', 'CJK'],
+  },
 ];
 const sampleBlogPosts = [
   {
