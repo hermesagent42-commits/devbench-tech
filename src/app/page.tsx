@@ -98,6 +98,8 @@ import {
   FormInput,
   Crosshair,
   ClipboardList,
+  Gauge,
+  Underline,
 } from 'lucide-react';
 
 export const metadata: Metadata = {
@@ -1185,6 +1187,27 @@ const featuredTools = [
     href: '/tools/css-text-emphasis-playground',
     icon: Sparkles,
     tags: ['CSS', 'text-emphasis', 'Typography', 'CJK'],
+  },
+  {
+    title: 'CSS @scope Playground',
+    description: 'Build scoped CSS styles visually — define scope roots, set limits, and see exactly which elements are affected. @scope is Baseline 2026 — an alternative to BEM and CSS Modules.',
+    href: '/tools/scope-playground',
+    icon: Crosshair,
+    tags: ['CSS', '@scope', 'Baseline 2026', 'Scoped'],
+  },
+  {
+    title: 'CSS Text Decoration Playground',
+    description: 'Design text underlines, overlines, and line-throughs — solid, wavy, double, dotted, dashed. Control color, thickness, offset, and skip-ink with live preview.',
+    href: '/tools/text-decoration-playground',
+    icon: Underline,
+    tags: ['CSS', 'Text Decoration', 'Typography'],
+  },
+  {
+    title: 'CSS content-visibility Playground',
+    description: 'Speed up rendering with content-visibility: auto — skip layout for off-screen content. Live scroll test, performance metrics, and production-ready CSS.',
+    href: '/tools/content-visibility-playground',
+    icon: Gauge,
+    tags: ['CSS', 'Performance', 'Rendering'],
   },
 ];
 const sampleBlogPosts = [

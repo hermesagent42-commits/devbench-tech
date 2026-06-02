@@ -1,0 +1,271 @@
+---
+title: "CSS @scope Hits Baseline: The Native Alternative to BEM, CSS Modules, and CSS-in-JS"
+date: "2026-06-02"
+excerpt: "Firefox 146 shipped @scope support, making it Baseline across all major browsers. CSS @scope lets you write component-scoped styles natively — no build tools, no naming conventions, no framework lock-in. A complete guide with migration patterns from BEM, CSS Modules, and styled-components."
+tags: ["CSS", "@scope", "Baseline 2026", "Scoped Styles", "CSS Architecture", "Design Systems", "Firefox", "2026"]
+---
+
+## The Moment We've Been Waiting For
+
+As of Firefox 146 (shipped late May 2026), CSS `@scope` is now **Baseline** — supported in Chrome, Safari, Edge, and Firefox. This is the single most impactful CSS feature for component architecture since flexbox.
+
+For 25 years, CSS has had exactly one structural problem: **selectors are global**. Every style you write can potentially match any element in the entire DOM. To work around this, we invented:
+
+- **BEM** — verbose class names like `.card__title--highlighted`
+- **CSS Modules** — auto-generated unique class names (`.Card_title_a3x9k`)
+- **CSS-in-JS** — 50+ libraries that colocate styles with components
+- **Tailwind** — utility classes that avoid naming entirely
+- **Shadow DOM** — complete style isolation (at the cost of complexity)
+
+All of these solve the same problem: "How do I write styles for *this* component without them leaking into *that* component?"
+
+`@scope` answers this question natively. No build step. No naming convention. No library. Just CSS.
+
+## What @scope Does
+
+```css
+@scope (.card) {
+  /* Every selector here only matches inside .card */
+  .title {
+    font-size: 1.25rem;
+  }
+
+  p {
+    line-height: 1.6;
+  }
+
+  button {
+    border-radius: 8px;
+  }
+}
+```
+
+The `.title` selector only matches `.title` elements that are descendants of `.card`. The `p` and `button` selectors are similarly constrained. Outside `.card`, these styles simply don't apply.
+
+### The "Donut Scope": Scope Limits
+
+`@scope` supports an optional **scope limit** — a selector where the scope *stops* applying:
+
+```css
+@scope (.card) to (.excluded-section) {
+  p { color: blue; }
+}
+```
+
+Styles apply inside `.card`, but stop at any `.excluded-section` element. This creates a **donut scope** — styles apply in a ring, with a hole in the middle.
+
+```html
+<div class="card">
+  <p>This IS blue ← inside scope</p>
+  <div class="excluded-section">
+    <p>This is NOT blue ← scope limit reached</p>
+  </div>
+  <p>This IS blue ← past the limit, still inside root</p>
+</div>
+```
+
+### Proximity: The Cascade Killer Feature
+
+The most powerful feature is **proximity**. When an element matches selectors from multiple scopes, the scope with the *fewest hops* from root to element wins:
+
+```css
+@scope (.light-theme) {
+  p { color: #0f172a; background: #f8fafc; }
+}
+
+@scope (.dark-theme) {
+  p { color: #e2e8f0; background: #1e293b; }
+}
+```
+
+```html
+<div class="dark-theme">
+  <div class="light-theme">
+    <p>Light theme wins — it's closer!</p>
+  </div>
+</div>
+```
+
+The `<p>` is 1 hop from `.light-theme` but 2 hops from `.dark-theme`. Proximity gives `.light-theme` the win — no specificity war, no `!important`, no z-index-style stacking context math.
+
+## Migration Patterns
+
+### From BEM to @scope
+
+**Before (BEM):**
+```css
+.card { /* layout */ }
+.card__title { font-size: 1.25rem; }
+.card__title--highlighted { color: #3b82f6; }
+.card__body { line-height: 1.6; }
+.card__footer { border-top: 1px solid; }
+.card__footer__button { border-radius: 8px; }
+```
+
+**After (@scope):**
+```css
+@scope (.card) {
+  .title { font-size: 1.25rem; }
+  .title.highlighted { color: #3b82f6; }
+  .body { line-height: 1.6; }
+  .footer { border-top: 1px solid; }
+  .footer button { border-radius: 8px; }
+}
+```
+
+The naming is cleaner, the structure is explicit, and you can't accidentally style a `.title` outside a `.card`.
+
+### From CSS Modules to @scope
+
+**Before (CSS Modules — `Card.module.css`):**
+```css
+.title { font-size: 1.25rem; }
+.body { line-height: 1.6; }
+/* Compiles to: .Card_title_a3x9k, .Card_body_b7f2m */
+```
+
+**After (@scope — `card.css`):**
+```css
+@scope (.card) {
+  .title { font-size: 1.25rem; }
+  .body { line-height: 1.6; }
+}
+```
+
+No build step needed. Import the CSS file and use simple class names. The browser handles scoping.
+
+### From styled-components to @scope
+
+**Before (styled-components):**
+```jsx
+const Card = styled.div`
+  padding: 1.5rem;
+  border-radius: 12px;
+
+  h2 { font-size: 1.25rem; }
+  p { line-height: 1.6; }
+`;
+```
+
+**After (@scope + plain CSS):**
+```css
+@scope (.card) {
+  :scope {
+    padding: 1.5rem;
+    border-radius: 12px;
+  }
+
+  h2 { font-size: 1.25rem; }
+  p { line-height: 1.6; }
+}
+```
+
+` :scope` targets the root element itself. You get the same colocation of styles without the runtime cost.
+
+## Real-World Patterns
+
+### Pattern 1: Scoped Design Tokens
+
+```css
+@scope (.brand-section) {
+  :scope {
+    --brand-primary: #3b82f6;
+    --brand-radius: 12px;
+    --brand-gap: 1.5rem;
+  }
+
+  button {
+    background: var(--brand-primary);
+    border-radius: var(--brand-radius);
+  }
+
+  .grid {
+    gap: var(--brand-gap);
+  }
+}
+
+/* These custom properties don't leak outside .brand-section */
+```
+
+### Pattern 2: Component Library with Variants
+
+```css
+/* Base card */
+@scope (.card) {
+  :scope {
+    padding: 1.5rem;
+    border-radius: 8px;
+    border: 1px solid #e5e7eb;
+  }
+}
+
+/* Elevated variant — closer proximity wins over base */
+@scope (.card-elevated) {
+  :scope {
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    border-color: transparent;
+  }
+}
+```
+
+### Pattern 3: Page-Specific Overrides
+
+```css
+@scope (.product-page) {
+  @scope (.card) {
+    :scope {
+      border-color: #3b82f6;
+      border-width: 2px;
+    }
+  }
+}
+```
+
+Nested scopes! The product page card styles only apply to cards *inside* `.product-page`.
+
+## When NOT to Use @scope
+
+1. **Utility classes** — `@scope` doesn't replace Tailwind for atomic styling. Scoped styles and utilities serve different purposes. Use `@scope` for component-level design, utilities for one-off adjustments.
+
+2. **Deeply nested selectors** — If you find yourself writing `@scope (.a) { @scope (.b) { @scope (.c) { ... }}}`, reconsider your component architecture.
+
+3. **Performance-critical animations** — Every scope adds a small matching cost. For hundreds of scoped components animating simultaneously, test performance.
+
+4. **Shadow DOM use cases** — If you need true encapsulation (no inheritance, no custom property passing), Shadow DOM still has a role. But for 95% of component styling, `@scope` is simpler and more performant.
+
+## Browser Support
+
+| Browser | Version | Status |
+|---------|---------|--------|
+| Chrome  | 118+    | ✅ Supported |
+| Safari  | 17.4+   | ✅ Supported |
+| Firefox | 146+    | ✅ Supported (May 2026) |
+| Edge    | 118+    | ✅ Supported |
+
+**Baseline: Newly Available** as of May 27, 2026. You can ship `@scope` to production today.
+
+## Fallback Strategy
+
+For older browsers, `@scope` degrades gracefully — the inner selectors become global. If you need strict scoping everywhere:
+
+```css
+/* Modern browsers: scoped */
+@scope (.card) {
+  .title { font-size: 1.25rem; }
+}
+
+/* Fallback: BEM-style naming for older browsers */
+@supports not (selector(:scope)) {
+  .card__title { font-size: 1.25rem; }
+}
+```
+
+Or use a PostCSS plugin that unwraps `@scope` into BEM-like selectors during the build step for legacy support.
+
+## The Bottom Line
+
+CSS `@scope` is the feature that makes CSS Modules, CSS-in-JS runtime libraries, and naming conventions like BEM *optional* rather than *necessary*. You can still use those tools if you prefer them, but you no longer need them to prevent style collisions.
+
+The web platform just solved its oldest architectural problem. With `@scope`, `@layer`, `:has()`, nesting, and anchor positioning all Baseline, 2026 is the year CSS became a complete design system language — no preprocessors or JavaScript required.
+
+**Try it yourself** with our new [CSS @scope Playground](/tools/scope-playground).
