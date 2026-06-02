@@ -1058,6 +1058,13 @@ const allTools = [
     icon: Eye,
     tags: ['Browser API', 'MutationObserver', 'Debug', 'DOM'],
   },
+  {
+    title: 'README Generator',
+    description: 'Build a polished README.md with live preview — 11 editable sections, 3 templates (default/minimal/extensive), shields.io badge library with 16 presets + custom badges, copy to clipboard, download as .md file.',
+    href: '/tools/readme-generator',
+    icon: FileText,
+    tags: ['Markdown', 'README', 'Documentation', 'Generator'],
+  },
 ];
 
 export default function ToolsPage() {
