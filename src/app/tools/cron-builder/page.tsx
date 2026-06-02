@@ -1,547 +1,615 @@
 'use client';
 
-import { useState, useCallback, useMemo } from 'react';
+import { useState, useCallback, useEffect, useMemo } from 'react';
 import { ToolLayout } from '@/components/ToolLayout';
-import { Copy, Clock, Check, ChevronDown, Info } from 'lucide-react';
+import { Copy, CalendarClock, Clock, History, Trash2, Check, Info } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 // ── Types ──────────────────────────────────────────────────────────────────
 
-interface CronFields {
-  minute: string;
-  hour: string;
-  dayOfMonth: string;
-  month: string;
-  dayOfWeek: string;
+type FieldValue = string;
+
+interface Preset {
+  label: string;
+  expression: string;
+  description: string;
 }
 
-type CronField = keyof CronFields;
+interface HistoryEntry {
+  expression: string;
+  timestamp: number;
+}
 
-// ── Presets ────────────────────────────────────────────────────────────────
+// ── Constants ──────────────────────────────────────────────────────────────
 
-const PRESETS: { name: string; description: string; fields: CronFields }[] = [
-  {
-    name: 'Every Minute',
-    description: 'Runs at the start of every minute',
-    fields: { minute: '*', hour: '*', dayOfMonth: '*', month: '*', dayOfWeek: '*' },
-  },
-  {
-    name: 'Every 15 Minutes',
-    description: 'Runs at :00, :15, :30, :45 past each hour',
-    fields: { minute: '*/15', hour: '*', dayOfMonth: '*', month: '*', dayOfWeek: '*' },
-  },
-  {
-    name: 'Every Hour',
-    description: 'Runs at the start of every hour',
-    fields: { minute: '0', hour: '*', dayOfMonth: '*', month: '*', dayOfWeek: '*' },
-  },
-  {
-    name: 'Daily at Midnight',
-    description: 'Runs once a day at 12:00 AM',
-    fields: { minute: '0', hour: '0', dayOfMonth: '*', month: '*', dayOfWeek: '*' },
-  },
-  {
-    name: 'Daily at Noon',
-    description: 'Runs once a day at 12:00 PM',
-    fields: { minute: '0', hour: '12', dayOfMonth: '*', month: '*', dayOfWeek: '*' },
-  },
-  {
-    name: 'Weekdays at 9 AM',
-    description: 'Runs Monday-Friday at 9:00 AM',
-    fields: { minute: '0', hour: '9', dayOfMonth: '*', month: '*', dayOfWeek: '1-5' },
-  },
-  {
-    name: 'Weekends at 10 AM',
-    description: 'Runs Saturday and Sunday at 10:00 AM',
-    fields: { minute: '0', hour: '10', dayOfMonth: '*', month: '*', dayOfWeek: '6,0' },
-  },
-  {
-    name: 'First of Month',
-    description: 'Runs at midnight on the 1st of every month',
-    fields: { minute: '0', hour: '0', dayOfMonth: '1', month: '*', dayOfWeek: '*' },
-  },
-  {
-    name: 'Every 30 Seconds',
-    description: 'Runs every 30 seconds (some systems)',
-    fields: { minute: '*', hour: '*', dayOfMonth: '*', month: '*', dayOfWeek: '*' },
-  },
+const FIELD_CONFIG = [
+  { name: 'Minute', short: 'min', range: '0–59', placeholder: '*', max: 59 },
+  { name: 'Hour', short: 'hour', range: '0–23', placeholder: '*', max: 23 },
+  { name: 'Day of Month', short: 'dom', range: '1–31', placeholder: '*', max: 31 },
+  { name: 'Month', short: 'month', range: '1–12', placeholder: '*', max: 12 },
+  { name: 'Day of Week', short: 'dow', range: '0–7', placeholder: '*', max: 7 },
+] as const;
+
+const MONTH_NAMES = ['', 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+const DOW_NAMES = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+
+const PRESETS: Preset[] = [
+  { label: 'Every minute', expression: '* * * * *', description: 'Runs every single minute, day and night' },
+  { label: 'Every 5 minutes', expression: '*/5 * * * *', description: 'Runs every 5 minutes' },
+  { label: 'Every 15 minutes', expression: '*/15 * * * *', description: 'Runs every 15 minutes (quarter-hourly)' },
+  { label: 'Every 30 minutes', expression: '*/30 * * * *', description: 'Runs every 30 minutes (twice per hour)' },
+  { label: 'Every hour', expression: '0 * * * *', description: 'Runs at the top of every hour' },
+  { label: 'Every 3 hours', expression: '0 */3 * * *', description: 'Runs every 3 hours, on the hour' },
+  { label: 'Every 6 hours', expression: '0 */6 * * *', description: 'Runs every 6 hours (00:00, 06:00, 12:00, 18:00)' },
+  { label: 'Every 12 hours', expression: '0 */12 * * *', description: 'Runs twice a day at midnight and noon' },
+  { label: 'Daily at midnight', expression: '0 0 * * *', description: 'Runs once per day at midnight' },
+  { label: 'Daily at 3 AM', expression: '0 3 * * *', description: 'Runs once per day at 3:00 AM — common for backups' },
+  { label: 'Daily at 6 AM', expression: '0 6 * * *', description: 'Runs once per day at 6:00 AM' },
+  { label: 'Weekdays at 9 AM', expression: '0 9 * * 1-5', description: 'Runs Monday through Friday at 9:00 AM' },
+  { label: 'Weekdays at 5 PM', expression: '0 17 * * 1-5', description: 'Runs Monday through Friday at 5:00 PM' },
+  { label: 'Weekends at noon', expression: '0 12 * * 0,6', description: 'Runs Saturday and Sunday at noon' },
+  { label: 'Weekly on Monday', expression: '0 0 * * 1', description: 'Runs every Monday at midnight' },
+  { label: 'Monthly (1st)', expression: '0 0 1 * *', description: 'Runs on the 1st of every month at midnight' },
+  { label: 'Monthly (15th)', expression: '0 0 15 * *', description: 'Runs on the 15th of every month at midnight' },
+  { label: 'Quarterly', expression: '0 0 1 1,4,7,10 *', description: 'Runs on Jan 1, Apr 1, Jul 1, Oct 1 at midnight' },
+  { label: 'Yearly', expression: '0 0 1 1 *', description: 'Runs once per year on January 1st at midnight' },
+  { label: 'Every 30 seconds', expression: '* * * * *', description: 'Runs every minute (cron minimum is 1 minute)' },
 ];
 
-// ── Field descriptions ─────────────────────────────────────────────────────
+const COMMON_EXAMPLES = [
+  { label: 'Every 2 hours on weekdays', expression: '0 */2 * * 1-5' },
+  { label: '10:30 PM end of month', expression: '30 22 28-31 * *' },
+  { label: 'Tue/Thu at 2 PM', expression: '0 14 * * 2,4' },
+  { label: 'Every 30 min, 9-5, weekdays', expression: '*/30 9-17 * * 1-5' },
+  { label: 'At 12:00 and 18:00 daily', expression: '0 12,18 * * *' },
+  { label: 'First day of each quarter at 1 AM', expression: '0 1 1 1,4,7,10 *' },
+];
 
-const FIELD_META: Record<CronField, { label: string; range: string; examples: string[] }> = {
-  minute: {
-    label: 'Minute',
-    range: '0–59',
-    examples: ['*', '0', '*/15', '0,30', '10-30'],
-  },
-  hour: {
-    label: 'Hour',
-    range: '0–23',
-    examples: ['*', '9', '*/2', '9-17', '9,12,18'],
-  },
-  dayOfMonth: {
-    label: 'Day of Month',
-    range: '1–31',
-    examples: ['*', '1', '*/2', '1-15', '1,15'],
-  },
-  month: {
-    label: 'Month',
-    range: '1–12 (or JAN-DEC)',
-    examples: ['*', '1', '*/3', '1-6', '1,6,12'],
-  },
-  dayOfWeek: {
-    label: 'Day of Week',
-    range: '0–6 (0=Sun) or SUN-SAT',
-    examples: ['*', '1', '1-5', '1,3,5', 'MON-FRI'],
-  },
-};
+// ── Parser / Validator ─────────────────────────────────────────────────────
 
-// ── Parsing & description ─────────────────────────────────────────────────
-
-const MONTH_NAMES = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'];
-const DAY_NAMES = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-const DAY_NAMES_FULL = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-
-function parseCronField(value: string, min: number, max: number): number[] | null {
-  const trimmed = value.trim();
-  if (!trimmed) return null;
-  if (trimmed === '*') {
-    return Array.from({ length: max - min + 1 }, (_, i) => min + i);
+function isValidCronField(value: string): boolean {
+  if (!value || value.trim() === '') return false;
+  const parts = value.split(',');
+  const allowed = /^(\*|(\d{1,2}(-\d{1,2})?)(\/\d{1,2})?)$/;
+  for (let i = 0; i < parts.length; i++) {
+    if (!allowed.test(parts[i].trim())) return false;
   }
-  // */step
-  const stepMatch = trimmed.match(/^\*\/(\d+)$/);
-  if (stepMatch) {
-    const step = parseInt(stepMatch[1], 10);
-    if (step < 1 || step > max) return null;
-    const result: number[] = [];
-    for (let i = min; i <= max; i += step) result.push(i);
-    return result;
+  return true;
+}
+
+function isValidCron(parts: string[]): boolean {
+  if (parts.length !== 5) return false;
+  return parts.every((p) => isValidCronField(p));
+}
+
+// ── Human-readable description ─────────────────────────────────────────────
+
+function describeCron(parts: string[]): string {
+  if (parts.length !== 5) return 'Invalid expression';
+
+  const joined = parts.join(' ');
+  if (joined === '* * * * *') return 'Every minute';
+  if (joined === '0 * * * *') return 'At minute 0 of every hour';
+  if (joined === '0 0 * * *') return 'At midnight every day';
+  if (joined === '0 0 * * 0') return 'At midnight every Sunday';
+  if (joined === '0 0 1 * *') return 'At midnight on the 1st of every month';
+  if (joined === '0 0 1 1 *') return 'At midnight on January 1st';
+
+  const minute = parts[0];
+  const hour = parts[1];
+  const dom = parts[2];
+  const month = parts[3];
+  const dow = parts[4];
+
+  const desc: string[] = [];
+
+  if (minute === '*') desc.push('every minute');
+  else if (minute.startsWith('*/')) desc.push('every ' + minute.slice(2) + ' minutes');
+  else if (minute.indexOf(',') !== -1) desc.push('at minutes ' + minute.replace(/,/g, ', '));
+  else if (minute.indexOf('-') !== -1) desc.push('minutes ' + minute.replace(/-/g, ' through '));
+  else desc.push('at minute ' + minute);
+
+  if (hour === '*') desc.push('');
+  else if (hour.startsWith('*/')) desc.push('every ' + hour.slice(2) + ' hours');
+  else if (hour.indexOf(',') !== -1) {
+    const hours = hour.split(',').map(function(h) { return h + ':00'; });
+    desc.push('at ' + hours.join(', '));
+  } else if (hour.indexOf('-') !== -1) {
+    const parts2 = hour.split('-');
+    desc.push('from ' + parts2[0] + ':00 to ' + parts2[1] + ':00');
+  } else {
+    desc.push('at ' + hour + ':00');
   }
-  // comma list
-  const parts = trimmed.split(',');
-  const result: number[] = [];
-  for (const part of parts) {
-    // range: a-b
-    const rangeMatch = part.match(/^(\d+)-(\d+)$/);
-    if (rangeMatch) {
-      const a = parseInt(rangeMatch[1], 10);
-      const b = parseInt(rangeMatch[2], 10);
-      if (a < min || b > max || a > b) return null;
-      for (let i = a; i <= b; i++) result.push(i);
-      continue;
+
+  if (dom !== '*') {
+    if (dom.startsWith('*/')) desc.push('every ' + dom.slice(2) + ' days');
+    else if (dom.indexOf(',') !== -1) desc.push('on days ' + dom.replace(/,/g, ', '));
+    else if (dom.indexOf('-') !== -1) desc.push('from day ' + dom.replace(/-/g, ' through '));
+    else desc.push('on day ' + dom);
+  }
+
+  if (month !== '*') {
+    if (month.indexOf(',') !== -1) {
+      const months = month.split(',').map(function(m) { return MONTH_NAMES[parseInt(m)]; });
+      desc.push('in ' + months.join(', '));
+    } else if (month.indexOf('-') !== -1) {
+      const se = month.split('-').map(Number);
+      desc.push('from ' + MONTH_NAMES[se[0]] + ' to ' + MONTH_NAMES[se[1]]);
+    } else {
+      desc.push('in ' + MONTH_NAMES[parseInt(month)]);
     }
-    // single value
-    const num = parseInt(part, 10);
-    if (isNaN(num) || num < min || num > max) return null;
-    result.push(num);
   }
-  return result.length > 0 ? result : null;
-}
 
-function describeField(label: string, values: number[] | null, max: number): string {
-  if (!values || values.length === 0) return `invalid ${label.toLowerCase()}`;
-  if (values.length === max + 1) return `every ${label.toLowerCase()}`;
-  if (values.length === 1) return `${label.toLowerCase()} ${values[0]}`;
-  // Check for step pattern
-  if (values.length >= 3) {
-    const step = values[1] - values[0];
-    if (step > 0 && values.every((v, i) => v === values[0] + i * step)) {
-      return `every ${step} ${label.toLowerCase()}s starting at ${values[0]}`;
+  if (dow !== '*') {
+    if (dow.indexOf(',') !== -1) {
+      const days = dow.split(',').map(function(d) { return DOW_NAMES[parseInt(d)]; });
+      desc.push('on ' + days.join(', '));
+    } else if (dow.indexOf('-') !== -1) {
+      const se = dow.split('-').map(Number);
+      desc.push(DOW_NAMES[se[0]] + ' through ' + DOW_NAMES[se[1]]);
+    } else {
+      desc.push('on ' + DOW_NAMES[parseInt(dow)]);
     }
   }
-  // Check for contiguous range
-  if (values.length >= 2 && values[values.length - 1] - values[0] === values.length - 1) {
-    return `${label.toLowerCase()}s ${values[0]} through ${values[values.length - 1]}`;
-  }
-  return `${label.toLowerCase()}s ${values.join(', ')}`;
+
+  const result = desc.filter(Boolean).join(' ');
+  return result || 'Every minute';
 }
 
-function humanReadable(fields: CronFields): string {
-  const minute = parseCronField(fields.minute, 0, 59);
-  const hour = parseCronField(fields.hour, 0, 23);
-  const dayOfMonth = parseCronField(fields.dayOfMonth, 1, 31);
-  const month = parseCronField(fields.month, 1, 12);
-  const dayOfWeek = parseCronField(fields.dayOfWeek, 0, 6);
+// ── Next Run Calculator ────────────────────────────────────────────────────
 
-  // Check for exact time
-  if (minute && minute.length === 1 && hour && hour.length === 1 &&
-      dayOfMonth && dayOfMonth.length === 31 && month && month.length === 12 && dayOfWeek && dayOfWeek.length === 7) {
-    const h = hour[0];
-    const m = minute[0];
-    const ampm = h < 12 ? 'AM' : 'PM';
-    const displayH = h === 0 ? 12 : h > 12 ? h - 12 : h;
-    return `At ${displayH}:${String(m).padStart(2, '0')} ${ampm}`;
+function expandField(field: string, min: number, max: number): number[] {
+  if (field === '*') {
+    const arr: number[] = [];
+    for (let i = min; i <= max; i++) arr.push(i);
+    return arr;
   }
 
-  // Every minute
-  if (minute && minute.length === 60 && hour && hour.length === 24 &&
-      dayOfMonth && dayOfMonth.length === 31 && month && month.length === 12 && dayOfWeek && dayOfWeek.length === 7) {
-    return 'Every minute';
+  const results: number[] = [];
+  const parts = field.split(',');
+
+  for (let j = 0; j < parts.length; j++) {
+    const part = parts[j];
+    if (part.startsWith('*/')) {
+      const step = parseInt(part.slice(2), 10);
+      for (let i = min; i <= max; i += step) {
+        results.push(i);
+      }
+    } else if (part.indexOf('-') !== -1) {
+      if (part.indexOf('/') !== -1) {
+        // Range with step: e.g. 1-30/5
+        const slashIdx = part.indexOf('/');
+        const range = part.substring(0, slashIdx);
+        const step = parseInt(part.substring(slashIdx + 1), 10);
+        const dashIdx = range.indexOf('-');
+        const rs = parseInt(range.substring(0, dashIdx), 10);
+        const re = parseInt(range.substring(dashIdx + 1), 10);
+        for (let i = rs; i <= re; i += step) {
+          results.push(i);
+        }
+      } else {
+        const dashIdx = part.indexOf('-');
+        const start = parseInt(part.substring(0, dashIdx), 10);
+        const end = parseInt(part.substring(dashIdx + 1), 10);
+        for (let i = start; i <= end; i++) {
+          results.push(i);
+        }
+      }
+    } else {
+      results.push(parseInt(part, 10));
+    }
   }
 
-  // Every hour at specific minute
-  if (minute && minute.length === 1 && hour && hour.length === 24) {
-    return `At minute ${minute[0]} of every hour`;
+  // Deduplicate
+  const unique: number[] = [];
+  for (let i = 0; i < results.length; i++) {
+    const r = results[i];
+    if (unique.indexOf(r) === -1) unique.push(r);
   }
-
-  // Daily at specific time
-  if (minute && minute.length === 1 && hour && hour.length === 1 &&
-      dayOfMonth && dayOfMonth.length === 31 && month && month.length === 12 && dayOfWeek && dayOfWeek.length === 7) {
-    const h = hour[0];
-    const m = minute[0];
-    const ampm = h < 12 ? 'AM' : 'PM';
-    const displayH = h === 0 ? 12 : h > 12 ? h - 12 : h;
-    return `Every day at ${displayH}:${String(m).padStart(2, '0')} ${ampm}`;
-  }
-
-  // Weekdays
-  if (dayOfWeek && dayOfWeek.sort().join(',') === '1,2,3,4,5') {
-    const timePart = minute && hour ? describeTime(minute, hour) : '';
-    return timePart ? `${timePart}, Monday through Friday` : 'Monday through Friday';
-  }
-
-  // Month-specific
-  const parts: string[] = [];
-
-  if (minute && hour) {
-    const t = describeTime(minute, hour);
-    if (t) parts.push(t);
-  }
-
-  if (dayOfWeek && dayOfWeek.length < 7) {
-    const names = dayOfWeek.sort((a, b) => a - b).map(d => DAY_NAMES_FULL[d]);
-    parts.push(`on ${names.join(', ')}`);
-  }
-
-  if (dayOfMonth && dayOfMonth.length < 31) {
-    parts.push(`on day${dayOfMonth.length > 1 ? 's' : ''} ${dayOfMonth.join(', ')}`);
-  }
-
-  if (month && month.length < 12) {
-    const names = month.sort((a, b) => a - b).map(m => MONTH_NAMES[m - 1]);
-    parts.push(`in ${names.join(', ')}`);
-  }
-
-  return parts.length > 0 ? parts.join(', ') : 'Custom schedule';
+  unique.sort(function(a, b) { return a - b; });
+  return unique;
 }
 
-function describeTime(minute: number[] | null, hour: number[] | null): string {
-  if (!minute || !hour || minute.length === 0 || hour.length === 0) return '';
-  if (minute.length === 1 && hour.length === 1) {
-    const h = hour[0];
-    const m = minute[0];
-    const ampm = h < 12 ? 'AM' : 'PM';
-    const displayH = h === 0 ? 12 : h > 12 ? h - 12 : h;
-    return `At ${displayH}:${String(m).padStart(2, '0')} ${ampm}`;
-  }
-  if (minute.length === 1 && hour.length === 24) {
-    return `At minute ${minute[0]} of every hour`;
-  }
-  return '';
-}
-
-// ── Next execution ─────────────────────────────────────────────────────────
-
-function getNextExecutions(expr: string, count: number = 5): string[] {
-  const parts = expr.split(/\s+/);
+function getNextRuns(expression: string, count: number): Date[] {
+  const parts = expression.trim().split(/\s+/);
   if (parts.length !== 5) return [];
 
-  const [minF, hourF, domF, monF, dowF] = parts;
+  const expanded: number[][] = [];
+  expanded.push(expandField(parts[0], 0, 59));
+  expanded.push(expandField(parts[1], 0, 23));
+  expanded.push(expandField(parts[2], 1, 31));
+  expanded.push(expandField(parts[3], 1, 12));
+  expanded.push(expandField(parts[4], 0, 7));
 
-  const now = new Date();
-  // Start from next minute
-  const start = new Date(now.getFullYear(), now.getMonth(), now.getDate(), now.getHours(), now.getMinutes(), 0, 0);
-  start.setMinutes(start.getMinutes() + 1);
+  const results: Date[] = [];
+  const cursor = new Date();
+  cursor.setSeconds(0, 0);
+  cursor.setMinutes(cursor.getMinutes() + 1);
 
-  const results: string[] = [];
-  const maxIterations = 365 * 24 * 60; // 1 year of minutes
-  let current = new Date(start);
+  const maxIterations = 525600;
   let iterations = 0;
 
   while (results.length < count && iterations < maxIterations) {
-    const min = current.getMinutes();
-    const hour = current.getHours();
-    const dom = current.getDate();
-    const mon = current.getMonth() + 1;
-    const dow = current.getDay();
+    iterations++;
+    const m = cursor.getMinutes();
+    const h = cursor.getHours();
+    const d = cursor.getDate();
+    const mo = cursor.getMonth() + 1;
+    const dow = cursor.getDay();
 
-    if (
-      matchesField(minF, min, 0, 59) &&
-      matchesField(hourF, hour, 0, 23) &&
-      matchesField(domF, dom, 1, 31) &&
-      matchesField(monF, mon, 1, 12) &&
-      matchesField(dowF, dow, 0, 6)
-    ) {
-      results.push(formatDateTime(current));
+    const minuteMatch = expanded[0].indexOf(m) !== -1;
+    const hourMatch = expanded[1].indexOf(h) !== -1;
+    const domMatch = expanded[2].indexOf(d) !== -1;
+    const monthMatch = expanded[3].indexOf(mo) !== -1;
+    const dowMatch = expanded[4].indexOf(dow) !== -1;
+
+    const domSpecified = parts[2] !== '*';
+    const dowSpecified = parts[4] !== '*';
+
+    let dayMatches: boolean;
+    if (domSpecified && dowSpecified) {
+      dayMatches = domMatch || dowMatch;
+    } else if (domSpecified) {
+      dayMatches = domMatch;
+    } else if (dowSpecified) {
+      dayMatches = dowMatch;
+    } else {
+      dayMatches = true;
     }
 
-    current = new Date(current.getTime() + 60000); // +1 minute
-    iterations++;
+    if (minuteMatch && hourMatch && dayMatches && monthMatch) {
+      results.push(new Date(cursor));
+    }
+
+    cursor.setMinutes(cursor.getMinutes() + 1);
   }
 
   return results;
 }
 
-function matchesField(field: string, value: number, min: number, max: number): boolean {
-  const trimmed = field.trim();
-  if (trimmed === '*') return true;
+// ── Helpers ─────────────────────────────────────────────────────────────────
 
-  // */step
-  const stepMatch = trimmed.match(/^\*\/(\d+)$/);
-  if (stepMatch) {
-    const step = parseInt(stepMatch[1], 10);
-    return (value - min) % step === 0;
-  }
-
-  // comma-separated list
-  const parts = trimmed.split(',');
-  for (const part of parts) {
-    const rangeMatch = part.match(/^(\d+)-(\d+)$/);
-    if (rangeMatch) {
-      const a = parseInt(rangeMatch[1], 10);
-      const b = parseInt(rangeMatch[2], 10);
-      if (value >= a && value <= b) return true;
-      continue;
-    }
-    if (parseInt(part, 10) === value) return true;
-  }
-
-  return false;
+function formatDate(d: Date): string {
+  return d.toLocaleString('en-US', {
+    weekday: 'short',
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hour12: true,
+  });
 }
 
-function formatDateTime(d: Date): string {
-  const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-  const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-  const h = d.getHours();
-  const ampm = h >= 12 ? 'PM' : 'AM';
-  const displayH = h === 0 ? 12 : h > 12 ? h - 12 : h;
-  return `${days[d.getDay()]} ${months[d.getMonth()]} ${d.getDate()}, ${d.getFullYear()} at ${displayH}:${String(d.getMinutes()).padStart(2, '0')} ${ampm}`;
+function formatRelative(d: Date): string {
+  const now = new Date();
+  const diffMs = d.getTime() - now.getTime();
+  const diffMins = Math.round(diffMs / 60000);
+  const diffHours = Math.round(diffMs / 3600000);
+  const diffDays = Math.round(diffMs / 86400000);
+
+  if (diffMins < 1) return 'now';
+  if (diffMins < 60) return 'in ' + diffMins + ' min';
+  if (diffHours < 24) return 'in ' + diffHours + 'h';
+  return 'in ' + diffDays + 'd';
 }
 
-// ── Main component ─────────────────────────────────────────────────────────
-
-const DEFAULT_FIELDS: CronFields = {
-  minute: '0',
-  hour: '0',
-  dayOfMonth: '*',
-  month: '*',
-  dayOfWeek: '*',
-};
+// ── Component ───────────────────────────────────────────────────────────────
 
 export default function CronBuilderPage() {
-  const [fields, setFields] = useState<CronFields>(DEFAULT_FIELDS);
-  const [copiedField, setCopiedField] = useState<string | null>(null);
+  const [fields, setFields] = useState<FieldValue[]>(['*', '*', '*', '*', '*']);
+  const [focusedField, setFocusedField] = useState<number | null>(null);
+  const [history, setHistory] = useState<HistoryEntry[]>([]);
+  const [copied, setCopied] = useState(false);
 
-  const expression = useMemo(
-    () => `${fields.minute} ${fields.hour} ${fields.dayOfMonth} ${fields.month} ${fields.dayOfWeek}`,
-    [fields]
-  );
-
-  const description = useMemo(() => humanReadable(fields), [fields]);
-
-  const nextExecutions = useMemo(() => getNextExecutions(expression, 5), [expression]);
-
-  const updateField = useCallback(
-    (field: CronField, value: string) => {
-      setFields((prev) => ({ ...prev, [field]: value }));
-    },
-    []
-  );
-
-  const applyPreset = useCallback((preset: (typeof PRESETS)[number]) => {
-    setFields({ ...preset.fields });
+  useEffect(function() {
+    try {
+      const stored = localStorage.getItem('cron-builder-history');
+      if (stored) setHistory(JSON.parse(stored));
+    } catch {
+      // ignore
+    }
   }, []);
 
-  const handleCopy = useCallback(
-    async (value: string, label: string) => {
-      try {
-        await navigator.clipboard.writeText(value);
-        setCopiedField(label);
-        toast.success(`${label} copied!`);
-        setTimeout(() => setCopiedField(null), 2000);
-      } catch {
-        toast.error('Failed to copy');
-      }
-    },
-    []
-  );
+  const expression = useMemo(function() { return fields.join(' '); }, [fields]);
+  const valid = useMemo(function() { return isValidCron(fields); }, [fields]);
+  const humanDescription = useMemo(function() { return describeCron(fields); }, [fields]);
+  const nextRuns = useMemo(function() {
+    if (!valid) return [];
+    return getNextRuns(expression, 5);
+  }, [expression, valid]);
 
-  const isEveryMinute =
-    fields.minute === '*' &&
-    fields.hour === '*' &&
-    fields.dayOfMonth === '*' &&
-    fields.month === '*' &&
-    fields.dayOfWeek === '*';
+  const updateField = useCallback(function(index: number, value: string) {
+    setFields(function(prev) {
+      const next = prev.slice();
+      next[index] = value;
+      return next;
+    });
+  }, []);
+
+  const setExpression = useCallback(function(expr: string) {
+    const parts = expr.trim().split(/\s+/);
+    if (parts.length === 5) {
+      setFields(parts);
+    }
+  }, []);
+
+  const saveToHistory = useCallback(function() {
+    if (!valid) return;
+    setHistory(function(prev) {
+      const entry: HistoryEntry = { expression: expression, timestamp: Date.now() };
+      const updated = [entry].concat(prev.filter(function(e) { return e.expression !== expression; })).slice(0, 20);
+      try { localStorage.setItem('cron-builder-history', JSON.stringify(updated)); } catch { /* ignore */ }
+      return updated;
+    });
+    toast.success('Saved to history');
+  }, [expression, valid]);
+
+  const copyExpression = useCallback(async function() {
+    try {
+      await navigator.clipboard.writeText(expression);
+      setCopied(true);
+      setTimeout(function() { setCopied(false); }, 2000);
+      toast.success('Copied to clipboard');
+    } catch {
+      toast.error('Failed to copy');
+    }
+  }, [expression]);
+
+  const clearHistory = useCallback(function() {
+    setHistory([]);
+    try { localStorage.removeItem('cron-builder-history'); } catch { /* ignore */ }
+    toast.success('History cleared');
+  }, []);
 
   return (
     <ToolLayout
       title="Cron Expression Builder"
-      description="Build, understand, and validate cron expressions. See human-readable descriptions and next execution times — all client-side."
+      description="Build, test, and understand cron schedule expressions. Visually construct cron syntax with field-by-field input, presets, next-run preview, and plain-English descriptions."
     >
-      {/* Presets */}
-      <div className="card mb-6">
-        <h2 className="text-white font-semibold text-sm mb-3">Common Presets</h2>
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
-          {PRESETS.map((preset) => (
+      {/* ── Expression Builder ──────────────────────────────────────── */}
+      <div className="mb-8">
+        <h2 className="text-sm font-semibold text-slate-300 uppercase tracking-wider mb-4 flex items-center gap-2">
+          <CalendarClock className="w-4 h-4 text-brand-400" />
+          Build Your Expression
+        </h2>
+
+        {/* Field inputs */}
+        <div className="grid grid-cols-5 gap-3 mb-4">
+          {FIELD_CONFIG.map(function(field, i) {
+            const fieldValid = isValidCronField(fields[i]);
+            return (
+              <div key={field.short}>
+                <label className="block text-xs font-medium text-slate-400 mb-1.5 uppercase tracking-wider">
+                  {field.short}
+                </label>
+                <input
+                  type="text"
+                  value={fields[i]}
+                  onChange={function(e) { updateField(i, e.target.value); }}
+                  onFocus={function() { setFocusedField(i); }}
+                  onBlur={function() { setFocusedField(null); }}
+                  className={'w-full px-3 py-2.5 bg-surface border rounded-lg text-center font-mono text-lg transition-all focus:outline-none focus:ring-2 focus:ring-brand-500/40 ' +
+                    (focusedField === i
+                      ? 'border-brand-500 text-brand-300'
+                      : fieldValid ? 'border-slate-700 text-slate-200' : 'border-red-500/50 text-red-400')}
+                  spellCheck={false}
+                />
+                <p className="text-[10px] text-slate-600 text-center mt-1">{field.range}</p>
+              </div>
+            );
+          })}
+        </div>
+
+        {/* Result expression bar */}
+        <div className={'flex items-center gap-3 p-4 rounded-lg border ' +
+          (valid ? 'bg-green-500/5 border-green-500/30' : 'bg-red-500/5 border-red-500/30')}>
+          <div className="flex-1">
+            <code className={'text-lg font-mono ' + (valid ? 'text-green-400' : 'text-red-400')}>
+              {expression}
+            </code>
+            {!valid && (
+              <p className="text-xs text-red-400/80 mt-1">
+                Invalid cron expression — check each field&apos;s range
+              </p>
+            )}
+          </div>
+          <div className="flex items-center gap-2">
             <button
-              key={preset.name}
-              onClick={() => applyPreset(preset)}
-              className="text-left px-3 py-2 rounded-lg bg-surface border border-slate-700/50 hover:border-brand-500/40 hover:bg-brand-500/5 transition-all group"
-              title={preset.description}
+              onClick={saveToHistory}
+              disabled={!valid}
+              className="p-2 rounded-lg hover:bg-slate-700/50 transition-colors text-slate-400 hover:text-brand-400 disabled:opacity-30 disabled:cursor-not-allowed"
+              title="Save to history"
             >
-              <div className="text-xs font-semibold text-slate-200 group-hover:text-brand-300 transition-colors">
-                {preset.name}
-              </div>
-              <div className="text-[10px] text-slate-500 font-mono mt-0.5 truncate">
-                {`${preset.fields.minute} ${preset.fields.hour} ${preset.fields.dayOfMonth} ${preset.fields.month} ${preset.fields.dayOfWeek}`}
-              </div>
+              <History className="w-4 h-4" />
             </button>
-          ))}
+            <button
+              onClick={copyExpression}
+              disabled={!valid}
+              className="flex items-center gap-2 px-4 py-2 rounded-lg bg-brand-600 hover:bg-brand-500 disabled:bg-slate-700 disabled:text-slate-500 text-white text-sm font-medium transition-colors disabled:cursor-not-allowed"
+            >
+              {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+              {copied ? 'Copied' : 'Copy'}
+            </button>
+          </div>
         </div>
+
+        {/* Plain-English description */}
+        {valid && (
+          <div className="mt-3 p-3 bg-slate-800/40 rounded-lg border border-slate-700/40">
+            <p className="text-sm text-slate-300 flex items-center gap-2">
+              <Info className="w-3.5 h-3.5 text-brand-400 shrink-0" />
+              <span className="first-letter:uppercase">{humanDescription}</span>
+            </p>
+          </div>
+        )}
       </div>
 
-      {/* Field Editors */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
-        {(Object.keys(FIELD_META) as CronField[]).map((field) => {
-          const meta = FIELD_META[field];
-          const value = fields[field];
-          return (
-            <div key={field} className="card">
-              <div className="flex items-center justify-between mb-2">
-                <label className="text-xs font-semibold text-slate-300">{meta.label}</label>
-                <span className="text-[10px] text-slate-500 font-mono">{meta.range}</span>
-              </div>
-              <input
-                type="text"
-                value={value}
-                onChange={(e) => updateField(field, e.target.value)}
-                className="w-full bg-surface rounded-md border border-slate-600/50 px-3 py-2 text-sm font-mono text-green-400 placeholder-slate-600 focus:outline-none focus:border-brand-500/50 focus:ring-1 focus:ring-brand-500/30 transition-all"
-                spellCheck={false}
-              />
-              <div className="flex flex-wrap gap-1 mt-2">
-                {meta.examples.map((ex) => (
-                  <button
-                    key={ex}
-                    onClick={() => updateField(field, ex)}
-                    className={`text-[10px] px-1.5 py-0.5 rounded font-mono transition-all ${
-                      value === ex
-                        ? 'bg-brand-500/20 text-brand-300 border border-brand-500/30'
-                        : 'bg-surface-lighter text-slate-500 border border-slate-700/30 hover:border-slate-500 hover:text-slate-300'
-                    }`}
-                  >
-                    {ex}
-                  </button>
-                ))}
-              </div>
-            </div>
-          );
-        })}
-      </div>
-
-      {/* Expression Output */}
-      <div className="card mb-6">
-        <div className="flex items-center justify-between mb-3">
-          <h2 className="text-white font-semibold text-sm flex items-center gap-2">
+      {/* ── Next Runs ───────────────────────────────────────────────── */}
+      {valid && nextRuns.length > 0 && (
+        <div className="mb-8">
+          <h2 className="text-sm font-semibold text-slate-300 uppercase tracking-wider mb-4 flex items-center gap-2">
             <Clock className="w-4 h-4 text-brand-400" />
-            Cron Expression
+            Next 5 Scheduled Runs
           </h2>
-          <button
-            onClick={() => handleCopy(expression, 'cron')}
-            className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded text-xs font-medium transition-all ${
-              copiedField === 'cron'
-                ? 'bg-green-500/20 text-green-400 border border-green-500/30'
-                : 'text-slate-400 hover:text-white hover:bg-surface-lighter border border-transparent'
-            }`}
-          >
-            {copiedField === 'cron' ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
-            {copiedField === 'cron' ? 'Copied' : 'Copy'}
-          </button>
+          <div className="overflow-x-auto rounded-lg border border-slate-700/50">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="bg-slate-800/50">
+                  <th className="text-left px-4 py-3 text-slate-400 font-medium text-xs uppercase tracking-wider w-12">#</th>
+                  <th className="text-left px-4 py-3 text-slate-400 font-medium text-xs uppercase tracking-wider">Date & Time</th>
+                  <th className="text-right px-4 py-3 text-slate-400 font-medium text-xs uppercase tracking-wider">When</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-700/50">
+                {nextRuns.map(function(run, i) {
+                  return (
+                    <tr key={i} className={'hover:bg-slate-800/30 transition-colors ' + (i === 0 ? 'bg-brand-500/5' : '')}>
+                      <td className="px-4 py-3 font-mono text-slate-500 text-xs">{i + 1}</td>
+                      <td className="px-4 py-3 font-mono text-slate-200">{formatDate(run)}</td>
+                      <td className="px-4 py-3 text-right">
+                        <span className={'text-xs font-medium px-2 py-0.5 rounded ' +
+                          (i === 0 ? 'bg-brand-500/20 text-brand-400' : 'text-slate-500')}>
+                          {formatRelative(run)}
+                        </span>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
         </div>
-        <div className="bg-surface rounded-lg border border-slate-700/50 p-4">
-          <code className="text-xl font-mono text-green-400 tracking-wider select-all">
-            {expression}
-          </code>
+      )}
+
+      {/* ── Presets ─────────────────────────────────────────────────── */}
+      <div className="mb-8">
+        <h2 className="text-sm font-semibold text-slate-300 uppercase tracking-wider mb-4">
+          Common Presets
+        </h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
+          {PRESETS.map(function(preset) {
+            return (
+              <button
+                key={preset.label}
+                onClick={function() { setExpression(preset.expression); }}
+                className={'text-left p-3 rounded-lg border transition-all hover:border-brand-500/40 hover:bg-slate-800/50 ' +
+                  (expression === preset.expression
+                    ? 'border-brand-500/60 bg-brand-500/10'
+                    : 'border-slate-700/50 bg-slate-800/20')}
+              >
+                <p className="font-mono text-xs text-brand-400 mb-1">{preset.expression}</p>
+                <p className="text-sm text-slate-300 font-medium">{preset.label}</p>
+                <p className="text-xs text-slate-500 mt-0.5">{preset.description}</p>
+              </button>
+            );
+          })}
         </div>
       </div>
 
-      {/* Description + Next Executions */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Human-Readable */}
-        <div className="card">
-          <h2 className="text-white font-semibold text-sm mb-2 flex items-center gap-2">
-            <Info className="w-4 h-4 text-slate-400" />
-            What this means
-          </h2>
-          <p className="text-slate-300 text-sm leading-relaxed">{description}</p>
+      {/* ── Common Examples ─────────────────────────────────────────── */}
+      <div className="mb-8">
+        <h2 className="text-sm font-semibold text-slate-300 uppercase tracking-wider mb-4">
+          More Examples
+        </h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+          {COMMON_EXAMPLES.map(function(example) {
+            return (
+              <button
+                key={example.expression}
+                onClick={function() { setExpression(example.expression); }}
+                className={'text-left p-3 rounded-lg border transition-all hover:border-brand-500/40 hover:bg-slate-800/50 ' +
+                  (expression === example.expression
+                    ? 'border-brand-500/60 bg-brand-500/10'
+                    : 'border-slate-700/50 bg-slate-800/20')}
+              >
+                <p className="font-mono text-xs text-brand-400 mb-1">{example.expression}</p>
+                <p className="text-sm text-slate-300">{example.label}</p>
+              </button>
+            );
+          })}
         </div>
+      </div>
 
-        {/* Next Executions */}
-        <div className="card">
-          <h2 className="text-white font-semibold text-sm mb-3 flex items-center gap-2">
-            <Clock className="w-4 h-4 text-emerald-400" />
-            Next {nextExecutions.length} Executions
-          </h2>
-          {isEveryMinute ? (
-            <div className="space-y-2">
-              {nextExecutions.map((time, i) => (
-                <div
+      {/* ── Quick Reference ─────────────────────────────────────────── */}
+      <div className="mb-8">
+        <h2 className="text-sm font-semibold text-slate-300 uppercase tracking-wider mb-4">
+          Cron Syntax Quick Reference
+        </h2>
+        <div className="overflow-x-auto rounded-lg border border-slate-700/50">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="bg-slate-800/50">
+                <th className="text-left px-4 py-3 text-slate-400 font-medium text-xs uppercase tracking-wider">Symbol</th>
+                <th className="text-left px-4 py-3 text-slate-400 font-medium text-xs uppercase tracking-wider">Meaning</th>
+                <th className="text-left px-4 py-3 text-slate-400 font-medium text-xs uppercase tracking-wider">Example</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-700/50">
+              {[
+                { sym: '*', meaning: 'Any value (wildcard)', example: '* * * * * → every minute' },
+                { sym: ',', meaning: 'Value list separator', example: '0,15,30,45 → at 0, 15, 30, 45' },
+                { sym: '-', meaning: 'Range of values', example: '9-17 → 9 through 17' },
+                { sym: '/', meaning: 'Step values', example: '*/15 → every 15 (0, 15, 30, 45)' },
+                { sym: 'L', meaning: 'Last (not standard)', example: 'Not supported in standard cron' },
+                { sym: '?', meaning: 'No specific value', example: 'Not supported in standard cron' },
+                { sym: '#', meaning: 'Nth weekday', example: 'Not supported in standard cron' },
+                { sym: 'W', meaning: 'Nearest weekday', example: 'Not supported in standard cron' },
+              ].map(function(row) {
+                return (
+                  <tr key={row.sym} className="hover:bg-slate-800/30 transition-colors">
+                    <td className="px-4 py-2.5 font-mono text-brand-400 font-semibold">{row.sym}</td>
+                    <td className="px-4 py-2.5 text-slate-300">{row.meaning}</td>
+                    <td className="px-4 py-2.5 font-mono text-xs text-slate-400">{row.example}</td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+        <p className="mt-2 text-xs text-slate-500">
+          DevBench uses the standard Unix cron format (5 fields). Quartz-style extended syntax (L, ?, #, W) is not supported here.
+        </p>
+      </div>
+
+      {/* ── History ─────────────────────────────────────────────────── */}
+      {history.length > 0 && (
+        <div>
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-sm font-semibold text-slate-300 uppercase tracking-wider flex items-center gap-2">
+              <History className="w-4 h-4" />
+              Recent Expressions
+            </h2>
+            <button
+              onClick={clearHistory}
+              className="flex items-center gap-1.5 text-xs text-slate-500 hover:text-red-400 transition-colors"
+            >
+              <Trash2 className="w-3 h-3" />
+              Clear
+            </button>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {history.slice(0, 12).map(function(entry, i) {
+              return (
+                <button
                   key={i}
-                  className="flex items-center gap-2 text-sm font-mono text-slate-300 bg-surface rounded-md px-3 py-2 border border-slate-700/30"
+                  onClick={function() { setExpression(entry.expression); }}
+                  className={'group flex items-center gap-2 px-3 py-2 bg-slate-800/40 hover:bg-slate-700/50 border rounded-lg text-sm transition-all ' +
+                    (expression === entry.expression
+                      ? 'border-brand-500/60 bg-brand-500/10'
+                      : 'border-slate-700/50')}
                 >
-                  <span className="text-[10px] text-slate-500 w-6">{i + 1}.</span>
-                  {time}
-                </div>
-              ))}
-            </div>
-          ) : nextExecutions.length > 0 ? (
-            <div className="space-y-2">
-              {nextExecutions.map((time, i) => (
-                <div
-                  key={i}
-                  className="flex items-center gap-2 text-sm font-mono text-slate-300 bg-surface rounded-md px-3 py-2 border border-slate-700/30"
-                >
-                  <span className="text-[10px] text-slate-500 w-6">{i + 1}.</span>
-                  {time}
-                </div>
-              ))}
-            </div>
-          ) : (
-            <p className="text-slate-500 text-sm">No upcoming executions found in the next year. Check your expression.</p>
-          )}
-        </div>
-      </div>
-
-      {/* Quick Reference */}
-      <div className="card mt-6">
-        <h2 className="text-white font-semibold text-sm mb-3">Quick Reference</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 text-xs">
-          <div className="bg-surface rounded-lg p-3 border border-slate-700/30">
-            <code className="text-green-400 font-mono">*</code>
-            <span className="text-slate-400 ml-2">Any value (wildcard)</span>
-          </div>
-          <div className="bg-surface rounded-lg p-3 border border-slate-700/30">
-            <code className="text-green-400 font-mono">*/5</code>
-            <span className="text-slate-400 ml-2">Every 5 units (step)</span>
-          </div>
-          <div className="bg-surface rounded-lg p-3 border border-slate-700/30">
-            <code className="text-green-400 font-mono">1,3,5</code>
-            <span className="text-slate-400 ml-2">Specific values (list)</span>
-          </div>
-          <div className="bg-surface rounded-lg p-3 border border-slate-700/30">
-            <code className="text-green-400 font-mono">1-5</code>
-            <span className="text-slate-400 ml-2">Range of values</span>
-          </div>
-          <div className="bg-surface rounded-lg p-3 border border-slate-700/30">
-            <code className="text-green-400 font-mono">MON-FRI</code>
-            <span className="text-slate-400 ml-2">Day names (some systems)</span>
-          </div>
-          <div className="bg-surface rounded-lg p-3 border border-slate-700/30">
-            <code className="text-green-400 font-mono">@daily</code>
-            <span className="text-slate-400 ml-2">Shortcut: 0 0 * * *</span>
+                  <span className="font-mono text-xs text-brand-400">{entry.expression}</span>
+                  <span className="text-[10px] text-slate-600">
+                    {new Date(entry.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                  </span>
+                </button>
+              );
+            })}
           </div>
         </div>
-      </div>
+      )}
     </ToolLayout>
   );
 }
