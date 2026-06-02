@@ -1,0 +1,406 @@
+---
+title: "CSS text-wrap: balance & pretty — The End of Ragged Text in 2026"
+date: "2026-06-02"
+excerpt: "CSS text-wrap: balance eliminates widows and orphans in headlines automatically. text-wrap: pretty prevents single-word orphans at paragraph endings. Both are now Baseline across all browsers. Here's when to use each, how they work under the hood, and production patterns for beautiful typography without JavaScript."
+tags: ["CSS", "text-wrap", "Typography", "Baseline 2026", "Web Platform", "Design"]
+---
+
+## The Problem: Why Text Wrapping Has Always Been Broken
+
+For three decades, CSS text wrapping used a single algorithm: fill the line to the container edge, break at the last possible space, move to the next line. This is fast and predictable — and produces terrible typography.
+
+Consider this headline:
+
+> **The Complete Guide to Building Modern Web Applications with React and TypeScript**
+
+With default wrapping on a narrow viewport, you might get:
+
+```
+The Complete Guide to Building
+Modern Web Applications with
+React and TypeScript
+```
+
+Three uneven lines. The middle line is longest, the last line is shortest. This is called a *rag* — and it's ugly. Designers have been manually inserting `<br>` tags or using JavaScript libraries to fix it for years.
+
+Or take paragraphs:
+
+```
+The quick brown fox jumps over the lazy dog and runs into
+the forest.
+```
+
+That single word "forest." on the last line is a *widow* (or *orphan*, depending on which school of typography you follow). It looks accidental, breaks reading flow, and signals sloppy design.
+
+Until recently, fixing these required JavaScript. Libraries like [BalanceText](https://github.com/adobe/balance-text) (2012) or hand-rolled solutions measured text widths and inserted line breaks programmatically. It worked — barely — but was slow, fragile, and broke on resize.
+
+**CSS `text-wrap` with `balance` and `pretty` values changes all of this.** Both are now Baseline — supported in every major browser, covering ~94% of global users.
+
+---
+
+## `text-wrap: balance` — Perfect Headlines, Automatically
+
+### What It Does
+
+`text-wrap: balance` tells the browser to distribute text across lines so that each line has *roughly equal width*. Instead of filling each line to the edge and then wrapping, the browser searches for line-break points that produce balanced line lengths.
+
+```css
+h1, h2, h3, blockquote {
+  text-wrap: balance;
+}
+```
+
+That's it. No JavaScript. No manual `<br>` tags. The browser does it automatically.
+
+### Before and After
+
+**Default wrapping (`text-wrap: auto`):**
+```
+The Complete Guide to Building
+Modern Web Applications with
+React and TypeScript
+```
+
+**Balanced wrapping (`text-wrap: balance`):**
+```
+The Complete Guide to
+Building Modern Web
+Applications with React
+and TypeScript
+```
+
+Much better. Lines are roughly equal width, the text block looks intentional, and it's readable.
+
+### The Algorithm
+
+The browser uses a binary search over possible line-break positions, measuring each candidate. The goal: minimize the maximum line-width difference, capped at 6 lines.
+
+Key details:
+- **Maximum 6 lines**: The browser stops trying after 6 lines. Beyond that, the cost of searching exceeds the benefit. For short headings (1-3 lines), this is perfect. For long paragraphs, use `pretty` instead.
+- **Performance-bound**: The algorithm is capped at approximately 1ms of layout work. If it can't find a better balance within that budget, it falls back to the default wrap.
+- **Width-ratio metric**: It measures the ratio of the widest line to the narrowest line. A ratio close to 1.0 means excellent balance.
+
+### When to Use `balance`
+
+| Use Case | Use `balance`? | Why |
+|----------|---------------|-----|
+| Headings (h1-h4) | ✅ Yes | Short text, big visual impact |
+| Hero text | ✅ Yes | First impression matters |
+| Blockquotes | ✅ Yes | Usually 1-3 lines |
+| Call-to-action buttons | ✅ Sometimes | Only if multi-line |
+| Card titles | ✅ Yes | Short and prominent |
+| Body paragraphs | ❌ No | Use `pretty` instead |
+| Navigation items | ❌ No | Single-line by design |
+| Code blocks | ❌ No | Pre-formatted |
+
+### Performance Gotcha
+
+`text-wrap: balance` has a real performance cost. The browser must calculate multiple layout candidates. On a page with 1,000 balanced headings, you'll notice jank. This is why the algorithm is capped at 6 lines — and why you should only apply it to *headings*, not every text element on the page.
+
+```css
+/* Good: only headings */
+h1, h2, h3, h4, .hero-title {
+  text-wrap: balance;
+}
+
+/* Bad: everything */
+* {
+  text-wrap: balance; /* Don't do this */
+}
+```
+
+---
+
+## `text-wrap: pretty` — No More Widows in Paragraphs
+
+### What It Does
+
+`text-wrap: pretty` prevents *widows* — single words left alone on the last line of a paragraph. It does this by looking ahead: if the last line would contain only one or two words, the browser adjusts line breaks earlier in the paragraph to bring more words down to the last line.
+
+```css
+p, li, dd, figcaption, blockquote p {
+  text-wrap: pretty;
+}
+```
+
+Compare:
+
+**Default:**
+```
+The quick brown fox jumps over
+the lazy dog and runs into the
+forest.
+```
+The word "forest." is a widow — one word alone on the last line.
+
+**With `text-wrap: pretty`:**
+```
+The quick brown fox jumps
+over the lazy dog and runs
+into the forest.
+```
+Two words on the last line. No widow. Much better.
+
+### How It Works
+
+Unlike `balance` (which re-distributes all lines), `pretty` uses a *quality scoring* heuristic:
+
+1. It evaluates the last 4 lines of each paragraph
+2. It counts orphans/widows — single-word last lines get penalized
+3. It adjusts line breaks within the last few lines to avoid solo words
+4. It never makes hyphenation decisions — it only shifts existing line breaks
+
+This is significantly cheaper than `balance` because it only looks at the last few lines, not the entire text block.
+
+### When to Use `pretty`
+
+Apply it *globally* to all body text:
+
+```css
+/* Apply to every paragraph-like element */
+p, li, dd, dt, figcaption, blockquote {
+  text-wrap: pretty;
+}
+```
+
+Unlike `balance`, there's essentially no performance cost for `pretty`. The algorithm only activates when there's a widow problem, and even then it's examining at most 4 lines. You can and should apply it site-wide.
+
+### The Fine Print: No Hyphenation
+
+`text-wrap: pretty` does **not** insert hyphens. If a single long word fills an entire line, `pretty` can't help — it only adjusts existing line-break opportunities (spaces). For hyphenation, combine with `hyphens: auto`:
+
+```css
+p {
+  text-wrap: pretty;
+  hyphens: auto;
+  hyphenate-limit-chars: 6 3 2;
+}
+```
+
+---
+
+## `text-wrap-mode` and `text-wrap-style` — The Longhand Properties
+
+The `text-wrap` shorthand combines two longhand properties:
+
+| Shorthand | Longhands | Values |
+|-----------|-----------|--------|
+| `text-wrap` | `text-wrap-mode` + `text-wrap-style` | `auto`, `balance`, `pretty`, `stable`, etc. |
+
+### `text-wrap-mode`
+
+Controls *whether* text wraps at all:
+
+```css
+/* Allow wrapping (default) */
+text-wrap-mode: wrap;
+
+/* Prevent wrapping entirely */
+text-wrap-mode: nowrap;
+```
+
+### `text-wrap-style`
+
+Controls *how* the wrapping behaves:
+
+```css
+/* Default — fill line to edge and break */
+text-wrap-style: auto;
+
+/* Balance lines for short text blocks */
+text-wrap-style: balance;
+
+/* Prevent widows in paragraphs */
+text-wrap-style: pretty;
+
+/* Avoid changing layout on dynamic content */
+text-wrap-style: stable;
+```
+
+The shorthand:
+
+```css
+/* These are equivalent */
+text-wrap: balance;
+text-wrap: wrap balance;
+
+/* These are equivalent */
+text-wrap: pretty;
+text-wrap: wrap pretty;
+
+/* Stable wrapping — useful for live-updating content */
+text-wrap: stable;
+```
+
+---
+
+## `text-wrap: stable` — When Content Changes
+
+`text-wrap: stable` is the fourth value, introduced alongside `balance` and `pretty`. It tells the browser: "once you've decided on line breaks, keep them — even if the content changes."
+
+This is crucial for **live-editing interfaces**, **multi-step forms**, and **streaming text** where re-wrapping on every keystroke causes jarring layout shifts:
+
+```css
+.live-editor {
+  text-wrap: stable;
+}
+```
+
+Without `stable`, editing a sentence can cause the entire paragraph to reshuffle — disorienting for users. With it, only the edited line may re-wrap; the rest stays put.
+
+| Value | What It Does | Performance | Use Case |
+|-------|-------------|-------------|----------|
+| `auto` | Default wrapping | Free | Body text baseline |
+| `balance` | Equal-width lines, max 6 | Moderate | Headings, blockquotes |
+| `pretty` | Prevent widows, last 4 lines | Very cheap | All body text |
+| `stable` | Preserve existing breaks | Free | Live-editing, streaming |
+
+---
+
+## Production Patterns
+
+### Pattern 1: Global Typography Baseline
+
+Set `pretty` on all body text, `balance` on headings:
+
+```css
+/* Reset + Typography baseline */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+}
+
+/* Body text: prevent widows everywhere */
+p, li, dd, dt, figcaption, blockquote {
+  text-wrap: pretty;
+  max-width: 65ch; /* Readable line length */
+}
+
+/* Headings: balance for visual polish */
+h1, h2, h3, h4, h5, h6,
+.hero-title,
+.card-title,
+blockquote {
+  text-wrap: balance;
+  max-width: 30ch; /* Headings shouldn't stretch full width */
+}
+```
+
+### Pattern 2: Article Layout with Progressive Enhancement
+
+For sites where older browser support matters:
+
+```css
+/* Fallback: max-width constraint prevents worst wrapping */
+h1 {
+  max-width: 20ch;
+}
+
+/* Enhancement: balance for modern browsers */
+@supports (text-wrap: balance) {
+  h1, h2, h3 {
+    text-wrap: balance;
+    max-width: unset; /* balance handles it */
+  }
+}
+```
+
+### Pattern 3: Combining with `text-align`
+
+`text-wrap: balance` works beautifully with centered text:
+
+```css
+.hero {
+  text-align: center;
+  text-wrap: balance;
+}
+```
+
+Before `balance`, centered multi-line headings were the worst-case scenario — ragged edges around center alignment look accidental. With `balance`, centered headings look professionally typeset.
+
+### Pattern 4: Avoiding Accidental Application
+
+A common mistake: applying `balance` to everything via a wildcard. Don't:
+
+```css
+/* ❌ Wrong — expensive and useless on long text */
+* { text-wrap: balance; }
+
+/* ✅ Right — targeted application */
+:is(h1, h2, h3, h4, blockquote, .balance-text) {
+  text-wrap: balance;
+}
+```
+
+---
+
+## Browser Support
+
+As of June 2026, `text-wrap: balance` and `text-wrap: pretty` are **Baseline Widely Available**:
+
+| Browser | `balance` | `pretty` | `stable` |
+|---------|-----------|----------|----------|
+| Chrome | 114+ | 117+ | 117+ |
+| Firefox | 121+ | 122+ | 122+ |
+| Safari | 17.5+ | 17.5+ | 17.5+ |
+| Edge | 114+ | 117+ | 117+ |
+| Samsung Internet | 23+ | 23+ | 23+ |
+
+This covers approximately 94% of global web users. For the remaining 6%, text simply wraps using the default algorithm — it looks less polished but remains fully readable. **This is a classic progressive enhancement.** No polyfill needed.
+
+---
+
+## Feature Detection
+
+```javascript
+// JavaScript detection
+if (CSS.supports('text-wrap', 'balance')) {
+  console.log('text-wrap: balance is supported');
+}
+
+if (CSS.supports('text-wrap', 'pretty')) {
+  console.log('text-wrap: pretty is supported');
+}
+```
+
+```css
+/* CSS detection via @supports */
+@supports (text-wrap: balance) {
+  h1 { text-wrap: balance; }
+}
+
+@supports not (text-wrap: balance) {
+  /* Fallback: constrain width to avoid worst-case wrapping */
+  h1 { max-width: 20ch; }
+}
+```
+
+---
+
+## The JavaScript-Free Future
+
+For almost 30 years, web typography was a compromise. You either accepted ugly text wrapping or reached for JavaScript. Libraries like BalanceText, Typeset.js, and FitText had millions of downloads — not because people wanted JavaScript in their headings, but because CSS couldn't do the job.
+
+`text-wrap: balance` and `text-wrap: pretty` close that gap. They're native, fast, and work on every resize, every font load, every container query change. No JavaScript. No layout recalculations. No flickering.
+
+The migration is simple:
+
+```css
+/* Before: JavaScript library */
+/* After: One CSS line */
+h1, h2, h3 { text-wrap: balance; }
+p { text-wrap: pretty; }
+```
+
+**If you do nothing else this month, add those two lines to your global stylesheet.** Your typography will improve instantly for 94% of users, and degrade gracefully for everyone else.
+
+---
+
+## Resources
+
+- [CSS Text Module Level 4 — text-wrap](https://www.w3.org/TR/css-text-4/#text-wrap)
+- [MDN: text-wrap](https://developer.mozilla.org/en-US/docs/Web/CSS/text-wrap)
+- [Chrome for Developers: CSS text-wrap: balance](https://developer.chrome.com/docs/css-ui/css-text-wrap-balance)
+- [Try it live: DevBench CSS Text Wrap Playground](/tools/css-text-wrap-playground)
