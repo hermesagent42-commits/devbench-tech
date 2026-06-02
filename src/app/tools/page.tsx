@@ -16,6 +16,7 @@ import {
   PaintBucket,
   Paintbrush,
   Clock,
+  Copy,
   Droplets,
   FileCode,
   Layout,
@@ -1064,6 +1065,13 @@ const allTools = [
     href: '/tools/readme-generator',
     icon: FileText,
     tags: ['Markdown', 'README', 'Documentation', 'Generator'],
+  },
+  {
+    title: 'StructuredClone Playground',
+    description: 'Test JavaScript\'s structuredClone() API — verify what can be deep-cloned, debug DataCloneErrors, explore supported types. 8 samples, reference table of 21 types, 100% client-side.',
+    href: '/tools/structured-clone-playground',
+    icon: Copy,
+    tags: ['Browser API', 'structuredClone', 'Debug', 'Serialization'],
   },
 ];
 
