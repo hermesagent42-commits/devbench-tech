@@ -1154,6 +1154,13 @@ const featuredTools = [
     tags: ['JSON', 'Go', 'Golang', 'Struct', 'Code Gen'],
   },
   {
+    title: 'JSON → Python Dataclasses',
+    description: 'Convert JSON into type-annotated Python dataclass definitions — nested dataclasses, Optional types, List types, snake_case fields, and a from_dict() parsing utility. 100% client-side.',
+    href: '/tools/json-to-python',
+    icon: FileCode,
+    tags: ['JSON', 'Python', 'Dataclass', 'Code Gen'],
+  },
+  {
     title: "JSON to HTML Form",
     description: "Convert JSON objects into accessible, production-ready HTML forms with auto-detected field types — email, password, URL, date, color, select, textarea, checkbox, and more.",
     href: "/tools/json-to-form",

@@ -647,6 +647,13 @@ const allTools = [
     tags: ['JSON', 'Rust', 'Serde', 'Struct', 'Code Gen'],
   },
   {
+    title: 'JSON to Python Dataclasses',
+    description: 'Convert JSON into type-annotated Python dataclass definitions — nested dataclasses, Optional types, List types, snake_case fields, and a from_dict() parsing utility. 100% client-side.',
+    href: '/tools/json-to-python',
+    icon: FileCode,
+    tags: ['JSON', 'Python', 'Dataclass', 'Code Gen'],
+  },
+  {
     title: 'HTML Table Generator',
     description: 'Build HTML tables visually — add rows/columns, toggle &lt;th&gt; headers, set per-cell alignment, and export clean HTML + CSS.',
     href: '/tools/html-table-generator',
