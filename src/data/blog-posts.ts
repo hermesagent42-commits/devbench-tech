@@ -528,4 +528,352 @@ document.startViewTransition(() =&gt; {
   </p>
 </div>`,
   },
+  {
+    slug: 'css-nesting-complete-guide-2026',
+    title: 'CSS Nesting Is Here: Say Goodbye to Repetitive Selectors',
+    description:
+      'CSS Nesting reached Baseline in 2024 and now works in every browser. Learn the syntax rules, the "&" parent selector, nesting at-rules, common pitfalls, and how to migrate from Sass nesting today.',
+    date: '2026-06-05',
+    author: 'DevBench',
+    tags: ['CSS', 'CSS Nesting', 'Baseline 2024', 'CSS3', 'Frontend', 'Sass', 'PostCSS', 'Web Standards'],
+    readingTime: '8 min read',
+    content: `
+<div class="prose-content">
+  <p class="lead">
+    For two decades, CSS nesting was only available through preprocessors. Sass, Less, and
+    Stylus gave us nested selectors, and they were so popular that the CSS Working Group
+    standardized them. <strong>CSS Nesting</strong> shipped in every major browser
+    by 2024 — Chrome 120, Safari 17.2, Firefox 117 — and it is now
+    <strong>Baseline 2024</strong>. No <code>@supports</code> check
+    needed. It is production-ready everywhere and it changes how you write CSS at a
+    fundamental level.
+  </p>
+
+  <div class="highlight-box">
+    <strong>Baseline 2024:</strong> CSS Nesting is supported in Chrome 120+,
+    Edge 120+, Safari 17.2+, and Firefox 117+. Use it in production today — no preprocessor
+    required.
+  </div>
+
+  <h2>Before and After: The Visual Difference</h2>
+
+  <p>
+    Here is a real-world card component with hover states, a title, a description,
+    and a button. First, the old flat CSS:
+  </p>
+
+  <pre><code>/* Before: flat CSS — lots of repetition */
+.card { background: var(--surface); border-radius: 8px; }
+.card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+.card .card-title { font-size: 1.25rem; font-weight: 600; }
+.card .card-description { color: var(--muted); font-size: 0.875rem; }
+.card .card-button { padding: 8px 16px; background: var(--brand); }
+.card .card-button:hover { background: var(--brand-dark); }
+.card.dark .card-title { color: white; }</code></pre>
+
+  <p>
+    And now, with native CSS nesting:
+  </p>
+
+  <pre><code>/* After: native CSS nesting */
+.card {
+  background: var(--surface);
+  border-radius: 8px;
+
+  &amp;:hover {
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  }
+
+  .card-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+  }
+
+  .card-description {
+    color: var(--muted);
+    font-size: 0.875rem;
+  }
+
+  .card-button {
+    padding: 8px 16px;
+    background: var(--brand);
+
+    &amp;:hover {
+      background: var(--brand-dark);
+    }
+  }
+
+  &amp;.dark {
+    .card-title { color: white; }
+    .card-description { color: rgba(255,255,255,0.7); }
+  }
+}</code></pre>
+
+  <p>
+    That is not just prettier — it is <strong>faster to write, easier to read, and
+    harder to get wrong</strong>. No more retyping <code>.card</code>
+    eight times. The parent-child relationship is visually explicit in the structure.
+  </p>
+
+  <h2>The Golden Rule: Every Nest Must Start With a Symbol</h2>
+
+  <p>
+    This is the single most important rule and the #1 source of confusion for people
+    migrating from Sass. In Sass, you can nest a bare element selector inside a parent:
+  </p>
+
+  <pre><code>/* INVALID in CSS Nesting — works in Sass */
+.card {
+  h2 { color: red; }  /* &lt;--- No leading symbol! */
+}</code></pre>
+
+  <p>
+    CSS Nesting requires <strong>every nested selector to start with a
+    symbol</strong>: <code>&amp;</code> (parent reference),
+    <code>.</code> (class), <code>#</code> (ID),
+    <code>[</code> (attribute), <code>:</code> (pseudo-class),
+    <code>::</code> (pseudo-element), or <code>@</code> (at-rule).
+    A bare tag name like <code>h2</code> is not allowed.
+  </p>
+
+  <p>
+    The fix is simple — use the <code>&amp;</code> parent selector:
+  </p>
+
+  <pre><code>/* Valid CSS Nesting */
+.card {
+  &amp; h2 { color: red; }       /* descendant combinator */
+  &amp; &gt; h2 { color: blue; }    /* direct child combinator */
+  &amp; + h2 { color: green; }   /* adjacent sibling */
+}</code></pre>
+
+  <h2><code>&amp;</code> — The Swiss Army Knife of Nesting</h2>
+
+  <p>
+    The <code>&amp;</code> character represents the parent selector and is
+    the most powerful tool in your nesting toolkit. It works everywhere:
+  </p>
+
+  <pre><code>.button {
+  background: var(--brand);
+
+  &amp;:hover { background: var(--brand-dark); }
+  &amp;:focus-visible { outline: 2px solid var(--brand); }
+
+  /* BEM-style modifier */
+  &amp;--large { padding: 16px 32px; font-size: 1.125rem; }
+  &amp;--small { padding: 4px 12px; font-size: 0.75rem; }
+
+  /* Combine with attribute selectors */
+  &amp;[disabled] { opacity: 0.5; cursor: not-allowed; }
+
+  /* Invert nesting — this compiles to ".theme-dark .button" */
+  .theme-dark &amp; { background: var(--dark-surface); }
+}</code></pre>
+
+  <p>
+    That last example — <code>.theme-dark &amp;</code> — inverts the nesting
+    relationship, letting you define variant styles from <em>inside</em> the
+    component's primary block instead of requiring a separate top-level selector.
+  </p>
+
+  <h2>Nesting @media and @container — The Real Game-Changer</h2>
+
+  <p>
+    One of the biggest ergonomic wins from CSS Nesting is colocating responsive
+    breakpoints with the component they affect. No more separate <code>@media</code>
+    blocks scattered across a file:
+  </p>
+
+  <pre><code>.grid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: 1fr;
+
+  @media (min-width: 768px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  @media (min-width: 1024px) {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  @container (min-width: 400px) {
+    gap: 2rem;
+  }
+}</code></pre>
+
+  <p>
+    Everything about <code>.grid</code> is in one place. The browser compiles
+    this to the equivalent flat CSS at parse time, so there is zero performance penalty.
+  </p>
+
+  <h2>Nesting @layer and @supports</h2>
+
+  <p>
+    Progressive enhancement becomes clean and self-contained:
+  </p>
+
+  <pre><code>.fancy-box {
+  background: var(--fallback-bg);
+
+  @supports (background: linear-gradient(in oklch, red, blue)) {
+    background: linear-gradient(in oklch, var(--from), var(--to));
+  }
+
+  @supports (backdrop-filter: blur(10px)) {
+    backdrop-filter: blur(10px);
+  }
+}</code></pre>
+
+  <h2>Specificity: Identical to Non-Nested CSS</h2>
+
+  <p>
+    A critical point: <strong>CSS Nesting produces exactly the
+    same specificity as the equivalent flat CSS</strong>. The browser desugars nested
+    selectors at parse time — there is no additional specificity from nesting depth.
+  </p>
+
+  <pre><code>/* Both produce .card .title — specificity (0,2,0) */
+.card .title { color: red; }
+.card { .title { color: red; } }</code></pre>
+
+  <p>
+    <strong>Nest for organization, not for specificity hacking.</strong>
+  </p>
+
+  <h2>Common Pitfalls (and How to Avoid Them)</h2>
+
+  <h3>Pitfall 1: Forgetting the symbol rule</h3>
+  <p>
+    The browser <strong>silently ignores</strong> nested rules that do not
+    start with a symbol — this is by design to avoid breaking existing pages. If your
+    nested styles do not apply, check this first.
+  </p>
+
+  <h3>Pitfall 2: Over-nesting</h3>
+  <p>
+    Just because you <em>can</em> nest deeply does not mean you should. The
+    "inception rule" from the Sass community applies: never nest more than 3 levels.
+    Deep nesting creates long, fragile selectors that are hard to override.
+  </p>
+
+  <h3>Pitfall 3: Confusing <code>&amp;.active</code> with <code>&amp; .active</code></h3>
+  <p>
+    <code>&amp;.active</code> means <code>.card.active</code>
+    (element has both classes). <code>&amp; .active</code> means
+    <code>.card .active</code> (descendant with the class). The space is
+    everything.
+  </p>
+
+  <h2>Migrating From Sass: A Cheat Sheet</h2>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Sass Pattern</th>
+        <th>CSS Nesting Equivalent</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>.parent { .child { } }</code></td>
+        <td><code>.parent { &amp; .child { } }</code> — add <code>&amp;</code></td>
+      </tr>
+      <tr>
+        <td><code>.parent { &amp;:hover { } }</code></td>
+        <td><code>.parent { &amp;:hover { } }</code> — identical</td>
+      </tr>
+      <tr>
+        <td><code>.parent { &amp;__child { } }</code></td>
+        <td><code>.parent { &amp;__child { } }</code> — BEM works unchanged</td>
+      </tr>
+      <tr>
+        <td><code>.parent { @media { } }</code></td>
+        <td><code>.parent { @media { } }</code> — identical</td>
+      </tr>
+      <tr>
+        <td>Sass color functions</td>
+        <td>Use <code>color-mix()</code> or <code>oklch</code> relative color syntax</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>When to Use Native CSS Nesting vs. Keep Sass</h2>
+
+  <div class="highlight-box">
+    <strong>Use native CSS nesting when:</strong> you are starting a new project,
+    want zero build-step overhead, or only need nesting + custom
+    properties.<br/><br/>
+    <strong>Keep Sass when:</strong> you heavily rely on mixins,
+    <code>@extend</code>, loops, or color-manipulation functions that CSS does
+    not yet have equivalents for.
+  </div>
+
+  <p>
+    Many teams are adopting a hybrid approach: removing Sass nesting in favor of native CSS
+    nesting (which means shipping plain <code>.css</code> files directly), while
+    keeping Sass for complex mixins and design-token generation during the build step.
+  </p>
+
+  <h2>Browser DevTools Support</h2>
+
+  <p>
+    All major browser DevTools now show nested CSS exactly as you wrote it — not the
+    desugared flat version. In Chrome 120+, Safari 17.2+, and Firefox 117+, the Styles
+    pane displays nested rules with indentation, and you can edit them in place just like
+    any other CSS.
+  </p>
+
+  <h2>Performance: Zero Cost</h2>
+
+  <p>
+    CSS Nesting is handled entirely at parse time by the browser's CSS parser. There is
+    <strong>no runtime cost, no additional network payload, and no JavaScript
+    overhead</strong>. The desugaring happens once when the stylesheet is parsed, and
+    the resulting CSSOM is identical to flat CSS. This is one of the reasons nesting was
+    able to standardize so quickly — it required zero changes to the rendering pipeline.
+  </p>
+
+  <h2>Try It on DevBench</h2>
+
+  <p>
+    Want to experiment with CSS nesting right now? DevBench has several tools that let you
+    write and preview nested CSS live:
+  </p>
+
+  <ul>
+    <li>
+      <a href="/tools/css-nesting-playground/" class="inline-link">CSS Nesting Playground</a>
+      — a dedicated editor for writing and testing nested CSS with live preview
+    </li>
+    <li>
+      <a href="/tools/css-property-playground/" class="inline-link">CSS Property Playground</a>
+      — explore how nesting interacts with every CSS property
+    </li>
+    <li>
+      <a href="/tools/css-has-playground/" class="inline-link">CSS :has() Playground</a>
+      — nesting pairs beautifully with the parent selector
+    </li>
+  </ul>
+
+  <h2>The Bottom Line</h2>
+
+  <p>
+    CSS Nesting is the single biggest ergonomic improvement to the CSS language since
+    Custom Properties. It eliminates selector repetition, keeps related styles together,
+    and makes responsive design dramatically more maintainable by colocating media queries
+    with their components. It is <strong>Baseline 2024</strong> — not
+    experimental, not "coming soon." It is here, it is production-ready, and there is no
+    reason not to use it in your next project.
+  </p>
+
+  <p class="callout">
+    The symbol-first rule is all you need to remember. Start every nested selector with
+    <code>&amp;</code>, <code>.</code>, <code>#</code>,
+    <code>[</code>, <code>:</code>, <code>::</code>,
+    or <code>@</code>, and you will never hit a silent failure. Happy nesting!
+  </p>
+</div>`,
+  },
 ];
