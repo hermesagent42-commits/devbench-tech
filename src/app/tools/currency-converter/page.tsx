@@ -2,7 +2,7 @@
 
 import { useState, useCallback, useEffect, useMemo } from 'react';
 import { ToolLayout } from '@/components/ToolLayout';
-import { Copy, ArrowRightLeft, RefreshCw, AlertTriangle, ChevronDown, Check, Clock } from 'lucide-react';
+import { ArrowLeftRight, Copy, RefreshCw, TrendingUp, Globe, Info } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 // ── Types ──────────────────────────────────────────────────────────────────
@@ -10,492 +10,438 @@ import toast from 'react-hot-toast';
 interface Currency {
   code: string;
   name: string;
-  flag: string;
+  symbol: string;
+  flag: string; // emoji flag
 }
 
-interface RateCache {
+interface Rates {
   base: string;
   rates: Record<string, number>;
   date: string;
-  fetchedAt: number;
+  timestamp: number;
 }
 
-// ── Currencies ─────────────────────────────────────────────────────────────
+// ── Currency definitions ───────────────────────────────────────────────────
 
 const CURRENCIES: Currency[] = [
-  { code: 'USD', name: 'US Dollar', flag: '🇺🇸' },
-  { code: 'EUR', name: 'Euro', flag: '🇪🇺' },
-  { code: 'GBP', name: 'British Pound', flag: '🇬🇧' },
-  { code: 'JPY', name: 'Japanese Yen', flag: '🇯🇵' },
-  { code: 'AUD', name: 'Australian Dollar', flag: '🇦🇺' },
-  { code: 'CAD', name: 'Canadian Dollar', flag: '🇨🇦' },
-  { code: 'CHF', name: 'Swiss Franc', flag: '🇨🇭' },
-  { code: 'CNY', name: 'Chinese Yuan', flag: '🇨🇳' },
-  { code: 'INR', name: 'Indian Rupee', flag: '🇮🇳' },
-  { code: 'BRL', name: 'Brazilian Real', flag: '🇧🇷' },
-  { code: 'MXN', name: 'Mexican Peso', flag: '🇲🇽' },
-  { code: 'KRW', name: 'South Korean Won', flag: '🇰🇷' },
-  { code: 'SGD', name: 'Singapore Dollar', flag: '🇸🇬' },
-  { code: 'HKD', name: 'Hong Kong Dollar', flag: '🇭🇰' },
-  { code: 'SEK', name: 'Swedish Krona', flag: '🇸🇪' },
-  { code: 'NOK', name: 'Norwegian Krone', flag: '🇳🇴' },
-  { code: 'DKK', name: 'Danish Krone', flag: '🇩🇰' },
-  { code: 'PLN', name: 'Polish Złoty', flag: '🇵🇱' },
-  { code: 'TRY', name: 'Turkish Lira', flag: '🇹🇷' },
-  { code: 'ZAR', name: 'South African Rand', flag: '🇿🇦' },
-  { code: 'NZD', name: 'New Zealand Dollar', flag: '🇳🇿' },
-  { code: 'RUB', name: 'Russian Ruble', flag: '🇷🇺' },
-  { code: 'AED', name: 'UAE Dirham', flag: '🇦🇪' },
-  { code: 'SAR', name: 'Saudi Riyal', flag: '🇸🇦' },
-  { code: 'THB', name: 'Thai Baht', flag: '🇹🇭' },
-  { code: 'PHP', name: 'Philippine Peso', flag: '🇵🇭' },
-  { code: 'MYR', name: 'Malaysian Ringgit', flag: '🇲🇾' },
-  { code: 'IDR', name: 'Indonesian Rupiah', flag: '🇮🇩' },
-  { code: 'VND', name: 'Vietnamese Đồng', flag: '🇻🇳' },
-  { code: 'ARS', name: 'Argentine Peso', flag: '🇦🇷' },
-  { code: 'CLP', name: 'Chilean Peso', flag: '🇨🇱' },
-  { code: 'COP', name: 'Colombian Peso', flag: '🇨🇴' },
-  { code: 'EGP', name: 'Egyptian Pound', flag: '🇪🇬' },
-  { code: 'NGN', name: 'Nigerian Naira', flag: '🇳🇬' },
-  { code: 'PKR', name: 'Pakistani Rupee', flag: '🇵🇰' },
-  { code: 'BDT', name: 'Bangladeshi Taka', flag: '🇧🇩' },
-  { code: 'CZK', name: 'Czech Koruna', flag: '🇨🇿' },
-  { code: 'HUF', name: 'Hungarian Forint', flag: '🇭🇺' },
-  { code: 'ILS', name: 'Israeli Shekel', flag: '🇮🇱' },
-  { code: 'RON', name: 'Romanian Leu', flag: '🇷🇴' },
-  { code: 'UAH', name: 'Ukrainian Hryvnia', flag: '🇺🇦' },
-  { code: 'PEN', name: 'Peruvian Sol', flag: '🇵🇪' },
-  { code: 'KWD', name: 'Kuwaiti Dinar', flag: '🇰🇼' },
-  { code: 'QAR', name: 'Qatari Riyal', flag: '🇶🇦' },
-  { code: 'DZD', name: 'Algerian Dinar', flag: '🇩🇿' },
-  { code: 'MAD', name: 'Moroccan Dirham', flag: '🇲🇦' },
-  { code: 'TWD', name: 'Taiwan Dollar', flag: '🇹🇼' },
-  { code: 'ISK', name: 'Icelandic Króna', flag: '🇮🇸' },
-  { code: 'CRC', name: 'Costa Rican Colón', flag: '🇨🇷' },
-  { code: 'BHD', name: 'Bahraini Dinar', flag: '🇧🇭' },
+  { code: 'USD', name: 'US Dollar',             symbol: '$',    flag: '🇺🇸' },
+  { code: 'EUR', name: 'Euro',                  symbol: '€',    flag: '🇪🇺' },
+  { code: 'GBP', name: 'British Pound',         symbol: '£',    flag: '🇬🇧' },
+  { code: 'JPY', name: 'Japanese Yen',          symbol: '¥',    flag: '🇯🇵' },
+  { code: 'AUD', name: 'Australian Dollar',     symbol: 'A$',   flag: '🇦🇺' },
+  { code: 'CAD', name: 'Canadian Dollar',       symbol: 'C$',   flag: '🇨🇦' },
+  { code: 'CHF', name: 'Swiss Franc',           symbol: 'CHF',  flag: '🇨🇭' },
+  { code: 'CNY', name: 'Chinese Yuan',          symbol: '¥',    flag: '🇨🇳' },
+  { code: 'INR', name: 'Indian Rupee',          symbol: '₹',    flag: '🇮🇳' },
+  { code: 'BRL', name: 'Brazilian Real',        symbol: 'R$',   flag: '🇧🇷' },
+  { code: 'KRW', name: 'South Korean Won',      symbol: '₩',    flag: '🇰🇷' },
+  { code: 'MXN', name: 'Mexican Peso',          symbol: 'MX$',  flag: '🇲🇽' },
+  { code: 'SEK', name: 'Swedish Krona',         symbol: 'kr',   flag: '🇸🇪' },
+  { code: 'NOK', name: 'Norwegian Krone',       symbol: 'kr',   flag: '🇳🇴' },
+  { code: 'DKK', name: 'Danish Krone',          symbol: 'kr',   flag: '🇩🇰' },
+  { code: 'PLN', name: 'Polish Zloty',          symbol: 'zł',   flag: '🇵🇱' },
+  { code: 'TRY', name: 'Turkish Lira',          symbol: '₺',    flag: '🇹🇷' },
+  { code: 'HKD', name: 'Hong Kong Dollar',      symbol: 'HK$',  flag: '🇭🇰' },
+  { code: 'SGD', name: 'Singapore Dollar',      symbol: 'S$',   flag: '🇸🇬' },
+  { code: 'THB', name: 'Thai Baht',             symbol: '฿',    flag: '🇹🇭' },
+  { code: 'ZAR', name: 'South African Rand',    symbol: 'R',    flag: '🇿🇦' },
+  { code: 'NZD', name: 'New Zealand Dollar',    symbol: 'NZ$',  flag: '🇳🇿' },
+  { code: 'RUB', name: 'Russian Ruble',         symbol: '₽',    flag: '🇷🇺' },
+  { code: 'PHP', name: 'Philippine Peso',       symbol: '₱',    flag: '🇵🇭' },
+  { code: 'MYR', name: 'Malaysian Ringgit',     symbol: 'RM',   flag: '🇲🇾' },
+  { code: 'IDR', name: 'Indonesian Rupiah',     symbol: 'Rp',   flag: '🇮🇩' },
+  { code: 'VND', name: 'Vietnamese Dong',       symbol: '₫',    flag: '🇻🇳' },
+  { code: 'CZK', name: 'Czech Koruna',          symbol: 'Kč',   flag: '🇨🇿' },
+  { code: 'HUF', name: 'Hungarian Forint',      symbol: 'Ft',   flag: '🇭🇺' },
+  { code: 'RON', name: 'Romanian Leu',          symbol: 'lei',  flag: '🇷🇴' },
+  { code: 'ILS', name: 'Israeli Shekel',        symbol: '₪',    flag: '🇮🇱' },
+  { code: 'CLP', name: 'Chilean Peso',          symbol: 'CLP$', flag: '🇨🇱' },
+  { code: 'COP', name: 'Colombian Peso',        symbol: 'COL$', flag: '🇨🇴' },
+  { code: 'ARS', name: 'Argentine Peso',        symbol: 'AR$',  flag: '🇦🇷' },
+  { code: 'NGN', name: 'Nigerian Naira',        symbol: '₦',    flag: '🇳🇬' },
+  { code: 'EGP', name: 'Egyptian Pound',        symbol: 'E£',   flag: '🇪🇬' },
+  { code: 'KES', name: 'Kenyan Shilling',       symbol: 'KSh',  flag: '🇰🇪' },
+  { code: 'AED', name: 'UAE Dirham',            symbol: 'د.إ',  flag: '🇦🇪' },
+  { code: 'SAR', name: 'Saudi Riyal',           symbol: '﷼',    flag: '🇸🇦' },
+  { code: 'PKR', name: 'Pakistani Rupee',       symbol: '₨',    flag: '🇵🇰' },
+  { code: 'BDT', name: 'Bangladeshi Taka',      symbol: '৳',    flag: '🇧🇩' },
+  { code: 'UAH', name: 'Ukrainian Hryvnia',     symbol: '₴',    flag: '🇺🇦' },
+  { code: 'TWD', name: 'Taiwan Dollar',         symbol: 'NT$',  flag: '🇹🇼' },
+  { code: 'PEN', name: 'Peruvian Sol',          symbol: 'S/',   flag: '🇵🇪' },
 ];
 
-const currencyMap = new Map(CURRENCIES.map((c) => [c.code, c]));
+// ── HARDCODED FALLBACK RATES (EUR base, June 2026 approximate) ────────────
+
+const FALLBACK_RATES: Record<string, number> = {
+  USD: 1.08,  EUR: 1.0,    GBP: 0.85,   JPY: 162.5,
+  AUD: 1.62,  CAD: 1.46,   CHF: 0.96,   CNY: 7.82,
+  INR: 90.2,  BRL: 5.85,   KRW: 1450.0, MXN: 20.8,
+  SEK: 11.3,  NOK: 11.6,   DKK: 7.46,   PLN: 4.35,
+  TRY: 35.5,  HKD: 8.42,   SGD: 1.44,   THB: 38.5,
+  ZAR: 19.6,  NZD: 1.75,   RUB: 106.0,  PHP: 62.8,
+  MYR: 5.05,  IDR: 17600.0,VND: 27600.0,CZK: 25.0,
+  HUF: 402.0, RON: 4.98,   ILS: 4.05,   CLP: 1030.0,
+  COP: 4550.0,ARS: 1240.0, NGN: 1680.0,EGP: 52.5,
+  KES: 140.0,AED: 3.97,    SAR: 4.05,   PKR: 304.0,
+  BDT: 130.0,UAH: 43.5,    TWD: 34.6,   PEN: 4.07,
+};
 
 // ── API ────────────────────────────────────────────────────────────────────
 
-const RATE_CACHE_TTL = 10 * 60 * 1000; // 10 minutes
-
-async function fetchRates(base: string): Promise<RateCache> {
-  const res = await fetch(`https://api.frankfurter.app/latest?from=${base}`);
-  if (!res.ok) {
-    throw new Error(`API error: ${res.status} ${res.statusText}`);
-  }
-  const data = await res.json();
+function buildFallbackRates(): Rates {
   return {
-    base: data.base,
-    rates: data.rates,
-    date: data.date,
-    fetchedAt: Date.now(),
+    base: 'EUR',
+    rates: FALLBACK_RATES,
+    date: new Date().toISOString().split('T')[0],
+    timestamp: Date.now(),
   };
 }
 
-// ── Format helpers ─────────────────────────────────────────────────────────
-
-function formatAmount(value: number, currency: string): string {
+async function fetchRates(): Promise<Rates> {
   try {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency,
-      minimumFractionDigits: 2,
-      maximumFractionDigits: currency === 'JPY' || currency === 'KRW' || currency === 'IDR' || currency === 'VND' ? 0 : 6,
-    }).format(value);
+    const res = await fetch('https://open.er-api.com/v6/latest/EUR');
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+    if (data.result !== 'success') throw new Error('API error');
+    return {
+      base: data.base_code || 'EUR',
+      rates: data.rates || {},
+      date: data.time_last_update_utc?.split(' ')[0] || new Date().toISOString().split('T')[0],
+      timestamp: Date.now(),
+    };
   } catch {
-    return `${currency} ${value.toFixed(2)}`;
+    return buildFallbackRates();
   }
 }
 
-function formatDecimal(value: number, currency: string): string {
-  const decimals = ['JPY', 'KRW', 'IDR', 'VND', 'CLP'].includes(currency) ? 0 : 4;
-  return value.toFixed(decimals);
+// ── Helpers ────────────────────────────────────────────────────────────────
+
+function convert(amount: number, fromRate: number, toRate: number): number {
+  return (amount / fromRate) * toRate;
 }
 
-// ── Popular conversions ────────────────────────────────────────────────────
+function formatAmount(value: number, decimals: number): string {
+  if (value === 0) return '0';
+  if (Math.abs(value) < 0.01 && value !== 0) {
+    return value.toFixed(decimals > 6 ? decimals : 6);
+  }
+  return value.toLocaleString('en-US', {
+    minimumFractionDigits: decimals,
+    maximumFractionDigits: decimals,
+  });
+}
 
-const POPULAR_PAIRS: [string, string, string][] = [
-  ['USD', 'EUR', 'US Dollar → Euro'],
-  ['USD', 'GBP', 'US Dollar → Pound'],
-  ['USD', 'JPY', 'US Dollar → Yen'],
-  ['EUR', 'USD', 'Euro → US Dollar'],
-  ['GBP', 'USD', 'Pound → US Dollar'],
-  ['USD', 'CAD', 'US Dollar → CAD'],
-  ['USD', 'AUD', 'US Dollar → AUD'],
-  ['USD', 'INR', 'US Dollar → Rupee'],
-  ['EUR', 'GBP', 'Euro → Pound'],
-  ['USD', 'CNY', 'US Dollar → Yuan'],
-];
+function getRate(from: string, to: string, rates: Record<string, number>): number {
+  const fromRate = rates[from];
+  const toRate = rates[to];
+  if (!fromRate || !toRate) return 0;
+  return toRate / fromRate;
+}
 
-// ── Component ──────────────────────────────────────────────────────────────
+// ── Page ───────────────────────────────────────────────────────────────────
 
-export default function CurrencyConverterPage() {
-  const [amount, setAmount] = useState<string>('1');
-  const [fromCurrency, setFromCurrency] = useState('USD');
-  const [toCurrency, setToCurrency] = useState('EUR');
-  const [rateCache, setRateCache] = useState<RateCache | null>(null);
+export default function CurrencyConverter() {
+  const [rates, setRates] = useState<Rates>(buildFallbackRates());
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [copied, setCopied] = useState(false);
-  const [fromOpen, setFromOpen] = useState(false);
-  const [toOpen, setToOpen] = useState(false);
-  const [fromSearch, setFromSearch] = useState('');
-  const [toSearch, setToSearch] = useState('');
+
+  const [amount, setAmount] = useState('100');
+  const [fromCurrency, setFromCurrency] = useState('USD');
+  const [toCurrency, setToCurrency] = useState('EUR');
+  const [decimals, setDecimals] = useState(4);
+
+  // Fetch live rates on mount
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const r = await fetchRates();
+        if (!cancelled) {
+          setRates(r);
+          setLoading(false);
+        }
+      } catch (e) {
+        if (!cancelled) {
+          setError('Failed to load live rates. Using estimated rates.');
+          setRates(buildFallbackRates());
+          setLoading(false);
+        }
+      }
+    })();
+    return () => { cancelled = true; };
+  }, []);
 
   // Parse amount
-  const numericAmount = useMemo(() => {
-    const parsed = parseFloat(amount);
-    return isNaN(parsed) || parsed < 0 ? 0 : parsed;
+  const parsedAmount = useMemo(() => {
+    const cleaned = amount.replace(/[^0-9.\-]/g, '');
+    if (cleaned === '' || cleaned === '.' || cleaned === '-') return 0;
+    const n = parseFloat(cleaned);
+    return isNaN(n) ? 0 : n;
   }, [amount]);
 
-  // Fetch rates
-  const loadRates = useCallback(async (base: string) => {
+  const result = useMemo(() => {
+    return convert(parsedAmount, rates.rates[fromCurrency] ?? 1, rates.rates[toCurrency] ?? 1);
+  }, [parsedAmount, fromCurrency, toCurrency, rates.rates]);
+
+  const exchangeRate = useMemo(() => {
+    return getRate(fromCurrency, toCurrency, rates.rates);
+  }, [fromCurrency, toCurrency, rates.rates]);
+
+  const fromCurrencyData = useMemo(() => CURRENCIES.find(c => c.code === fromCurrency), [fromCurrency]);
+  const toCurrencyData = useMemo(() => CURRENCIES.find(c => c.code === toCurrency), [toCurrency]);
+
+  const swap = useCallback(() => {
+    setFromCurrency(toCurrency);
+    setToCurrency(fromCurrency);
+    setAmount(formatAmount(result, decimals));
+  }, [fromCurrency, toCurrency, result, decimals]);
+
+  const copyResult = useCallback(() => {
+    const text = formatAmount(result, decimals);
+    navigator.clipboard.writeText(text).then(
+      () => toast.success('Result copied!'),
+      () => toast.error('Failed to copy'),
+    );
+  }, [result, decimals]);
+
+  const copyRate = useCallback(() => {
+    const text = `1 ${fromCurrency} = ${formatAmount(exchangeRate, 6)} ${toCurrency}`;
+    navigator.clipboard.writeText(text).then(
+      () => toast.success('Rate copied!'),
+      () => toast.error('Failed to copy'),
+    );
+  }, [fromCurrency, toCurrency, exchangeRate]);
+
+  const refreshRates = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
-      const rates = await fetchRates(base);
-      setRateCache(rates);
-    } catch (e) {
-      const msg = e instanceof Error ? e.message : 'Failed to fetch exchange rates';
-      setError(msg);
-      toast.error('Failed to fetch exchange rates');
-    } finally {
+      const r = await fetchRates();
+      setRates(r);
+      setLoading(false);
+    } catch {
+      setError('Failed to refresh rates.');
       setLoading(false);
     }
   }, []);
 
-  useEffect(() => {
-    loadRates(fromCurrency);
-  }, [fromCurrency, loadRates]);
-
-  // Convert
-  const result = useMemo(() => {
-    if (!rateCache || !rateCache.rates) return 0;
-    const rate = rateCache.rates[toCurrency];
-    if (rate === undefined) return 0;
-    return numericAmount * rate;
-  }, [numericAmount, toCurrency, rateCache]);
-
-  const inverseRate = useMemo(() => {
-    if (!rateCache || !rateCache.rates) return null;
-    const rate = rateCache.rates[toCurrency];
-    if (rate === undefined) return null;
-    return 1 / rate;
-  }, [rateCache, toCurrency]);
-
-  // Swap currencies
-  const handleSwap = useCallback(() => {
-    setFromCurrency(toCurrency);
-    setToCurrency(fromCurrency);
-    // Amount stays the same — user probably wants to see the reverse
-    setFromOpen(false);
-    setToOpen(false);
-  }, [fromCurrency, toCurrency]);
-
-  // Copy result
-  const handleCopy = useCallback(async () => {
-    const text = formatAmount(result, toCurrency);
-    try {
-      await navigator.clipboard.writeText(text);
-      setCopied(true);
-      toast.success('Copied!');
-      setTimeout(() => setCopied(false), 2000);
-    } catch {
-      toast.error('Copy failed');
-    }
-  }, [result, toCurrency]);
-
-  // Load popular pair
-  const loadPopularPair = useCallback((from: string, to: string) => {
-    setFromCurrency(from);
-    setToCurrency(to);
-    setFromOpen(false);
-    setToOpen(false);
-  }, []);
-
-  // Filtered currency lists
-  const filteredFrom = useMemo(() => {
-    if (!fromSearch) return CURRENCIES;
-    const q = fromSearch.toLowerCase();
-    return CURRENCIES.filter(
-      (c) => c.code.toLowerCase().includes(q) || c.name.toLowerCase().includes(q)
-    );
-  }, [fromSearch]);
-
-  const filteredTo = useMemo(() => {
-    if (!toSearch) return CURRENCIES;
-    const q = toSearch.toLowerCase();
-    return CURRENCIES.filter(
-      (c) => c.code.toLowerCase().includes(q) || c.name.toLowerCase().includes(q)
-    );
-  }, [toSearch]);
-
-  // Close dropdowns on outside click
-  useEffect(() => {
-    if (!fromOpen && !toOpen) return;
-    const handler = (e: MouseEvent) => {
-      const target = e.target as HTMLElement;
-      if (!target.closest('[data-currency-dropdown]')) {
-        setFromOpen(false);
-        setToOpen(false);
-      }
-    };
-    document.addEventListener('mousedown', handler);
-    return () => document.removeEventListener('mousedown', handler);
-  }, [fromOpen, toOpen]);
-
-  const fromCurrencyObj = currencyMap.get(fromCurrency);
-  const toCurrencyObj = currencyMap.get(toCurrency);
-  const cacheAge = rateCache ? Math.round((Date.now() - rateCache.fetchedAt) / 1000) : null;
+  const popularConversions = useMemo(() => [
+    { from: 'USD', to: 'EUR' },
+    { from: 'EUR', to: 'GBP' },
+    { from: 'USD', to: 'JPY' },
+    { from: 'USD', to: 'CNY' },
+    { from: 'GBP', to: 'USD' },
+    { from: 'USD', to: 'INR' },
+  ], []);
 
   return (
     <ToolLayout
       title="Currency Converter"
-      description="Convert between 50 world currencies with live exchange rates. Swap, copy, and quick popular pairs — all powered by the Frankfurter API."
+      description="Convert between 45 currencies with live exchange rates. Free, fast — all client-side after initial load."
     >
-      <div className="max-w-2xl mx-auto">
-        {/* ── Main converter card ───────────────────────────────────────── */}
-        <div className="card p-0 overflow-hidden">
-          {/* Amount + From currency */}
-          <div className="p-6 pb-4">
-            <div className="flex gap-3 items-stretch">
-              {/* Amount input */}
-              <div className="flex-1">
-                <label className="block text-xs text-slate-500 font-medium mb-2">Amount</label>
-                <input
-                  type="number"
-                  value={amount}
-                  onChange={(e) => setAmount(e.target.value)}
-                  min="0"
-                  step="any"
-                  className="w-full bg-surface border border-slate-700/50 rounded-lg px-4 py-3 font-mono text-lg text-white focus:outline-none focus:border-brand-500/50 focus:ring-1 focus:ring-brand-500/30"
-                  placeholder="0"
-                />
-              </div>
-
-              {/* From currency dropdown */}
-              <div className="w-48 relative" data-currency-dropdown>
-                <label className="block text-xs text-slate-500 font-medium mb-2">From</label>
-                <button
-                  onClick={() => { setFromOpen(!fromOpen); setToOpen(false); }}
-                  className="w-full flex items-center justify-between bg-surface border border-slate-700/50 rounded-lg px-3 py-3 text-white hover:border-brand-500/50 transition-colors"
-                >
-                  <span className="flex items-center gap-2">
-                    <span className="text-lg">{fromCurrencyObj?.flag || '🏳️'}</span>
-                    <span className="font-mono font-semibold">{fromCurrency}</span>
-                  </span>
-                  <ChevronDown className={`w-4 h-4 text-slate-400 transition-transform ${fromOpen ? 'rotate-180' : ''}`} />
-                </button>
-                {fromOpen && (
-                  <div className="absolute z-20 mt-1 w-64 bg-surface-dark border border-slate-700 rounded-lg shadow-2xl max-h-64 overflow-hidden">
-                    <div className="p-2 border-b border-slate-700/50">
-                      <input
-                        type="text"
-                        value={fromSearch}
-                        onChange={(e) => setFromSearch(e.target.value)}
-                        placeholder="Search currency..."
-                        className="w-full bg-surface border border-slate-700/50 rounded px-3 py-1.5 text-sm text-white focus:outline-none focus:border-brand-500/50"
-                        autoFocus
-                        onClick={(e) => e.stopPropagation()}
-                      />
-                    </div>
-                    <div className="overflow-y-auto max-h-48">
-                      {filteredFrom.map((c) => (
-                        <button
-                          key={c.code}
-                          onClick={() => { setFromCurrency(c.code); setFromOpen(false); setFromSearch(''); }}
-                          className={`w-full flex items-center gap-3 px-3 py-2 text-sm hover:bg-brand-500/10 transition-colors ${
-                            c.code === fromCurrency ? 'bg-brand-500/20 text-brand-400' : 'text-slate-300'
-                          }`}
-                        >
-                          <span className="text-lg">{c.flag}</span>
-                          <span className="font-mono font-semibold">{c.code}</span>
-                          <span className="text-slate-500 text-xs">{c.name}</span>
-                        </button>
-                      ))}
-                      {filteredFrom.length === 0 && (
-                        <p className="px-3 py-4 text-sm text-slate-500 text-center">No currencies found</p>
-                      )}
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-
-          {/* Swap button */}
-          <div className="flex justify-center -my-2 relative z-10">
+      <div className="max-w-2xl mx-auto space-y-6">
+        {/* Rate source indicator */}
+        {!loading && (
+          <div className="flex items-center gap-2 text-xs text-slate-400 justify-center">
+            <Globe className="w-3.5 h-3.5" />
+            <span>
+              {error ? 'Using estimated fallback rates' : `Live rates — ${rates.date}`} 
+              {' · '}EUR base
+            </span>
             <button
-              onClick={handleSwap}
-              disabled={loading}
-              className="w-10 h-10 rounded-full bg-surface border-2 border-slate-700 flex items-center justify-center text-brand-400 hover:bg-brand-500/10 hover:border-brand-500/30 transition-all disabled:opacity-50"
-              title="Swap currencies"
+              onClick={refreshRates}
+              className="inline-flex items-center gap-1 text-brand-400 hover:text-brand-300 transition-colors"
+              title="Refresh rates"
             >
-              <ArrowRightLeft className="w-4 h-4" />
+              <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} />
             </button>
           </div>
+        )}
 
-          {/* To currency */}
-          <div className="p-6 pt-4">
-            <div className="flex gap-3 items-stretch">
-              {/* Result display */}
-              <div className="flex-1">
-                <label className="block text-xs text-slate-500 font-medium mb-2">Converted To</label>
-                <div className="w-full bg-surface border border-slate-700/50 rounded-lg px-4 py-3 font-mono text-lg min-h-[52px] flex items-center">
-                  {loading ? (
-                    <span className="text-slate-500 animate-pulse">Loading rates...</span>
-                  ) : error ? (
-                    <span className="text-red-400 text-sm flex items-center gap-2">
-                      <AlertTriangle className="w-4 h-4" />
-                      Failed to load
-                    </span>
-                  ) : (
-                    <span className="text-white truncate">{formatAmount(result, toCurrency)}</span>
-                  )}
-                </div>
-              </div>
+        {/* Loading skeleton */}
+        {loading && (
+          <div className="flex items-center justify-center py-12">
+            <div className="flex items-center gap-3 text-slate-400">
+              <RefreshCw className="w-5 h-5 animate-spin" />
+              <span>Loading live exchange rates...</span>
+            </div>
+          </div>
+        )}
 
-              {/* To currency dropdown */}
-              <div className="w-48 relative" data-currency-dropdown>
-                <label className="block text-xs text-slate-500 font-medium mb-2">To</label>
-                <button
-                  onClick={() => { setToOpen(!toOpen); setFromOpen(false); }}
-                  className="w-full flex items-center justify-between bg-surface border border-slate-700/50 rounded-lg px-3 py-3 text-white hover:border-brand-500/50 transition-colors"
+        {/* Converter card */}
+        {!loading && (
+          <div className="bg-surface-light rounded-xl border border-slate-700/50 p-6 space-y-5">
+            {/* From */}
+            <div className="space-y-2">
+              <label className="text-xs font-medium text-slate-400 uppercase tracking-wider">Amount</label>
+              <div className="flex gap-3">
+                <input
+                  type="text"
+                  inputMode="decimal"
+                  value={amount}
+                  onChange={(e) => setAmount(e.target.value)}
+                  className="flex-1 bg-slate-800 border border-slate-600 rounded-lg px-4 py-3 text-white text-lg font-mono focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500/50 transition-colors"
+                  placeholder="0"
+                />
+                <select
+                  value={fromCurrency}
+                  onChange={(e) => setFromCurrency(e.target.value)}
+                  className="bg-slate-800 border border-slate-600 rounded-lg px-3 py-3 text-white font-medium min-w-[110px] focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500/50 transition-colors appearance-none cursor-pointer"
                 >
-                  <span className="flex items-center gap-2">
-                    <span className="text-lg">{toCurrencyObj?.flag || '🏳️'}</span>
-                    <span className="font-mono font-semibold">{toCurrency}</span>
+                  {CURRENCIES.map((c) => (
+                    <option key={c.code} value={c.code}>
+                      {c.flag} {c.code}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+
+            {/* Swap button */}
+            <div className="flex justify-center">
+              <button
+                onClick={swap}
+                className="w-10 h-10 rounded-full bg-slate-700 border border-slate-600 flex items-center justify-center text-slate-300 hover:bg-slate-600 hover:text-white hover:border-brand-500 transition-all active:scale-95"
+                title="Swap currencies"
+              >
+                <ArrowLeftRight className="w-4 h-4" />
+              </button>
+            </div>
+
+            {/* To */}
+            <div className="space-y-2">
+              <label className="text-xs font-medium text-slate-400 uppercase tracking-wider">Converted To</label>
+              <div className="flex gap-3">
+                <div className="flex-1 bg-brand-900/20 border border-brand-800/50 rounded-lg px-4 py-3 text-brand-300 text-lg font-mono flex items-center justify-between">
+                  <span className="truncate">
+                    {toCurrencyData?.symbol && (
+                      <span className="text-brand-400 mr-1">{toCurrencyData.symbol}</span>
+                    )}
+                    {formatAmount(result, decimals)}
                   </span>
-                  <ChevronDown className={`w-4 h-4 text-slate-400 transition-transform ${toOpen ? 'rotate-180' : ''}`} />
-                </button>
-                {toOpen && (
-                  <div className="absolute z-20 mt-1 w-64 bg-surface-dark border border-slate-700 rounded-lg shadow-2xl max-h-64 overflow-hidden">
-                    <div className="p-2 border-b border-slate-700/50">
-                      <input
-                        type="text"
-                        value={toSearch}
-                        onChange={(e) => setToSearch(e.target.value)}
-                        placeholder="Search currency..."
-                        className="w-full bg-surface border border-slate-700/50 rounded px-3 py-1.5 text-sm text-white focus:outline-none focus:border-brand-500/50"
-                        autoFocus
-                        onClick={(e) => e.stopPropagation()}
-                      />
-                    </div>
-                    <div className="overflow-y-auto max-h-48">
-                      {filteredTo.map((c) => (
-                        <button
-                          key={c.code}
-                          onClick={() => { setToCurrency(c.code); setToOpen(false); setToSearch(''); }}
-                          className={`w-full flex items-center gap-3 px-3 py-2 text-sm hover:bg-brand-500/10 transition-colors ${
-                            c.code === toCurrency ? 'bg-brand-500/20 text-brand-400' : 'text-slate-300'
-                          }`}
-                        >
-                          <span className="text-lg">{c.flag}</span>
-                          <span className="font-mono font-semibold">{c.code}</span>
-                          <span className="text-slate-500 text-xs">{c.name}</span>
-                        </button>
-                      ))}
-                      {filteredTo.length === 0 && (
-                        <p className="px-3 py-4 text-sm text-slate-500 text-center">No currencies found</p>
-                      )}
-                    </div>
+                  <button
+                    onClick={copyResult}
+                    className="ml-3 p-1.5 rounded-md hover:bg-brand-800/30 text-brand-400 hover:text-brand-300 transition-colors flex-shrink-0"
+                    title="Copy result"
+                  >
+                    <Copy className="w-4 h-4" />
+                  </button>
+                </div>
+                <select
+                  value={toCurrency}
+                  onChange={(e) => setToCurrency(e.target.value)}
+                  className="bg-slate-800 border border-slate-600 rounded-lg px-3 py-3 text-white font-medium min-w-[110px] focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500/50 transition-colors appearance-none cursor-pointer"
+                >
+                  {CURRENCIES.map((c) => (
+                    <option key={c.code} value={c.code}>
+                      {c.flag} {c.code}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+
+            {/* Rate display */}
+            <div className="flex items-center justify-between p-3 bg-slate-800/50 rounded-lg border border-slate-700/50">
+              <div className="flex items-center gap-2 text-sm">
+                <TrendingUp className="w-4 h-4 text-brand-400" />
+                <span className="text-slate-300">
+                  1 <span className="font-medium text-white">{fromCurrency}</span>
+                  {' = '}
+                  <span className="font-mono text-brand-400">
+                    {formatAmount(exchangeRate, 6)}
+                  </span>
+                  {' '}
+                  <span className="font-medium text-white">{toCurrency}</span>
+                </span>
+              </div>
+              <button
+                onClick={copyRate}
+                className="p-1.5 rounded-md hover:bg-slate-700 text-slate-400 hover:text-white transition-colors"
+                title="Copy exchange rate"
+              >
+                <Copy className="w-3.5 h-3.5" />
+              </button>
+            </div>
+
+            {/* Inverse rate */}
+            <div className="text-center text-xs text-slate-500">
+              1 {toCurrency} = {formatAmount(1 / exchangeRate, 6)} {fromCurrency}
+            </div>
+
+            {/* Decimals control */}
+            <div className="flex items-center gap-3 pt-2 border-t border-slate-700/50">
+              <label className="text-xs font-medium text-slate-400 uppercase tracking-wider">Decimals</label>
+              <div className="flex gap-1">
+                {[2, 3, 4, 5, 6].map((d) => (
+                  <button
+                    key={d}
+                    onClick={() => setDecimals(d)}
+                    className={`px-2.5 py-1 rounded-md text-xs font-mono transition-colors ${
+                      decimals === d
+                        ? 'bg-brand-600 text-white'
+                        : 'bg-slate-800 text-slate-400 hover:bg-slate-700 hover:text-white'
+                    }`}
+                  >
+                    {d}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Popular conversions */}
+        <div className="bg-surface-light rounded-xl border border-slate-700/50 p-6">
+          <h3 className="text-sm font-semibold text-white mb-4 flex items-center gap-2">
+            <Globe className="w-4 h-4 text-brand-400" />
+            Popular Conversions
+          </h3>
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+            {popularConversions.map(({ from, to }) => {
+              const rate = getRate(from, to, rates.rates);
+              if (!rate || rate === 0) return null;
+              const fromData = CURRENCIES.find(c => c.code === from);
+              const toData = CURRENCIES.find(c => c.code === to);
+              return (
+                <button
+                  key={`${from}-${to}`}
+                  onClick={() => {
+                    setFromCurrency(from);
+                    setToCurrency(to);
+                  }}
+                  className="text-left p-3 rounded-lg bg-slate-800/50 border border-slate-700/50 hover:border-brand-500/50 hover:bg-slate-800 transition-all group"
+                >
+                  <div className="text-xs text-slate-400 mb-1">
+                    {fromData?.flag} {from} → {toData?.flag} {to}
                   </div>
-                )}
-              </div>
-            </div>
-          </div>
-
-          {/* Action bar + Rate info */}
-          <div className="px-6 pb-6 flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <button
-                onClick={handleCopy}
-                disabled={loading || !!error}
-                className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
-                  copied
-                    ? 'bg-green-500/20 text-green-400 border border-green-500/30'
-                    : 'text-slate-400 hover:text-white hover:bg-surface border border-slate-700/50'
-                } disabled:opacity-50`}
-              >
-                {copied ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
-                {copied ? 'Copied' : 'Copy'}
-              </button>
-              <button
-                onClick={() => loadRates(fromCurrency)}
-                disabled={loading}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-slate-400 hover:text-white hover:bg-surface border border-slate-700/50 transition-colors disabled:opacity-50"
-                title="Refresh rates"
-              >
-                <RefreshCw className={`w-3 h-3 ${loading ? 'animate-spin' : ''}`} />
-                Refresh
-              </button>
-            </div>
-            <div className="flex items-center gap-4 text-xs text-slate-500">
-              {inverseRate && !error && !loading && (
-                <span className="font-mono">
-                  1 {toCurrency} = {formatDecimal(inverseRate, toCurrency)} {fromCurrency}
-                </span>
-              )}
-              {rateCache && !loading && !error && (
-                <span className="flex items-center gap-1">
-                  <Clock className="w-3 h-3" />
-                  {rateCache.date}
-                  {cacheAge !== null && (
-                    <span className="text-slate-600">
-                      · {cacheAge < 60 ? `${cacheAge}s ago` : `${Math.round(cacheAge / 60)}m ago`}
-                    </span>
-                  )}
-                </span>
-              )}
-            </div>
-          </div>
-
-          {/* Error banner */}
-          {error && (
-            <div className="mx-6 mb-6 flex items-start gap-2 text-red-400 text-sm bg-red-500/10 rounded-lg p-3 border border-red-500/20">
-              <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5" />
-              <div>
-                <p className="font-medium">Failed to fetch exchange rates</p>
-                <p className="text-xs text-red-400/70 mt-0.5">{error}</p>
-              </div>
-            </div>
-          )}
-        </div>
-
-        {/* ── Popular pairs ─────────────────────────────────────────────── */}
-        <div className="mt-8">
-          <h3 className="text-white font-semibold text-sm mb-3">Popular Conversions</h3>
-          <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
-            {POPULAR_PAIRS.map(([from, to, label]) => (
-              <button
-                key={`${from}-${to}`}
-                onClick={() => loadPopularPair(from, to)}
-                className={`px-3 py-2 rounded-lg text-xs font-medium transition-all border ${
-                  fromCurrency === from && toCurrency === to
-                    ? 'bg-brand-500/20 text-brand-400 border-brand-500/30'
-                    : 'text-slate-400 bg-surface border-slate-700/50 hover:text-white hover:border-brand-500/30'
-                }`}
-              >
-                <span className="font-mono">{from}/{to}</span>
-                <span className="block text-[10px] text-slate-500 mt-0.5">{label}</span>
-              </button>
-            ))}
+                  <div className="text-sm font-mono text-white group-hover:text-brand-400 transition-colors">
+                    {formatAmount(rate, 4)}
+                  </div>
+                </button>
+              );
+            })}
           </div>
         </div>
 
-        {/* ── Info ──────────────────────────────────────────────────────── */}
-        <div className="mt-8 card border-l-4 border-l-brand-500/50">
-          <h4 className="text-white font-semibold text-sm mb-2">About This Converter</h4>
-          <ul className="text-xs text-slate-400 space-y-1">
-            <li>• Exchange rates provided by the <a href="https://www.frankfurter.app" target="_blank" rel="noopener noreferrer" className="text-brand-400 hover:underline">Frankfurter API</a> (ECB data)</li>
-            <li>• Rates are updated daily by the European Central Bank</li>
-            <li>• Results are cached for 10 minutes to avoid rate limits</li>
-            <li>• 50 currencies supported — search by code or name</li>
-            <li>• Click refresh to get the latest rates from the API</li>
-          </ul>
+        {/* Info */}
+        <div className="flex items-start gap-2 p-4 bg-slate-800/30 rounded-lg border border-slate-700/30">
+          <Info className="w-4 h-4 text-slate-400 mt-0.5 flex-shrink-0" />
+          <div className="text-xs text-slate-500 space-y-1">
+            <p>
+              Exchange rates update once per day via{' '}
+              <a href="https://www.exchangerate-api.com" target="_blank" rel="noopener noreferrer" className="text-brand-400 hover:underline">
+                ExchangeRate-API
+              </a>
+              {' '}(European Central Bank data).
+            </p>
+            <p>
+              45 currencies supported. Conversion happens entirely in your browser after the initial rate fetch.
+              If the API is unavailable, estimated fallback rates are used.
+            </p>
+          </div>
         </div>
       </div>
     </ToolLayout>

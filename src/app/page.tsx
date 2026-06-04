@@ -101,6 +101,7 @@ import {
   Gauge,
   Underline,
   GitCommit,
+  DollarSign,
 } from 'lucide-react';
 
 export const metadata: Metadata = {
@@ -1026,6 +1027,13 @@ const featuredTools = [
     href: '/tools/unit-converter',
     icon: ArrowLeftRight,
     tags: ['Units', 'Converter', 'Science', 'Math'],
+  },
+  {
+    title: 'Currency Converter',
+    description: 'Convert between 45 currencies with live exchange rates. Swap, popular conversions, copy — free, fast, all in your browser.',
+    href: '/tools/currency-converter',
+    icon: DollarSign,
+    tags: ['Currency', 'Converter', 'FX', 'Finance'],
   },
   {
     title: 'Mermaid Live Editor',
