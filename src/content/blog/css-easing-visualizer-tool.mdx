@@ -1,0 +1,68 @@
+---
+title: "CSS Easing Visualizer — Design Custom cubic-bezier() Curves"
+date: "2026-06-04"
+excerpt: "Introducing the CSS Easing Visualizer on DevBench — a free interactive cubic-bezier editor with draggable control points, 12 presets, live animation preview, and one-click CSS/Tailwind export."
+tags: ["css", "animation", "easing", "cubic-bezier", "tool", "devbench"]
+---
+
+CSS animations are everywhere — but the easing curves that define *how* they move are often an afterthought. `ease`, `ease-in`, `ease-out`, `ease-in-out`. Most developers pick one of the four defaults and move on.
+
+But the difference between a stiff, mechanical animation and one that feels *alive* usually comes down to the easing curve. A well-chosen `cubic-bezier()` can make a button press feel satisfying, a modal entrance feel elegant, or a loading spinner feel hypnotic.
+
+That's why we built the **CSS Easing Visualizer** — a free, interactive `cubic-bezier()` editor now available on DevBench.
+
+## What It Does
+
+The tool gives you a visual canvas where you drag two control points to shape your easing curve:
+
+- **Drag P1 and P2** directly on the curve canvas — the orange (P1) and green (P2) handles give you real-time visual feedback
+- **12 presets** including `ease`, `ease-in-out`, bounce effects, elastic springs, and Apple-style smooth curves
+- **Live animation preview** — a bouncing dot that uses your exact easing curve so you can see how it feels before copying
+- **Fine-tune with sliders** for both X and Y axes of each control point (including overshoot values > 1 for bounce effects)
+- **One-click copy** — grab the raw CSS `cubic-bezier()` or a Tailwind `ease-[...]` utility
+
+## Why Easing Curves Matter
+
+Let's compare three approaches to the same entrance animation:
+
+```css
+/* Stiff and mechanical */
+.animate { transition: transform 0.3s ease; }
+/* cubic-bezier(0.25, 0.1, 0.25, 1) */
+
+/* Buttery smooth (Apple-style) */
+.animate { transition: transform 0.3s cubic-bezier(0.22, 0.61, 0.36, 1); }
+
+/* Energetic bounce */
+.animate { transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); }
+```
+
+Same 300ms duration, completely different feel. The first feels functional. The second feels premium. The third feels playful. The duration didn't change — only the curve did.
+
+## Beyond the Basics: Overshoot and Anticipation
+
+Most developers think `cubic-bezier()` values must stay within 0–1. They don't. The Y values can extend beyond 1 (overshoot) and below 0 (anticipation):
+
+```css
+/* Bounce: overshoot past the target, then settle back */
+cubic-bezier(0.34, 1.56, 0.64, 1)
+
+/* Anticipation: pull back before moving forward */
+cubic-bezier(0.68, -0.6, 0.32, 1.6)
+
+/* Elastic: spring-like wobble */
+cubic-bezier(0.175, 0.885, 0.32, 1.275)
+```
+
+These create animations that feel more natural because they mimic real-world physics — objects don't stop instantly; they oscillate, overshoot, and settle.
+
+## When to Use Custom Easing
+
+- **UI micro-interactions**: Button hover effects, toggle switches, notification badges
+- **Page transitions**: Modals, drawers, slide-out panels
+- **Scroll-triggered animations**: Combined with `animation-timeline: view()`, custom easing creates cinematic scroll effects
+- **Loading states**: Skeleton screens, progress bars, spinners
+
+## Try It Yourself
+
+The [CSS Easing Visualizer](https://devbench-roan.vercel.app/tools/css-easing-visualizer) is free, runs entirely in your browser, and requires no sign-up. Drag the points, preview the animation, and copy the CSS. Happy animating!

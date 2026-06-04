@@ -546,11 +546,11 @@ const featuredTools = [
     tags: ['CSS', 'Filter', 'Design'],
   },
   {
-    title: 'CSS Easing Playground',
-    description: 'Design and preview cubic-bezier() easing curves visually. Drag control points, 10 presets, and live animation preview.',
-    href: '/tools/css-easing-playground',
+    title: 'CSS Easing Visualizer',
+    description: 'Design custom cubic-bezier() easing curves — drag control points on a canvas, 12 presets (bounce, elastic, smooth), live animation preview, and one-click CSS/Tailwind export.',
+    href: '/tools/css-easing-visualizer',
     icon: TrendingUp,
-    tags: ['CSS', 'Easing', 'Animation'],
+    tags: ['CSS', 'Easing', 'Animation', 'Bezier'],
   },
   {
     title: 'CSS Keyframes Builder',
@@ -617,10 +617,10 @@ const featuredTools = [
   },
   {
     title: 'Color Blindness Simulator',
-    description: 'Simulate any hex color with 4 types of color vision deficiency. Compare side-by-side, export accessibility reports.',
+    description: 'Simulate 8 types of color vision deficiency on images and colors — upload screenshots, compare side-by-side, test palettes. Understand how 350M+ people experience your designs.',
     href: '/tools/color-blindness-simulator',
     icon: Accessibility,
-    tags: ['Accessibility', 'CVD', 'Simulation'],
+    tags: ['Accessibility', 'CVD', 'Simulation', 'A11y'],
   },
   {
     title: 'Glassmorphism Generator',
@@ -639,7 +639,7 @@ const featuredTools = [
   {
     title: 'CSS Anchor Positioning Playground',
     description: 'Visually build CSS Anchor Positioning layouts — the new Baseline 2026 API that replaces JavaScript tooltip libraries. 3×3 grid, live preview, instant CSS copy.',
-    href: '/tools/css-anchor-playground',
+    href: '/tools/css-anchor-positioning-playground',
     icon: Anchor,
     tags: ['CSS', 'Anchor', 'Baseline 2026'],
   },
