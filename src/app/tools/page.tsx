@@ -1088,6 +1088,13 @@ const allTools = [
     icon: GitCommit,
     tags: ['Git', 'Conventional Commits', 'Builder', 'Spec'],
   },
+  {
+    title: 'HTML Sanitizer',
+    description: 'Sanitize user-submitted HTML to prevent XSS attacks. 6 presets (strict, relaxed, markdown-like, email-safe, forum, custom), live code/preview toggle, stripped-element audit log. Uses browser-native DOMParser to strip scripts, event handlers, and unsafe URLs.',
+    href: '/tools/html-sanitizer',
+    icon: ShieldCheck,
+    tags: ['Security', 'HTML', 'XSS', 'Sanitizer'],
+  },
 ];
 
 export default function ToolsPage() {
