@@ -1085,6 +1085,13 @@ const featuredTools = [
     tags: ['CSS', 'Logical Properties', 'i18n', 'Writing Mode', 'RTL'],
   },
   {
+    title: 'CSS Viewport Units Playground',
+    description: 'Master modern viewport units — dvh, svh, lvh, vi, vb, and all 18 variants. Live preview, size comparison bars, 8 presets, and a complete reference table.',
+    href: '/tools/css-viewport-units-playground',
+    icon: Ruler,
+    tags: ['CSS', 'Viewport Units', 'dvh', 'Responsive'],
+  },
+  {
     title: 'CSS Specificity Calculator',
     description: 'Instantly calculate CSS selector specificity — ID/class/element breakdown, visual score bars, comparison mode to see which rule wins, and a quick-reference table.',
     href: '/tools/css-specificity-calculator',
