@@ -105,6 +105,7 @@ import {
   Underline,
   Timer,
   GitCommit,
+  Waves,
 } from 'lucide-react';
 
 export const metadata: Metadata = {
@@ -603,6 +604,13 @@ const allTools = [
     href: '/tools/svg-to-react',
     icon: Code2,
     tags: ['SVG', 'React', 'TypeScript', 'JSX', 'Converter'],
+  },
+  {
+    title: 'SVG Wave Generator',
+    description: 'Create beautiful layered SVG wave dividers for your website sections. Customize colors, curve types (sine, triangle, square, sawtooth, multi-tone), amplitude, frequency, gradients, and export ready-to-use SVG code — 100% client-side.',
+    href: '/tools/svg-wave-generator',
+    icon: Waves,
+    tags: ['SVG', 'Wave', 'Divider', 'Design', 'Generator'],
   },
   {
     title: 'Date Calculator',
