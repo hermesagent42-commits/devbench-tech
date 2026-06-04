@@ -1095,6 +1095,13 @@ const allTools = [
     icon: ShieldCheck,
     tags: ['Security', 'HTML', 'XSS', 'Sanitizer'],
   },
+  {
+    title: 'SRI Hash Generator',
+    description: 'Generate Subresource Integrity hashes for CDN scripts and stylesheets — protect against supply chain attacks. Fetch from URL, upload files, or paste content. Get SHA-256/384/512 hashes and ready-to-use HTML tags. 15 popular CDN presets.',
+    href: '/tools/sri-hash-generator',
+    icon: Shield,
+    tags: ['SRI', 'Security', 'Hash', 'Integrity', 'CDN'],
+  },
 ];
 
 export default function ToolsPage() {
