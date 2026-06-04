@@ -1116,6 +1116,13 @@ const allTools = [
     icon: Shield,
     tags: ['SRI', 'Security', 'Hash', 'Integrity', 'CDN'],
   },
+  {
+    title: 'CSS @supports Playground',
+    description: 'Test CSS feature support against your live browser using the native CSS.supports() API. 50+ preset features across layout, color, typography, interaction, animation & more. Custom property/value tests and full @supports condition support.',
+    href: '/tools/css-supports-playground',
+    icon: FlaskConical,
+    tags: ['CSS', 'Browser', 'Feature Detection', '@supports', 'Compatibility'],
+  },
 ];
 
 export default function ToolsPage() {
