@@ -271,6 +271,13 @@ const featuredTools = [
     tags: ['CSS', 'Text-Shadow', 'Typography'],
   },
   {
+    title: 'CSS Text Stroke Generator',
+    description: 'Design outlined text with -webkit-text-stroke — neon outlines, glass text, comic pop. 6 presets, paint-order control, live preview, instant CSS copy.',
+    href: '/tools/css-text-stroke-generator',
+    icon: Paintbrush,
+    tags: ['CSS', 'Text-Stroke', 'Typography'],
+  },
+  {
     title: 'Color Converter',
     description: 'Convert colors between HEX, RGB, and HSL in real-time with live preview and color picker.',
     href: '/tools/color-converter',
