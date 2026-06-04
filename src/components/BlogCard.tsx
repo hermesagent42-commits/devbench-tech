@@ -11,7 +11,7 @@ interface BlogCardProps {
 
 export function BlogCard({ title, date, excerpt, slug, tags = [] }: BlogCardProps) {
   return (
-    <Link href={`/blog/${slug}`} className="block h-full">
+    <Link href={`/blog/${slug}/`} className="block h-full">
       <article className="card-interactive h-full flex flex-col">
         <h3 className="text-white font-semibold text-lg mb-3 leading-snug">
           {title}

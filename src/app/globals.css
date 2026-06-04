@@ -123,6 +123,87 @@
   .prose-content .code-block-wrapper code {
     @apply text-sm font-mono text-slate-200;
   }
+
+  /* Blog article body */
+  .blog-body {
+    @apply text-slate-300 leading-relaxed;
+  }
+  .blog-body h2 {
+    @apply text-2xl font-bold text-white mt-10 mb-4 tracking-tight;
+  }
+  .blog-body h3 {
+    @apply text-xl font-semibold text-white mt-8 mb-3;
+  }
+  .blog-body p {
+    @apply mb-5;
+  }
+  .blog-body .lead {
+    @apply text-lg text-slate-400 leading-relaxed mb-8;
+  }
+  .blog-body ul {
+    @apply list-disc pl-6 mb-5 space-y-1.5;
+  }
+  .blog-body ol {
+    @apply list-decimal pl-6 mb-5 space-y-1.5;
+  }
+  .blog-body li {
+    @apply text-slate-300;
+  }
+  .blog-body strong {
+    @apply text-white font-semibold;
+  }
+  .blog-body em {
+    @apply text-slate-400;
+  }
+  .blog-body pre {
+    @apply bg-slate-950 border border-slate-800 rounded-lg p-4 overflow-x-auto mb-5;
+  }
+  .blog-body pre code {
+    @apply text-sm font-mono text-slate-200 leading-relaxed;
+    font-family: 'JetBrains Mono', 'Fira Code', monospace;
+  }
+  .blog-body code {
+    @apply bg-surface-lighter text-brand-300 px-1.5 py-0.5 rounded text-sm font-mono;
+  }
+  .blog-body pre code {
+    @apply bg-transparent text-slate-200 px-0 py-0 rounded-none;
+  }
+  .blog-body table {
+    @apply w-full border-collapse mb-5 text-sm;
+  }
+  .blog-body thead {
+    @apply bg-slate-800;
+  }
+  .blog-body th {
+    @apply text-left p-3 font-semibold text-slate-200 border border-slate-700;
+  }
+  .blog-body td {
+    @apply p-3 border border-slate-700 text-slate-300;
+  }
+  .blog-body .highlight-box {
+    @apply bg-brand-500/5 border border-brand-500/20 rounded-lg p-4 mb-5 text-slate-300;
+  }
+  .blog-body .highlight-box strong {
+    @apply text-brand-400;
+  }
+  .blog-body .highlight-positive {
+    @apply bg-green-500/5 border-green-500/20;
+  }
+  .blog-body .highlight-positive strong {
+    @apply text-green-400;
+  }
+  .blog-body .inline-link {
+    @apply text-brand-400 hover:underline;
+  }
+  .blog-body .callout {
+    @apply text-lg text-slate-400 bg-surface-lighter border border-slate-700/50 rounded-lg p-5 mt-8;
+  }
+  .blog-body .table-wrapper {
+    @apply overflow-x-auto mb-5;
+  }
+  .blog-body hr {
+    @apply border-slate-800 my-12;
+  }
 }
 
 @layer utilities {
