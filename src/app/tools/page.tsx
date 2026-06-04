@@ -104,6 +104,7 @@ import {
   Gauge,
   Underline,
   Timer,
+  GitCommit,
 } from 'lucide-react';
 
 export const metadata: Metadata = {
@@ -1079,6 +1080,13 @@ const allTools = [
     href: '/tools/structured-clone-playground',
     icon: Copy,
     tags: ['Browser API', 'structuredClone', 'Debug', 'Serialization'],
+  },
+  {
+    title: 'Conventional Commit Builder',
+    description: 'Build spec-compliant conventional commit messages with a visual editor. Type selector, scopes, breaking changes, footer references, validation, and copy-ready git commands.',
+    href: '/tools/conventional-commit-builder',
+    icon: GitCommit,
+    tags: ['Git', 'Conventional Commits', 'Builder', 'Spec'],
   },
 ];
 

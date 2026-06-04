@@ -100,6 +100,7 @@ import {
   ClipboardList,
   Gauge,
   Underline,
+  GitCommit,
 } from 'lucide-react';
 
 export const metadata: Metadata = {
@@ -1088,6 +1089,13 @@ const featuredTools = [
     href: '/tools/git-command-explorer',
     icon: GitBranch,
     tags: ['Git', 'Commands', 'Reference', 'DevOps'],
+  },
+  {
+    title: 'Conventional Commit Builder',
+    description: 'Build spec-compliant conventional commit messages with a visual editor. Type selector, scopes, breaking changes, footer references, validation, and copy-ready git commands.',
+    href: '/tools/conventional-commit-builder',
+    icon: GitCommit,
+    tags: ['Git', 'Conventional Commits', 'Builder', 'Spec'],
   },
   {
     title: 'CSS @starting-style Playground',
