@@ -112,6 +112,13 @@ export const metadata: Metadata = {
 
 const featuredTools = [
   {
+    title: 'REST API Client',
+    description: 'Test HTTP APIs right in your browser. GET, POST, PUT, DELETE with custom headers, JSON body, presets, request history — the browser Postman.',
+    href: '/tools/rest-api-client',
+    icon: Globe,
+    tags: ['REST', 'API', 'HTTP', 'Fetch'],
+  },
+  {
     title: 'JSON Formatter',
     description: 'Format, minify, and validate JSON with syntax highlighting. Perfect for debugging API responses.',
     href: '/tools/json-formatter',
