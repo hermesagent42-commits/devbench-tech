@@ -332,6 +332,13 @@ const allTools = [
     tags: ['Converter', 'Units', 'Length', 'Mass', 'Data'],
   },
   {
+    title: 'Unicode Inspector',
+    description: 'Inspect any Unicode character — code point, UTF-8/16 bytes, HTML entities, CSS/JS escapes, URL encoding. Browse arrow, math, Greek, and emoji blocks.',
+    href: '/tools/unicode-inspector',
+    icon: Type,
+    tags: ['Unicode', 'Encoding', 'UTF-8', 'Character', 'Reference'],
+  },
+  {
     title: 'DNS Lookup',
     description: 'Query DNS records for any domain — A, AAAA, CNAME, MX, TXT, NS, SOA, SRV, CAA, PTR. Uses Cloudflare DNS-over-HTTPS, fully client-side.',
     href: '/tools/dns-lookup',
