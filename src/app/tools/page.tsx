@@ -591,6 +591,13 @@ const allTools = [
     tags: ['SVG', 'PNG', 'Converter', 'Export', 'Rasterize'],
   },
   {
+    title: 'SVG → React Converter',
+    description: 'Transform any SVG into a production-ready React component. Auto-converts kebab-case to camelCase, class to className, self-closing tags. Choose TypeScript or JS, named or default export, and add size/color/className props — 100% client-side.',
+    href: '/tools/svg-to-react',
+    icon: Code2,
+    tags: ['SVG', 'React', 'TypeScript', 'JSX', 'Converter'],
+  },
+  {
     title: 'Date Calculator',
     description: 'Calculate date differences with year/month/day breakdowns, add or subtract durations, and count down to events. 100% client‑side.',
     href: '/tools/date-calculator',
