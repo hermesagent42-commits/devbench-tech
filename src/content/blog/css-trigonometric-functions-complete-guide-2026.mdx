@@ -1,0 +1,576 @@
+---
+title: "CSS Trigonometric Functions: sin(), cos(), tan(), atan2() — The Complete Guide"
+date: "2026-06-05"
+excerpt: "CSS now has sin(), cos(), tan(), asin(), acos(), atan(), and atan2() — and they're Baseline. Build circular layouts, wavy animations, orbital UIs, and geometric patterns using pure CSS. No JavaScript, no Canvas, no SVG math."
+tags: ["CSS", "Trigonometry", "Baseline 2024", "sin()", "cos()", "tan()", "atan2()", "Animation", "Web Platform", "2026"]
+---
+
+CSS trigonometric functions went Baseline in 2024 — meaning they work across all major browsers with no prefixes, no polyfills, no caveats. If you've been sleeping on them, it's time to wake up. These aren't niche math functions for showing off; they unlock entire categories of design that previously required JavaScript or SVG.
+
+## What We Got
+
+Seven new CSS functions dropped:
+
+| Function | What It Returns | Input Range |
+|----------|----------------|-------------|
+| `sin(x)` | Sine of an angle | Any number (radians implied through calc) |
+| `cos(x)` | Cosine of an angle | Any number |
+| `tan(x)` | Tangent of an angle | Any number (watch asymptotes) |
+| `asin(x)` | Inverse sine (arcsin) | -1 to 1 |
+| `acos(x)` | Inverse cosine (arccos) | -1 to 1 |
+| `atan(x)` | Inverse tangent | Any number |
+| `atan2(y, x)` | Two-argument arctangent | Any numbers |
+
+All functions accept `<number>` or `<angle>` arguments and return `<number>`. Angles are evaluated in radians, but you can use CSS angle units and let `calc()` handle the conversion.
+
+## Why This Changes the Game
+
+Before 2024, positioning elements on a circle required JavaScript:
+
+```javascript
+// The old way: JavaScript for circular layouts
+const items = document.querySelectorAll('.circle-item');
+const radius = 150;
+const center = { x: 200, y: 200 };
+
+items.forEach((item, i) => {
+  const angle = (i / items.length) * 2 * Math.PI;
+  item.style.left = center.x + radius * Math.cos(angle) + 'px';
+  item.style.top = center.y + radius * Math.sin(angle) + 'px';
+});
+```
+
+Now it's pure CSS:
+
+```css
+/* The new way: CSS trigonometric functions */
+.circle-container {
+  position: relative;
+  width: 400px;
+  height: 400px;
+}
+
+.circle-item {
+  position: absolute;
+  --angle: 0deg;
+  --radius: 150px;
+  --center-x: 200px;
+  --center-y: 200px;
+
+  left: calc(var(--center-x) + var(--radius) * cos(var(--angle)));
+  top: calc(var(--center-y) + var(--radius) * sin(var(--angle)));
+}
+
+/* Spread items evenly around the circle */
+.circle-item:nth-child(1) { --angle: 0deg; }
+.circle-item:nth-child(2) { --angle: 60deg; }
+.circle-item:nth-child(3) { --angle: 120deg; }
+.circle-item:nth-child(4) { --angle: 180deg; }
+.circle-item:nth-child(5) { --angle: 240deg; }
+.circle-item:nth-child(6) { --angle: 300deg; }
+```
+
+This is declarative, cached by the browser's style engine, and runs at GPU speeds. No layout thrashing, no requestAnimationFrame overhead.
+
+## The Math: Degrees, Radians, and Angles
+
+CSS trigonometric functions don't accept `<angle>` values directly — they take `<number>` values. But CSS custom properties can hold angles, and `calc()` can convert:
+
+```css
+--angle-deg: 45deg;
+--x: cos(var(--angle-deg)); /* ❌ Won't work — cos() expects a number */
+--x: calc(cos(45 * pi / 180)); /* ✅ Manually convert degrees to radians */
+```
+
+This is the single biggest gotcha. The `pi` constant is available in CSS via `calc()`:
+
+```css
+--radians: calc(45 * pi / 180);  /* Converts 45° to radians */
+--x: cos(var(--radians));         /* This works */
+```
+
+A cleaner pattern — define a helper custom property:
+
+```css
+:root {
+  --deg: calc(pi / 180); /* 1 degree in radians */
+}
+
+.item {
+  --angle-deg: 30;
+  --x: cos(calc(var(--angle-deg) * var(--deg)));
+  --y: sin(calc(var(--angle-deg) * var(--deg)));
+}
+```
+
+Now `--angle-deg` works like a normal degree value.
+
+## Pattern 1: Circular Menu / Radial Layout
+
+The classic use case. Place N items equidistantly around a center point:
+
+```css
+.radial-menu {
+  position: relative;
+  width: 300px;
+  height: 300px;
+  margin: 100px auto;
+}
+
+.radial-item {
+  position: absolute;
+  --count: 6;            /* Total items */
+  --index: 0;            /* 0-indexed position */
+  --radius: 120px;
+  --cx: 150px;
+  --cy: 150px;
+  --angle: calc(var(--index) * 360deg / var(--count));
+
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: oklch(0.6 0.2 var(--angle));
+
+  left: calc(var(--cx) + var(--radius) * cos(var(--angle)) - 24px);
+  top: calc(var(--cy) + var(--radius) * sin(var(--angle)) - 24px);
+  transition: transform 0.3s ease;
+}
+
+.radial-item:hover {
+  transform: scale(1.3);
+}
+```
+
+Each item gets a unique `--index` and `--angle`, and CSS handles all the positioning math. The `oklch()` hue uses the angle directly for automatic color harmony.
+
+## Pattern 2: Orbiting Animation
+
+Make an element orbit a center point using `@property` and `@keyframes`:
+
+```css
+@property --orbit-angle {
+  syntax: '<angle>';
+  initial-value: 0deg;
+  inherits: false;
+}
+
+.orbiter {
+  position: absolute;
+  --radius: 120px;
+  --cx: 200px;
+  --cy: 200px;
+  --orbit-angle: 0deg;
+
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: oklch(0.65 0.25 50);
+
+  left: calc(var(--cx) + var(--radius) * cos(var(--orbit-angle)) - 15px);
+  top: calc(var(--cy) + var(--radius) * sin(var(--orbit-angle)) - 15px);
+  animation: orbit 4s linear infinite;
+}
+
+@keyframes orbit {
+  to { --orbit-angle: 360deg; }
+}
+```
+
+No JavaScript. No `requestAnimationFrame`. The browser's animation engine handles interpolation of the angle, and `cos()`/`sin()` compute positions every frame. This is GPU-accelerated and won't block the main thread.
+
+For multiple orbiting bodies at different speeds:
+
+```css
+.orbiter:nth-child(1) { animation-duration: 4s; --radius: 80px; }
+.orbiter:nth-child(2) { animation-duration: 6s; --radius: 120px; }
+.orbiter:nth-child(3) { animation-duration: 9s; --radius: 160px; }
+```
+
+## Pattern 3: Pendulum / Swinging Motion
+
+`sin()` creates natural ease-in-out oscillation without cubic-bezier trickery:
+
+```css
+@property --swing {
+  syntax: '<angle>';
+  initial-value: 0deg;
+  inherits: false;
+}
+
+.pendulum {
+  --amplitude: 30deg;
+  --frequency: 1;
+  transform: rotate(calc(
+    sin(calc(var(--swing) * var(--frequency))) * var(--amplitude)
+  ));
+  transform-origin: top center;
+  animation: swing 2s ease-in-out infinite;
+}
+
+@keyframes swing {
+  0%, 100% { --swing: -90deg; }
+  50% { --swing: 90deg; }
+}
+```
+
+The key insight: `sin()` maps any angle input to the range `[-1, 1]`, giving you perfectly smooth oscillation. Multiply by your desired amplitude and you're done. This is mathematically correct easing — no guessing cubic-bezier.
+
+## Pattern 4: Wave Text / Wavy Effects
+
+Offset individual characters in a word using sine waves:
+
+```css
+.wave-text {
+  display: inline-flex;
+}
+
+.wave-char {
+  --index: 0;
+  --amplitude: 12px;
+  --frequency: 0.3;
+  --phase: calc(var(--index) * var(--frequency) * 1rad);
+  --offset: calc(sin(var(--phase)) * var(--amplitude));
+
+  display: inline-block;
+  animation: wave 1.5s ease-in-out infinite;
+  animation-delay: calc(var(--index) * 0.08s);
+}
+
+@keyframes wave {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(calc(sin(calc(var(--index) * 0.3 * 1rad)) * 12px)); }
+}
+```
+
+Combine with a JavaScript-free HTML structure:
+
+```html
+<span class="wave-text">
+  <span class="wave-char" style="--index: 0">W</span>
+  <span class="wave-char" style="--index: 1">A</span>
+  <span class="wave-char" style="--index: 2">V</span>
+  <span class="wave-char" style="--index: 3">E</span>
+  <span class="wave-char" style="--index: 4">S</span>
+</span>
+```
+
+## Pattern 5: Responsive Scaling with `atan()`
+
+`atan()` is useful when you need to map an unbounded input to a bounded output. For example, scaling an element based on viewport size, but with a ceiling:
+
+```css
+.scaling-element {
+  --scale-factor: calc(0.5 + atan(var(--viewport-ratio)) / (pi / 2) * 0.75);
+  transform: scale(var(--scale-factor));
+  transition: transform 0.3s ease;
+}
+```
+
+`atan()` produces output in `(-pi/2, pi/2)`, so dividing by `pi/2` normalizes it to `(-1, 1)`. This gives smooth, bounded scaling.
+
+## Pattern 6: Dynamic Shadows Based on "Sun Angle"
+
+Use an angle to compute directional box-shadow offsets:
+
+```css
+.sun-shadow {
+  --sun-angle: 45deg;
+  --shadow-distance: 20px;
+  --shadow-blur: 10px;
+  --shadow-color: rgba(0, 0, 0, 0.15);
+
+  --offset-x: calc(var(--shadow-distance) * cos(var(--sun-angle)));
+  --offset-y: calc(var(--shadow-distance) * sin(var(--sun-angle)));
+
+  box-shadow:
+    var(--offset-x) var(--offset-y)
+    var(--shadow-blur) 0px
+    var(--shadow-color);
+}
+```
+
+Animate `--sun-angle` to simulate a moving light source:
+
+```css
+@keyframes sun-move {
+  from { --sun-angle: 0deg; }
+  to { --sun-angle: 360deg; }
+}
+```
+
+## atan2(): The Underrated Workhorse
+
+While `atan()` gives you an angle from a ratio, `atan2(y, x)` gives you the **actual angle** from coordinates. This is critical for pointing one element at another:
+
+```css
+.pointing-arrow {
+  --target-x: 300px;
+  --target-y: 150px;
+  --origin-x: 100px;
+  --origin-y: 100px;
+
+  --dx: calc(var(--target-x) - var(--origin-x));
+  --dy: calc(var(--target-y) - var(--origin-y));
+  --angle: atan2(var(--dy), var(--dx));
+
+  transform: rotate(var(--angle));
+}
+```
+
+`atan2()` handles all four quadrants correctly — something `atan()` alone cannot do.
+
+### Rotate Toward the Pointer
+
+```css
+.rotator {
+  --mx: 0px;
+  --my: 0px;
+  --cx: 150px;
+  --cy: 150px;
+
+  --dx: calc(var(--mx) - var(--cx));
+  --dy: calc(var(--my) - var(--cy));
+  --angle: atan2(var(--dy), var(--dx));
+
+  transform: rotate(var(--angle));
+  transition: transform 0.1s ease-out;
+}
+```
+
+Set `--mx` and `--my` via a tiny JavaScript hook that tracks pointer position. The hard part (trig) is done in CSS.
+
+## The Inverse Functions: asin(), acos(), atan()
+
+Use these when you must solve for an angle given a known ratio:
+
+```css
+--angle: asin(0.707);   /* ~0.785 rad = 45° */
+--angle: acos(0.5);     /* ~1.047 rad = 60° */
+--angle-deg: calc(asin(0.707) / pi * 180deg); /* 45° */
+```
+
+## The `tan()` Warning
+
+`tan(x)` has vertical asymptotes at `pi/2`, `3pi/2`, `5pi/2`... where it tends toward ±infinity. In CSS, this manifests as extremely large computed values:
+
+```css
+--danger: tan(90deg);  /* Computes to ~1.6e16 — a massive number */
+```
+
+A safe pattern: clamp the angle:
+
+```css
+--safe-angle: clamp(-85deg, var(--raw-angle), 85deg);
+--slope: tan(var(--safe-angle));
+```
+
+## Performance Characteristics
+
+All seven functions are evaluated at **computed-value time**:
+
+1. **Static values**: computed once during style resolution
+2. **Custom property changes**: recomputed when the property changes
+3. **Animation frames**: recomputed every frame for animated properties
+
+Compared to JavaScript trig (which runs on the main thread), CSS trig functions run in the **compositor thread** when used with transform/opacity.
+
+### Performance Tier List
+
+| Property Used With | Performance |
+|-------------------|-------------|
+| `transform` | 🟢 Compositor-only (fastest) |
+| `opacity` | 🟢 Compositor-only |
+| `clip-path` | 🟡 Paint-only |
+| `left` / `top` / `width` / `height` | 🔴 Triggers layout (slowest) |
+
+**Always prefer `transform: translate()` over `left`/`top` when animating with trig functions.**
+
+```css
+/* ✅ Fast: compositor-only animation */
+.element {
+  --angle: 0deg;
+  --r: 100px;
+  transform: translate(
+    calc(var(--r) * cos(var(--angle))),
+    calc(var(--r) * sin(var(--angle)))
+  );
+  animation: spin 4s linear infinite;
+}
+
+/* ❌ Slow: triggers layout every frame */
+.element {
+  --angle: 0deg;
+  --r: 100px;
+  left: calc(var(--r) * cos(var(--angle)));
+  top: calc(var(--r) * sin(var(--angle)));
+  animation: spin 4s linear infinite;
+}
+```
+
+## Browser Support
+
+All seven functions are **Baseline: Widely Available** since December 2024:
+
+| Browser | Version |
+|---------|---------|
+| Chrome | 111+ |
+| Edge | 111+ |
+| Firefox | 108+ |
+| Safari | 15.4+ |
+| Safari iOS | 15.4+ |
+| Samsung Internet | 22+ |
+| Opera | 97+ |
+
+No prefixes. No fallbacks needed. They just work.
+
+## Combining with Other CSS Math Functions
+
+The real power comes from combining trig with `calc()`, `min()`, `max()`, `clamp()`, and `abs()`:
+
+```css
+/* Damped oscillation that decays over time */
+@property --t {
+  syntax: '<number>';
+  initial-value: 0;
+  inherits: false;
+}
+
+.damped-oscillator {
+  --amplitude: 80px;
+  --frequency: 3;
+  --decay: 0.1;
+  --damping: calc(1 / (1 + var(--decay) * var(--t)));
+
+  transform: translateY(calc(
+    var(--amplitude) * var(--damping) * sin(calc(var(--t) * var(--frequency)))
+  ));
+  animation: oscillate 4s linear infinite;
+}
+
+@keyframes oscillate {
+  to { --t: 100; }
+}
+```
+
+This creates a realistic damped harmonic oscillator — physics-based animation that previously required JavaScript or complex keyframe sequences.
+
+## CSS Trig + Container Queries
+
+Container queries unlock dynamic radius based on container size:
+
+```css
+.radial-container {
+  container-type: inline-size;
+}
+
+@container (min-width: 600px) {
+  .radial-item { --radius: 150px; }
+}
+
+@container (max-width: 599px) {
+  .radial-item { --radius: 80px; }
+}
+
+.radial-item {
+  --angle: 0deg;
+  transform: translate(
+    calc(var(--radius) * cos(var(--angle))),
+    calc(var(--radius) * sin(var(--angle)))
+  );
+}
+```
+
+The circle automatically scales its radius based on container width — fluid, responsive, zero JavaScript.
+
+## Real-World Example: Radar / Sonar Ping Animation
+
+```css
+.radar {
+  position: relative;
+  width: 300px;
+  height: 300px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #0a1628 0%, #0d1f3c 100%);
+  overflow: hidden;
+}
+
+@property --scan-angle {
+  syntax: '<angle>';
+  initial-value: 0deg;
+  inherits: false;
+}
+
+.radar-sweep {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 2px;
+  height: 50%;
+  background: linear-gradient(
+    to top,
+    rgba(0, 255, 135, 0.8),
+    rgba(0, 255, 135, 0)
+  );
+  transform-origin: bottom center;
+  transform: rotate(var(--scan-angle));
+  animation: scan-rotate 3s linear infinite;
+}
+
+@keyframes scan-rotate {
+  to { --scan-angle: 360deg; }
+}
+
+.radar-dot {
+  position: absolute;
+  --angle: 30deg;
+  --distance: 45%;
+  --r: calc(150px * var(--distance) / 100);
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #00ff87;
+  box-shadow: 0 0 6px #00ff87;
+
+  left: calc(50% + var(--r) * cos(var(--angle)) - 4px);
+  top: calc(50% + var(--r) * sin(var(--angle)) - 4px);
+  animation: blink 1s ease-in-out infinite;
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+```
+
+A fully functional radar animation — scanning beam, positioned dots, blinking — all in CSS.
+
+## The Bigger Picture: CSS as a Computation Engine
+
+CSS trigonometric functions are part of a broader trend: CSS is becoming a general-purpose style computation language. Combine them with:
+
+| Feature | What It Enables |
+|---------|----------------|
+| `@property` | Animatable custom properties with type safety |
+| `calc()` | Arithmetic with mixed units |
+| `min()` / `max()` / `clamp()` | Fluid responsive values |
+| `abs()` / `sign()` | Sign-based conditional logic |
+| `round()` / `mod()` / `rem()` | Stepped values, cyclic math |
+| `pow()` / `sqrt()` / `hypot()` | Exponential and geometric math |
+| `sin()` / `cos()` / `tan()` / `atan2()` | Trigonometry |
+
+Together, these let you express complex layout logic declaratively — in the style layer where it belongs.
+
+## Key Takeaways
+
+1. **`cos()` and `sin()` are your workhorses** — use them for circular layouts, oscillations, and positional math
+2. **`atan2(y, x)` for directional math** — it's the correct way to compute an angle from coordinates
+3. **Always use `transform: translate()` over `left`/`top`** — compositor-only animations are 10x faster
+4. **Watch your units** — trig functions take numbers, not angles; convert degrees to radians with `* pi / 180`
+5. **`tan()` is dangerous near 90°** — clamp your inputs
+6. **Combine with `@property`** for animatable angle-driven UI
+7. **No polyfills, no fallbacks** — these are Baseline, use them freely
+
+CSS trig functions aren't a party trick. They're production-ready primitives that eliminate entire classes of JavaScript layout code. Start using them today.
