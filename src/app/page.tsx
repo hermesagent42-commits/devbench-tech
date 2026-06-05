@@ -103,6 +103,7 @@ import {
   GitCommit,
   DollarSign,
   Combine,
+  Waves,
 } from 'lucide-react';
 
 export const metadata: Metadata = {
@@ -1049,6 +1050,13 @@ const featuredTools = [
     href: '/tools/audio-synthesizer',
     icon: Music,
     tags: ['Audio', 'Synthesizer', 'Web API', 'Music'],
+  },
+  {
+    title: 'Audio Visualizer',
+    description: 'Real-time microphone audio visualization — waveform, frequency bars, circular, spectrogram, and particles. 5 render modes, 8 color themes, screenshot export.',
+    href: '/tools/audio-visualizer',
+    icon: Waves,
+    tags: ['Audio', 'Visualizer', 'Microphone', 'Canvas'],
   },
   {
     title: 'Docker Compose Builder',
