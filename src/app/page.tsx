@@ -1106,6 +1106,13 @@ const featuredTools = [
     tags: ['CSS', 'Logical Properties', 'i18n', 'Writing Mode', 'RTL'],
   },
   {
+    title: 'CSS Writing Mode Playground',
+    description: 'Experiment with CSS writing-mode and text-orientation — horizontal-tb, vertical-rl, vertical-lr, and sideways layouts. Live preview with Japanese and English text, 7 presets, browser support table, and instant CSS copy.',
+    href: '/tools/css-writing-mode-playground',
+    icon: AlignJustify,
+    tags: ['CSS', 'Writing Mode', 'Typography', 'i18n', 'Vertical Text'],
+  },
+  {
     title: 'CSS Viewport Units Playground',
     description: 'Master modern viewport units — dvh, svh, lvh, vi, vb, and all 18 variants. Live preview, size comparison bars, 8 presets, and a complete reference table.',
     href: '/tools/css-viewport-units-playground',
