@@ -1603,4 +1603,297 @@ navigation.addEventListener('navigate', (event) => {
   </p>
 </div>`,
   },
+  {
+    slug: 'javascript-temporal-api-2026',
+    title: 'JavaScript Temporal API in 2026: The End of Date Nightmares',
+    description:
+      'Temporal is the long-awaited replacement for JavaScript\'s broken Date object — immutable, timezone-aware, nanosecond-precise, and shipping in browsers this year. A complete guide to every Temporal type, real-world patterns, and how to migrate from Date today.',
+    date: '2026-06-05',
+    author: 'DevBench',
+    tags: ['JavaScript', 'Temporal', 'Date', 'Time Zones', 'TC39', 'Stage 3', '2026'],
+    readingTime: '9 min read',
+    content: `
+<div class="prose-content">
+  <p class="lead">
+    For 28 years, JavaScript developers have suffered through the <code>Date</code> API — a hurried Java clone with mutable objects, zero timezone support, bizarre month indexing (January is 0!), and parsing behavior so unpredictable that every date library in existence was invented to escape it. In 2026, that finally ends. <strong>Temporal</strong> — the TC39 proposal that has been in development since 2017 — is shipping in browsers and Node.js as the <strong>modern, correct, and comprehensive</strong> replacement for <code>Date</code>.
+  </p>
+
+  <h2>Why Date Is Fundamentally Broken</h2>
+
+  <p>
+    The <code>Date</code> object was copied from <code>java.util.Date</code> in 1995 during a 10-day sprint to ship JavaScript. It carries design flaws that no amount of polyfills can fix:
+  </p>
+
+  <ul>
+    <li><strong>Mutable:</strong> <code>date.setMonth(5)</code> mutates in place — impossible to use with React/Vue state, Redux, or any immutable data flow.</li>
+    <li><strong>No timezone support:</strong> <code>Date</code> only works in the local timezone or UTC. There is no way to represent "June 5th at 3PM in Tokyo" — only the instant it maps to.</li>
+    <li><strong>Unpredictable parsing:</strong> <code>new Date("2025-02-30")</code> silently rolls over to March 2nd instead of throwing. <code>Date.parse("01/02/2025")</code> means January 2nd in the US and February 1st in the UK.</li>
+    <li><strong>Month zero-indexing:</strong> <code>new Date(2025, 0, 1)</code> is January 1st. This has caused more off-by-one bugs than any other API in web history.</li>
+    <li><strong>No duration type:</strong> "Add 3 months" requires manual month/year rollover logic that breaks on month boundaries, DST transitions, and leap years.</li>
+    <li><strong>Millisecond-only precision:</strong> Financial systems, scientific computing, and distributed tracing all need microsecond or nanosecond precision.</li>
+  </ul>
+
+  <div class="highlight-box">
+    <strong>The cost of Date:</strong> Moment.js — the most popular date library — was downloaded <strong>12 million times per week</strong> at its peak, solely to patch holes in <code>Date</code>. The entire <code>date-fns</code>, <code>Luxon</code>, and <code>Day.js</code> ecosystem ($200M+ in engineering time) exists because the platform primitive was wrong. Temporal fixes the platform.
+  </div>
+
+  <h2>Temporal's Architecture: A Type for Every Use Case</h2>
+
+  <p>
+    Temporal is not one class — it is a <strong>family of types</strong>, each designed for a specific concept. Pick the right type and the API becomes self-documenting:
+  </p>
+
+  <div class="table-wrapper">
+    <table>
+      <thead>
+        <tr><th>Type</th><th>Represents</th><th>Example</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>Temporal.Instant</code></td><td>A single point on the universal timeline</td><td>2026-06-05T17:00:00Z</td></tr>
+        <tr><td><code>Temporal.PlainDate</code></td><td>A calendar date without time or timezone</td><td>2026-06-05</td></tr>
+        <tr><td><code>Temporal.PlainTime</code></td><td>A wall-clock time without date or timezone</td><td>17:00:00.000</td></tr>
+        <tr><td><code>Temporal.PlainDateTime</code></td><td>A date and time without timezone</td><td>2026-06-05T17:00:00</td></tr>
+        <tr><td><code>Temporal.PlainYearMonth</code></td><td>A year and month (think: credit card expiry)</td><td>2026-06</td></tr>
+        <tr><td><code>Temporal.PlainMonthDay</code></td><td>A month and day (think: birthday, holiday)</td><td>06-05</td></tr>
+        <tr><td><code>Temporal.ZonedDateTime</code></td><td>A date and time anchored to a timezone</td><td>2026-06-05T17:00:00+09:00[Asia/Tokyo]</td></tr>
+        <tr><td><code>Temporal.Duration</code></td><td>A length of time</td><td>P3M15DT2H30M (3 months, 15 days, 2.5 hours)</td></tr>
+        <tr><td><code>Temporal.TimeZone</code></td><td>An IANA timezone</td><td>America/New_York</td></tr>
+        <tr><td><code>Temporal.Calendar</code></td><td>A calendar system</td><td>iso8601, japanese, hebrew</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h2>Immutability: The Killer Feature</h2>
+
+  <p>
+    Every Temporal type is <strong>deeply immutable</strong>. Methods like <code>.add()</code>, <code>.with()</code>, and <code>.round()</code> return new instances — the original is never modified:
+  </p>
+
+  <pre><code>const meeting = Temporal.ZonedDateTime.from('2026-06-05T09:00:00[America/New_York]');
+
+// Move to next week — returns a new instance, original unchanged
+const nextWeek = meeting.add({ weeks: 1 });
+
+// Change the time — returns a new instance
+const afternoon = meeting.with({ hour: 14 });
+
+console.log(meeting.hour);  // 9 — still the original
+console.log(nextWeek.hour); // 9
+console.log(afternoon.hour); // 14</code></pre>
+
+  <p>
+    This is <strong>transformative</strong> for React, Vue, Redux, and any state management. You can pass Temporal objects through props, use them as <code>useMemo</code> dependencies (reference equality works!), and never worry about accidental mutation. Compare this to <code>Date</code> where <code>date.setHours(14)</code> silently changes the object and returns a timestamp number — one of the most confusing APIs ever designed.
+  </p>
+
+  <h2>Time Zones: Finally Done Right</h2>
+
+  <p>
+    This is where Temporal shines brightest. <code>ZonedDateTime</code> represents a specific wall-clock time in a specific IANA timezone — not just an offset:
+  </p>
+
+  <pre><code>// A ZonedDateTime knows its timezone, not just its UTC offset
+const tokyoMeeting = Temporal.ZonedDateTime.from(
+  '2026-06-05T17:00:00[Asia/Tokyo]'
+);
+
+// What time is it in New York?
+const nyTime = tokyoMeeting.withTimeZone('America/New_York');
+console.log(nyTime.toString());
+// 2026-06-05T04:00:00-04:00[America/New_York]
+
+// DST transitions are handled correctly
+const beforeDST = Temporal.ZonedDateTime.from(
+  '2026-03-08T01:30:00[America/New_York]'
+);
+const afterDST = beforeDST.add({ hours: 1 });
+console.log(afterDST.toString());
+// 2026-03-08T03:30:00-04:00[America/New_York]
+// Note: 02:30 doesn't exist — it skipped from 01:59 to 03:00</code></pre>
+
+  <p>
+    Temporal handles DST gaps (spring-forward: times that don't exist) and overlaps (fall-back: times that happen twice) with explicit disambiguation options (<code>'compatible'</code>, <code>'earlier'</code>, <code>'later'</code>, <code>'reject'</code>). No more silent 1-hour-off bugs when daylight saving time changes.
+  </p>
+
+  <h2>Duration: Arithmetic Without the Pain</h2>
+
+  <p>
+    <code>Temporal.Duration</code> represents a length of time — and unlike adding raw milliseconds to a <code>Date</code>, it understands calendar units:
+  </p>
+
+  <pre><code>// Add 1 month to January 31st — what should happen?
+const jan31 = Temporal.PlainDate.from('2026-01-31');
+
+// Temporal handles calendar-aware arithmetic
+const oneMonthLater = jan31.add({ months: 1 });
+console.log(oneMonthLater.toString()); // 2026-02-28
+// Correctly constrained to the last valid day of February
+
+// Date would silently roll to March 3rd — a 3-day error!
+
+// Durations are precise
+const duration = Temporal.Duration.from({
+  years: 1,
+  months: 2,
+  weeks: 3,
+  days: 4,
+  hours: 5,
+  minutes: 6,
+  seconds: 7,
+  milliseconds: 800,
+  microseconds: 900,
+  nanoseconds: 100,
+});
+
+// Balance and round
+const balanced = duration.round({ largestUnit: 'days' });
+// All smaller units are normalized into days with nanosecond precision</code></pre>
+
+  <h2>Comparisons and Sorting</h2>
+
+  <p>
+    Temporal types can be compared with <code>.equals()</code> and sorted with <code>Temporal.*.compare()</code>:
+  </p>
+
+  <pre><code>const events = [
+  Temporal.ZonedDateTime.from('2026-06-05T10:00:00[Europe/London]'),
+  Temporal.ZonedDateTime.from('2026-06-05T09:00:00[America/New_York]'),
+  Temporal.ZonedDateTime.from('2026-06-05T15:00:00[Asia/Tokyo]'),
+];
+
+// Sorted by the actual instant, across timezones
+events.sort(Temporal.ZonedDateTime.compare);
+
+// London 10AM = 09:00 UTC
+// New York 9AM = 13:00 UTC  ← actually later than London!
+// Tokyo 3PM    = 06:00 UTC
+
+console.log(events.map(e => e.toString()));
+// Tokyo 3PM, London 10AM, New York 9AM</code></pre>
+
+  <p>
+    Compare this to <code>Date</code> where sorting <code>["2025-01-02", "2025-02-01"]</code> requires knowing whether the strings are ISO or US format — and even then, timezone offsets can silently reorder your data. Temporal comparisons are unambiguous by construction.
+  </p>
+
+  <h2>Formatting with Intl (No toString() Guessing)</h2>
+
+  <p>
+    Temporal delegates all formatting to <code>Intl.DateTimeFormat</code> — no more calling <code>.toString()</code> and hoping the browser gives you what you want:
+  </p>
+
+  <pre><code>const now = Temporal.Now.zonedDateTimeISO();
+
+// Full control over every aspect of formatting
+const fmt = new Intl.DateTimeFormat('en-US', {
+  dateStyle: 'full',
+  timeStyle: 'long',
+  timeZone: 'America/New_York',
+});
+
+console.log(fmt.format(now));
+// "Friday, June 5, 2026 at 1:00:00 PM EDT"
+
+// Relative time
+const rtf = new Intl.RelativeTimeFormat('en', { numeric: 'auto' });
+const daysUntil = now.until(
+  Temporal.ZonedDateTime.from('2026-06-15T00:00:00[America/New_York]'),
+  { largestUnit: 'days' }
+);
+console.log(rtf.format(daysUntil.days, 'days'));
+// "in 10 days"</code></pre>
+
+  <h2>Real-World Patterns</h2>
+
+  <h3>1. Calendar UI (PlainDate + PlainTime)</h3>
+  <pre><code>// When building a date picker: use PlainDate
+const selected = Temporal.PlainDate.from('2026-06-05');
+
+// When building a time picker: use PlainTime
+const startTime = Temporal.PlainTime.from('09:00');
+
+// Combine only at submit time
+const meetingStart = selected.toZonedDateTime({
+  time: startTime,
+  timeZone: Temporal.TimeZone.from('America/Chicago'),
+});</code></pre>
+
+  <h3>2. API Timestamps (Instant)</h3>
+  <pre><code>// When storing or transmitting: always use Instant
+const createdAt = Temporal.Now.instant();
+const json = { createdAt: createdAt.toString() };
+// "2026-06-05T17:00:00.123456789Z"
+
+// Parse back
+const parsed = Temporal.Instant.from(json.createdAt);</code></pre>
+
+  <h3>3. Recurring Events (PlainMonthDay)</h3>
+  <pre><code>// A birthday — just month and day, no year needed
+const birthday = Temporal.PlainMonthDay.from('06-05');
+
+// Check if today is the birthday
+const today = Temporal.Now.plainDateISO();
+if (today.month === birthday.month && today.day === birthday.day) {
+  // Happy birthday!
+}
+
+// "What year will the next one be?"
+const nextBirthday = birthday.toPlainDate({ year: today.year });
+const adjusted = nextBirthday.day > today.day ? nextBirthday
+  : birthday.toPlainDate({ year: today.year + 1 });</code></pre>
+
+  <h3>4. Countdowns and Timers (Duration difference)</h3>
+  <pre><code>const launch = Temporal.ZonedDateTime.from(
+  '2026-12-31T23:59:59[America/New_York]'
+);
+const now = Temporal.Now.zonedDateTimeISO();
+const remaining = now.until(launch, {
+  largestUnit: 'days',
+  smallestUnit: 'seconds',
+});
+
+console.log(
+  remaining.days + ' days, ' + remaining.hours + ' hours, ' +
+  remaining.minutes + ' minutes, ' + remaining.seconds + ' seconds'
+);
+// "209 days, 6 hours, 59 minutes, 59 seconds"</code></pre>
+
+  <h2>Migration from Date: A Practical Path</h2>
+
+  <p>
+    You do not need to rewrite everything at once. Here is a pragmatic migration path:
+  </p>
+
+  <ol>
+    <li><strong>Install the polyfill:</strong> <code>npm install @js-temporal/polyfill</code> — works in all browsers and Node.js versions today.</li>
+    <li><strong>New code only:</strong> Write all new date logic with Temporal. Leave existing Date code alone.</li>
+    <li><strong>Interop at the boundary:</strong> Temporal ↔ Date conversion is one-liners:
+      <pre><code>// Date → Temporal
+const t = new Date().toTemporalInstant();
+
+// Temporal → Date
+const d = new Date(
+  Temporal.Now.instant().epochMilliseconds
+);</code></pre>
+    </li>
+    <li><strong>Phased cleanup:</strong> Over time, replace Date-based utilities with Temporal equivalents. The immutability alone eliminates entire categories of bugs.</li>
+  </ol>
+
+  <h2>Browser Support and Status</h2>
+
+  <p>
+    As of June 2026, Temporal is <strong>Stage 3</strong> in the TC39 process — the final stage before Stage 4 (finished). It ships behind a flag in Chrome 127+ (<code>--harmony-temporal</code>), is available in Firefox Nightly, and has experimental support in Node.js 22+. The polyfill is production-ready and used by companies including Google, Bloomberg, and Igalia — the same team that implemented Temporal in V8 and SpiderMonkey.
+  </p>
+
+  <p>
+    The polyfill weighs ~45KB minified (tree-shakeable) and provides 100% spec-compliant Temporal in any ES2020+ environment. Production teams are adopting it today because the migration path from the polyfill to native is zero-effort — the API surface is identical.
+  </p>
+
+  <div class="highlight-box">
+    <strong>Bottom line:</strong> You can <em>stop</em> installing date libraries. <code>Temporal.PlainDate</code> replaces <code>date-fns</code> for calendar math. <code>Temporal.ZonedDateTime</code> replaces <code>Luxon</code> for timezone-aware scheduling. <code>Temporal.Duration</code> replaces <code>ms</code> for human-readable intervals. And <code>Temporal.Instant</code> replaces <code>Date.now()</code> for timestamps — with 1,000,000× better precision. The platform is finally fixed.
+  </div>
+
+  <p class="callout">
+    Temporal is the most important JavaScript API since Promises. It replaces not just <code>Date</code> but the entire ecosystem of date libraries built to work around <code>Date</code>. Immutable, timezone-native, nanosecond-precise, and shipping this year — it is the API JavaScript developers have been waiting for since 1995. Start using the polyfill today. Your future self (and your tests, and your DST bugs, and your international users) will thank you.
+  </p>
+</div>`,
+  },
 ];
