@@ -102,6 +102,7 @@ import {
   Underline,
   GitCommit,
   DollarSign,
+  Combine,
 } from 'lucide-react';
 
 export const metadata: Metadata = {
@@ -1343,6 +1344,13 @@ const featuredTools = [
     href: '/tools/json-sorter',
     icon: ArrowUpDown,
     tags: ['JSON', 'Sort', 'Formatter', 'Keys'],
+  },
+  {
+    title: 'Set Methods Playground',
+    description: 'Explore ES2024 Set operations — union, intersection, difference, symmetricDifference, isSubsetOf, isSupersetOf, isDisjointFrom. Interactive Venn diagrams, 5 presets, ready-to-copy JavaScript code.',
+    href: '/tools/set-methods-playground',
+    icon: Combine,
+    tags: ['JavaScript', 'Set', 'ES2024', 'Algorithms', 'Data Structures'],
   },
 ];
 const sampleBlogPosts = [
