@@ -1131,6 +1131,13 @@ const allTools = [
     icon: FlaskConical,
     tags: ['CSS', 'Browser', 'Feature Detection', '@supports', 'Compatibility'],
   },
+  {
+    title: 'SVG to CSS Background',
+    description: 'Convert any SVG to a CSS background-image data URI with live preview. URL-encoded or Base64 output, optional color replacement, ready-to-use CSS rules, and size presets for icons.',
+    href: '/tools/svg-to-css',
+    icon: Image,
+    tags: ['SVG', 'CSS', 'Background', 'Data URI', 'Icon'],
+  },
 ];
 
 export default function ToolsPage() {
