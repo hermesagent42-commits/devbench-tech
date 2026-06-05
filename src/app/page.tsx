@@ -896,6 +896,13 @@ const featuredTools = [
     tags: ['Storage', 'localStorage', 'Debug'],
   },
   {
+    title: 'Device Info',
+    description: 'Comprehensive diagnostic dashboard — screen & viewport, browser, hardware (CPU/RAM), battery, network, timezone, storage, permissions, media devices, and 20+ feature detections. All client-side.',
+    href: '/tools/device-info',
+    icon: Monitor,
+    tags: ['Device', 'Info', 'Diagnostics', 'Hardware', 'Browser'],
+  },
+  {
     title: 'Notification API Playground',
     description: 'Explore the browser Notification API — test permissions, send custom notifications with 8 presets, configure every option, and review your notification history. 100% client-side.',
     href: '/tools/notification-playground',
