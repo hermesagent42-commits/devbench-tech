@@ -826,6 +826,13 @@ const allTools = [
     tags: ['Storage', 'localStorage', 'sessionStorage', 'Debug'],
   },
   {
+    title: 'IndexedDB Explorer',
+    description: 'Inspect, browse, and export IndexedDB databases — discover all databases on the origin, explore object stores with schema view (keyPath, indexes, auto-increment), filter/search records, view full record details, delete entries, export as JSON/CSV. Like DevTools Application panel, supercharged.',
+    href: '/tools/indexeddb-explorer',
+    icon: Database,
+    tags: ['IndexedDB', 'Storage', 'Debug', 'Browser API', 'Export'],
+  },
+  {
     title: 'Notification API Playground',
     description: 'Explore the browser Notification API — test permissions, send custom notifications with 8 presets, configure every option, and review your notification history.',
     href: '/tools/notification-playground',
