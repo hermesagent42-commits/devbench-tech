@@ -624,6 +624,13 @@ const featuredTools = [
     tags: ['CSS', 'Typography', 'Design'],
   },
   {
+    title: 'Typography Scale Generator',
+    description: 'Build harmonious type scales with musical/mathematical ratios. Semantic heading-to-body mapping, fluid clamp() output, live visual preview, and ready-to-use CSS.',
+    href: '/tools/typography-scale-generator',
+    icon: Type,
+    tags: ['Typography', 'Scale', 'CSS', 'Design', 'Fluid'],
+  },
+  {
     title: 'Color Blindness Simulator',
     description: 'Simulate 8 types of color vision deficiency on images and colors — upload screenshots, compare side-by-side, test palettes. Understand how 350M+ people experience your designs.',
     href: '/tools/color-blindness-simulator',
