@@ -868,11 +868,359 @@ document.startViewTransition(() =&gt; {
     reason not to use it in your next project.
   </p>
 
-  <p class="callout">
+    <p class="callout">
     The symbol-first rule is all you need to remember. Start every nested selector with
     <code>&amp;</code>, <code>.</code>, <code>#</code>,
     <code>[</code>, <code>:</code>, <code>::</code>,
     or <code>@</code>, and you will never hit a silent failure. Happy nesting!
+  </p>
+</div>`,
+  },
+  {
+    slug: 'speculation-rules-api-instant-page-loads',
+    title: 'Speculation Rules API: Instant Page Loads Are Finally Here — No JavaScript Framework Required',
+    description:
+      'The Speculation Rules API lets the browser prefetch and prerender entire pages before users click — delivering genuine zero-millisecond navigations. Define rules in a JSON script tag, and the browser handles the rest. Complete guide to prefetch vs prerender, eagerness strategies, scoring, and production deployment.',
+    date: '2026-06-05',
+    author: 'DevBench',
+    tags: ['Speculation Rules', 'Performance', 'Web Platform', 'Prerender', 'Prefetch', 'MPA', 'Chrome', '2026'],
+    readingTime: '11 min read',
+    content: `
+<div class="prose-content">
+  <p class="lead">
+    Imagine a user hovers over a link and the page loads <strong>instantly</strong> — no spinner, no white flash, no layout shift. Not "fast." <strong>Instant.</strong> The Speculation Rules API makes this real by letting the browser <em>prerender</em> entire pages before the user clicks, rendering them offscreen with JavaScript, CSS, and images fully executed. It is the single biggest navigation performance improvement since HTTP/2, and it works with <strong>any website</strong> — no framework, no service worker, no JavaScript library.
+  </p>
+
+  <h2>What Is the Speculation Rules API?</h2>
+
+  <p>
+    Speculation Rules is a JSON-based configuration that tells the browser: "Here are pages a user is likely to visit next. Please prefetch or prerender them." You ship a <code>&lt;script type="speculationrules"&gt;</code> tag, and the browser does the rest. No JavaScript SDK, no build step, no framework lock-in.
+  </p>
+
+  <p>There are two modes:</p>
+
+  <div class="table-wrapper">
+    <table>
+      <thead>
+        <tr><th>Mode</th><th>What It Does</th><th>When It Fires</th><th>Cost</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>prefetch</strong></td>
+          <td>Fetches the page HTML and subresources (CSS, JS, images) into the HTTP cache</td>
+          <td>Immediately on page load or on hover/click (configurable)</td>
+          <td>Low — just bandwidth, no rendering</td>
+        </tr>
+        <tr>
+          <td><strong>prerender</strong></td>
+          <td>Fetches, parses, and fully renders the page in a hidden background tab — JavaScript executes, images decode, fonts load</td>
+          <td>On hover/mousedown (eager) or immediately (moderate/conservative)</td>
+          <td>High — uses memory, CPU, and bandwidth</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h2>The Simplest Possible Example</h2>
+
+  <p>
+    Drop this into your <code>&lt;head&gt;</code> and every same-origin link on the page gets prefetched when the user hovers over it:
+  </p>
+
+  <pre><code>&lt;script type="speculationrules"&gt;
+{
+  "prefetch": [
+    {
+      "source": "document",
+      "where": {
+        "href_matches": "/*"
+      },
+      "eagerness": "moderate"
+    }
+  ]
+}
+&lt;/script&gt;</code></pre>
+
+  <p>
+    That is it. Hover any link, and by the time the user clicks, the response is already in the cache. Navigation is instantaneous.
+  </p>
+
+  <h2>Eagerness: When Should the Browser Speculate?</h2>
+
+  <p>
+    The <code>eagerness</code> field controls when speculation triggers. There are four levels, and choosing the right one is the difference between "invisible magic" and "wasted bandwidth":
+  </p>
+
+  <div class="table-wrapper">
+    <table>
+      <thead>
+        <tr><th>Eagerness</th><th>Trigger</th><th>Best For</th><th>Risk</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>immediate</code></td><td>As soon as the rule is parsed</td><td>Single-page apps, landing pages with one obvious next step</td><td>High — speculates on pages user may never visit</td></tr>
+        <tr><td><code>eager</code></td><td>Slight hover or pointer near the link</td><td>Navigation menus, "next article" links</td><td>Medium — fires early but still user-initiated</td></tr>
+        <tr><td><code>moderate</code></td><td>200ms hover (intentional hover)</td><td>Content sites, blogs, documentation</td><td>Low — fires only when user shows intent</td></tr>
+        <tr><td><code>conservative</code></td><td>Mousedown/touchstart (imminent click)</td><td>E-commerce, forms, any page where mis-prefetch costs money</td><td>Very low — fires right before navigation</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <pre><code>// Immediate — prefetch the homepage from every page
+{ "prefetch": [{ "source": "list", "urls": ["/"], "eagerness": "immediate" }] }
+
+// Moderate — prefetch links on hover (200ms delay)
+{ "prefetch": [{ "source": "document", "where": { "href_matches": "/blog/*" }, "eagerness": "moderate" }] }
+
+// Conservative — prerender on mousedown for near-guaranteed clicks
+{ "prerender": [{ "source": "document", "where": { "href_matches": "/checkout" }, "eagerness": "conservative" }] }</code></pre>
+
+  <h2>Prerender: The Holy Grail of Instant Navigation</h2>
+
+  <p>
+    Prerendering goes far beyond prefetch. The browser loads the entire page in a hidden, unconnected renderer — JavaScript executes, CSS paints, images decode, WebSocket connections open. When the user clicks, the browser <strong>activates</strong> the prerendered page instantly, replacing the current page with zero visible transition.
+  </p>
+
+  <pre><code>&lt;script type="speculationrules"&gt;
+{
+  "prerender": [
+    {
+      "source": "document",
+      "where": {
+        "selector_matches": ".prerender-links a"
+      },
+      "eagerness": "moderate"
+    }
+  ]
+}
+&lt;/script&gt;</code></pre>
+
+  <div class="callout-box">
+    <strong>⚠️ Prerender constraints (2026):</strong>
+    <ul>
+      <li>Limited to same-origin URLs (cross-origin prerender is experimental)</li>
+      <li>Only one prerender can be active at a time per page (new prerender cancels the old one)</li>
+      <li>Uses memory (~50-100MB per prerendered page) — do not prerender everything</li>
+      <li>The prerendered page cannot use <code>window.opener</code> or <code>BroadcastChannel</code> while hidden</li>
+      <li>APIs like <code>Permission.query()</code> and <code>MediaDevices.getUserMedia()</code> are deferred until activation</li>
+    </ul>
+  </div>
+
+  <h2>Document Rules vs List Rules</h2>
+
+  <p>Speculation Rules support two <code>source</code> types:</p>
+
+  <h3>Document Rules (<code>source: "document"</code>)</h3>
+  <p>
+    The browser finds matching links on the current page. Use <code>href_matches</code> for URL patterns and <code>selector_matches</code> for CSS selectors:
+  </p>
+
+  <pre><code>{
+  "prefetch": [{
+    "source": "document",
+    "where": {
+      "and": [
+        { "href_matches": "/products/*" },
+        { "selector_matches": ".featured-product a" }
+      ]
+    },
+    "eagerness": "moderate"
+  }]
+}</code></pre>
+
+  <h3>List Rules (<code>source: "list"</code>)</h3>
+  <p>
+    You specify exact URLs. Best for pages where the next step is predictable (e.g., a login page that always leads to /dashboard):
+  </p>
+
+  <pre><code>{
+  "prerender": [{
+    "source": "list",
+    "urls": ["/dashboard", "/settings"],
+    "eagerness": "immediate"
+  }]
+}</code></pre>
+
+  <h2>Scoring: Making Smart Speculation Decisions</h2>
+
+  <p>
+    When multiple links match, the browser needs to decide which one to speculate on. You can attach scores to influence this decision:
+  </p>
+
+  <pre><code>{
+  "prefetch": [{
+    "source": "document",
+    "where": {
+      "or": [
+        { "href_matches": "/checkout", "score": 0.9 },
+        { "href_matches": "/cart", "score": 0.7 },
+        { "href_matches": "/products/*", "score": 0.3 }
+      ]
+    },
+    "eagerness": "eager"
+  }]
+}</code></pre>
+
+  <p>
+    Scores are relative within a ruleset — 0.9 beats 0.7, but there is no absolute scale. The browser also factors in its own heuristics: has the user visited this page before? Is the pointer moving toward this link? Is there available memory?
+  </p>
+
+  <h2>Prefetch + Prerender Together: The Perfect Combo</h2>
+
+  <p>
+    The most effective strategy layers both modes. Prefetch broadly — all links in a blog index. Prerender narrowly — the product page when someone hovers over a "Buy Now" button:
+  </p>
+
+  <pre><code>&lt;script type="speculationrules"&gt;
+{
+  "prefetch": [
+    {
+      "source": "document",
+      "where": { "href_matches": "/blog/*" },
+      "eagerness": "moderate"
+    }
+  ],
+  "prerender": [
+    {
+      "source": "document",
+      "where": {
+        "and": [
+          { "href_matches": "/products/*" },
+          { "selector_matches": ".cta-button" }
+        ]
+      },
+      "eagerness": "moderate"
+    }
+  ]
+}
+&lt;/script&gt;</code></pre>
+
+  <p>On a content site with this setup:</p>
+  <ul>
+    <li>Every blog post link prefetches on hover → instant load from cache</li>
+    <li>Product pages with CTA buttons prerender on hover → zero-millisecond activation</li>
+    <li>Non-matching links behave normally — no wasted resources</li>
+  </ul>
+
+  <h2>Detecting Prerender Activation in JavaScript</h2>
+
+  <p>
+    Sometimes your page JavaScript needs to know it is being prerendered (e.g., to defer analytics, skip API calls, or pause animations):
+  </p>
+
+  <pre><code>// Check if prerendered
+if (document.prerendering) {
+  // Defer non-critical work
+  document.addEventListener('prerenderingchange', () => {
+    // Page was just activated — safe to fire analytics, start animations
+    gtag('event', 'page_view');
+    startAnimations();
+  });
+}
+
+// Or use the newer activationStart
+const activationStart = performance.getEntriesByType('navigation')[0]?.activationStart;
+if (activationStart > 0) {
+  console.log(\`Page was prerendered. Activation took \${activationStart}ms\`);
+}</code></pre>
+
+  <h2>Monitoring: Did It Work?</h2>
+
+  <p>
+    Chrome DevTools has first-class speculation debugging. Open the <strong>Application</strong> panel → <strong>Speculative Loads</strong> to see all active prerenders, their status, and why they succeeded or failed. You can also use the Performance panel to measure activation time — look for the <strong>Activation</strong> marker in the timeline.
+  </p>
+
+  <p>For production monitoring, use the Performance API:</p>
+
+  <pre><code>// Check if the current navigation was prerendered
+const navEntry = performance.getEntriesByType('navigation')[0];
+
+if (navEntry.activationStart > 0) {
+  // This was a prerender activation
+  const activationTime = navEntry.activationStart;
+  const totalLoadTime = navEntry.loadEventEnd;
+
+  console.log(\`Prerender activation: \${activationTime}ms\`);
+  console.log(\`Total load (including prerender): \${totalLoadTime}ms\`);
+
+  // Send to analytics
+  gtag('event', 'prerender_activation', {
+    activation_time: activationTime,
+    total_time: totalLoadTime
+  });
+}</code></pre>
+
+  <h2>Production Deployment: A Real-World Setup</h2>
+
+  <p>For DevBench itself, here is the speculation rules configuration:</p>
+
+  <pre><code>&lt;script type="speculationrules"&gt;
+{
+  "prefetch": [
+    {
+      "source": "document",
+      "where": { "href_matches": "/tools/*" },
+      "eagerness": "moderate"
+    },
+    {
+      "source": "document",
+      "where": { "href_matches": "/blog/*" },
+      "eagerness": "moderate"
+    },
+    {
+      "source": "list",
+      "urls": ["/", "/tools/", "/blog/"],
+      "eagerness": "immediate"
+    }
+  ],
+  "prerender": [
+    {
+      "source": "document",
+      "where": {
+        "and": [
+          { "href_matches": "/tools/*" },
+          { "not": { "href_matches": "/tools/json-formatter" } }
+        ]
+      },
+      "eagerness": "eager"
+    }
+  ]
+}
+&lt;/script&gt;</code></pre>
+
+  <p>This configuration:</p>
+  <ul>
+    <li>Prefetches all tool and blog pages on hover</li>
+    <li>Immediately prefetches the homepage, tools index, and blog index from every page</li>
+    <li>Prerenders tool pages on eager hover (excluding JSON formatter, which is client-heavy)</li>
+  </ul>
+
+  <h2>Browser Support and the Road Ahead</h2>
+
+  <p>
+    As of June 2026, the Speculation Rules API is supported in <strong>Chrome 121+</strong> and <strong>Edge 121+</strong>. Firefox and Safari have not yet shipped it, but the API is designed to be safely ignored: unsupported browsers simply skip the <code>&lt;script type="speculationrules"&gt;</code> tag with zero side effects. There is no polyfill needed, no feature detection, no fallback — it just works where supported and degrades gracefully everywhere else.
+  </p>
+
+  <p>
+    The Chrome team is exploring <strong>cross-origin prerendering</strong> (with explicit opt-in from the target origin via <code>Supports-Loading-Mode: credentialed-prerender</code>), <strong>multiple simultaneous prerenders</strong> (memory permitting), and deeper integration with the <strong>Navigation API</strong> for single-page apps. The future of navigation is zero milliseconds.
+  </p>
+
+  <h2>When Not to Use Speculation Rules</h2>
+
+  <p>
+    Speculation Rules are not free. Every prerendered page consumes significant memory, and every prefetch consumes bandwidth. Avoid speculation when:
+  </p>
+
+  <ul>
+    <li>Your users are on metered connections (use <code>navigator.connection.saveData</code> to check)</li>
+    <li>Your pages have side effects on load (analytics, WebSocket connections, API calls)</li>
+    <li>Your target pages are personalized or frequently invalidated</li>
+    <li>You are already serving from a CDN with sub-100ms TTFB (the gain is marginal)</li>
+  </ul>
+
+  <p>For most content sites, documentation, blogs, and e-commerce, the trade-off is overwhelmingly positive. A moderate-eagerness prefetch rule costs kilobytes of bandwidth and delivers navigation that feels like a local app.</p>
+
+  <p class="callout">
+    The Speculation Rules API is the closest the web platform has come to eliminating navigation latency entirely. Drop a JSON script tag, and your users get instant page loads — no framework rewrite, no SPA migration, no JavaScript library. It is the simplest, highest-impact performance optimization you can deploy in 2026.
   </p>
 </div>`,
   },
