@@ -70,6 +70,8 @@ import {
   GitBranch,
   GripHorizontal,
   Monitor,
+  Smartphone,
+  Tablet,
   ListTree,
   HardDrive,
   Play,
@@ -1144,6 +1146,13 @@ const allTools = [
     href: '/tools/svg-to-css',
     icon: Image,
     tags: ['SVG', 'CSS', 'Background', 'Data URI', 'Icon'],
+  },
+  {
+    title: 'Responsive Design Tester',
+    description: 'Test any URL across multiple device sizes simultaneously — iPhones, iPads, and desktops side-by-side. Landscape/portrait toggle, zoom, custom devices, and horizontal/vertical/grid layouts. Perfect for responsive QA.',
+    href: '/tools/responsive-tester',
+    icon: Smartphone,
+    tags: ['Responsive', 'Testing', 'Devices', 'CSS', 'QA'],
   },
 ];
 
