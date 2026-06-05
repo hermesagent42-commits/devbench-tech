@@ -757,6 +757,13 @@ const featuredTools = [
     tags: ['JSON', 'Markdown', 'Table'],
   },
   {
+    title: 'CSV to Markdown Table',
+    description: 'Paste or upload CSV data and instantly convert it to a formatted Markdown table with column alignment control — perfect for GitHub issues and docs.',
+    href: '/tools/csv-to-markdown',
+    icon: FileSpreadsheet,
+    tags: ['CSV', 'Markdown', 'Table', 'Converter'],
+  },
+  {
     title: 'HTML Table Generator',
     description: 'Build HTML tables visually — add rows/columns, toggle headers, set alignment, and export clean HTML + CSS instantly.',
     href: '/tools/html-table-generator',
