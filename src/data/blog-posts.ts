@@ -1224,4 +1224,383 @@ if (navEntry.activationStart > 0) {
   </p>
 </div>`,
   },
+  {
+    slug: 'navigation-api-complete-guide-2026',
+    title: 'The Navigation API: Finally, a Sane Way to Handle Page Navigations — No More popstate Hacks',
+    description:
+      'The Navigation API replaces History with a modern, promise-based navigation model. Intercept navigations, manage state without serialization, integrate with View Transitions, and build fast SPA-like experiences with native browser APIs. A complete guide with real-world patterns.',
+    date: '2026-06-05',
+    author: 'DevBench',
+    tags: ['JavaScript', 'Navigation API', 'Browser APIs', 'Web Platform', 'SPA', 'MPA', 'View Transitions', '2026'],
+    readingTime: '10 min read',
+    content: `
+<div class="prose-content">
+  <p class="lead">
+    For 20 years, web navigation has been a mess of <code>window.onpopstate</code> handlers,
+    manual URL manipulation, fragile scroll restoration, and the impossible task of intercepting
+    navigations before they happen. The History API, introduced in 2011, gave us
+    <code>pushState</code> and <code>replaceState</code> — but no way to <em>listen</em> for
+    navigations, no way to <em>cancel</em> them, and no way to <em>react</em> before they complete.
+  </p>
+
+  <p>
+    The <strong>Navigation API</strong> — shipping in Chrome 102+ and now Baseline — fixes all of this.
+    It replaces the History API with a modern, event-driven, promise-based model that handles
+    single-page navigation, multi-page transitions, and everything in between. If you have ever
+    wrestled with React Router, Next.js App Router, or Nuxt navigation guards, this is the
+    low-level API those frameworks <em>wish</em> existed when they were built.
+  </p>
+
+  <h2>The Core: navigation.navigate() vs history.pushState()</h2>
+
+  <p>
+    The most fundamental difference: <code>navigation.navigate()</code> is <strong>interceptable</strong>.
+    When you call <code>history.pushState()</code>, the browser fires a <code>popstate</code>
+    event — but only on <em>back/forward</em>, not on <code>pushState</code> itself.
+    That is why every SPA router has to monkey-patch <code>pushState</code> to know about
+    navigation events. The Navigation API fixes this:
+  </p>
+
+  <pre><code>// Old way: pushState + manual event dispatching
+history.pushState({ page: 1 }, '', '/page/1');
+window.dispatchEvent(new PopStateEvent('popstate')); // Manual hack
+
+// New way: Navigation API — everything goes through navigate()
+navigation.navigate('/page/1', { state: { page: 1 } });
+// Fires 'navigate' event that you can intercept, cancel, or transform</code></pre>
+
+  <p>
+    Every navigation — programmatic, back/forward button, link click — fires the <code>navigate</code>
+    event. You handle it <em>once</em> for everything:
+  </p>
+
+  <pre><code>navigation.addEventListener('navigate', (event) => {
+  // event.destination.url — where we are going
+  // event.canIntercept — can we intercept this?
+  // event.intercept() — take over and handle as SPA
+  // event.preventDefault() — cancel the navigation
+
+  console.log('Navigating from', navigation.currentEntry?.url);
+  console.log('Navigating to', event.destination.url);
+  console.log('Navigation type:', event.navigationType); // push, replace, reload, traverse
+  console.log('User gesture:', event.userInitiated);     // true if user clicked a link
+  console.log('Hash change only:', event.hashChange);    // true if only the fragment changed
+});</code></pre>
+
+  <h2>The Intercept Pattern: SPA Navigation Without a Framework</h2>
+
+  <p>
+    The killer feature is <code>event.intercept()</code>. It lets you take control of a navigation
+    and handle it as a single-page transition — fetch new content, swap DOM, update the URL —
+    without a full page reload:
+  </p>
+
+  <pre><code>navigation.addEventListener('navigate', (event) => {
+  // Only intercept same-origin navigations to specific paths
+  if (!event.canIntercept || !event.destination.url.startsWith(location.origin)) {
+    return;
+  }
+
+  event.intercept({
+    handler: async () => {
+      // The browser waits for this promise to resolve
+      const response = await fetch(event.destination.url);
+      const html = await response.text();
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(html, 'text/html');
+      const newContent = doc.querySelector('main');
+
+      // Swap content
+      document.querySelector('main')?.replaceWith(newContent);
+    },
+    // Optional: scroll behavior
+    scroll: 'after-transition',
+    // Optional: focus management
+    focusReset: 'after-transition',
+  });
+});</code></pre>
+
+  <div class="highlight-box">
+    <strong>Key insight:</strong> The <code>handler</code> runs <em>after</em> the URL is updated
+    in the address bar but <em>before</em> the transition is committed. If your handler throws or
+    rejects, the navigation is rolled back — the old URL is restored. This gives you proper
+    transactional navigation semantics, something no framework could provide before.
+  </div>
+
+  <h2>Navigation Entries: Richer State Without Serialization</h2>
+
+  <p>
+    The History API forces all state to be serializable (structured clone) because it needs to
+    survive session restore. The Navigation API drops this constraint for in-session state:
+  </p>
+
+  <pre><code>// Old way: state must be serializable
+history.pushState({ page: 1 }, ''); // OK
+history.pushState({ fn: myCallback }, ''); // DataCloneError — cannot clone function
+
+// New way: NavigationHistoryEntry.state accepts anything
+await navigation.navigate('/page/1', {
+  state: {
+    page: 1,
+    abortController: new AbortController(), // Functions, DOM nodes, anything
+    renderCache: new Map(),
+  }
+});
+
+// Access current entry
+const entry = navigation.currentEntry;
+console.log(entry.url, entry.key, entry.id, entry.index);
+console.log(entry.getState().abortController); // Your live state object!</code></pre>
+
+  <p>
+    Each entry also has a unique <code>key</code> (persistent across sessions, useful for scroll
+    restoration) and <code>id</code> (unique per entry, regenerated on reload). The
+    <code>index</code> tells you where you are in the navigation history:
+  </p>
+
+  <pre><code>// Check if there is a next/previous entry
+const canGoBack = navigation.canGoBack;   // like history.length > 1
+const canGoForward = navigation.canGoForward;
+
+// Get the full entry list
+for (const entry of navigation.entries()) {
+  console.log(entry.url, entry.index);
+}
+
+// Navigate back/forward
+await navigation.back();
+await navigation.forward();
+await navigation.traverseTo('entry-key-abc123'); // Jump to specific entry by key</code></pre>
+
+  <h2>Navigation Types: Push, Replace, Reload, Traverse</h2>
+
+  <p>
+    The Navigation API distinguishes four navigation types, each with different semantics:
+  </p>
+
+  <div class="table-wrapper">
+    <table>
+      <thead>
+        <tr><th>Type</th><th>Method</th><th>Effect</th><th>Use Case</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><strong>push</strong></td><td><code>navigate(url)</code></td><td>New entry added to history</td><td>Normal link navigation</td></tr>
+        <tr><td><strong>replace</strong></td><td><code>navigate(url, {history: "replace"})</code></td><td>Replaces current entry</td><td>Redirects, form submission responses</td></tr>
+        <tr><td><strong>reload</strong></td><td><code>reload()</code></td><td>Full page reload</td><td>User presses reload button</td></tr>
+        <tr><td><strong>traverse</strong></td><td><code>back()</code>, <code>forward()</code>, <code>traverseTo()</code></td><td>Move through existing history</td><td>Back/forward buttons</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p>
+    The <code>navigate</code> event's <code>navigationType</code> property tells you which
+    type the current transition is. This lets you optimize:
+  </p>
+
+  <pre><code>navigation.addEventListener('navigate', (event) => {
+  if (event.navigationType === 'reload') {
+    // Do not intercept — let the browser do a full reload
+    return;
+  }
+
+  if (event.navigationType === 'traverse') {
+    // Restore from cache instead of re-fetching
+    const cached = sessionStorage.getItem(event.destination.url);
+    if (cached) {
+      event.intercept({
+        handler: () => render(cached),
+        scroll: 'manual',
+      });
+    }
+    return;
+  }
+
+  // Push/replace: fetch fresh content
+  event.intercept({ handler: () => fetchAndRender(event.destination.url) });
+});</code></pre>
+
+  <h2>Navigation + View Transitions: Native Page Animations</h2>
+
+  <p>
+    Combine the Navigation API with the View Transitions API for native, 60fps page transitions
+    — no animation library required:
+  </p>
+
+  <pre><code>navigation.addEventListener('navigate', (event) => {
+  if (!event.canIntercept) return;
+
+  event.intercept({
+    handler: async () => {
+      // Start a view transition
+      const transition = document.startViewTransition(async () => {
+        const response = await fetch(event.destination.url);
+        const html = await response.text();
+        const doc = new DOMParser().parseFromString(html, 'text/html');
+
+        // Swap main content
+        document.querySelector('main')?.replaceWith(
+          doc.querySelector('main')
+        );
+      });
+
+      await transition.finished;
+    },
+  });
+});</code></pre>
+
+  <h2>The dispose Event: Cleanup at the Right Time</h2>
+
+  <p>
+    The History API never tells you when an entry is permanently removed from the session history.
+    The Navigation API fires a <code>dispose</code> event on entries that are evicted:
+  </p>
+
+  <pre><code>// When you navigate, you can store cleanup info
+await navigation.navigate('/form', {
+  state: { draftSaved: true }
+});
+
+// The current entry's dispose event fires when it is evicted
+navigation.currentEntry.addEventListener('dispose', (event) => {
+  const state = navigation.currentEntry.getState();
+  if (state?.draftSaved) {
+    // Clean up temp storage, abort pending requests
+    state.abortController?.abort();
+    localStorage.removeItem('form-draft');
+  }
+});</code></pre>
+
+  <h2>Scroll Restoration: The Browser Handles It (Finally)</h2>
+
+  <p>
+    Scroll position restoration has been the bane of every SPA router. The Navigation API
+    integrates directly with the browser's scroll restoration system:
+  </p>
+
+  <pre><code>// In the navigate event:
+event.intercept({
+  handler: fetchAndRender,
+  scroll: 'after-transition', // Browser saves/restores scroll position automatically
+});
+
+// Manual control:
+event.intercept({
+  handler: fetchAndRender,
+  scroll: 'manual', // You handle it yourself
+});</code></pre>
+
+  <div class="highlight-box">
+    <strong>The scroll restoration problem:</strong> Before the Navigation API, every SPA router
+    had to implement its own scroll saving/restoring logic using <code>history.scrollRestoration</code>
+    and manual position tracking. The result was almost always janky — a brief flash of the
+    wrong scroll position before correction. The Navigation API solves this at the engine level.
+  </div>
+
+  <h2>Practical Pattern: A Complete SPA Router in 60 Lines</h2>
+
+  <p>
+    Here is a production-ready SPA router using the Navigation API:
+  </p>
+
+  <pre><code>// router.js
+class Router {
+  #routes = new Map();
+  #abortController = null;
+
+  route(pattern, handler) {
+    this.#routes.set(pattern, handler);
+  }
+
+  start() {
+    navigation.addEventListener('navigate', (event) => {
+      if (!event.canIntercept || !event.destination.sameDocument) return;
+      if (event.hashChange) return;
+
+      const handler = this.#match(event.destination.url);
+      if (!handler) return;
+
+      this.#abortController?.abort();
+      this.#abortController = new AbortController();
+
+      event.intercept({
+        handler: async () => {
+          document.body.classList.add('navigating');
+          try {
+            await handler({
+              url: event.destination.url,
+              signal: this.#abortController.signal,
+              state: event.destination.getState(),
+            });
+          } finally {
+            document.body.classList.remove('navigating');
+          }
+        },
+        scroll: 'after-transition',
+      });
+    });
+  }
+
+  #match(url) {
+    const pathname = new URL(url).pathname;
+    for (const [pattern, handler] of this.#routes) {
+      if (pathname.match(new RegExp(pattern))) return handler;
+    }
+    return null;
+  }
+}</code></pre>
+
+  <h2>MPA to SPA Transition: Progressive Enhancement</h2>
+
+  <p>
+    One of the most powerful patterns: start with a traditional multi-page app (MPA), then
+    progressively enhance to SPA-like behavior — no framework migration required:
+  </p>
+
+  <pre><code>// Progressive enhancement: MPA to SPA with one script
+navigation.addEventListener('navigate', (event) => {
+  if (!event.canIntercept || !event.destination.sameDocument) return;
+
+  event.intercept({
+    handler: async () => {
+      const response = await fetch(event.destination.url);
+      const html = await response.text();
+      const doc = new DOMParser().parseFromString(html, 'text/html');
+
+      document.head.replaceWith(doc.head);
+      document.body.replaceWith(doc.body);
+      initComponents();
+    },
+    scroll: 'after-transition',
+  });
+});</code></pre>
+
+  <p>
+    This gives you instant SPA-like page transitions from a plain MPA. No double-rendering, no
+    hydration mismatch, no SSR/CSR split.
+  </p>
+
+  <h2>Browser Support and Polyfill Strategy</h2>
+
+  <p>
+    As of June 2026, the Navigation API is Baseline — supported in Chrome 102+, Edge 102+,
+    and Safari 26+. Firefox has an active implementation in progress. Feature-detect and fall back:
+  </p>
+
+  <pre><code>if ('navigation' in window) {
+  setupNavigationRouter();
+} else {
+  // Traditional MPA — links work natively, or use polyfill
+  import('@virtualstate/navigation').then(({ polyfill }) => polyfill());
+}</code></pre>
+
+  <p class="callout">
+    The Navigation API is not just a new way to do what History did — it is a fundamentally better
+    model. Interceptable navigations, promise-based transitions, non-serializable state, native
+    scroll restoration, and first-class View Transition integration. It replaces not just
+    <code>pushState</code> but entire router libraries. Sixty lines of JavaScript gives you
+    a production SPA router with back/forward caching, abortable navigations, and native page
+    transitions. The browser finally does what we have been hacking around for 15 years.
+  </p>
+</div>`,
+  },
 ];
