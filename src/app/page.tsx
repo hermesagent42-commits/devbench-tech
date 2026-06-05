@@ -980,6 +980,13 @@ const featuredTools = [
     tags: ['CSS', '@font-palette-values', 'COLRv1', 'Color Fonts'],
   },
   {
+    title: 'Font Feature Settings',
+    description: 'Explore OpenType font features — ligatures, tabular numbers, small caps, stylistic sets, swashes. Toggle 28 features, 8 presets (editorial, scientific, decorative), live preview, instant CSS copy.',
+    href: '/tools/font-feature-settings',
+    icon: Type,
+    tags: ['CSS', 'font-feature-settings', 'OpenType', 'Typography'],
+  },
+  {
     title: 'CSV Viewer & Editor',
     description: 'Paste CSV data to view, edit, sort, and filter in an interactive table — column stats, export to CSV/TSV/Markdown. Full spreadsheet-like editing in your browser.',
     href: '/tools/csv-viewer',
