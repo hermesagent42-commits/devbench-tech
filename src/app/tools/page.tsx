@@ -866,6 +866,13 @@ const allTools = [
     tags: ['CSS', '@font-face', 'Typography', 'Fonts'],
   },
   {
+    title: 'Font Palette Playground',
+    description: 'Customize COLRv1 color font palettes with @font-palette-values — override color indices, choose base palettes, and see your custom colors render live in the Nabla font. 6 presets, instant CSS + HTML export.',
+    href: '/tools/font-palette-playground',
+    icon: Palette,
+    tags: ['CSS', '@font-palette-values', 'COLRv1', 'Color Fonts'],
+  },
+  {
     title: 'CSS Named Colors',
     description: 'Explore all 148 CSS named colors — search, filter by family, sort by hue or lightness, and copy hex/RGB/HSL values. Interactive color grid with instant preview.',
     href: '/tools/css-named-colors',
