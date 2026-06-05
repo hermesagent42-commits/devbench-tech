@@ -1,0 +1,691 @@
+---
+title: "The Popover API: Native Popovers, Tooltips, and Dropdowns — Zero JavaScript Libraries"
+date: "2026-06-05"
+excerpt: "The Popover API replaces every JavaScript popover, tooltip, dropdown, and menu library with two HTML attributes — popover and popovertarget. Light-dismiss, top-layer rendering, anchor positioning, and keyboard accessibility built into the browser. Complete guide with production-ready patterns."
+tags: ["HTML", "Popover API", "Baseline 2024", "Web Platform", "CSS Anchor", "Accessibility", "Tooltip", "Dropdown", "2026"]
+---
+
+## The End of JavaScript Popover Libraries
+
+For 20 years, every web developer has solved the same problem the same way: install a library to show a popover. Tooltips (`tippy.js`, `floating-ui`), dropdown menus (Headless UI, Radix), select menus, date pickers, context menus, toast notifications, dialogs — all require JavaScript to manage z-index stacking, focus trapping, light-dismiss behavior, and positioning relative to a trigger element.
+
+The Popover API — Baseline since May 2024 — makes all of this native HTML. Two attributes: `popover` and `popovertarget`. The browser handles rendering in the **top layer** (above everything, including `z-index: 999999`), light dismiss (click outside, press Escape), focus management, and keyboard accessibility. No JavaScript required for basic use cases.
+
+```html
+<!-- A button that opens a popover -->
+<button popovertarget="my-popover">Open Menu</button>
+
+<!-- The popover itself -->
+<div id="my-popover" popover>
+  <ul>
+    <li><a href="/profile">Profile</a></li>
+    <li><a href="/settings">Settings</a></li>
+    <li><a href="/logout">Logout</a></li>
+  </ul>
+</div>
+```
+
+That's it. Click the button — the popover appears in the top layer. Click outside or press Escape — it closes. No JavaScript. No library. No z-index wars.
+
+## The Popover Architecture
+
+### What Is the Top Layer?
+
+The top layer is a special rendering layer above the document — above every `z-index` value, every `position: fixed` element, everything. Elements promoted to the top layer are rendered in a separate stacking context managed by the browser. Only three APIs can place elements there:
+
+1. **`<dialog>`** with `.showModal()` (since 2022)
+2. **Fullscreen API** (`element.requestFullscreen()`)
+3. **Popover API** (Baseline 2024)
+
+This means popovers can never be buried behind a `z-index: 2147483647` element. The browser guarantees they render on top.
+
+```css
+/* You CANNOT override top-layer rendering with z-index */
+#my-popover {
+  z-index: 0; /* Ignored — top layer always wins */
+}
+```
+
+### The `popover` Attribute
+
+The `popover` attribute can be `auto` (default) or `manual`:
+
+| Value | Light Dismiss | Multiple Open | Use Case |
+|-------|--------------|---------------|----------|
+| `auto` | Yes — click outside or Escape closes it | Only one `auto` popover open at a time | Tooltips, dropdowns, menus, select popovers |
+| `manual` | No — must close programmatically | Multiple `manual` popovers can coexist | Toasts, persistent panels, multi-step wizards |
+
+```html
+<!-- Auto: closes when you click outside -->
+<div popover="auto">I close on outside click</div>
+
+<!-- Manual: stays open until you call hidePopover() -->
+<div popover="manual">I stay open</div>
+```
+
+### The `popovertarget` Attribute
+
+Any `<button>` (or `<input type="button">`) can control a popover by referencing its `id`:
+
+```html
+<button popovertarget="menu">Toggle Menu</button>
+<div id="menu" popover>...</div>
+```
+
+The button automatically toggles the popover on click. No event listeners needed. For more control, `popovertargetaction` specifies the exact behavior:
+
+```html
+<!-- Show only (won't hide if already open) -->
+<button popovertarget="menu" popovertargetaction="show">Open</button>
+
+<!-- Hide only -->
+<button popovertarget="menu" popovertargetaction="hide">Close</button>
+
+<!-- Toggle (default) -->
+<button popovertarget="menu" popovertargetaction="toggle">Menu</button>
+```
+
+## The JavaScript API
+
+For programmatic control, every popover element exposes `.showPopover()`, `.hidePopover()`, and `.togglePopover()`:
+
+```javascript
+const popover = document.getElementById('menu');
+
+// Show the popover
+popover.showPopover();
+
+// Hide the popover
+popover.hidePopover();
+
+// Toggle
+popover.togglePopover();
+
+// Check if open
+console.log(popover.matches(':popover-open')); // true/false
+```
+
+### Events: `beforetoggle` and `toggle`
+
+The Popover API fires two events — one cancellable, one post-action — giving you hooks for animations, data loading, and analytics:
+
+```javascript
+popover.addEventListener('beforetoggle', (event) => {
+  if (event.newState === 'open') {
+    // Load menu data before it opens
+    fetchMenuItems().then(render);
+  }
+  if (event.newState === 'closed') {
+    // Clean up, stop timers
+  }
+  // Cancel the toggle if needed
+  // event.preventDefault(); // Only works for 'open' → 'closed' transitions
+});
+
+popover.addEventListener('toggle', (event) => {
+  console.log(`Popover is now: ${event.newState}`);
+  // oldState is also available: event.oldState
+});
+```
+
+## Positioning Popovers with CSS Anchor Positioning
+
+The Popover API handles *rendering* — getting the element into the top layer with light dismiss. But *positioning* the popover relative to its trigger button requires **CSS Anchor Positioning**, which reached Baseline in May 2026. These two APIs are designed to work together.
+
+### The Basic Pattern
+
+```css
+/* The trigger button becomes an anchor */
+#trigger-btn {
+  anchor-name: --menu-anchor;
+}
+
+/* The popover positions itself relative to the anchor */
+#menu {
+  position: absolute;
+  position-anchor: --menu-anchor;
+  top: anchor(bottom);
+  left: anchor(left);
+}
+```
+
+The popover now appears directly below the button, flush-left. As the user scrolls or the viewport resizes, the popover stays anchored to the button — no JavaScript `getBoundingClientRect()` math, no ResizeObserver, no scroll listeners.
+
+### Fallback Positions with `position-try`
+
+Real-world popovers need fallback positioning when there isn't enough space in the preferred direction:
+
+```css
+#menu {
+  position: absolute;
+  position-anchor: --menu-anchor;
+  top: anchor(bottom);
+  left: anchor(left);
+
+  /* If no space below, try above. If no space left, try right. */
+  position-try-fallbacks:
+    flip-block,    /* Flip vertically (above) */
+    flip-inline,   /* Flip horizontally (right) */
+    flip-block flip-inline; /* Try both */
+}
+```
+
+Or define custom fallback positions with `@position-try`:
+
+```css
+@position-try --above {
+  top: auto;
+  bottom: anchor(top);
+  left: anchor(left);
+}
+
+@position-try --left-align {
+  top: anchor(bottom);
+  left: auto;
+  right: anchor(right);
+}
+
+#menu {
+  position-try-options: --above, --left-align;
+}
+```
+
+### Practical Dropdown Menu
+
+Here's a complete, production-ready dropdown menu with anchor positioning:
+
+```html
+<button id="user-menu-btn" popovertarget="user-menu">
+  <img src="/avatar.jpg" alt="" />
+  <span>Profile</span>
+</button>
+
+<div id="user-menu" popover="auto">
+  <a href="/profile">View Profile</a>
+  <a href="/settings">Settings</a>
+  <hr />
+  <a href="/logout">Sign Out</a>
+</div>
+
+<style>
+#user-menu-btn {
+  anchor-name: --user-menu-anchor;
+}
+
+#user-menu {
+  position: absolute;
+  position-anchor: --user-menu-anchor;
+  top: anchor(bottom);
+  left: anchor(left);
+  min-width: 200px;
+  margin-top: 4px;
+  border-radius: 8px;
+  background: #1e293b;
+  border: 1px solid #334155;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.4);
+  padding: 4px;
+
+  position-try-fallbacks: flip-block;
+
+  /* Entrance animation */
+  opacity: 0;
+  transform: translateY(-8px);
+  transition:
+    opacity 150ms ease,
+    transform 150ms ease,
+    overlay 150ms ease allow-discrete,
+    display 150ms ease allow-discrete;
+}
+
+/* When open, animate in */
+#user-menu:popover-open {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* When closing, animate out (needs @starting-style for exit animation) */
+@starting-style {
+  #user-menu:popover-open {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+}
+
+#user-menu a {
+  display: block;
+  padding: 8px 12px;
+  color: #e2e8f0;
+  text-decoration: none;
+  border-radius: 4px;
+}
+
+#user-menu a:hover {
+  background: #334155;
+}
+
+#user-menu hr {
+  margin: 4px 0;
+  border: none;
+  border-top: 1px solid #334155;
+}
+</style>
+```
+
+The full dropdown — trigger button, menu, keyboard support, light dismiss, anchor positioning, entrance/exit animations, and fallback positions — in pure HTML + CSS. The only JavaScript needed would be for dynamic data loading.
+
+## Tooltips: The Invoker Pattern
+
+The Popover API also supports the `interesttarget` / `invoketarget` pattern for hover-based tooltips:
+
+```html
+<button invoketarget="my-tooltip" invokeaction="toggle">
+  Hover or focus me
+</button>
+
+<div id="my-tooltip" popover="manual">
+  This is a tooltip — it appears on hover and focus.
+</div>
+
+<script>
+const btn = document.querySelector('button');
+const tooltip = document.querySelector('#my-tooltip');
+
+btn.addEventListener('mouseenter', () => tooltip.showPopover());
+btn.addEventListener('mouseleave', () => tooltip.hidePopover());
+btn.addEventListener('focus', () => tooltip.showPopover());
+btn.addEventListener('blur', () => tooltip.hidePopover());
+</script>
+```
+
+Using `popover="manual"` prevents the tooltip from closing when the user moves their mouse to read it. The JavaScript is minimal — just 8 lines to wire up hover/focus.
+
+For CSS-only tooltips (with the caveat that CSS can't do hover intent), you can use the `:hover` pseudo-class combined with a sibling selector and `popover="manual"`:
+
+```html
+<div class="tooltip-wrapper">
+  <span tabindex="0">Hover me</span>
+  <div popover="manual" class="tooltip">Helpful information</div>
+</div>
+
+<style>
+.tooltip-wrapper:hover .tooltip,
+.tooltip-wrapper:focus-within .tooltip {
+  /* Show via JS — CSS hover isn't enough for popover */
+}
+</style>
+```
+
+In practice, use the 8-line JS pattern above. It's fewer bytes than any tooltip library and more accessible.
+
+## Nested Popovers and Submenus
+
+One of the hardest patterns in UI development is nested submenus — a dropdown with flyout sub-menus. The Popover API makes this tractable. Because each popover is in the top layer and `auto` popovers are mutually exclusive, you need `manual` for parent popovers that contain children:
+
+```html
+<button popovertarget="main-menu">Menu</button>
+
+<div id="main-menu" popover="manual">
+  <button popovertarget="sub-menu">Products ▸</button>
+  <a href="/about">About</a>
+  <a href="/contact">Contact</a>
+</div>
+
+<div id="sub-menu" popover="auto">
+  <a href="/products/pro">Pro Plan</a>
+  <a href="/products/enterprise">Enterprise</a>
+</div>
+
+<script>
+const mainMenu = document.getElementById('main-menu');
+const btn = document.querySelector('[popovertarget="main-menu"]');
+
+btn.addEventListener('click', () => {
+  mainMenu.togglePopover();
+});
+
+// Close main menu when clicking completely outside
+document.addEventListener('click', (e) => {
+  if (!mainMenu.contains(e.target) && e.target !== btn) {
+    mainMenu.hidePopover();
+  }
+});
+</script>
+```
+
+The sub-menu is `auto` (closes on outside click), and the main menu is `manual` (we control its lifecycle). The browser handles sub-menu open/close, and we handle the parent menu's close logic with a simple click-outside check.
+
+## Animating the Open and Close States
+
+Animating popover entrance is straightforward with `:popover-open`. Animating exit is trickier because the element is removed from the top layer before CSS transitions can play. Use `@starting-style` with `allow-discrete` on `overlay` and `display`:
+
+```css
+.popover {
+  /* Normal state */
+  opacity: 0;
+  transform: scale(0.95);
+  transition:
+    opacity 200ms ease,
+    transform 200ms ease,
+    overlay 200ms ease allow-discrete,
+    display 200ms ease allow-discrete;
+}
+
+/* Open state */
+.popover:popover-open {
+  opacity: 1;
+  transform: scale(1);
+}
+
+/* The browser uses this for the exit animation */
+@starting-style {
+  .popover:popover-open {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+}
+```
+
+Without `@starting-style` and `allow-discrete`, the popover would instantly disappear when closed. With them, the browser plays a 200ms scale-and-fade-out animation.
+
+## Common Pitfalls (and Fixes)
+
+### 1. `popover="auto"` Doesn't Stack
+
+Only one `auto` popover can be open at a time. Opening a second one auto-closes the first. If you need multiple popovers (e.g., tooltips), use `popover="manual"`.
+
+### 2. Anchor Positioning Requires the Anchor to Exist
+
+If `position-anchor` references an `anchor-name` that doesn't exist, the popover falls back to its normal position (often top-left of the viewport). Always verify your anchor names match.
+
+```css
+/* ❌ Typo — won't anchor */
+#menu {
+  position-anchor: --menu-anchr; /* Doesn't match #menu-btn's anchor-name */
+}
+
+/* ✅ Matches */
+#menu {
+  position-anchor: --menu-anchor;
+}
+```
+
+### 3. Popovers Inside Overflow-Hidden Containers
+
+Popovers in the top layer render outside their containing blocks, so `overflow: hidden` on a parent doesn't clip them. This is usually what you want, but if you're using `position: absolute` (without anchor positioning), it can cause layout surprises.
+
+### 4. Popovers and `<dialog>` Interaction
+
+If you show a modal `<dialog>` while a popover is open, the dialog's `::backdrop` renders above the popover. When the dialog closes, the popover may still be open — handle this in your dialog close logic:
+
+```javascript
+dialog.addEventListener('close', () => {
+  // Re-open any popovers that were visible before the dialog
+  if (lastOpenPopover) lastOpenPopover.showPopover();
+});
+```
+
+### 5. Styling `:popover-open` Before the Popover Exists
+
+The `:popover-open` pseudo-class only matches after `.showPopover()` or the `popovertarget` action fires. You can't use it to style the closed state. Use the base selector for closed-state styles.
+
+## Accessibility: Built In, But Verify
+
+The Popover API provides solid accessibility defaults:
+
+| Feature | Built-in? | Notes |
+|---------|-----------|-------|
+| Light dismiss (click outside) | ✅ | For `popover="auto"` |
+| Escape to close | ✅ | For both `auto` and `manual` |
+| Focus management | ✅ | Focus returns to the trigger when closed |
+| Keyboard navigation | ⚠️ | You must provide tab stops within the popover |
+| ARIA roles | ⚠️ | Add `role="menu"`, `role="tooltip"`, etc. manually |
+| Screen reader announcements | ⚠️ | Use `aria-live` regions for dynamic content |
+
+A well-built popover should include appropriate ARIA attributes:
+
+```html
+<button popovertarget="notifications" aria-haspopup="true" aria-expanded="false">
+  Notifications
+</button>
+
+<div id="notifications" popover="auto" role="menu" aria-label="Notifications">
+  <!-- menu items -->
+</div>
+
+<script>
+const btn = document.querySelector('[popovertarget="notifications"]');
+const popover = document.getElementById('notifications');
+
+popover.addEventListener('toggle', () => {
+  btn.setAttribute('aria-expanded', popover.matches(':popover-open'));
+});
+</script>
+```
+
+## Select Menu: Popover + CSS Anchor
+
+Here's a complete custom select menu built entirely with the Popover API and CSS Anchor Positioning:
+
+```html
+<div class="custom-select">
+  <button id="select-trigger" popovertarget="select-popover">
+    <span id="select-value">Choose an option</span>
+    <span aria-hidden="true">▾</span>
+  </button>
+
+  <div id="select-popover" popover="auto" role="listbox">
+    <div role="option" tabindex="0" data-value="react">React</div>
+    <div role="option" tabindex="0" data-value="vue">Vue</div>
+    <div role="option" tabindex="0" data-value="svelte">Svelte</div>
+    <div role="option" tabindex="0" data-value="angular">Angular</div>
+    <div role="option" tabindex="0" data-value="solid">Solid</div>
+  </div>
+</div>
+
+<style>
+.custom-select {
+  position: relative;
+}
+
+#select-trigger {
+  anchor-name: --select-anchor;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  min-width: 200px;
+  padding: 8px 12px;
+  background: #1e293b;
+  border: 1px solid #334155;
+  border-radius: 6px;
+  color: #e2e8f0;
+  cursor: pointer;
+}
+
+#select-popover {
+  position: absolute;
+  position-anchor: --select-anchor;
+  top: anchor(bottom);
+  left: anchor(left);
+  min-width: anchor-size(width);
+  margin-top: 4px;
+  padding: 4px;
+  background: #1e293b;
+  border: 1px solid #334155;
+  border-radius: 6px;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.4);
+
+  position-try-fallbacks: flip-block;
+}
+
+#select-popover [role="option"] {
+  padding: 8px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  color: #e2e8f0;
+}
+
+#select-popover [role="option"]:hover {
+  background: #334155;
+}
+</style>
+
+<script>
+document.querySelectorAll('#select-popover [role="option"]').forEach(option => {
+  option.addEventListener('click', () => {
+    document.getElementById('select-value').textContent = option.textContent;
+    document.getElementById('select-popover').hidePopover();
+  });
+});
+</script>
+```
+
+Key details: `min-width: anchor-size(width)` makes the popover match the trigger's width. `position-try-fallbacks: flip-block` flips the popover above the trigger when near the bottom of the viewport. The JavaScript is 5 lines — just updating the selected value and closing.
+
+## Toast Notifications with `popover="manual"`
+
+For toast/snackbar notifications that stack and auto-dismiss:
+
+```html
+<div id="toast-container">
+  <!-- Toasts are injected here -->
+</div>
+
+<script>
+function showToast(message, duration = 4000) {
+  const toast = document.createElement('div');
+  toast.popover = 'manual';
+  toast.className = 'toast';
+  toast.textContent = message;
+
+  document.getElementById('toast-container').appendChild(toast);
+  toast.showPopover();
+
+  setTimeout(() => {
+    toast.addEventListener('transitionend', () => toast.remove(), { once: true });
+    toast.classList.add('closing');
+    // hidePopover() triggers @starting-style exit animation
+    toast.hidePopover();
+  }, duration);
+}
+
+showToast('File saved successfully');
+showToast('Connection lost — retrying...', 6000);
+</script>
+
+<style>
+.toast {
+  margin: 8px 0;
+  padding: 12px 16px;
+  background: #334155;
+  border: 1px solid #475569;
+  border-radius: 8px;
+  color: #e2e8f0;
+  animation: slide-in 200ms ease;
+
+  &:popover-open {
+    /* entrance animation via CSS animation, simpler than transitions for toasts */
+    animation: slide-in 200ms ease;
+  }
+}
+
+@keyframes slide-in {
+  from {
+    opacity: 0;
+    transform: translateX(100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+</style>
+```
+
+Using `popover="manual"` allows multiple toasts to coexist. The top layer ensures toasts always render above other content.
+
+## Comparison: Popover API vs Libraries
+
+| Feature | Popover API | Floating UI | Tippy.js | Headless UI |
+|---------|-------------|-------------|----------|-------------|
+| Bundle size | 0 KB | ~12 KB | ~25 KB | ~6 KB |
+| Top-layer rendering | ✅ | ❌ (z-index hacks) | ❌ | ❌ |
+| Light dismiss | ✅ | ⚠️ (custom) | ✅ | ✅ |
+| Keyboard accessibility | ✅ | ⚠️ (custom) | ⚠️ (partial) | ✅ |
+| Anchor positioning | ✅ (CSS) | ✅ (JS) | ✅ (JS) | ❌ (manual) |
+| Fallback positioning | ✅ (`position-try`) | ✅ (middleware) | ✅ | ❌ |
+| Enter/exit animations | ✅ (`@starting-style`) | ⚠️ (manual) | ✅ | ⚠️ (manual) |
+| Nested popovers | ✅ | ❌ | ❌ | ✅ |
+| Focus trapping | ✅ | ❌ | ❌ | ✅ |
+| Cross-browser | ✅ Baseline 2024 | ✅ | ✅ | ✅ |
+
+The Popover API wins on bundle size (zero), top-layer rendering (impossible with JS alone), and CSS-native anchor positioning (no ResizeObserver or scroll listeners). Libraries still win on complex interaction patterns (hover intent, nested flyouts with delay) and legacy browser support.
+
+## Progressive Enhancement Strategy
+
+Use the Popover API as your primary implementation and fall back to a JS library only when the API isn't available:
+
+```javascript
+async function createPopover(trigger, content) {
+  if ('popover' in HTMLElement.prototype) {
+    // Native Popover API — zero bytes
+    const popover = document.createElement('div');
+    popover.popover = 'auto';
+    popover.id = `popover-${Date.now()}`;
+    popover.innerHTML = content;
+    document.body.appendChild(popover);
+    trigger.setAttribute('popovertarget', popover.id);
+    return popover;
+  }
+
+  // Fallback: Floating UI (~12 KB, lazy-loaded)
+  const { computePosition, flip, shift } = await import('@floating-ui/dom');
+
+  const popover = document.createElement('div');
+  popover.className = 'js-popover';
+  popover.innerHTML = content;
+  document.body.appendChild(popover);
+
+  trigger.addEventListener('click', async () => {
+    const { x, y } = await computePosition(trigger, popover, {
+      placement: 'bottom-start',
+      middleware: [flip(), shift({ padding: 8 })],
+    });
+    Object.assign(popover.style, { left: `${x}px`, top: `${y}px` });
+    popover.classList.toggle('open');
+  });
+
+  return popover;
+}
+```
+
+The native path is zero bytes, no dependencies, and fully spec-compliant. The fallback loads a library only on-demand, only for older browsers.
+
+## Browser Support
+
+| Browser | Popover API | CSS Anchor Positioning |
+|---------|-------------|----------------------|
+| Chrome | 114+ (May 2023) | 125+ (May 2024) |
+| Edge | 114+ | 125+ |
+| Safari | 17+ (Sep 2023) | 18.2+ (Dec 2024) |
+| Firefox | 125+ (Apr 2024) | 138+ (Apr 2026) |
+| Opera | 100+ | 111+ |
+| Samsung Internet | 23+ | 26+ |
+
+Popover reached Baseline in **May 2024**. CSS Anchor Positioning (the companion API for positioning popovers relative to their triggers) reached Baseline in **May 2026** when Firefox 138 shipped it.
+
+If you target modern browsers, you can use both APIs today. For legacy support, the progressive enhancement pattern above gracefully degrades to a JS-based fallback.
+
+## The Bottom Line
+
+The Popover API is not an incremental improvement — it's a platform-level replacement for an entire category of JavaScript. Every `tippy.js`, `popper.js`, `floating-ui`, and Headless UI popover component on the web is solving a problem the browser now solves natively.
+
+**Start today:**
+1. Replace your dropdown menus with `<div popover>` + `popovertarget` — zero dependencies.
+2. Replace your tooltips with `popover="manual"` + hover/focus listeners — 8 lines of JS.
+3. Position everything with CSS Anchor Positioning — no `getBoundingClientRect()` math.
+4. Animate open/close with `:popover-open` + `@starting-style` — no JS animation libraries.
+
+The less JavaScript you ship, the faster your site loads, the fewer bugs you have, and the more accessible your UI becomes. The Popover API delivers all four.
+
+Check out the [CSS Popover Playground](/tools/css-popover-playground/) on DevBench to experiment with the API interactively before adding it to production code.

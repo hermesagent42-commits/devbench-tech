@@ -1883,17 +1883,199 @@ const d = new Date(
     As of June 2026, Temporal is <strong>Stage 3</strong> in the TC39 process — the final stage before Stage 4 (finished). It ships behind a flag in Chrome 127+ (<code>--harmony-temporal</code>), is available in Firefox Nightly, and has experimental support in Node.js 22+. The polyfill is production-ready and used by companies including Google, Bloomberg, and Igalia — the same team that implemented Temporal in V8 and SpiderMonkey.
   </p>
 
-  <p>
-    The polyfill weighs ~45KB minified (tree-shakeable) and provides 100% spec-compliant Temporal in any ES2020+ environment. Production teams are adopting it today because the migration path from the polyfill to native is zero-effort — the API surface is identical.
-  </p>
-
-  <div class="highlight-box">
-    <strong>Bottom line:</strong> You can <em>stop</em> installing date libraries. <code>Temporal.PlainDate</code> replaces <code>date-fns</code> for calendar math. <code>Temporal.ZonedDateTime</code> replaces <code>Luxon</code> for timezone-aware scheduling. <code>Temporal.Duration</code> replaces <code>ms</code> for human-readable intervals. And <code>Temporal.Instant</code> replaces <code>Date.now()</code> for timestamps — with 1,000,000× better precision. The platform is finally fixed.
-  </div>
-
   <p class="callout">
     Temporal is the most important JavaScript API since Promises. It replaces not just <code>Date</code> but the entire ecosystem of date libraries built to work around <code>Date</code>. Immutable, timezone-native, nanosecond-precise, and shipping this year — it is the API JavaScript developers have been waiting for since 1995. Start using the polyfill today. Your future self (and your tests, and your DST bugs, and your international users) will thank you.
   </p>
+</div>`,
+  },
+  {
+    slug: 'popover-api-complete-guide-2026',
+    title: 'The Popover API: Native Popovers, Tooltips, and Dropdowns — Zero JavaScript Libraries',
+    description:
+      'The Popover API replaces every JavaScript popover, tooltip, dropdown, and menu library with two HTML attributes — popover and popovertarget. Light-dismiss, top-layer rendering, anchor positioning, and keyboard accessibility built into the browser. Complete guide with production-ready patterns.',
+    date: '2026-06-05',
+    author: 'DevBench',
+    tags: ['HTML', 'Popover API', 'Baseline 2024', 'Web Platform', 'CSS Anchor', 'Accessibility', 'Tooltip', 'Dropdown', '2026'],
+    readingTime: '12 min read',
+    content: `<div class="prose-content">
+  <p class="lead">
+    For 20 years, every web developer has solved the same problem the same way: install a library to show a popover.
+    Tooltips (<code>tippy.js</code>, <code>floating-ui</code>), dropdown menus (Headless UI, Radix), select menus, date pickers, context menus, toast notifications, dialogs — all require JavaScript to manage z-index stacking, focus trapping, light-dismiss behavior, and positioning relative to a trigger element.
+  </p>
+  <p>
+    The <strong>Popover API</strong> — Baseline since May 2024 — makes all of this native HTML. Two attributes: <code>popover</code> and <code>popovertarget</code>. The browser handles rendering in the <strong>top layer</strong> (above everything, including <code>z-index: 999999</code>), light dismiss (click outside, press Escape), focus management, and keyboard accessibility. No JavaScript required for basic use cases.
+  </p>
+  <h2>Hello, Popover — The Simplest Example</h2>
+  <pre><code>&lt;!-- A button that opens a popover --&gt;
+&lt;button popovertarget="my-popover"&gt;Open Menu&lt;/button&gt;
+
+&lt;!-- The popover itself --&gt;
+&lt;div id="my-popover" popover&gt;
+  &lt;ul&gt;
+    &lt;li&gt;&lt;a href="/profile"&gt;Profile&lt;/a&gt;&lt;/li&gt;
+    &lt;li&gt;&lt;a href="/settings"&gt;Settings&lt;/a&gt;&lt;/li&gt;
+    &lt;li&gt;&lt;a href="/logout"&gt;Logout&lt;/a&gt;&lt;/li&gt;
+  &lt;/ul&gt;
+&lt;/div&gt;</code></pre>
+  <p>
+    That's it. Click the button — the popover appears in the top layer. Click outside or press Escape — it closes. No JavaScript. No library. No z-index wars.
+  </p>
+  <h2>What Is the Top Layer?</h2>
+  <p>
+    The top layer is a special rendering layer above the document — above every <code>z-index</code> value, every <code>position: fixed</code> element, everything. Only three APIs can place elements there: <code>&lt;dialog&gt;</code> with <code>.showModal()</code>, the Fullscreen API, and the Popover API (Baseline 2024).
+  </p>
+  <h2>Auto vs Manual Popovers</h2>
+  <div class="table-wrapper">
+    <table>
+      <thead>
+        <tr><th>Value</th><th>Light Dismiss</th><th>Multiple Open</th><th>Use Case</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>auto</code></td><td>Yes — click outside or Escape closes it</td><td>Only one open at a time</td><td>Tooltips, dropdowns, menus</td></tr>
+        <tr><td><code>manual</code></td><td>No — must close programmatically</td><td>Multiple can coexist</td><td>Toasts, persistent panels, wizards</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <h2>The JavaScript API</h2>
+  <pre><code>const popover = document.getElementById('menu');
+popover.showPopover();   // Show
+popover.hidePopover();   // Hide
+popover.togglePopover(); // Toggle
+console.log(popover.matches(':popover-open')); // Check state</code></pre>
+  <h3>Events: beforetoggle and toggle</h3>
+  <pre><code>popover.addEventListener('beforetoggle', (event) => {
+  if (event.newState === 'open') fetchMenuItems().then(render);
+  if (event.newState === 'closed') cleanup();
+});
+popover.addEventListener('toggle', (event) => {
+  console.log(\`Popover now: \${event.newState}\`);
+});</code></pre>
+  <h2>Positioning with CSS Anchor Positioning</h2>
+  <p>
+    The Popover API handles <em>rendering</em>. But <em>positioning</em> the popover relative to its trigger requires <strong>CSS Anchor Positioning</strong>, Baseline since May 2026.
+  </p>
+  <pre><code>#trigger-btn { anchor-name: --menu-anchor; }
+#menu {
+  position: absolute;
+  position-anchor: --menu-anchor;
+  top: anchor(bottom);
+  left: anchor(left);
+  position-try-fallbacks: flip-block, flip-inline;
+}</code></pre>
+  <h2>Production-Ready Dropdown Menu</h2>
+  <pre><code>&lt;button id="user-menu-btn" popovertarget="user-menu"&gt;
+  &lt;img src="/avatar.jpg" alt="" /&gt; Profile
+&lt;/button&gt;
+
+&lt;div id="user-menu" popover="auto"&gt;
+  &lt;a href="/profile"&gt;View Profile&lt;/a&gt;
+  &lt;a href="/settings"&gt;Settings&lt;/a&gt;
+  &lt;hr /&gt;
+  &lt;a href="/logout"&gt;Sign Out&lt;/a&gt;
+&lt;/div&gt;
+
+&lt;style&gt;
+#user-menu-btn { anchor-name: --user-menu-anchor; }
+#user-menu {
+  position: absolute; position-anchor: --user-menu-anchor;
+  top: anchor(bottom); left: anchor(left);
+  min-width: 200px; margin-top: 4px;
+  border-radius: 8px; background: #1e293b;
+  border: 1px solid #334155;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.4);
+  padding: 4px;
+  position-try-fallbacks: flip-block;
+}
+#user-menu a { display: block; padding: 8px 12px; color: #e2e8f0; text-decoration: none; border-radius: 4px; }
+#user-menu a:hover { background: #334155; }
+&lt;/style&gt;</code></pre>
+  <h2>Tooltips: Manual Popovers + Hover/Focus</h2>
+  <pre><code>&lt;button id="tip-btn"&gt;Hover me&lt;/button&gt;
+&lt;div id="tip" popover="manual"&gt;This is a tooltip.&lt;/div&gt;
+
+&lt;script&gt;
+const btn = document.getElementById('tip-btn');
+const tip = document.getElementById('tip');
+btn.addEventListener('mouseenter', () => tip.showPopover());
+btn.addEventListener('mouseleave', () => tip.hidePopover());
+btn.addEventListener('focus', () => tip.showPopover());
+btn.addEventListener('blur', () => tip.hidePopover());
+&lt;/script&gt;</code></pre>
+  <p>8 lines of JS. Using <code>popover="manual"</code> lets the user move their mouse to read the tooltip without it closing.</p>
+  <h2>Select Menu: Popover + CSS Anchor</h2>
+  <pre><code>&lt;div class="custom-select"&gt;
+  &lt;button id="select-trigger" popovertarget="select-popover"&gt;
+    &lt;span id="select-value"&gt;Choose an option&lt;/span&gt; ▾
+  &lt;/button&gt;
+  &lt;div id="select-popover" popover="auto" role="listbox"&gt;
+    &lt;div role="option" tabindex="0"&gt;React&lt;/div&gt;
+    &lt;div role="option" tabindex="0"&gt;Vue&lt;/div&gt;
+    &lt;div role="option" tabindex="0"&gt;Svelte&lt;/div&gt;
+  &lt;/div&gt;
+&lt;/div&gt;
+
+&lt;style&gt;
+#select-trigger { anchor-name: --select-anchor; }
+#select-popover {
+  position: absolute; position-anchor: --select-anchor;
+  top: anchor(bottom); left: anchor(left);
+  min-width: anchor-size(width);
+  position-try-fallbacks: flip-block;
+}
+&lt;/style&gt;</code></pre>
+  <p>5 lines of JS to sync selected value.</p>
+  <h2>Animating Open and Close</h2>
+  <pre><code>.popover {
+  opacity: 0; transform: scale(0.95);
+  transition: opacity 200ms ease, transform 200ms ease,
+              overlay 200ms ease allow-discrete,
+              display 200ms ease allow-discrete;
+}
+.popover:popover-open { opacity: 1; transform: scale(1); }
+@starting-style {
+  .popover:popover-open { opacity: 0; transform: scale(0.95); }
+}</code></pre>
+  <h2>Comparison: Popover API vs Libraries</h2>
+  <div class="table-wrapper">
+    <table>
+      <thead>
+        <tr><th>Feature</th><th>Popover API</th><th>Floating UI</th><th>Tippy.js</th><th>Headless UI</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Bundle size</td><td>0 KB</td><td>~12 KB</td><td>~25 KB</td><td>~6 KB</td></tr>
+        <tr><td>Top-layer rendering</td><td>✅</td><td>❌</td><td>❌</td><td>❌</td></tr>
+        <tr><td>Light dismiss</td><td>✅</td><td>⚠️</td><td>✅</td><td>✅</td></tr>
+        <tr><td>Keyboard accessibility</td><td>✅</td><td>⚠️</td><td>⚠️</td><td>✅</td></tr>
+        <tr><td>Anchor positioning</td><td>✅ (CSS)</td><td>✅ (JS)</td><td>✅ (JS)</td><td>❌</td></tr>
+        <tr><td>Fallback positioning</td><td>✅</td><td>✅</td><td>✅</td><td>❌</td></tr>
+        <tr><td>Enter/exit animations</td><td>✅</td><td>⚠️</td><td>✅</td><td>⚠️</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <h2>Browser Support</h2>
+  <div class="table-wrapper">
+    <table>
+      <thead>
+        <tr><th>Browser</th><th>Popover API</th><th>CSS Anchor</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Chrome</td><td>114+ (May 2023)</td><td>125+ (May 2024)</td></tr>
+        <tr><td>Firefox</td><td>125+ (Apr 2024)</td><td>138+ (Apr 2026)</td></tr>
+        <tr><td>Safari</td><td>17+ (Sep 2023)</td><td>18.2+ (Dec 2024)</td></tr>
+        <tr><td>Edge</td><td>114+</td><td>125+</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>Popover Baseline: <strong>May 2024</strong>. CSS Anchor Positioning Baseline: <strong>May 2026</strong>.</p>
+  <h2>The Bottom Line</h2>
+  <p>
+    The Popover API is a platform-level replacement for an entire category of JavaScript. Every popover library is solving a problem the browser now solves natively.
+  </p>
+  <div class="highlight-box highlight-positive">
+    <strong>Try it now:</strong> Replace your dropdowns with <code>&lt;div popover&gt;</code>. Replace tooltips with 8 lines of JS. Position with CSS Anchor. Animate with <code>:popover-open</code>. Check out the
+    <a href="/tools/css-popover-playground/" class="inline-link">CSS Popover Playground</a>
+    on DevBench to experiment interactively.
+  </div>
 </div>`,
   },
 ];
