@@ -1316,8 +1316,43 @@ const featuredTools = [
     icon: BarChart3,
     tags: ['Algorithms', 'Sorting', 'Visualization', 'Education'],
   },
+  {
+    title: 'ULID Generator',
+    description: 'Generate sortable, URL-safe unique identifiers. ULIDs are time-based and lexicographically sortable — a modern alternative to UUIDs. Batch generation, copy, and inspector.',
+    href: '/tools/ulid-generator',
+    icon: Fingerprint,
+    tags: ['ULID', 'ID', 'Generator', 'Sortable'],
+  },
+  {
+    title: 'MIME Type Reference',
+    description: 'Complete reference of 70+ MIME types organized by category — text, image, audio, video, application, font, multipart. Search, filter, and copy content-type strings for HTTP headers.',
+    href: '/tools/mime-type-reference',
+    icon: FileText,
+    tags: ['MIME', 'HTTP', 'Content-Type', 'Reference'],
+  },
+  {
+    title: 'JSON Sorter',
+    description: 'Sort JSON object keys alphabetically — top-level or recursive, ascending or descending. Clean up messy JSON, make diffs readable, and enforce consistent key ordering in config files.',
+    href: '/tools/json-sorter',
+    icon: ArrowUpDown,
+    tags: ['JSON', 'Sort', 'Formatter', 'Keys'],
+  },
 ];
 const sampleBlogPosts = [
+  {
+    title: 'ULID: The Sortable UUID Alternative Taking Over Backend Development',
+    date: '2026-06-05',
+    excerpt: 'ULIDs are 26-character, time-sortable, URL-safe identifiers that fix everything wrong with UUID v4. Learn how they work, when to use them over UUID v7, and why companies like Shopify and Stripe are adopting them for database primary keys.',
+    slug: 'ulid-sortable-uuid-alternative-2026',
+    tags: ['ULID', 'UUID', 'Database', 'IDs', 'Backend'],
+  },
+  {
+    title: 'HTTP Content-Type Headers: Every MIME Type Developers Should Know',
+    date: '2026-06-05',
+    excerpt: 'From text/html to application/problem+json — a comprehensive guide to MIME types that every web developer encounters. Learn the right Content-Type for APIs, file uploads, server responses, and why text/javascript is deprecated.',
+    slug: 'http-content-type-mime-types-guide',
+    tags: ['HTTP', 'Content-Type', 'MIME', 'API', 'Web Dev'],
+  },
   {
     title: 'JavaScript Error Handling in 2026: Error.cause, AggregateError, and Structured Error Patterns',
     date: '2026-05-31',

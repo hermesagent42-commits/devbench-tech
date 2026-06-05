@@ -1,0 +1,227 @@
+---
+title: "HTTP Content-Type Headers: Every MIME Type Developers Should Know"
+date: "2026-06-05"
+excerpt: "From text/html to application/problem+json — a comprehensive guide to MIME types that every web developer encounters. Learn the right Content-Type for APIs, file uploads, server responses, and why text/javascript is deprecated."
+tags: ["HTTP", "Content-Type", "MIME", "API", "Web Dev", "Headers", "2026"]
+---
+
+## The Header Every HTTP Response Needs
+
+The `Content-Type` header tells the browser (or API client) what kind of data it's receiving. Get it wrong and your JSON API returns as plain text. Your CSS doesn't render. Your JavaScript doesn't execute. Your PNG displays as garbage characters.
+
+Despite being fundamental to the web, most developers have only a handful memorized: `application/json`, `text/html`, `image/png`. But there are 70+ commonly used MIME types, and knowing the right one for each situation saves debugging time and prevents production issues.
+
+## The Anatomy of a MIME Type
+
+```
+type/subtype
+```
+
+- **type:** The broad category — `text`, `image`, `audio`, `video`, `application`, `font`, `multipart`
+- **subtype:** The specific format — `html`, `json`, `png`, `mp4`, `pdf`
+
+You'll also see optional parameters:
+
+```
+Content-Type: text/html; charset=utf-8
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary
+```
+
+## The Seven Categories
+
+### 1. Text (`text/*`)
+
+Human-readable formats. The most important distinction: `text/*` types may be transcoded by user agents, while `application/*` types should not be.
+
+| MIME Type | Usage |
+|-----------|-------|
+| `text/html` | HTML documents |
+| `text/css` | CSS stylesheets |
+| `text/plain` | Unformatted text |
+| `text/csv` | Spreadsheet data |
+| `text/markdown` | Markdown (`.md` files) |
+| `text/javascript` | JavaScript (**deprecated** — use `application/javascript`) |
+| `text/calendar` | iCalendar (`.ics`) |
+| `text/xml` | XML documents |
+
+### 2. Application (`application/*`)
+
+Binary data or data that should not be transcoded. This is the catch-all category — it covers everything from JSON to ZIP files.
+
+| MIME Type | Usage |
+|-----------|-------|
+| `application/json` | The universal API format |
+| `application/javascript` | JavaScript (preferred over `text/javascript`) |
+| `application/pdf` | PDF documents |
+| `application/zip` | ZIP archives |
+| `application/gzip` | Gzip compressed files |
+| `application/wasm` | WebAssembly modules |
+| `application/octet-stream` | Generic binary — triggers download in browsers |
+| `application/x-www-form-urlencoded` | HTML form submission (no files) |
+| `application/ld+json` | JSON-LD for structured data / Schema.org |
+| `application/problem+json` | RFC 7807 API error responses |
+| `application/x-ndjson` | Newline-delimited JSON for streaming |
+
+### 3. Image (`image/*`)
+
+| MIME Type | Usage |
+|-----------|-------|
+| `image/jpeg` | JPEG photos (lossy) |
+| `image/png` | PNG graphics (lossless, transparency) |
+| `image/gif` | GIF (animation, 256 colors) |
+| `image/webp` | WebP (lossy + lossless, 25-35% smaller) |
+| `image/avif` | AVIF (next-gen, best compression) |
+| `image/svg+xml` | SVG vector graphics |
+| `image/x-icon` | Favicon (`.ico`) |
+| `image/heic` | Apple HEIC photos |
+| `image/jxl` | JPEG XL (lossless JPEG recompression) |
+
+**Pro tip:** Always serve modern formats (WebP/AVIF) with `<picture>` fallbacks:
+
+```html
+<picture>
+  <source srcset="photo.avif" type="image/avif">
+  <source srcset="photo.webp" type="image/webp">
+  <img src="photo.jpg" alt="Photo">
+</picture>
+```
+
+### 4. Audio (`audio/*`)
+
+| MIME Type | Usage |
+|-----------|-------|
+| `audio/mpeg` | MP3 — still the most universal format |
+| `audio/mp4` | AAC in MP4 container (`.m4a`) |
+| `audio/ogg` | OGG/Vorbis (open format) |
+| `audio/webm` | WebM/Opus (web-optimized) |
+| `audio/wav` | WAV (uncompressed PCM) |
+| `audio/flac` | FLAC (lossless) |
+
+### 5. Video (`video/*`)
+
+| MIME Type | Usage |
+|-----------|-------|
+| `video/mp4` | The universal video format (H.264 + AAC) |
+| `video/webm` | WebM (VP8/VP9, royalty-free) |
+| `video/ogg` | OGG/Theora |
+| `video/x-matroska` | Matroska (`.mkv`) |
+
+### 6. Font (`font/*`)
+
+| MIME Type | Usage |
+|-----------|-------|
+| `font/woff2` | **The web font standard** — 30% better compression than WOFF |
+| `font/woff` | WOFF (compressed, with metadata) |
+| `font/ttf` | TrueType |
+| `font/otf` | OpenType (PostScript outlines) |
+
+### 7. Multipart (`multipart/*`)
+
+Used for combining multiple parts in a single message:
+
+| MIME Type | Usage |
+|-----------|-------|
+| `multipart/form-data` | File uploads in HTML forms |
+| `multipart/alternative` | Same content in text + HTML (emails) |
+| `multipart/mixed` | Email with attachments |
+| `multipart/byteranges` | HTTP 206 Partial Content responses |
+
+## Common Mistakes
+
+### 1. Using `text/javascript` instead of `application/javascript`
+
+```nginx
+# ❌ Wrong (deprecated by RFC 4329)
+add_header Content-Type text/javascript;
+
+# ✅ Correct
+add_header Content-Type application/javascript;
+```
+
+### 2. Missing charset on text types
+
+```http
+# ❌ Wrong — browser must guess encoding
+Content-Type: text/html
+
+# ✅ Correct
+Content-Type: text/html; charset=utf-8
+```
+
+### 3. Serving JSON as `text/plain`
+
+```python
+# ❌ Wrong
+return Response(json.dumps(data), content_type="text/plain")
+
+# ✅ Correct
+return Response(json.dumps(data), content_type="application/json")
+```
+
+This breaks any client that checks `Content-Type` before parsing, including `fetch()` in strict mode.
+
+### 4. Forgetting `multipart/form-data` for file uploads
+
+```html
+<!-- ❌ Missing enctype — files won't be sent -->
+<form method="post" action="/upload">
+
+<!-- ✅ Correct -->
+<form method="post" action="/upload" enctype="multipart/form-data">
+```
+
+## API Error Responses: application/problem+json
+
+RFC 7807 defines a standard format for API errors:
+
+```http
+HTTP/1.1 403 Forbidden
+Content-Type: application/problem+json
+
+{
+  "type": "https://api.example.com/errors/insufficient-credit",
+  "title": "Insufficient credit",
+  "status": 403,
+  "detail": "Your account balance is $5.00. This operation requires $10.00.",
+  "instance": "/accounts/12345/transactions/abcde"
+}
+```
+
+Using `application/problem+json` tells clients they can expect this specific structure — a much better developer experience than ad-hoc error formats.
+
+## Server Configuration
+
+### Nginx
+
+```nginx
+types {
+  application/wasm  wasm;
+  image/avif        avif;
+  application/manifest+json  webmanifest;
+}
+```
+
+### Express.js
+
+```javascript
+app.get('/data', (req, res) => {
+  res.setHeader('Content-Type', 'application/json');
+  res.json({ hello: 'world' });
+});
+```
+
+### Cloudflare Workers
+
+```javascript
+return new Response(JSON.stringify(data), {
+  headers: { 'Content-Type': 'application/json' },
+});
+```
+
+## Try Our MIME Type Reference
+
+We've built a complete **[MIME Type Reference](/tools/mime-type-reference)** on DevBench — 70+ types across 7 categories. Search by name, type, or extension. Filter by category. Copy any Content-Type string with one click. Includes common `Content-Type` headers for quick reference.
+
+---
+
+**Bottom line:** The `Content-Type` header is one of the most important headers in HTTP. Knowing the right MIME type for every situation prevents debugging headaches, improves API design, and ensures your content renders correctly across every browser and client.

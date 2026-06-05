@@ -1161,6 +1161,27 @@ const allTools = [
     icon: Smartphone,
     tags: ['Responsive', 'Testing', 'Devices', 'CSS', 'QA'],
   },
+  {
+    title: 'ULID Generator',
+    description: 'Generate sortable, URL-safe unique identifiers — 26-character, time-based IDs with 80 bits of randomness. Batch generation, inspector, and ULID vs UUID comparison.',
+    href: '/tools/ulid-generator',
+    icon: Fingerprint,
+    tags: ['ULID', 'ID', 'Generator', 'Sortable', 'Crockford'],
+  },
+  {
+    title: 'MIME Type Reference',
+    description: 'Complete reference of 70+ MIME types organized by 7 categories — text, image, audio, video, application, font, multipart. Search, filter, and copy Content-Type strings for HTTP headers and API responses.',
+    href: '/tools/mime-type-reference',
+    icon: FileText,
+    tags: ['MIME', 'HTTP', 'Content-Type', 'Reference', 'API'],
+  },
+  {
+    title: 'JSON Sorter',
+    description: 'Sort JSON object keys alphabetically — top-level or recursive, ascending or descending. Also sort array values. Clean up messy JSON, make diffs readable, enforce consistent key ordering.',
+    href: '/tools/json-sorter',
+    icon: ArrowUpDown,
+    tags: ['JSON', 'Sort', 'Formatter', 'Keys', 'Diff'],
+  },
 ];
 
 export default function ToolsPage() {

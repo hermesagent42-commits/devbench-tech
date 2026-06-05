@@ -1,0 +1,129 @@
+---
+title: "ULID: The Sortable UUID Alternative Taking Over Backend Development"
+date: "2026-06-05"
+excerpt: "ULIDs are 26-character, time-sortable, URL-safe identifiers that fix everything wrong with UUID v4. Learn how they work, when to use them over UUID v7, and why companies like Shopify and Stripe are adopting them for database primary keys."
+tags: ["ULID", "UUID", "Database", "IDs", "Backend", "Crockford", "2026"]
+---
+
+## What's Wrong With UUIDs?
+
+UUID v4 has been the default unique identifier for decades. It's in every database, every API, every distributed system. But it has three major problems:
+
+1. **Not sortable.** UUID v4 is completely random. Inserting a new row in a B-tree index causes page splits because the new UUID lands anywhere in the tree — not at the end. This destroys write performance on indexed columns.
+
+2. **Not human-friendly.** `550e8400-e29b-41d4-a716-446655440000` is 36 characters with hyphens. It's case-sensitive. You can't tell which UUID came first by looking at it.
+
+3. **Not URL-safe without encoding.** UUIDs contain hyphens and are case-sensitive. They work in URLs, but they're ugly and fragile.
+
+Enter **ULID** — the Universally Unique Lexicographically Sortable Identifier.
+
+## What Is a ULID?
+
+A ULID is a 26-character string like this:
+
+```
+01JX4A5B6C7D8E9F0G1H
+```
+
+It breaks down into two parts:
+
+- **First 10 characters:** A 48-bit timestamp in milliseconds, encoded in Crockford Base32
+- **Last 16 characters:** 80 bits of cryptographically random data, also Base32-encoded
+
+Because the timestamp comes first, **sorting ULIDs alphabetically = sorting them chronologically**. This is the killer feature.
+
+## Crockford Base32
+
+ULIDs use a carefully designed encoding alphabet created by Douglas Crockford (of JSON fame):
+
+```
+0123456789ABCDEFGHJKMNPQRSTVWXYZ
+```
+
+Notice what's missing: **I, L, O, U**. These are excluded because:
+- **I** looks like **1**
+- **L** looks like **1**
+- **O** looks like **0**
+- **U** — reserved to avoid accidental profanity in generated strings
+
+The remaining 32 characters give exactly 5 bits per character — perfect for encoding binary data.
+
+## ULID vs UUID v4 vs UUID v7
+
+| Feature | ULID | UUID v4 | UUID v7 |
+|---------|------|---------|---------|
+| Sortable by time | Yes ✓ | No ✗ | Yes ✓ |
+| Length | 26 chars | 36 chars | 36 chars |
+| URL-safe | Yes ✓ | Hyphens only | Hyphens only |
+| Case-insensitive | Yes ✓ | No ✗ | No ✗ |
+| Monotonic within ms | Implementable | N/A | Yes ✓ |
+| Standardized | Spec | RFC 9562 | RFC 9562 |
+
+UUID v7 (standardized in RFC 9562, May 2024) also provides time-based sorting. It's the IETF's answer to ULID. But ULID's Crockford Base32 encoding still wins on readability and URL-safety.
+
+## When Should You Use ULIDs?
+
+### Use ULIDs when:
+- You need **sortable database primary keys** (especially in Postgres, where UUID v4 causes index fragmentation)
+- Your IDs appear in **URLs** and need to look clean
+- You want **human-readable IDs** where you can glance and tell which came first
+- You're building a system where **timestamp from ID alone** is valuable (no separate created_at query needed)
+
+### Stick with UUID v4 when:
+- You have an existing UUID v4 infrastructure
+- You need the absolute maximum randomness (ULID can leak creation time)
+- You're using a database with native UUID support (like Postgres's `uuid` type — but careful with index performance)
+
+## The ULID Spec
+
+The full spec ([github.com/ulid/spec](https://github.com/ulid/spec)) is remarkably simple:
+
+1. **Timestamp:** 48-bit integer, milliseconds since UNIX epoch. Will overflow in ~10889 AD.
+2. **Randomness:** 80 bits from a cryptographically secure source. That's ~1.2 septillion (1.2 × 10²⁴) unique values per millisecond.
+
+The probability of collision is effectively zero, even in distributed systems.
+
+## Implementation (Zero Dependencies)
+
+Here's a complete ULID generator in JavaScript using only the Web Crypto API:
+
+```javascript
+const ENCODING = '0123456789ABCDEFGHJKMNPQRSTVWXYZ';
+
+function generateUlid() {
+  const now = Date.now();
+  const timeChars = new Array(10);
+  let t = now;
+  
+  for (let i = 9; i >= 0; i--) {
+    timeChars[i] = ENCODING[t % 32];
+    t = Math.floor(t / 32);
+  }
+  
+  const random = crypto.getRandomValues(new Uint8Array(16));
+  const randChars = Array.from(random, b => ENCODING[b % 32]);
+  
+  return timeChars.join('') + randChars.join('');
+}
+```
+
+No npm install. No dependencies. Just the browser's built-in `crypto.getRandomValues()`.
+
+## Real-World Adoption
+
+ULIDs are being used in production by:
+
+- **Shopify** — for order IDs and internal event tracking
+- **Stripe** — in their idempotency key system
+- **Segment** — for analytics event IDs
+- **PlanetScale** — recommends ULIDs for Vitess-sharded MySQL keys
+
+## Try It Yourself
+
+Use our new **[ULID Generator](/tools/ulid-generator)** on DevBench to generate and inspect ULIDs right in your browser. No data leaves your machine.
+
+Generate single ULIDs or batches of up to 100. Paste any ULID into the inspector to decode its embedded timestamp and verify its validity. Compare ULID against UUID v4 and v7 in the comparison table.
+
+---
+
+**Bottom line:** ULIDs give you sortability, readability, and URL-safety in a compact 26-character format — all with zero dependencies. If you're designing a new system in 2026, ULIDs (or UUID v7) should be your default over UUID v4.
