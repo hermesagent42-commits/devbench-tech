@@ -253,6 +253,13 @@ const featuredTools = [
     tags: ['CSS', 'Border-Radius', 'Design', 'Shape'],
   },
   {
+    title: 'CSS Clip-Path Generator',
+    description: 'Visually design CSS clip-path shapes — circle, ellipse, inset, and polygon. 20 presets, image upload, live preview, instant CSS copy.',
+    href: '/tools/css-clip-path-generator',
+    icon: Scissors,
+    tags: ['CSS', 'Clip-Path', 'Shape', 'Design'],
+  },
+  {
     title: 'CSS Aspect Ratio Playground',
     description: 'Visually build and test CSS aspect-ratio values — 15 presets, live preview at multiple device widths, CSS + Tailwind output.',
     href: '/tools/aspect-ratio-playground',
