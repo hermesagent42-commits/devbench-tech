@@ -1359,6 +1359,13 @@ const featuredTools = [
     icon: Combine,
     tags: ['JavaScript', 'Set', 'ES2024', 'Algorithms', 'Data Structures'],
   },
+  {
+    title: 'Debounce & Throttle Playground',
+    description: 'Visually compare debounce vs throttle vs raw event handling — fire events, watch live timelines, and see exactly how many calls get saved. Complete code snippets for both patterns included.',
+    href: '/tools/debounce-throttle-playground',
+    icon: Timer,
+    tags: ['JavaScript', 'Debounce', 'Throttle', 'Performance'],
+  },
 ];
 const sampleBlogPosts = [
   {
