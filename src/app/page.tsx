@@ -595,6 +595,13 @@ const featuredTools = [
     tags: ['JSON Schema', 'Validator', 'API', 'Draft 7'],
   },
   {
+    title: 'JSON Schema → Mock Data',
+    description: 'Generate realistic mock data from any JSON Schema — smart property hints, format-aware generation, bulk items. Pure client-side.',
+    href: '/tools/json-schema-mock-generator',
+    icon: Code2,
+    tags: ['JSON Schema', 'Mock Data', 'Testing', 'Prototyping'],
+  },
+  {
     title: 'Container Query Builder',
     description: 'Visually build CSS container size queries. Set container-type, add range conditions, preview at different widths, and copy production-ready CSS.',
     href: '/tools/container-query-builder',

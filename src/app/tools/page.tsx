@@ -475,6 +475,13 @@ const allTools = [
     tags: ['JSON Schema', 'Validator', 'API', 'Draft 7'],
   },
   {
+    title: 'JSON Schema → Mock Data',
+    description: 'Generate realistic mock data from JSON Schema — smart property name hints, format-aware generation (email, uuid, date-time), bulk generation up to 50 items. Perfect for prototyping and testing.',
+    href: '/tools/json-schema-mock-generator',
+    icon: Code2,
+    tags: ['JSON Schema', 'Mock Data', 'Mocking', 'Generation', 'Testing'],
+  },
+  {
     title: 'Image Compressor',
     description: 'Compress and resize images client-side — JPEG, WebP, PNG. Drag-and-drop, quality slider, size comparison, presets for web/social/thumbnails, instant download.',
     href: '/tools/image-compressor',
