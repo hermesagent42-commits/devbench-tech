@@ -1376,6 +1376,13 @@ const featuredTools = [
 ];
 const sampleBlogPosts = [
   {
+    title: 'CSS Container Queries: The End of Media-Query-Only Responsive Design',
+    date: '2026-06-05',
+    excerpt: 'Container Queries let components respond to their own size — not the viewport. Now Baseline 2026 across all browsers, they fundamentally change how we build reusable, context-independent UI components. Complete guide to @container, style queries, and container query units.',
+    slug: 'css-container-queries-complete-guide-2026',
+    tags: ['CSS', 'Container Queries', 'Responsive Design', '2026'],
+  },
+  {
     title: 'ULID: The Sortable UUID Alternative Taking Over Backend Development',
     date: '2026-06-05',
     excerpt: 'ULIDs are 26-character, time-sortable, URL-safe identifiers that fix everything wrong with UUID v4. Learn how they work, when to use them over UUID v7, and why companies like Shopify and Stripe are adopting them for database primary keys.',

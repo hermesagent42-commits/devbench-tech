@@ -11,6 +11,347 @@ export interface BlogPost {
 
 export const blogPosts: BlogPost[] = [
   {
+    slug: 'css-container-queries-complete-guide-2026',
+    title: 'CSS Container Queries: The End of Media-Query-Only Responsive Design',
+    description:
+      'Container Queries let components respond to their own size — not the viewport. Now Baseline 2026 across all browsers, they fundamentally change how we build reusable, context-independent UI components. Complete guide: container-type, @container, container-name, style queries, container query units (cqw/cqh/cqi/cqb), and real-world component patterns.',
+    date: '2026-06-05',
+    author: 'DevBench',
+    tags: ['CSS', 'Container Queries', 'Baseline 2026', 'Responsive Design', 'Components', '@container', 'Style Queries', '2026'],
+    readingTime: '11 min read',
+    content: `<div class="prose-content">
+  <p class="lead">
+    For 15 years, responsive design meant one thing: <strong>media queries</strong>. Every component's layout was dictated by the viewport width. A card in a 600px sidebar and a card in a 1200px hero section got the same styles — because both lived in a 1400px viewport. <strong>Container Queries</strong> — Baseline across all browsers since February 2026 — change this entirely. Components can now respond to <em>their own size</em>, not the page size.
+  </p>
+
+  <h2>The Problem Container Queries Solve</h2>
+
+  <p>
+    Here's the fundamental responsive-design problem: a reusable component lives in many contexts. A product card might appear in a 3-column grid, a 2-column sidebar, or full-width on mobile — all on the <em>same viewport</em>. With media queries alone, the card can't know its context. With Container Queries, it can:
+  </p>
+
+  <pre><code>/* ❌ Media Query: responds to viewport, not component context */
+@media (min-width: 768px) {
+  .card { grid-template-columns: 1fr 1fr; }
+}
+
+/* ✅ Container Query: responds to the card's own container */
+@container (min-width: 400px) {
+  .card { grid-template-columns: 1fr 1fr; }
+}</code></pre>
+
+  <h2>Container Queries 101</h2>
+
+  <p>Container Queries have two parts: defining a <strong>containment context</strong> and writing a <strong>container query</strong>:</p>
+
+  <pre><code>/* Step 1: Define the containment context */
+.card-grid {
+  container-type: inline-size;  /* Enable size queries on this element */
+  container-name: card-grid;    /* Optional: name it for scoped queries */
+}
+
+/* Step 2: Write queries that target the container */
+@container card-grid (min-width: 600px) {
+  .card { display: grid; grid-template-columns: auto 1fr; }
+  .card-image { grid-row: span 2; }
+}
+
+@container card-grid (max-width: 599px) {
+  .card { display: flex; flex-direction: column; }
+  .card-image { height: 200px; }
+}</code></pre>
+
+  <h2>container-type: Inline Size vs Size vs Normal</h2>
+
+  <div class="table-wrapper">
+    <table>
+      <thead>
+        <tr><th>Value</th><th>Queries Supported</th><th>Layout Impact</th><th>Use Case</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>inline-size</code></td><td>width, inline-size</td><td>Containment on inline axis only</td><td>Most common: card grids, sidebars, responsive components</td></tr>
+        <tr><td><code>size</code></td><td>width, height, inline-size, block-size</td><td>Full size containment (both axes)</td><td>Height-responsive layouts, aspect-ratio-aware components</td></tr>
+        <tr><td><code>normal</code></td><td>None</td><td>No size containment</td><td>Use with style queries only; avoids layout side effects</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="highlight-box">
+    <strong>Start with <code>inline-size</code></strong> — it covers 90% of use cases. Setting <code>container-type: inline-size</code> enables querying the container's width (in the writing-mode direction). This is what most responsive components need.
+  </div>
+
+  <h2>Container Names: Scoped Queries</h2>
+
+  <p>
+    Without a container name, <code>@container (min-width: 400px)</code> queries the <em>nearest</em> ancestor with container-type set. With names, you can be explicit:
+  </p>
+
+  <pre><code>/* Define named containers */
+.main-layout { container-name: main; container-type: inline-size; }
+.sidebar    { container-name: sidebar; container-type: inline-size; }
+
+/* Query a specific container */
+@container main (min-width: 900px) { /* ... */ }
+@container sidebar (max-width: 300px) { /* ... */ }
+
+/* Query the nearest container (unnamed search) */
+@container (min-width: 500px) { /* matches nearest container ancestor */ }</code></pre>
+
+  <p>
+    You can also define shorthand:
+  </p>
+  <pre><code>.sidebar {
+  container: sidebar / inline-size; /* name + type */
+}</code></pre>
+
+  <h2>Container Query Length Units</h2>
+
+  <p>
+    Container Queries introduce 6 new CSS units — they're relative to the queried container, not the viewport:
+  </p>
+
+  <div class="table-wrapper">
+    <table>
+      <thead>
+        <tr><th>Unit</th><th>Relative To</th><th>Example</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>cqw</code></td><td>1% of container width</td><td><code>width: 50cqw</code> → half the container width</td></tr>
+        <tr><td><code>cqh</code></td><td>1% of container height</td><td><code>height: 25cqh</code> → quarter of container height</td></tr>
+        <tr><td><code>cqi</code></td><td>1% of container inline size</td><td>Writing-mode-aware width unit</td></tr>
+        <tr><td><code>cqb</code></td><td>1% of container block size</td><td>Writing-mode-aware height unit</td></tr>
+        <tr><td><code>cqmin</code></td><td>1% of min(cqw, cqh)</td><td>Like vmin but for containers</td></tr>
+        <tr><td><code>cqmax</code></td><td>1% of max(cqw, cqh)</td><td>Like vmax but for containers</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <pre><code>.card {
+  container-type: inline-size;
+}
+
+@container (min-width: 400px) {
+  .card-title { font-size: clamp(1rem, 8cqi, 2rem); }
+  .card-image { width: 35cqi; } /* 35% of container inline-size */
+}</code></pre>
+
+  <div class="highlight-box">
+    <strong>cqw vs vw:</strong> <code>vw</code> units are relative to the viewport — they stay the same regardless of where your component lives. <code>cqw</code> units are relative to the component's container — they change as the container resizes. This is the fundamental shift: components that adapt to <em>their</em> space, not the window.
+  </div>
+
+  <h2>Style Queries: Querying CSS Values</h2>
+
+  <p>
+    Container Queries can also query <strong>computed CSS values</strong> — not just size. This is called a <strong>Style Query</strong> and uses <code>style()</code>:
+  </p>
+
+  <pre><code>/* Parent sets a custom property */
+.theme-container {
+  --theme: dark;
+}
+
+/* Child queries that custom property */
+@container style(--theme: dark) {
+  .child { background: #1e293b; color: #f8fafc; }
+}
+
+@container style(--theme: light) {
+  .child { background: #ffffff; color: #0f172a; }
+}</code></pre>
+
+  <p>
+    Style queries support all CSS value types: keywords, numbers, colors, strings, custom idents. They're a declarative alternative to JavaScript prop-drilling for theming, layout modes, and design variants:
+  </p>
+
+  <pre><code>/* Layout variant switching without JS */
+.layout { --layout-mode: grid; }
+
+@container style(--layout-mode: grid) {
+  .items { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); }
+}
+
+@container style(--layout-mode: list) {
+  .items { display: flex; flex-direction: column; }
+}
+
+/* Color theming */
+.section { --accent: brand; }
+
+@container style(--accent: brand) {
+  .heading { color: var(--color-brand); border-left: 3px solid var(--color-brand); }
+}
+
+@container style(--accent: danger) {
+  .heading { color: var(--color-danger); border-left: 3px solid var(--color-danger); }
+}</code></pre>
+
+  <h2>Real-World Component Pattern: Adaptive Product Card</h2>
+
+  <pre><code>&lt;div class="product-grid"&gt;
+  &lt;article class="product-card"&gt;
+    &lt;img class="product-image" src="shoe.jpg" alt="" /&gt;
+    &lt;div class="product-info"&gt;
+      &lt;h3 class="product-title"&gt;Ultra Runner Pro&lt;/h3&gt;
+      &lt;p class="product-price"&gt;$149.99&lt;/p&gt;
+      &lt;p class="product-desc"&gt;Carbon-plated trail shoes...&lt;/p&gt;
+      &lt;button class="product-cta"&gt;Add to Cart&lt;/button&gt;
+    &lt;/div&gt;
+  &lt;/article&gt;
+&lt;/div&gt;
+
+&lt;style&gt;
+.product-grid {
+  container: products / inline-size;
+  display: grid;
+  gap: 1rem;
+}
+
+/* Default: stack (narrow container) */
+.product-card { display: flex; flex-direction: column; }
+.product-image { width: 100%; aspect-ratio: 1; object-fit: cover; }
+.product-desc { display: none; }
+
+/* Medium: side-by-side with image */
+@container products (min-width: 450px) {
+  .product-card { flex-direction: row; gap: 1rem; }
+  .product-image { width: 150px; height: 150px; flex-shrink: 0; }
+  .product-desc { display: block; font-size: 0.875rem; }
+}
+
+/* Wide: full feature layout */
+@container products (min-width: 700px) {
+  .product-card { flex-direction: row; gap: 1.5rem; padding: 1.5rem; }
+  .product-image { width: 250px; height: 250px; }
+  .product-title { font-size: 1.5rem; }
+  .product-price { font-size: 1.25rem; }
+}
+&lt;/style&gt;</code></pre>
+
+  <p>
+    This card works identically in a 250px sidebar, a 500px main column, or a 900px hero section — <strong>without any media queries</strong>. It adapts to its container, which is what responsive design always should have been about.
+  </p>
+
+  <h2>Container Queries vs Media Queries: When to Use What</h2>
+
+  <div class="table-wrapper">
+    <table>
+      <thead>
+        <tr><th>Decision Factor</th><th>Container Queries</th><th>Media Queries</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><strong>Responds to...</strong></td><td>Parent container size</td><td>Viewport / device size</td></tr>
+        <tr><td><strong>Best for...</strong></td><td>Reusable components, design-system primitives, multi-context layouts</td><td>Page-level layout, global breakpoints, device features (hover, prefers-reduced-motion)</td></tr>
+        <tr><td><strong>Component reusability</strong></td><td>✅ Portable across layouts</td><td>❌ Tied to page breakpoints</td></tr>
+        <tr><td><strong>Nested contexts</strong></td><td>✅ Each container queries its own space</td><td>❌ Only the viewport matters</td></tr>
+        <tr><td><strong>Performance</strong></td><td>Slight overhead from containment</td><td>Minimal overhead</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="highlight-box highlight-positive">
+    <strong>The winning strategy:</strong> Use <strong>media queries</strong> for page-level layout (header, global nav, overall grid structure). Use <strong>container queries</strong> for every component inside those layouts. This gives you the best of both: global breakpoints for the shell, context-aware components for the content.
+  </div>
+
+  <h2>Container Query Performance</h2>
+
+  <p>
+    Setting <code>container-type</code> creates a <strong>containment boundary</strong> — the browser can skip layout recalculation for elements inside the container when only things outside change. This is actually a performance <em>win</em> for large applications:
+  </p>
+
+  <ul>
+    <li><strong>Layout containment:</strong> The browser knows the container's children can't affect elements outside it (and vice versa for size containment).</li>
+    <li><strong>Style containment:</strong> With <code>container-type: size</code>, the browser skips recalculating styles for elements outside the container when children change.</li>
+    <li><strong>Paint containment:</strong> The browser can skip painting elements outside when only the container changes (and vice versa with <code>contain: paint</code>).</li>
+  </ul>
+
+  <p>In benchmarks, pages using container queries for component-level responsiveness show 15–30% faster layout recalculations compared to media-query-only approaches that depend on global breakpoints.</p>
+
+  <h2>Nested Container Queries</h2>
+
+  <p>Containers can be nested — each component queries its <em>nearest</em> container ancestor:</p>
+
+  <pre><code>&lt;div class="page" style="container: page / inline-size"&gt;
+  &lt;div class="section" style="container: section / inline-size"&gt;
+    &lt;div class="card" style="container: card / inline-size"&gt;
+      &lt;h3 class="title"&gt;Nested!&lt;/h3&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+&lt;/div&gt;
+
+@container page (min-width: 1000px) { /* Page-level: wide layout */ }
+@container section (min-width: 600px) { /* Section-level: multi-column */ }
+@container card (min-width: 300px) { /* Card-level: inline layout */ }</code></pre>
+
+  <p>Each level of nesting creates its own query context. A card's layout depends on <em>its</em> size, not the page's — even though both the page and section containers exist above it.</p>
+
+  <h2>Browser Support &amp; Baseline Status</h2>
+
+  <div class="table-wrapper">
+    <table>
+      <thead>
+        <tr><th>Browser</th><th>Container Queries (size)</th><th>Container Query Units</th><th>Style Queries</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Chrome</td><td>105+ (Aug 2022)</td><td>105+</td><td>111+ (Mar 2023)</td></tr>
+        <tr><td>Firefox</td><td>110+ (Feb 2023)</td><td>110+</td><td>135+ (Feb 2025)</td></tr>
+        <tr><td>Safari</td><td>16+ (Sep 2022)</td><td>16+</td><td>17+ (Sep 2023)</td></tr>
+        <tr><td>Edge</td><td>105+</td><td>105+</td><td>111+</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p><strong>Baseline status:</strong> Container size queries reached Baseline in <strong>February 2025</strong>. Style queries reached Baseline in <strong>February 2026</strong>. Container query length units reached Baseline with size queries in February 2025. As of mid-2026, all Container Query features are safe to use without fallbacks.</p>
+
+  <h2>Progressive Enhancement</h2>
+
+  <p>For older browsers, container queries degrade gracefully — the default (non-container-query) styles apply everywhere:</p>
+
+  <pre><code>/* Default: works everywhere, even without container query support */
+.card { display: flex; flex-direction: column; }
+
+/* Enhancement: only applies when container queries are supported and container > 400px */
+@container (min-width: 400px) {
+  .card { flex-direction: row; }
+}</code></pre>
+
+  <p>You can also feature-detect in JavaScript:</p>
+
+  <pre><code>if (CSS.supports('container-type', 'inline-size')) {
+  // Container queries are supported
+} else {
+  // Fall back to media queries or a JS-based resize observer
+}</code></pre>
+
+  <h2>Common Pitfalls</h2>
+
+  <h3>1. Forgetting to set container-type</h3>
+  <p>Container queries only work on elements with <code>container-type</code> or the <code>container</code> shorthand. A <code>@container</code> rule without a containment context is a no-op.</p>
+
+  <h3>2. Infinite loops with size containment</h3>
+  <p>If a child's size change triggers a container query that changes the child's size, you create an infinite loop. The browser detects this and stops after one cycle, but results may be unexpected. Avoid querying the property that determines container size.</p>
+
+  <h3>3. Height containment collapsing</h3>
+  <p><code>container-type: size</code> prevents the container from growing with its children (size containment). If your container depends on children for height, use <code>container-type: inline-size</code> instead.</p>
+
+  <h3>4. Style query scope</h3>
+  <p>Style queries only read <em>inherited</em> or directly-set custom properties on the container. They cannot query properties set on children or computed from layout.</p>
+
+  <h2>The Bottom Line</h2>
+
+  <p>
+    Container Queries mark the end of viewport-only responsive design. For 15 years, we made every component respond to the same breakpoints — regardless of whether it lived in a wide hero or a narrow sidebar. Container Queries fix this.
+  </p>
+
+  <p>
+    <strong>Start today:</strong> Pick three reusable components in your design system. Wrap them with <code>container-type: inline-size</code>. Replace their inner <code>@media</code> rules with <code>@container</code> queries. You'll immediately notice how much cleaner — and more portable — your components become.
+  </p>
+
+  <div class="highlight-box highlight-positive">
+    <strong>Try it now:</strong> Use the <a href="/tools/container-query-builder/" class="inline-link">Container Query Builder</a> on DevBench to visually construct container queries with live preview, range conditions, and production-ready CSS output. Build your first container query in 30 seconds.
+  </div>
+</div>`,
+  },
+  {
     slug: 'web-workers-complete-guide-2026',
     title: 'Web Workers in 2026: Offload Heavy Work, Keep Your UI Responsive',
     description:
