@@ -687,6 +687,13 @@ const allTools = [
     tags: ['JSON', 'Python', 'Dataclass', 'Code Gen'],
   },
   {
+    title: 'JSON to Kotlin Data Class',
+    description: 'Convert JSON data into idiomatic Kotlin data classes — nested types, @SerialName annotations, nullable types, and support for kotlinx.serialization, Gson, Moshi, and Jackson. 100% client-side.',
+    href: '/tools/json-to-kotlin',
+    icon: FileCode,
+    tags: ['JSON', 'Kotlin', 'Data Class', 'Serialization', 'Code Gen'],
+  },
+  {
     title: 'HTML Table Generator',
     description: 'Build HTML tables visually — add rows/columns, toggle &lt;th&gt; headers, set per-cell alignment, and export clean HTML + CSS.',
     href: '/tools/html-table-generator',
