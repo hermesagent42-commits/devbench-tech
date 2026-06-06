@@ -1,0 +1,161 @@
+---
+title: "EXIF Metadata: The Hidden Data Inside Every Photo You Share"
+date: "2026-06-06"
+excerpt: "Every JPEG photo contains hidden metadata — camera model, GPS coordinates, exposure settings, timestamps, and more. Learn how to extract EXIF data entirely client-side with pure JavaScript, and why you should check what your photos reveal before sharing."
+tags: ["EXIF", "Metadata", "Photography", "JavaScript", "Security", "Privacy"]
+---
+
+When you take a photo with your phone or camera, the JPEG file contains much more than pixels. Embedded in every shot is **EXIF metadata** — a treasure trove of information that includes:
+
+- 📷 **Camera make and model** (iPhone 16 Pro, Sony A7IV)
+- 📍 **GPS coordinates** (exactly where you took the photo, down to arc-seconds)
+- ⚙️ **Exposure settings** (shutter speed, aperture, ISO, focal length)
+- 🕐 **Timestamp** (the exact moment the shutter clicked)
+- 🔧 **Lens information** (focal length, max aperture, even serial numbers)
+- 📐 **Orientation** (so apps know to rotate the image)
+
+We've added an **EXIF Metadata Viewer** to DevBench that extracts all of this data in your browser — the file never leaves your device. Here's how it works, and why it matters.
+
+## The Binary Structure of EXIF
+
+EXIF data lives inside JPEG files as TIFF-formatted binary data, wrapped in an `0xFFE1` application marker. Understanding this structure is key to parsing it:
+
+```
+JPEG File
+├── SOI marker (0xFFD8)
+├── APP1 marker (0xFFE1) ─── EXIF Segment
+│   ├── "Exif\0\0" header
+│   ├── TIFF Header
+│   │   ├── Byte order: "II" (little-endian) or "MM" (big-endian)
+│   │   └── Magic: 0x002A
+│   ├── IFD0 (main image tags)
+│   │   ├── Make, Model, Orientation, DateTime
+│   │   └── Pointer to Sub-IFD (ExifIFD)
+│   ├── ExifIFD (camera settings)
+│   │   ├── ExposureTime, FNumber, ISO, FocalLength
+│   │   └── Pointer to GPS IFD
+│   └── GPS IFD (location data)
+│       ├── Latitude, Longitude, Altitude
+│       └── GPSDateStamp, GPSTimeStamp
+└── Other markers (DQT, DHT, SOS ── image data)
+```
+
+The parser reads this structure by:
+1. Finding the `0xFFE1` marker
+2. Reading the byte order marker (Intel vs Motorola)
+3. Walking the Tagged Image File Format (TIFF) entries
+4. Following pointers to sub-IFDs for exposure and GPS data
+
+## Parsing EXIF in Pure JavaScript
+
+Here's the minimal parser we wrote — it reads JPEG `ArrayBuffer` data and extracts key fields:
+
+```javascript
+function parseExif(buffer) {
+  const view = new DataView(buffer);
+  
+  // Verify JPEG
+  if (view.getUint16(0) !== 0xFFD8) throw new Error('Not a JPEG');
+  
+  // Find EXIF marker
+  let offset = 2;
+  while (offset < buffer.byteLength - 4) {
+    if (view.getUint16(offset) === 0xFFE1) {
+      // EXIF segment found
+      const segLen = view.getUint16(offset + 2);
+      const exifStart = offset + 4;
+      
+      // Verify "Exif\0\0" header
+      const header = String.fromCharCode(
+        view.getUint8(exifStart),
+        view.getUint8(exifStart + 1),
+        view.getUint8(exifStart + 2),
+        view.getUint8(exifStart + 3),
+        view.getUint8(exifStart + 4),
+        view.getUint8(exifStart + 5)
+      );
+      if (header !== 'Exif\x00\x00') continue;
+      
+      // Read TIFF header
+      const tiffStart = exifStart + 6;
+      const isLittleEndian = view.getUint16(tiffStart) === 0x4949; // "II"
+      
+      // Read IFDs...
+      return readIFDs(view, tiffStart, isLittleEndian);
+    }
+    offset += 2 + view.getUint16(offset + 2);
+  }
+  
+  return null;
+}
+```
+
+The tricky parts are:
+- **Byte order**: Some cameras use Intel (little-endian), others use Motorola (big-endian). You must detect and respect this for every multi-byte read.
+- **Rational numbers**: Shutter speeds (e.g., 1/250s) and aperture values are stored as `NUMERATOR/DENOMINATOR` pairs of 32-bit integers.
+- **GPS coordinates**: Stored as three rational numbers (degrees, minutes, seconds) plus a reference direction (N/S/E/W).
+
+## Decoding GPS Coordinates
+
+GPS data is the most sensitive EXIF field. Here's how to parse and convert it:
+
+```javascript
+// GPS data comes as rational triplets: [degrees, minutes, seconds]
+function decodeGPS(latRationals, latRef, lonRationals, lonRef) {
+  const lat = latRationals[0][0]/latRationals[0][1] +  // degrees
+              latRationals[1][0]/latRationals[1][1]/60 + // minutes
+              latRationals[2][0]/latRationals[2][1]/3600; // seconds
+  
+  const lon = lonRationals[0][0]/lonRationals[0][1] +
+              lonRationals[1][0]/lonRationals[1][1]/60 +
+              lonRationals[2][0]/lonRationals[2][1]/3600;
+  
+  return {
+    latitude: latRef === 'S' ? -lat : lat,
+    longitude: lonRef === 'W' ? -lon : lon,
+  };
+}
+
+// Use: open maps with the coordinates
+const url = `https://www.google.com/maps?q=${lat},${lon}`;
+```
+
+With just these coordinates, our EXIF viewer automatically generates a "View on Google Maps" link — showing you exactly where the photo was taken.
+
+## Why Check Your Photos?
+
+Social media platforms strip EXIF data from uploaded images — Instagram, Twitter/X, Facebook, and WhatsApp all remove it. But if you share photos directly (email, messaging apps, cloud links, forums), the metadata travels with the file.
+
+Every time you send a photo taken at home, the recipient can potentially see:
+- Your home GPS coordinates (accurate to ~3 meters)
+- The exact time you were there
+- What camera/phone you own
+
+This isn't hypothetical. In 2012, security researcher Ben Jackson showed how easy it was to geolocate people from Craigslist photos. In 2023, [a study found](https://arxiv.org/abs/2203.04326) that 28% of photos shared on forums still contained GPS data.
+
+## What We Built
+
+The new **EXIF Metadata Viewer** on DevBench:
+
+- 📁 **Drag-and-drop JPEG parsing** — no uploads, pure client-side
+- 🏷️ **Organized tag groups**: Camera info, exposure settings, GPS coordinates
+- 🗺️ **Auto-generated Google Maps link** from GPS data
+- 🔢 **Raw values + human-readable interpretations** (e.g., orientation "Rotated 90° CW" instead of just "6")
+- 📋 **One-click copy** for any metadata value
+
+## Beyond EXIF
+
+If you're building an app that handles user photos, here are the other metadata formats to be aware of:
+
+| Format | Container | Used By |
+|---|---|---|
+| EXIF | JPEG, TIFF | All digital cameras |
+| IPTC | JPEG, TIFF | Photojournalism (captions, credits, copyright) |
+| XMP | JPEG, PNG, PDF, etc. | Adobe's XML-based metadata |
+| ICC Profile | JPEG, PNG, TIFF | Color space information |
+
+For a production app, you'd use a library like [exifr](https://github.com/MikeKovarik/exifr) (which handles all of these formats) rather than writing your own parser — but understanding the binary format is valuable for debugging edge cases with malformed metadata.
+
+## Try It
+
+Open the [EXIF Metadata Viewer](/tools/exif-metadata-viewer) and drag in a photo from your phone or camera. You might be surprised by how much data is embedded in every shot.

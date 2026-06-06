@@ -1226,6 +1226,27 @@ const allTools = [
     icon: Layers,
     tags: ['CSS', 'Pseudo-Elements', 'Selectors', '::before', '::after'],
   },
+  {
+    title: 'Speech Recognition Playground',
+    description: 'Convert speech to text in real-time using the Web Speech API. 20+ languages, continuous mode, live confidence scores — 100% client-side, no servers.',
+    href: '/tools/speech-recognition-playground',
+    icon: Mic,
+    tags: ['Speech', 'Web Speech API', 'Voice', 'Browser API'],
+  },
+  {
+    title: 'Web Share API Playground',
+    description: 'Test the Web Share API — share text, links, and files directly from your browser using the native OS share sheet. 3 presets, file attachments, live event log.',
+    href: '/tools/web-share-playground',
+    icon: Share2,
+    tags: ['Web Share', 'Browser API', 'Share', 'Mobile'],
+  },
+  {
+    title: 'EXIF Metadata Viewer',
+    description: 'Extract and view EXIF metadata from JPEG photos — camera settings, GPS coordinates, timestamps, lens info, and more. 100% client-side binary parsing.',
+    href: '/tools/exif-metadata-viewer',
+    icon: Camera,
+    tags: ['EXIF', 'Metadata', 'Photo', 'GPS', 'Image'],
+  },
 ];
 
 export default function ToolsPage() {

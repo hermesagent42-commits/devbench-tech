@@ -1,0 +1,124 @@
+---
+title: "Web Speech API: Build Speech-to-Text Features Without Any Backend"
+date: "2026-06-06"
+excerpt: "The Web Speech API's SpeechRecognition interface lets you convert speech to text entirely in the browser — no servers, no AI models, no API keys. A complete guide to building real-time voice transcription with 20+ languages, continuous mode, and live confidence scores."
+tags: ["Web Speech API", "Speech Recognition", "JavaScript", "Browser API", "Accessibility"]
+---
+
+For years, adding speech recognition to a web app meant sending audio to a server, running it through a model, and waiting for results — expensive, slow, and privacy-invasive.
+
+The **Web Speech API** changes all of that. Your browser already has a speech recognition engine built in, and it's been available in Chrome since version 25. Safari added support in 14.1. You can now convert speech to text with about 15 lines of JavaScript — all client-side.
+
+We've just added a **Speech Recognition Playground** to DevBench so you can test it yourself. Here's what you need to know.
+
+## The 15-Line Speech Recognizer
+
+```javascript
+const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+const recognition = new SpeechRecognition();
+
+recognition.lang = 'en-US';
+recognition.continuous = true;
+recognition.interimResults = true;
+
+recognition.onresult = (event) => {
+  for (let i = event.resultIndex; i < event.results.length; i++) {
+    const { transcript, confidence } = event.results[i][0];
+    if (event.results[i].isFinal) {
+      console.log(`✓ ${transcript} (${(confidence * 100).toFixed(0)}%)`);
+    } else {
+      console.log(`… ${transcript}`);
+    }
+  }
+};
+
+recognition.start();
+```
+
+That's it. No API keys. No backend. No model loading. The browser handles everything.
+
+## How It Works
+
+Under the hood, Chromium-based browsers send audio to Google's speech recognition servers for processing. Safari uses Apple's on-device recognition (which means it works offline on modern Apple devices). Firefox doesn't support it yet, but there's ongoing work in Bugzilla.
+
+The API provides two key pieces of data per result:
+
+- **`transcript`**: The recognized text
+- **`confidence`**: A 0-1 score of how confident the system is (often useful for filtering low-quality results)
+
+## Continuous vs Single Utterance
+
+The `continuous` flag changes behavior significantly:
+
+| Mode | Behavior | Best For |
+|---|---|---|
+| `continuous: false` | Stops after a pause (usually 1-2s of silence) | Short commands, voice search |
+| `continuous: true` | Keeps listening, returns final results as speech pauses | Dictation, meetings, long transcription |
+
+When using `continuous: true`, each "utterance" (a phrase followed by a pause) produces a final result, then the system keeps listening.
+
+## Interim Results: The Key to Real-Time UX
+
+The `interimResults: true` flag is what makes the UI feel responsive. Without it, text only appears when the user stops speaking — with it, words appear as they're spoken:
+
+```
+… The quick brown
+… The quick brown fox
+… The quick brown fox jumps over
+✓ The quick brown fox jumps over the lazy dog (98%)
+```
+
+Interim results are typically lower confidence and get replaced as context improves, but they're essential for a good user experience.
+
+## Language Support
+
+The Web Speech API supports dozens of languages, but availability varies by browser and OS:
+
+| Language | Code | Notes |
+|---|---|---|
+| English (US) | `en-US` | Best supported, highest accuracy |
+| Spanish | `es-ES` | Excellent accuracy |
+| Japanese | `ja-JP` | Good support in Chrome |
+| Mandarin | `zh-CN` | Requires appropriate system language pack |
+| Arabic | `ar-SA` | RTL text supported |
+| Hindi | `hi-IN` | Available in Chrome |
+
+On Chrome, you can check available languages via `speechSynthesis.getVoices()` — the same voices used for text-to-speech hint at recognition availability.
+
+## Browser Support (June 2026)
+
+| Browser | Support | Notes |
+|---|---|---|
+| Chrome 25+ | ✅ | Uses cloud-based recognition (requires internet) |
+| Edge 79+ | ✅ | Same engine as Chrome |
+| Safari 14.1+ | ✅ | On-device recognition on Apple Silicon, works offline |
+| Samsung Internet | ✅ | Based on Chromium |
+| Firefox | ❌ | [Bugzilla #1248897](https://bugzilla.mozilla.org/show_bug.cgi?id=1248897) — experimental flag available |
+
+## What We Built
+
+The new **Speech Recognition Playground** on DevBench lets you:
+
+- 🎤 **Start/stop recording** with a single click
+- 🌐 **Choose from 20 languages** — from Arabic to Vietnamese
+- 🔄 **Toggle continuous mode** for dictation vs commands
+- 📊 **See confidence scores** for each utterance
+- 📋 **Copy individual transcripts** or all at once
+- 📚 **View code samples** for the full API
+
+Everything runs in your browser. No audio leaves your device without your explicit consent (the browser's permission dialog handles that).
+
+## Production Considerations
+
+The Web Speech API is great for prototyping and internal tools, but has limitations in production:
+
+1. **Accuracy varies wildly** by microphone quality, background noise, accent, and language
+2. **No custom vocabulary** — you can't add domain-specific terms
+3. **Network dependency** on Chrome/Edge — no offline mode on those browsers
+4. **No speaker diarization** — can't distinguish between multiple speakers
+
+For mission-critical transcription, you'll still want dedicated services like Whisper, Deepgram, or AssemblyAI. But for form inputs, voice commands, note-taking, and accessibility features? The Web Speech API is production-ready today.
+
+## Try It Now
+
+Open the [Speech Recognition Playground](/tools/speech-recognition-playground) on DevBench, grant microphone permission when prompted, and start speaking. The transcript appears in real-time — no sign-up, no payment, no backend.

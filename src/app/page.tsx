@@ -1418,7 +1418,29 @@ const featuredTools = [
     icon: Layers,
     tags: ['CSS', 'Pseudo-Elements', 'Selectors', '::before', '::after'],
   },
+  {
+    title: 'Speech Recognition',
+    description: 'Convert speech to text in real-time with the Web Speech API — 20+ languages, live confidence scores, continuous mode, privacy-first.',
+    href: '/tools/speech-recognition-playground',
+    icon: Mic,
+    tags: ['Speech', 'Web Speech API', 'Voice', 'Browser API'],
+  },
+  {
+    title: 'Web Share API',
+    description: 'Test the native OS share sheet — share text, links, and files directly from your browser to any app. Live event log, presets, file support.',
+    href: '/tools/web-share-playground',
+    icon: Share2,
+    tags: ['Web Share', 'Browser API', 'Share', 'Mobile'],
+  },
+  {
+    title: 'EXIF Metadata Viewer',
+    description: 'Extract hidden metadata from any JPEG photo — camera model, GPS coordinates, exposure settings, lens info, and more. 100% client-side.',
+    href: '/tools/exif-metadata-viewer',
+    icon: Camera,
+    tags: ['EXIF', 'Metadata', 'Photo', 'GPS', 'Image'],
+  },
 ];
+
 const sampleBlogPosts = [
   {
     title: 'CSS Container Queries: The End of Media-Query-Only Responsive Design',
