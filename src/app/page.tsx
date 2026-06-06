@@ -104,6 +104,7 @@ import {
   DollarSign,
   Combine,
   Waves,
+  Mic,
 } from 'lucide-react';
 
 export const metadata: Metadata = {
@@ -1057,6 +1058,13 @@ const featuredTools = [
     href: '/tools/audio-visualizer',
     icon: Waves,
     tags: ['Audio', 'Visualizer', 'Microphone', 'Canvas'],
+  },
+  {
+    title: 'Audio Recorder',
+    description: 'Record audio from your microphone — live waveform, pause/resume, playback with progress, download as WebM. Save multiple recordings with full history — pure client-side.',
+    href: '/tools/audio-recorder',
+    icon: Mic,
+    tags: ['Audio', 'Recorder', 'Microphone', 'MediaRecorder'],
   },
   {
     title: 'Docker Compose Builder',
