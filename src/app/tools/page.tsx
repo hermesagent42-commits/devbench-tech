@@ -109,6 +109,7 @@ import {
   GitCommit,
   Waves,
   Mic,
+  Radio,
 } from 'lucide-react';
 
 export const metadata: Metadata = {
@@ -1210,6 +1211,13 @@ const allTools = [
     href: '/tools/json-sorter',
     icon: ArrowUpDown,
     tags: ['JSON', 'Sort', 'Formatter', 'Keys', 'Diff'],
+  },
+  {
+    title: 'Morse Code Encoder / Decoder',
+    description: 'Translate text to Morse code and back in real-time. Live audio playback with speed control (0.5x–2x), visual dot/dash display, clickable character reference, and translation history — 100% client-side Web Audio API.',
+    href: '/tools/morse-code',
+    icon: Radio,
+    tags: ['Morse Code', 'Encoder', 'Decoder', 'Audio', 'Web Audio API'],
   },
 ];
 
