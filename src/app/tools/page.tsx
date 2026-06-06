@@ -709,6 +709,13 @@ const allTools = [
     tags: ['JSON', 'Kotlin', 'Data Class', 'Serialization', 'Code Gen'],
   },
   {
+    title: 'JSON → Dart',
+    description: 'Convert JSON data into Dart classes with fromJson/toJson — nested types, null safety, json_serializable annotations, camelCase/snake_case field naming, and factory constructors. 100% client-side.',
+    href: '/tools/json-to-dart',
+    icon: FileCode,
+    tags: ['JSON', 'Dart', 'Flutter', 'Class', 'Serialization', 'Code Gen'],
+  },
+  {
     title: 'HTML Table Generator',
     description: 'Build HTML tables visually — add rows/columns, toggle &lt;th&gt; headers, set per-cell alignment, and export clean HTML + CSS.',
     href: '/tools/html-table-generator',
