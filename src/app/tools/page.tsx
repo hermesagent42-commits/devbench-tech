@@ -1254,6 +1254,13 @@ const allTools = [
     icon: Camera,
     tags: ['EXIF', 'Metadata', 'Photo', 'GPS', 'Image'],
   },
+  {
+    title: 'Image Format Converter',
+    description: 'Convert images between PNG, JPEG, WebP, AVIF, BMP, and ICO — client-side Canvas rendering with quality control and instant download.',
+    href: '/tools/image-format-converter',
+    icon: Image,
+    tags: ['Image', 'Converter', 'Format', 'WebP', 'AVIF'],
+  },
 ];
 
 export default function ToolsPage() {
