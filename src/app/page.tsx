@@ -557,6 +557,13 @@ const featuredTools = [
     tags: ['CSS', 'Filter', 'Design'],
   },
   {
+    title: 'Backdrop-Filter Playground',
+    description: 'Apply filters to the area behind an element — blur, brightness, hue-rotate, and 9 functions chained together. 10 presets, live preview over images and gradients, instant CSS output.',
+    href: '/tools/backdrop-filter-playground',
+    icon: Layers,
+    tags: ['CSS', 'Backdrop-Filter', 'Glass', 'Design'],
+  },
+  {
     title: 'CSS Easing Visualizer',
     description: 'Design custom cubic-bezier() easing curves — drag control points on a canvas, 12 presets (bounce, elastic, smooth), live animation preview, and one-click CSS/Tailwind export.',
     href: '/tools/css-easing-visualizer',
