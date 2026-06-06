@@ -1433,6 +1433,13 @@ const featuredTools = [
     tags: ['Web Share', 'Browser API', 'Share', 'Mobile'],
   },
   {
+    title: 'Image Comparison Slider',
+    description: 'Compare two images with a draggable before/after slider — horizontal and vertical modes, custom uploads, keyboard shortcuts. Perfect for design reviews and photo comparisons.',
+    href: '/tools/image-comparison-slider',
+    icon: ArrowLeftRight,
+    tags: ['Image', 'Comparison', 'Slider', 'Before/After'],
+  },
+  {
     title: 'EXIF Metadata Viewer',
     description: 'Extract hidden metadata from any JPEG photo — camera model, GPS coordinates, exposure settings, lens info, and more. 100% client-side.',
     href: '/tools/exif-metadata-viewer',

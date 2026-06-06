@@ -512,6 +512,13 @@ const allTools = [
     tags: ['Image', 'Converter', 'WebP', 'AVIF', 'PNG', 'JPEG'],
   },
   {
+    title: 'Image Comparison Slider',
+    description: 'Compare two images with a draggable before/after slider — perfect for design iterations, photo retouching, and visual diffs. Horizontal and vertical modes, custom uploads, keyboard controls.',
+    href: '/tools/image-comparison-slider',
+    icon: ArrowLeftRight,
+    tags: ['Image', 'Comparison', 'Before/After', 'Slider'],
+  },
+  {
     title: 'Currency Converter',
     description: 'Convert between 50 world currencies with live ECB exchange rates. Searchable dropdowns, swap direction, popular pairs, copy, and daily-updated rates via Frankfurter API.',
     href: '/tools/currency-converter',
