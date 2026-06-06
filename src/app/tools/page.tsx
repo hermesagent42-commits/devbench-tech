@@ -1275,6 +1275,13 @@ const allTools = [
     icon: Image,
     tags: ['Image', 'Converter', 'Format', 'WebP', 'AVIF'],
   },
+  {
+    title: 'srcset & Sizes Generator',
+    description: 'Generate responsive image markup — configure width variants, set sizes rules, upload images, and get copy-ready srcset + sizes HTML with a visual preview table.',
+    href: '/tools/srcset-generator',
+    icon: Image,
+    tags: ['Image', 'srcset', 'Responsive', 'HTML', 'Performance'],
+  },
 ];
 
 export default function ToolsPage() {
