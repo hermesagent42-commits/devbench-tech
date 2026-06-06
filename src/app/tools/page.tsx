@@ -1234,6 +1234,13 @@ const allTools = [
     tags: ['JSON', 'Sort', 'Formatter', 'Keys', 'Diff'],
   },
   {
+    title: 'JSON Patch (RFC 6902)',
+    description: 'Apply and generate JSON Patch operations — the standard for partial JSON updates used in REST APIs. Supports add, remove, replace, move, copy, and test operations with live diff generation between two documents.',
+    href: '/tools/json-patch',
+    icon: ArrowLeftRight,
+    tags: ['JSON', 'Patch', 'RFC 6902', 'API', 'Diff'],
+  },
+  {
     title: 'Morse Code Encoder / Decoder',
     description: 'Translate text to Morse code and back in real-time. Live audio playback with speed control (0.5x–2x), visual dot/dash display, clickable character reference, and translation history — 100% client-side Web Audio API.',
     href: '/tools/morse-code',
