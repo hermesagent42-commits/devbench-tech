@@ -1270,6 +1270,13 @@ const featuredTools = [
     icon: Database,
     tags: ['JSON', 'SQL', 'PostgreSQL', 'MySQL', 'SQLite', 'Code Gen'],
   },
+  {
+    title: 'JSON → C# Class',
+    description: 'Convert JSON to idiomatic C# class or record definitions — nested types, List<T>, DateTime detection, System.Text.Json or Newtonsoft.Json attributes, and nullable reference types. 100% client-side.',
+    href: '/tools/json-to-csharp',
+    icon: FileCode,
+    tags: ['JSON', 'C#', 'dotnet', 'Class', 'Code Gen'],
+  },
 
   {
     title: 'JSON → Go Struct',
