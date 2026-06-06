@@ -329,6 +329,13 @@ const allTools = [
     tags: ['Minifier', 'CSS', 'JavaScript', 'HTML'],
   },
   {
+    title: 'Code Screenshot',
+    description: 'Beautiful code screenshot generator — syntax highlighting with 6 themes, window chrome, PNG export at 2x resolution. Like Carbon, 100% client-side.',
+    href: '/tools/code-screenshot',
+    icon: Image,
+    tags: ['Screenshot', 'Code', 'Carbon', 'Image'],
+  },
+  {
     title: 'Unit Converter',
     description: 'Convert between hundreds of units across 11 categories — length, area, volume, mass, temperature, speed, time, data storage, pressure, angle, and frequency. 100% client-side.',
     href: '/tools/unit-converter',
