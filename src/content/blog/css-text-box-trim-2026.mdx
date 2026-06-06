@@ -1,0 +1,318 @@
+---
+title: "CSS text-box-trim: Kill the Half-Leading — Perfectly Vertical Alignment Without Magic Numbers"
+date: "2026-06-06"
+excerpt: "Every button, badge, and heading has invisible space above and below the text — it's the font's built-in half-leading, and designers hate it. CSS text-box-trim, Baseline 2026 across all browsers, eliminates it with two declarative properties. No more negative margins, no more line-height hacks, no more 'just eyeball it.' Complete guide with production-ready patterns."
+tags: ["CSS", "text-box-trim", "text-box-edge", "Typography", "Web Platform", "Baseline 2026", "Chrome 133", "2026"]
+---
+
+`text-box-trim` is the CSS property designers have been waiting for since CSS 1. It removes the built-in whitespace above and below text — the half-leading that every font ships with — letting you snap text flush to its container edges. Buttons finally center their labels. Badges have consistent padding. Headings stack with predictable spacing. And you never write `margin-top: -0.2em` again.
+
+## The Problem: Why Text Looks Wrong in Boxes
+
+Put text in a button and it never looks centered:
+
+```html
+<button style="padding: 8px 16px; font-size: 16px; line-height: 1;">
+  Click Me
+</button>
+```
+
+Even with `line-height: 1`, the text sits slightly high. There's more space above the capitals than below the baseline. The button looks 12px taller than it should be, and every designer files a bug.
+
+Here's why: **Every font has built-in metrics.** The font dictates how much space exists above the tallest glyph (the *ascent*) and below the lowest descender. This is called *half-leading* — the browser adds equal space above and below the text block so lines stack nicely. It's essential for multi-line text. It's a disaster for single-line UI text.
+
+```css
+/* The classic workaround — fragile, font-dependent, wrong */
+.btn-label {
+  margin-top: -0.15em;  /* Magic number. Breaks on font change. */
+  padding-top: 0;
+  padding-bottom: 0;
+}
+
+/* Another hack: remove line-height and pray */
+.btn-label {
+  line-height: 1;
+  /* Still not flush — the font's internal metrics remain */
+}
+```
+
+## Enter `text-box-trim`
+
+CSS `text-box-trim` gives you control over that space. It's a shorthand for two properties:
+
+- **`text-box-trim`** — which edges to trim (top, bottom, both, or none)
+- **`text-box-edge`** — which font metric to use as the trim baseline
+
+```css
+/* The one-liner that fixes everything */
+button, .badge, .tag, .pill {
+  text-box: trim-both cap alphabetic;
+}
+```
+
+That's it. The text snaps flush — top to the capital-letter line, bottom to the alphabetic baseline. No negative margins, no line-height gymnastics, no praying.
+
+## The Full Property Vocabulary
+
+### `text-box-trim`
+
+| Value | Behavior |
+|-------|----------|
+| `none` | No trimming (default, existing behavior) |
+| `trim-start` | Trim the block-start (top in horizontal-tb) edge only |
+| `trim-end` | Trim the block-end (bottom in horizontal-tb) edge only |
+| `trim-both` | Trim both edges |
+
+### `text-box-edge`
+
+This is the pair that tells the browser *where* to trim. Format: `text-box-edge: <over> <under>`
+
+**Over-edge (top) values:**
+
+| Value | Trims to... |
+|-------|-------------|
+| `text` | Top of the tallest glyph in the font — the text-top edge |
+| `cap` | Top of capital letters (H, M, T) — what designers actually want |
+| `ex` | Top of the x-height (top of lowercase 'x') |
+| `ideographic` | Top of CJK ideographic characters |
+| `ideographic-ink` | Top of the ink of CJK characters |
+
+**Under-edge (bottom) values:**
+
+| Value | Trims to... |
+|-------|-------------|
+| `text` | Bottom of the lowest descender (farthest below baseline) |
+| `alphabetic` | The alphabetic baseline — where letters sit. This is the one you want. |
+| `ideographic` | Bottom of CJK ideographic characters |
+| `ideographic-ink` | Bottom of the ink of CJK characters |
+
+### The `text-box` shorthand
+
+```css
+text-box: <text-box-trim> <text-box-edge>
+/* or just: */
+text-box: <text-box-edge>  /* text-box-trim defaults to trim-both */
+
+/* Examples */
+text-box: trim-both cap alphabetic;
+text-box: trim-start ex alphabetic;
+text-box: cap text;       /* trim-both implied */
+text-box: cap alphabetic; /* trim-both implied — the common case */
+```
+
+## Production-Ready Patterns
+
+### Pattern 1: The Perfect Button
+
+```css
+.btn {
+  display: inline-flex;
+  align-items: center;
+  text-box: trim-both cap alphabetic;
+  padding-block: 0.5em;
+  padding-inline: 1em;
+  font-size: 1rem;
+  line-height: 1;
+  border-radius: 0.5rem;
+  background: var(--color-brand);
+  color: white;
+  cursor: pointer;
+}
+```
+
+With `text-box: trim-both cap alphabetic`, the text sits dead-center vertically — no optical illusions, no "looks a bit high." The `padding-block: 0.5em` now adds exactly 0.5em of space above the *capitals* and below the *baseline*, not above/below an invisible text box.
+
+Before: 12px of wasted vertical space. After: pixel-perfect alignment.
+
+### Pattern 2: Badge / Tag / Pill
+
+```css
+.tag {
+  display: inline-block;
+  text-box: trim-both cap alphabetic;
+  padding: 0.125em 0.5em;
+  font-size: 0.75rem;
+  font-weight: 600;
+  line-height: 1;
+  border-radius: 999px;
+  background: var(--color-surface-secondary);
+  color: var(--color-text-secondary);
+}
+```
+
+Badges are the worst offenders — small text, tight padding, and the half-leading dominates. With `text-box-trim`, a 0.75rem badge with 0.125em padding is exactly as tall as the content, not 4px taller.
+
+### Pattern 3: Icon + Text Alignment
+
+```css
+.icon-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375em;
+  text-box: trim-both cap alphabetic;
+}
+
+.icon-label svg {
+  width: 1em;
+  height: 1em;
+  flex-shrink: 0;
+}
+```
+
+Icons next to text are the ultimate alignment nightmare. The icon is 1em tall. The text box is 1em + half-leading. They never align in the center. `text-box-trim` makes the text box exactly 1em, so `align-items: center` works perfectly.
+
+### Pattern 4: Input Fields
+
+```css
+input[type="text"],
+input[type="email"],
+input[type="search"],
+input[type="password"] {
+  text-box: trim-both cap alphabetic;
+  padding-block: 0.5em;
+  padding-inline: 0.75em;
+  font: inherit;
+  border: 1px solid var(--color-border);
+  border-radius: 0.5rem;
+}
+```
+
+Inputs have the same vertical alignment problem as buttons. `text-box-trim` fixes it identically.
+
+### Pattern 5: Heading Stacks
+
+```css
+h1, h2, h3, h4, h5, h6 {
+  text-box: trim-both cap alphabetic;
+  line-height: 1.1;
+}
+
+h1 + p, h2 + p {
+  margin-top: 0.75em; /* Predictable spacing — no more negative margins */
+}
+```
+
+Headings have massive half-leading at large font sizes. A 48px `h1` with `line-height: 1.1` might still have 6px of whitespace above the text. `text-box-trim` eliminates it, so `margin-top` values are predictable.
+
+## When NOT to Use text-box-trim
+
+`text-box-trim` is designed for **single-line UI text** and **block-level elements where you control the spacing**. Don't use it everywhere:
+
+- **Multi-line paragraphs:** The half-leading makes multi-line text readable. Removing it collapses lines together. Keep `text-box-trim: none` for body text.
+- **Mixed scripts:** If a single element contains Latin, CJK, and Arabic text, the cap-height trim won't work for all of them. Consider per-script components.
+- **User-generated content:** You don't know what users will type. Don't trim text boxes you can't predict.
+
+## The CSS Reset Pattern
+
+Add this to your reset stylesheet for a universal baseline:
+
+```css
+/* Reset all UI text to trim half-leading */
+button, 
+input, 
+select, 
+textarea, 
+.badge, 
+.tag, 
+.alert, 
+.notification,
+.chip,
+.avatar-text,
+.tooltip {
+  text-box: trim-both cap alphabetic;
+}
+
+/* Opt back in for multi-line content */
+p, li, dd, blockquote, figcaption {
+  text-box: trim-both cap alphabetic;
+}
+
+/* But if your paragraphs are multi-line content blocks,
+   you might want to leave them alone: */
+article p, 
+.prose p, 
+.blog-content p {
+  text-box: none;
+}
+```
+
+This gives you pixel-perfect UI text everywhere while preserving readable body text.
+
+## Browser Support & Baseline Status
+
+| Browser | Support |
+|---------|---------|
+| Chrome | 133+ (January 2025) |
+| Edge | 133+ (January 2025) |
+| Firefox | 137+ (April 2025) |
+| Safari | 18.4+ (March 2025) |
+
+**`text-box-trim` reached Baseline in early 2026.** As of June 2026, it's safe to use everywhere without fallbacks. All four major engines ship it. Global coverage: ~94%.
+
+## Progressive Enhancement
+
+For older browsers, `text-box-trim` degrades gracefully — text just looks like it always did:
+
+```css
+.btn-label {
+  text-box: trim-both cap alphabetic;
+  /* Old browsers: text sits a bit high. Same as always.
+     New browsers: text is dead center. */
+}
+```
+
+You can feature-detect in CSS:
+
+```css
+@supports (text-box-trim: trim-both) {
+  .btn-label {
+    text-box: trim-both cap alphabetic;
+    padding-block: 0.5em; /* Exact spacing when supported */
+  }
+}
+
+/* Fallback for unsupported */
+.btn-label {
+  padding-block: 0.35em; /* Manually tweaked */
+}
+```
+
+## Real-World Impact: Before/After
+
+**Before `text-box-trim`** — a typical design-system button:
+
+```css
+.btn {
+  padding: 6px 16px;
+  font-size: 14px;
+  line-height: 1.4;  /* Designer says "center it" */
+  /* Text looks too high. Add negative margin? Adjust line-height? 
+     Every button in the system has a different tweak. */
+}
+```
+
+**After `text-box-trim`**:
+
+```css
+.btn {
+  text-box: trim-both cap alphabetic;
+  padding-block: 0.5em;
+  padding-inline: 1em;
+  font-size: 0.875rem;
+  /* Text is perfectly centered. Every button. Every font. Every time. */
+}
+```
+
+The difference is visually significant. In a design system with 40+ button variants, `text-box-trim` eliminates the entire category of "vertically misaligned text" bugs.
+
+## The Bottom Line
+
+For 25 years, web designers have fought the half-leading. Every button, badge, and heading shipped with invisible space that made text look wrong in boxes. We used negative margins. We eyeballed it. We filed bugs and argued with developers.
+
+`text-box-trim` ends this. Two CSS properties — `text-box-trim: trim-both` and `text-box-edge: cap alphabetic` — and text snaps flush to its container. Buttons are perfectly centered. Badges have exact dimensions. Icons and text align without tricks.
+
+This is one of those platform features that makes you wonder how we tolerated the old way. Start adding it to your design system today. Your designers will thank you.
+
+---
+
+**Try it now:** The CSS Text-Box Playground is coming soon — experiment with `text-box-trim`, `text-box-edge`, and the `text-box` shorthand with live previews on real text.
