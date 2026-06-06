@@ -515,6 +515,13 @@ const featuredTools = [
     tags: ['Image', 'Color', 'Palette', 'Extractor'],
   },
   {
+    title: 'JWT Decoder',
+    description: 'Decode and inspect JWT tokens — view header, payload, claims table, expiration status, and copy decoded JSON. 100% client-side.',
+    href: '/tools/jwt-decoder',
+    icon: Shield,
+    tags: ['JWT', 'Decode', 'Auth', 'Security'],
+  },
+  {
     title: 'Image to Base64',
     description: 'Convert images to Base64 strings and back. Drag-and-drop, paste from clipboard, decode Base64 to image — 100% client-side.',
     href: '/tools/image-base64',
