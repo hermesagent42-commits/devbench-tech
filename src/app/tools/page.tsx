@@ -716,6 +716,13 @@ const allTools = [
     tags: ['JSON', 'Dart', 'Flutter', 'Class', 'Serialization', 'Code Gen'],
   },
   {
+    title: 'JSON → Swift Codable',
+    description: 'Convert JSON into idiomatic Swift structs with Codable conformance — nested types, CodingKeys for snake_case mapping, Optional handling, URL detection, and ready-to-use decoder code. 100% client-side.',
+    href: '/tools/json-to-swift',
+    icon: FileCode,
+    tags: ['JSON', 'Swift', 'iOS', 'Codable', 'Code Gen'],
+  },
+  {
     title: 'HTML Table Generator',
     description: 'Build HTML tables visually — add rows/columns, toggle &lt;th&gt; headers, set per-cell alignment, and export clean HTML + CSS.',
     href: '/tools/html-table-generator',
