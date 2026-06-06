@@ -1200,6 +1200,13 @@ const featuredTools = [
     tags: ['CSS', '@starting-style', 'Animation', 'Baseline 2026'],
   },
   {
+    title: 'CSS @property Playground',
+    description: 'Define typed custom properties and see them animate smoothly — color, length, angle, number, and more. 8 presets, live preview with play/pause, instant CSS copy. @property is Baseline 2026 across all browsers.',
+    href: '/tools/css-at-property-playground',
+    icon: Variable,
+    tags: ['CSS', '@property', 'Custom Properties', 'Animation', 'Baseline 2026'],
+  },
+  {
     title: 'CSS Highlight API Playground',
     description: 'Style arbitrary text ranges with ::highlight() — no DOM mutation needed. 8 colors, auto search highlighting, and generated CSS + JS code.',
     href: '/tools/css-highlight-api-playground',
