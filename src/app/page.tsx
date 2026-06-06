@@ -1314,6 +1314,13 @@ const featuredTools = [
     tags: ["JSON", "HTML", "Form", "Generator"],
   },
   {
+    title: 'JSON → Java',
+    description: 'Convert JSON data into Java classes — Records (JDK 16+) or classic POJOs with Jackson/Gson annotations, Lombok support, getters/setters, and Optionals. 100% client-side.',
+    href: '/tools/json-to-java',
+    icon: FileCode,
+    tags: ['JSON', 'Java', 'Record', 'POJO', 'Code Gen'],
+  },
+  {
     title: 'Web Animations API Playground',
     description: 'Build, preview, and generate code for element.animate() keyframe animations — fade, slide, bounce, shake, pulse, flip, spin 3D, and more with live preview.',
     href: '/tools/web-animations-playground',
