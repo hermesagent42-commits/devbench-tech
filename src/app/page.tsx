@@ -1411,6 +1411,13 @@ const featuredTools = [
     icon: Radio,
     tags: ['Morse Code', 'Encoder', 'Decoder', 'Audio', 'Web Audio API'],
   },
+  {
+    title: 'CSS Pseudo-Elements Playground',
+    description: 'Style ::before, ::after, ::first-letter, ::selection, ::placeholder, ::marker, ::backdrop, ::file-selector-button, and more — with live preview, 8 presets, and copy-ready CSS.',
+    href: '/tools/css-pseudo-elements-playground',
+    icon: Layers,
+    tags: ['CSS', 'Pseudo-Elements', 'Selectors', '::before', '::after'],
+  },
 ];
 const sampleBlogPosts = [
   {

@@ -1219,6 +1219,13 @@ const allTools = [
     icon: Radio,
     tags: ['Morse Code', 'Encoder', 'Decoder', 'Audio', 'Web Audio API'],
   },
+  {
+    title: 'CSS Pseudo-Elements Playground',
+    description: 'Interactively style every CSS pseudo-element — ::before, ::after, ::first-letter, ::selection, ::placeholder, ::marker, ::backdrop, ::file-selector-button, ::spelling-error. Live preview, 8 presets, copy-ready CSS with full selectors.',
+    href: '/tools/css-pseudo-elements-playground',
+    icon: Layers,
+    tags: ['CSS', 'Pseudo-Elements', 'Selectors', '::before', '::after'],
+  },
 ];
 
 export default function ToolsPage() {
