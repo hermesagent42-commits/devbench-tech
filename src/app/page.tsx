@@ -445,6 +445,13 @@ const featuredTools = [
     tags: ['CSS', 'Transform', 'Animation'],
   },
   {
+    title: 'CSS Trigonometry Playground',
+    description: 'Interactively explore CSS sin(), cos(), tan(), asin(), acos(), atan(), atan2() — unit circle visualization, 8 presets, live element animation, instant CSS generation.',
+    href: '/tools/css-trigonometry-playground',
+    icon: Crosshair,
+    tags: ['CSS', 'Trigonometry', 'Math', 'Animation'],
+  },
+  {
     title: 'DNS Lookup',
     description: 'Query DNS records for any domain — A, AAAA, CNAME, MX, TXT, NS, and more via Cloudflare DNS-over-HTTPS.',
     href: '/tools/dns-lookup',
