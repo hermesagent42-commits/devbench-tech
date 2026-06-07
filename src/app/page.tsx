@@ -305,6 +305,13 @@ const featuredTools = [
     tags: ['CSS', 'Text-Stroke', 'Typography'],
   },
   {
+    title: 'CSS Tooltip Generator',
+    description: 'Design production-ready tooltips visually — position, arrow, colors, 5 animation types, and instant CSS copy. 8 presets, gradient backgrounds, 100% visual.',
+    href: '/tools/css-tooltip-generator',
+    icon: MousePointer2,
+    tags: ['CSS', 'Tooltip', 'Design', 'Animation'],
+  },
+  {
     title: 'Color Converter',
     description: 'Convert colors between HEX, RGB, and HSL in real-time with live preview and color picker.',
     href: '/tools/color-converter',

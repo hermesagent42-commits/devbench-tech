@@ -861,6 +861,13 @@ const allTools = [
     tags: ['CSS', 'text-wrap', 'Typography', 'Baseline 2026'],
   },
   {
+    title: 'CSS Tooltip Generator',
+    description: 'Design production-ready tooltips visually — position, arrow, colors, animations (fade, slide, scale, bounce), and instant CSS copy. 8 presets, gradient backgrounds, 100% visual.',
+    href: '/tools/css-tooltip-generator',
+    icon: MousePointer2,
+    tags: ['CSS', 'Tooltip', 'Design', 'Animation', 'Generator'],
+  },
+  {
     title: 'CSS Overflow Playground',
     description: 'Experiment with overflow, text-overflow, word-break, overscroll-behavior, and scroll-behavior in real-time. 8 presets for scrolling, ellipsis, word-breaking, and overscroll containment. Live preview and instant CSS copy.',
     href: '/tools/css-overflow-playground',
