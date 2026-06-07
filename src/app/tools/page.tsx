@@ -1259,6 +1259,13 @@ const allTools = [
     tags: ['CSS', 'Pseudo-Elements', 'Selectors', '::before', '::after'],
   },
   {
+    title: 'CSS Relative Color Syntax Playground',
+    description: 'Decompose colors into channels and recompose with math operations — lighten, darken, saturate, shift hues, adjust opacity. CSS Color Level 4 relative color syntax across 7 color spaces.',
+    href: '/tools/css-relative-color-playground',
+    icon: Pipette,
+    tags: ['CSS', 'Color', 'Relative Color Syntax', 'Design', 'OKLCH'],
+  },
+  {
     title: 'Speech Recognition Playground',
     description: 'Convert speech to text in real-time using the Web Speech API. 20+ languages, continuous mode, live confidence scores — 100% client-side, no servers.',
     href: '/tools/speech-recognition-playground',
