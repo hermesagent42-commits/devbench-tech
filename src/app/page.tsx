@@ -998,6 +998,13 @@ const featuredTools = [
     tags: ['Browser API', 'Geolocation', 'GPS', 'Position'],
   },
   {
+    title: 'Fullscreen API Playground',
+    description: 'Test the browser Fullscreen API on different elements — divs, videos, images, iframes. Toggle navigation UI, log every fullscreenchange event, and copy production-ready code snippets.',
+    href: '/tools/fullscreen-api-playground',
+    icon: Maximize2,
+    tags: ['Browser API', 'Fullscreen', 'Events', 'Debug'],
+  },
+  {
     title: 'DOM Event Explorer',
     description: 'Explore every DOM event in real-time — click, type, drag, and scroll to see all event properties captured live. Filter by category, inspect event objects, understand the complete DOM event model.',
     href: '/tools/event-listener-explorer',
