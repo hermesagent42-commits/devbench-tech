@@ -300,6 +300,13 @@ const allTools = [
     tags: ['Number', 'Base', 'Binary', 'Hex', 'Converter'],
   },
   {
+    title: 'Number Format Explorer',
+    description: 'Explore JavaScript Intl.NumberFormat interactively — format numbers as currency, percent, units, scientific, or compact notation across any locale with live preview and copyable code.',
+    href: '/tools/number-format-explorer',
+    icon: Hash,
+    tags: ['Number', 'Intl', 'Format', 'Currency', 'Locale'],
+  },
+  {
     title: 'Password Strength Checker',
     description: 'Check password strength with entropy analysis, crack-time estimates, and a 10-point security checklist — 100% client-side.',
     href: '/tools/password-strength-checker',
