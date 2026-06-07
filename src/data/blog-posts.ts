@@ -4185,6 +4185,189 @@ background: color-mix(in oklch, #3b82f6, #eab308);
       <li><strong>Baseline 2026, use today.</strong> 95%+ global support. Zero polyfills, zero JavaScript, zero build steps.</li>
     </ul>
   </div>
+</div>`  },
+  {
+    slug: 'modern-responsive-images-2026',
+    title: 'Modern Responsive Images in 2026: The Complete Guide to Fast, Adaptive, CLS-Free Images',
+    description:
+      'Responsive images are the highest-ROI performance optimization on the web. Format switching with AVIF/WebP, resolution switching with srcset/sizes, lazy loading, async decoding, fetchpriority, CSS image-set(), and aspect-ratio for CLS prevention — the complete guide to modern image delivery in 2026.',
+    date: '2026-06-07',
+    author: 'DevBench',
+    tags: ['HTML', 'Responsive Images', 'Performance', 'Core Web Vitals', 'CLS', 'image-set', 'srcset', 'Web Platform', '2026', 'Tutorial'],
+    readingTime: '14 min read',
+    content: `<div class="prose-content">
+  <p class="lead">
+    Responsive images are the single highest-ROI performance optimization on the modern web. Images make up ~45% of the average webpage's weight. On mobile, an unoptimized hero image might be 2MB — delivered to a 360px-wide screen that only needs 50KB. That's 40x more data than necessary, burning bandwidth, slowing Largest Contentful Paint (LCP), and frustrating users.
+  </p>
+
+  <p>
+    In 2026, we finally have the full toolbox: <code>&lt;picture&gt;</code> for format switching, <code>srcset</code>/<code>sizes</code> for resolution switching, <code>loading="lazy"</code> for deferred loading, <code>decoding="async"</code> for non-blocking decode, <code>fetchpriority</code> for LCP optimization, CSS <code>image-set()</code> for background images, and <code>aspect-ratio</code> for zero-layout-shift placeholders. All Baseline, all production-ready.
+  </p>
+
+  <h2>The Three Dimensions of Responsive Images</h2>
+
+  <p>Responsive images solve three distinct problems: <strong>Format switching</strong> (AVIF/WebP/JPEG), <strong>Resolution switching</strong> (srcset/sizes), and <strong>Art direction</strong> (different crops per breakpoint).</p>
+
+  <h2>Format Switching with <code>&lt;picture&gt;</code></h2>
+
+  <pre><code>&lt;picture&gt;
+  &lt;source srcset="hero.avif" type="image/avif" /&gt;
+  &lt;source srcset="hero.webp" type="image/webp" /&gt;
+  &lt;img src="hero.jpg" alt="Product hero" width="1200" height="600" /&gt;
+&lt;/picture&gt;</code></pre>
+
+  <div class="table-wrapper">
+    <table>
+      <thead><tr><th>Format</th><th>Hero Image (1200x600)</th><th>Savings vs JPEG</th></tr></thead>
+      <tbody>
+        <tr><td>JPEG (quality 80)</td><td>~180 KB</td><td>Baseline</td></tr>
+        <tr><td>WebP (quality 80)</td><td>~95 KB</td><td>47% smaller</td></tr>
+        <tr><td>AVIF (quality 50)</td><td>~55 KB</td><td>69% smaller</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p><strong>Browser support (2026):</strong> AVIF is Baseline — Chrome 85+, Firefox 93+, Safari 16.4+, Edge 85+. WebP is universal. There's no reason to ship raw JPEG in 2026.</p>
+
+  <h2>Resolution Switching with <code>srcset</code> and <code>sizes</code></h2>
+
+  <pre><code>&lt;img
+  src="photo-800.jpg"
+  srcset="photo-400.jpg 400w, photo-800.jpg 800w, photo-1200.jpg 1200w, photo-2400.jpg 2400w"
+  sizes="(max-width: 600px) 100vw, (max-width: 1200px) 50vw, 33vw"
+  alt="A product shot"
+  width="2400"
+  height="1600"
+/&gt;</code></pre>
+
+  <p><strong>How the browser decides:</strong> It calculates the image's rendered width from <code>sizes</code>, then picks the smallest <code>srcset</code> candidate that's at least as wide. On a 375px phone at 2x DPR: <code>sizes="100vw"</code> → 750px → picks the 800w image.</p>
+
+  <div class="highlight-box">
+    <strong>Critical:</strong> <code>sizes</code> describes the image's <strong>rendered CSS width</strong>, not the viewport. If your image is in a 300px sidebar, write <code>sizes="300px"</code> — not the viewport width.
+  </div>
+
+  <h2>Art Direction with <code>&lt;picture&gt;</code> + <code>media</code></h2>
+
+  <pre><code>&lt;picture&gt;
+  &lt;source media="(max-width: 640px)" srcset="hero-mobile.avif" type="image/avif" /&gt;
+  &lt;source media="(min-width: 641px)" srcset="hero-desktop.avif" type="image/avif" /&gt;
+  &lt;img src="hero-fallback.jpg" alt="Product hero" width="2400" height="600" /&gt;
+&lt;/picture&gt;</code></pre>
+
+  <h2>Lazy Loading: <code>loading="lazy"</code></h2>
+
+  <pre><code>&lt;img src="below-fold.jpg" loading="lazy" alt="..." width="800" height="600" /&gt;</code></pre>
+
+  <p><strong>Use on:</strong> Off-screen images. <strong>Never on:</strong> LCP (hero) images — lazy-loading delays LCP by 200-500ms. Baseline since 2022, 97%+ global support.</p>
+
+  <h2>Async Decoding: <code>decoding="async"</code></h2>
+
+  <pre><code>&lt;img src="hero.jpg" alt="..." fetchpriority="high" /&gt;
+&lt;img src="photo.jpg" decoding="async" alt="..." loading="lazy" /&gt;</code></pre>
+
+  <p>The combination <code>loading="lazy" decoding="async"</code> on below-fold images is the standard pattern — defer both network fetch and decode, keeping the main thread free.</p>
+
+  <h2><code>fetchpriority</code> for LCP Optimization</h2>
+
+  <pre><code>&lt;img src="hero.jpg" fetchpriority="high" alt="..." /&gt;
+&lt;img src="decorative.jpg" fetchpriority="low" alt="..." /&gt;</code></pre>
+
+  <p>Exactly one <code>fetchpriority="high"</code> per page — on the LCP image. LCP improvements of 200-800ms are common. Baseline 2025.</p>
+
+  <h2>CSS <code>image-set()</code> for Responsive Background Images</h2>
+
+  <pre><code>.hero {
+  background-image: image-set(
+    url("hero-400.avif") type("image/avif") 1x,
+    url("hero-800.avif") type("image/avif") 2x,
+    url("hero-1200.avif") type("image/avif") 3x
+  );
+}</code></pre>
+
+  <p>CSS equivalent of <code>srcset</code>. Baseline 2025. Chrome 113+, Firefox 113+, Safari 17+.</p>
+
+  <h2><code>aspect-ratio</code> for Zero-Layout-Shift Images</h2>
+
+  <p>Since Chrome 88+, Firefox 108+, and Safari 15.3+, the browser computes the aspect ratio from <code>width</code>/<code>height</code> attributes and reserves space automatically — even with <code>height: auto</code> in CSS.</p>
+
+  <pre><code>&lt;img src="photo.jpg" alt="..." width="800" height="600" loading="lazy" /&gt;</code></pre>
+
+  <div class="highlight-box highlight-positive">
+    <strong>If you do only ONE thing:</strong> add <code>width</code> and <code>height</code> attributes to every <code>&lt;img&gt;</code> on your site. CLS scores improve immediately.
+  </div>
+
+  <h2>The Complete LCP Image Recipe</h2>
+
+  <pre><code>&lt;picture&gt;
+  &lt;source srcset="hero-400.avif 400w, hero-800.avif 800w, hero-1200.avif 1200w, hero-2400.avif 2400w"
+    sizes="100vw" type="image/avif" /&gt;
+  &lt;source srcset="hero-400.webp 400w, hero-800.webp 800w, hero-1200.webp 1200w, hero-2400.webp 2400w"
+    sizes="100vw" type="image/webp" /&gt;
+  &lt;img src="hero-800.jpg"
+    srcset="hero-400.jpg 400w, hero-800.jpg 800w, hero-1200.jpg 1200w, hero-2400.jpg 2400w"
+    sizes="100vw" alt="Product hero" width="2400" height="1200"
+    fetchpriority="high" decoding="sync" loading="eager" /&gt;
+&lt;/picture&gt;</code></pre>
+
+  <h2>The Complete Below-Fold Image Recipe</h2>
+
+  <pre><code>&lt;picture&gt;
+  &lt;source srcset="photo-400.avif 400w, photo-800.avif 800w, photo-1600.avif 1600w"
+    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" type="image/avif" /&gt;
+  &lt;img src="photo-800.jpg"
+    srcset="photo-400.jpg 400w, photo-800.jpg 800w, photo-1600.jpg 1600w"
+    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+    alt="Product detail" width="1600" height="1067"
+    loading="lazy" decoding="async" fetchpriority="low" /&gt;
+&lt;/picture&gt;</code></pre>
+
+  <h2>Performance Impact</h2>
+
+  <div class="table-wrapper">
+    <table>
+      <thead><tr><th>Metric</th><th>Before (raw JPEG)</th><th>After (responsive)</th><th>Improvement</th></tr></thead>
+      <tbody>
+        <tr><td>Hero image size</td><td>1.8 MB</td><td>55 KB (AVIF, 400w)</td><td>97% smaller</td></tr>
+        <tr><td>Total image bytes</td><td>12.4 MB</td><td>1.8 MB</td><td>85% smaller</td></tr>
+        <tr><td>LCP (mobile 3G)</td><td>6.8s</td><td>1.9s</td><td>72% faster</td></tr>
+        <tr><td>CLS score</td><td>0.28</td><td>0.0</td><td>Perfect</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h2>Six Common Mistakes</h2>
+  <ol>
+    <li><strong><code>sizes</code> wrong or missing</strong> — browser assumes 100vw, downloads 6x too much data</li>
+    <li><strong>Lazy-loading the LCP image</strong> — delays LCP 200-500ms; use <code>fetchpriority="high"</code> instead</li>
+    <li><strong>No <code>width</code>/<code>height</code></strong> — no space reservation, layout shifts happen</li>
+    <li><strong>AVIF without WebP/JPEG fallback</strong> — Safari 15.x users see nothing</li>
+    <li><strong><code>&lt;img srcset&gt;</code> for format switching</strong> — srcset handles resolution, not format; use <code>&lt;picture&gt;</code></li>
+    <li><strong>Giant <code>sizes</code> lists</strong> — match your CSS breakpoints, not every phone size</li>
+  </ol>
+
+  <h2>Summary</h2>
+
+  <div class="table-wrapper">
+    <table>
+      <thead><tr><th>Technique</th><th>What it does</th><th>When to use</th></tr></thead>
+      <tbody>
+        <tr><td><code>&lt;picture&gt;</code> + <code>type</code></td><td>Format switching (AVIF → WebP → JPEG)</td><td>Every image</td></tr>
+        <tr><td><code>srcset</code> + <code>sizes</code></td><td>Resolution switching</td><td>Every image</td></tr>
+        <tr><td><code>&lt;picture&gt;</code> + <code>media</code></td><td>Art direction</td><td>When crops differ by breakpoint</td></tr>
+        <tr><td><code>loading="lazy"</code></td><td>Defer off-screen images</td><td>Below-fold images</td></tr>
+        <tr><td><code>decoding="async"</code></td><td>Decode off main thread</td><td>Below-fold images</td></tr>
+        <tr><td><code>fetchpriority="high"</code></td><td>Prioritize critical images</td><td>LCP image only</td></tr>
+        <tr><td><code>image-set()</code></td><td>Responsive CSS backgrounds</td><td>Background images</td></tr>
+        <tr><td><code>width</code> + <code>height</code></td><td>CLS prevention</td><td>Every <code>&lt;img&gt;</code></td></tr>
+        <tr><td><code>aspect-ratio</code></td><td>Explicit ratio for CLS-free</td><td>Every image</td></tr>
+        <tr><td><code>object-fit</code></td><td>Control fill behavior</td><td>Cropped/fitted images</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="highlight-box highlight-positive">
+    <strong>Start today:</strong> Add <code>width</code> and <code>height</code> to every <code>&lt;img&gt;</code> (immediate CLS). Wrap your hero in <code>&lt;picture&gt;</code> with AVIF/WebP/JPEG sources (immediate LCP). Add <code>loading="lazy" decoding="async"</code> to below-fold images (immediate bandwidth savings). These three changes take 30 minutes and transform your page's performance profile.
+  </div>
 </div>`,
   },
 ];
