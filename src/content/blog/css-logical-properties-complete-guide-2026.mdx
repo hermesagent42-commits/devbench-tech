@@ -1,0 +1,326 @@
+---
+title: 'CSS Logical Properties: The End of `left` and `right` Mindset'
+date: '2026-06-07'
+excerpt: 'CSS Logical Properties replace physical directional properties (left/right/top/bottom) with flow-relative alternatives (inline-start/inline-end/block-start/block-end). Now Baseline across all browsers, they make your layouts automatically adapt to RTL, vertical writing modes, and any future text direction — no JavaScript, no separate stylesheets, no hacks.'
+tags: 'CSS, Logical Properties, Internationalization, RTL, Writing Modes, Baseline 2026'
+---
+
+## Physical Properties Are Broken — Here's Why
+
+Every developer learns CSS the same way: `margin-left`, `padding-right`, `border-top`. These are **physical properties** — they refer to literal sides of the box. And for English-only, LTR-only websites, they work fine.
+
+But the moment you need to support Arabic (RTL), Hebrew (RTL), Japanese (vertical-rl), or Mongolian (vertical-lr), `margin-left` means something physically wrong. In an RTL context, the visual "start" of the content is on the *right* — but `margin-left` still affects the physical left edge, not the logical start.
+
+For 20 years, the solution was terrible:
+
+```css
+/* The old way — separate stylesheets for RTL */
+/* styles.css (LTR) */
+.card { margin-left: 1rem; padding-right: 2rem; }
+
+/* styles-rtl.css (RTL) */
+.card { margin-right: 1rem; padding-left: 2rem; }
+```
+
+Or with tooling:
+
+```css
+/* PostCSS-RTL / RTLCSS transforms */
+.card { margin-left: 1rem; } /* → margin-right: 1rem in RTL */
+```
+
+Both approaches are fragile, build-step-dependent, and break the moment you forget to run the transform.
+
+**CSS Logical Properties** solve this permanently. Instead of naming physical sides, you name **flow-relative** positions — and the browser does the right thing regardless of writing direction.
+
+## The Core Mapping
+
+Every physical property has a logical equivalent. Here's the complete mental model:
+
+| Physical | Logical (LTR) | Meaning |
+|---|---|---|
+| `margin-left` | `margin-inline-start` | The start edge in the inline direction (left in LTR, right in RTL) |
+| `margin-right` | `margin-inline-end` | The end edge in the inline direction |
+| `margin-top` | `margin-block-start` | The start edge in the block direction |
+| `margin-bottom` | `margin-block-end` | The end edge in the block direction |
+
+This applies to **padding**, **border**, **inset** (positioning), and **size**:
+
+```css
+/* Physical → Logical */
+
+/* Margins */
+margin-left      → margin-inline-start
+margin-right     → margin-inline-end
+margin-top       → margin-block-start
+margin-bottom    → margin-block-end
+
+/* Padding */
+padding-left     → padding-inline-start
+padding-right    → padding-inline-end
+padding-top      → padding-block-start
+padding-bottom   → padding-block-end
+
+/* Borders */
+border-left      → border-inline-start
+border-right     → border-inline-end
+border-top       → border-block-start
+border-bottom    → border-block-end
+
+/* Border radius */
+border-top-left-radius  → border-start-start-radius
+border-top-right-radius → border-start-end-radius
+border-bottom-left-radius  → border-end-start-radius
+border-bottom-right-radius → border-end-end-radius
+
+/* Positioning */
+left   → inset-inline-start
+right  → inset-inline-end
+top    → inset-block-start
+bottom → inset-block-end
+
+/* Size */
+width   → inline-size
+height  → block-size
+min-width  → min-inline-size
+max-height → max-block-size
+```
+
+## Shorthand Properties
+
+Logical properties support the same shorthand patterns you already know:
+
+```css
+.card {
+  /* Sets both inline margins: start and end */
+  margin-inline: 1rem;
+
+  /* Sets both block margins: start and end */
+  margin-block: 2rem;
+
+  /* All four logical sides in one shorthand */
+  margin: block-start inline-end block-end inline-start;
+
+  /* Or use the logical shorthand */
+  padding: logical 1rem 2rem 1rem 2rem;
+  /* Equals: padding-block-start: 1rem, padding-inline-end: 2rem, etc. */
+
+  /* Border shorthand (logical) */
+  border-inline: 2px solid #e2e8f0;
+  border-block: 1px solid #64748b;
+
+  /* Size shorthand */
+  inline-size: 100%;
+  max-inline-size: 60ch; /* Max line length, works in any writing mode */
+  block-size: auto;
+}
+```
+
+## Writing Modes in Action
+
+The magic of logical properties appears when you change `writing-mode`:
+
+```css
+/* Horizontal, LTR (default) */
+body { writing-mode: horizontal-tb; direction: ltr; }
+/* → inline-start = left, block-start = top */
+
+/* Horizontal, RTL */
+body { writing-mode: horizontal-tb; direction: rtl; }
+/* → inline-start = right, block-start = top */
+
+/* Vertical, top-to-bottom, right-to-left (Japanese) */
+body { writing-mode: vertical-rl; }
+/* → inline-start = top, block-start = right */
+
+/* Vertical, top-to-bottom, left-to-right (Mongolian) */
+body { writing-mode: vertical-lr; }
+/* → inline-start = top, block-start = left */
+```
+
+The same CSS works identically across all of these — the browser reinterprets `inline-start` based on the current writing mode:
+
+```css
+.card {
+  margin-inline-start: 1rem;  /* Always the "beginning" margin */
+  padding-block-end: 2rem;    /* Always the "bottom" padding */
+  border-inline-end: 1px solid #333; /* Always the "end" border */
+}
+```
+
+## Real-World Migration Guide
+
+### 1. Replace `margin-left` / `margin-right` with `margin-inline`
+
+```css
+/* Before */
+.card + .card { margin-left: 1.5rem; }
+
+/* After */
+.card + .card { margin-inline-start: 1.5rem; }
+```
+
+### 2. Replace `padding-left` on list items and blockquotes
+
+```css
+/* Before */
+blockquote { padding-left: 1rem; border-left: 3px solid blue; }
+
+/* After */
+blockquote {
+  padding-inline-start: 1rem;
+  border-inline-start: 3px solid blue;
+}
+```
+
+### 3. Replace `text-align: left` with `text-align: start`
+
+```css
+/* Before */
+.header { text-align: left; }
+
+/* After */
+.header { text-align: start; }
+```
+
+This pairs nicely with logical properties — `text-align: start` aligns to the logical start of the inline axis, which is left in LTR and right in RTL.
+
+### 4. Replace `float: left` with `float: inline-start`
+
+```css
+/* Before */
+.avatar { float: left; margin-right: 0.75rem; }
+
+/* After */
+.avatar { float: inline-start; margin-inline-end: 0.75rem; }
+```
+
+### 5. Replace `width` / `height` with `inline-size` / `block-size`
+
+```css
+/* Before */
+.container { width: 100%; max-width: 60rem; }
+
+/* After */
+.container { inline-size: 100%; max-inline-size: 60rem; }
+```
+
+This is particularly important for components that might appear in vertical text contexts. `width: 100%` in a vertical writing mode doesn't do what you think — it controls the inline dimension, but the box model changes. `inline-size` is unambiguous.
+
+### 6. Replace hardcoded border-radius values
+
+```css
+/* Before — breaks in RTL because corners physically change meaning */
+.card { border-radius: 8px 0 0 8px; }
+
+/* After — the "start" corner is always the logical start */
+.card { border-radius: logical 8px 0 0 8px; }
+/* Or explicitly: */
+.card {
+  border-start-start-radius: 8px;
+  border-start-end-radius: 0;
+  border-end-start-radius: 0;
+  border-end-end-radius: 8px;
+}
+```
+
+## The Flexbox and Grid Connection
+
+Flexbox and Grid already use flow-relative terms — they're logical by default:
+
+| Flexbox/Grid | Logical Property |
+|---|---|
+| `justify-content` (inline axis) | `margin-inline` |
+| `align-items` (block axis) | `margin-block` |
+| `flex-start` (inline start) | `margin-inline-start` |
+| `flex-end` (inline end) | `margin-inline-end` |
+
+This means logical properties align perfectly with Flexbox and Grid's mental model:
+
+```css
+.grid {
+  display: grid;
+  gap: 1rem;
+
+  /* Gap already accounts for writing mode */
+  /* Logical margins reinforce the flow-relative thinking */
+}
+
+.grid-item {
+  /* Spacing relative to adjacent items — works in any direction */
+  margin-inline-end: 1rem;
+  padding-block: 1.5rem;
+}
+```
+
+## When NOT to Use Logical Properties
+
+Logical properties are the right default, but there are legitimate cases for physical properties:
+
+**1. Literal box decorations (not content-related)**
+
+```css
+/* A literal right border on a drawer that slides from the right */
+.drawer { border-right: 1px solid #e2e8f0; }
+```
+
+**2. Absolute positioning relative to a viewport corner**
+
+```css
+/* "Stick this to the bottom-right corner of the screen" */
+.toast { position: fixed; bottom: 1rem; right: 1rem; }
+```
+
+**3. Images and icons with directional meaning**
+
+```css
+/* A right-arrow icon always points right */
+.icon-arrow { transform: rotate(0deg); } /* Not logical */
+```
+
+**4. `transform` properties (not yet logical)**
+
+```css
+/* translateX is always physical — logical transforms are proposed but not shipped */
+.box:hover { transform: translateX(10px); }
+```
+
+## Browser Support
+
+Logical properties are **Baseline** across all major browsers:
+
+- Chrome 87+ (November 2020)
+- Firefox 66+ (March 2019)
+- Safari 15+ (September 2021)
+- Edge 87+ (November 2020)
+
+Full support for all sub-properties (shorthands, `inset-*`, `*-size`) landed by Chrome 89, Firefox 66, and Safari 15.4 — that's over 97% of global users.
+
+For the remaining 3%, logical properties degrade gracefully: browsers that don't understand `margin-inline-start` simply ignore the declaration. Your page might look slightly off in RTL on IE11, but IE11 doesn't support RTL meaningfully anyway.
+
+## `postcss-logical` for Backward Compatibility
+
+If you need to support older browsers, use the `postcss-logical` plugin:
+
+```bash
+npm install postcss-logical
+```
+
+```js
+// postcss.config.js
+module.exports = {
+  plugins: [
+    require('postcss-logical')({
+      dir: 'ltr' // Default direction for fallbacks
+    })
+  ]
+};
+```
+
+This transforms your logical properties into physical fallbacks with `[dir="rtl"]` overrides — you write logical CSS, and the tool generates the physical equivalents for old browsers.
+
+## The Bottom Line
+
+CSS Logical Properties aren't just for internationalization — they're the correct way to think about layout in a language that supports multiple writing modes. They make your intent clearer (`margin-inline-start` describes *why* the margin exists, not just *where*), and they future-proof your CSS for RTL, vertical text, and any writing mode browsers might support in the future.
+
+Every new project in 2026 should use logical properties by default. Migrate existing projects incrementally — start with the most internationalization-sensitive components (navigation, content areas, forms) and work outward. Your CSS will be shorter, more correct, and automatically right for every user, regardless of their language.
