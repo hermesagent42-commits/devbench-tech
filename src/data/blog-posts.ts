@@ -4931,4 +4931,590 @@ function accessibleText(backgroundL) {
   </div>
 </div>`,
   },
+  {
+    slug: 'navigation-api-complete-guide-2026',
+    title: 'The Navigation API: Goodbye window.history — A Complete Guide',
+    description:
+      'The Navigation API replaces the 20-year-old History API for SPA routing. Intercept, prevent, and manage cross-document and same-document navigations with a modern, promise-based API. Complete guide with real-world patterns for intercepting link clicks, managing back/forward, scroll restoration, and building an SPA router without a library.',
+    date: '2026-06-07',
+    author: 'DevBench',
+    tags: ['JavaScript', 'Navigation API', 'SPA', 'Routing', 'History API', 'Web Platform', 'Baseline 2026', '2026'],
+    readingTime: '12 min read',
+    content: `<div class="prose-content">
+  <p class="lead">
+    The <strong>Navigation API</strong> — Baseline 2026 across all modern browsers — replaces the 20-year-old <code>window.history</code> API that every SPA framework has been built on. It gives developers interceptable navigations, promise-based lifecycle hooks, proper form-data handling, per-navigation scroll control, and native integration with the View Transitions API. Here's everything you need to know, with production-ready patterns.
+  </p>
+
+  <h2>Why the History API Needs Replacing</h2>
+
+  <p>
+    The <code>window.history</code> API has been the backbone of single-page application routing since 2005. <code>pushState()</code>, <code>replaceState()</code>, and <code>popstate</code> events let frameworks like React Router, Vue Router, and SvelteKit build client-side navigation. But the API was designed for a different era — before SPAs existed — and it shows.
+  </p>
+
+  <pre><code>// The History API's fundamental problems:
+
+// 1) No way to *intercept* navigation before it happens
+// popstate only fires on back/forward — not on pushState/replaceState
+window.addEventListener('popstate', (e) => {
+  // e.state is the only data you get. Can't cancel. Can't introspect the URL.
+});
+
+// 2) No way to *prevent* navigation
+// link clicks call pushState/replaceState directly — no interception point
+history.pushState(null, '', '/new-page'); // This just happens. No event.
+
+// 3) No way to handle cross-document navigations
+// Full-page loads (form submissions, meta refresh, window.location) are invisible to JS
+
+// 4) No promise-based lifecycle
+// Navigation start, commit, and finish are completely opaque
+
+// 5) Scroll restoration is a mess
+if ('scrollRestoration' in history) {
+  history.scrollRestoration = 'manual'; // One binary flag. No per-entry control.
+}</code></pre>
+
+  <p>
+    For 20 years, framework authors have built elaborate hacks on top of these primitives — monkey-patching <code>addEventListener</code> to intercept link clicks, wrapping <code>pushState</code> to dispatch custom events, and using <code>beforeunload</code> (a blocking <code>alert()</code> dialog!) as the only cross-document interceptor.
+  </p>
+
+  <p>
+    The <strong>Navigation API</strong> — Baseline 2026 across Chrome 102+, Edge 102+, Safari 18.2+, and Firefox 137+ — replaces all of this with a clean, promise-based design.
+  </p>
+
+  <h2>The Navigation Architecture</h2>
+
+  <p>
+    The Navigation API centers on the <code>navigation</code> global (available as <code>window.navigation</code>). Every navigation — whether a link click, <code>history.pushState()</code>, form submission, or <code>location.href = ...</code> — flows through a well-defined lifecycle:
+  </p>
+
+  <pre><code>               navigate event
+                    │
+          ┌─────────▼─────────┐
+          │  Can be intercepted │
+          │  & prevented here   │
+          └─────────┬─────────┘
+                    │
+               navigateSuccess
+                    │
+          ┌─────────▼─────────┐
+          │  Navigation committed │
+          │  URL changed           │
+          └─────────┬─────────┘
+                    │
+               navigateError
+                    │
+          ┌─────────▼─────────┐
+          │  Only if cancelled │
+          │  or errored        │
+          └────────────────────┘</code></pre>
+
+  <p>
+    Every step is observable and cancellable. No more guessing when navigation happens.
+  </p>
+
+  <h2>Basic Usage: Intercepting Navigations</h2>
+
+  <p>
+    The core is the <code>navigate</code> event — it fires for <strong>every</strong> navigation: same-document, cross-document, programmatic, and user-initiated:
+  </p>
+
+  <pre><code>navigation.addEventListener('navigate', (event) => {
+  // event.destination.url — the URL being navigated to
+  // event.navigationType — 'push' | 'replace' | 'reload' | 'traverse'
+  // event.formData — FormData if this is a form submission
+  // event.userInitiated — true if a user action triggered it
+  
+  console.log(\`Navigating to: \${event.destination.url}\`);
+  console.log(\`Type: \${event.navigationType}\`);
+  
+  // You can intercept and handle the navigation yourself:
+  event.intercept({
+    handler: async () => {
+      // This async function replaces the navigation
+      const html = await fetchPage(event.destination.url);
+      document.querySelector('#content').innerHTML = html;
+    }
+  });
+  
+  // Omit intercept() to let the navigation proceed normally
+});</code></pre>
+
+  <h3>Preventing Navigation Entirely</h3>
+
+  <p>
+    Need to block navigation? Like when a user has unsaved changes:
+  </p>
+
+  <pre><code>navigation.addEventListener('navigate', (event) => {
+  if (hasUnsavedChanges) {
+    const shouldLeave = confirm('You have unsaved changes. Leave?');
+    if (!shouldLeave) {
+      event.preventDefault(); // Blocks the navigation completely
+    }
+  }
+});</code></pre>
+
+  <p>
+    Unlike <code>beforeunload</code> which shows a browser-native dialog you can't customize, this gives you full control.
+  </p>
+
+  <h2>Navigation Types Explained</h2>
+
+  <p>
+    The <code>event.navigationType</code> tells you exactly what kind of navigation is happening:
+  </p>
+
+  <h3>push — New Entries</h3>
+
+  <p>
+    A new history entry is being added (link clicks, <code>pushState</code>):
+  </p>
+
+  <pre><code>navigation.addEventListener('navigate', (event) => {
+  if (event.navigationType === 'push') {
+    // User clicked a link or form submitted via GET
+    event.intercept({
+      handler: () => updateUI(event.destination.url),
+      scroll: 'after-transition', // Control scroll restoration per-navigation
+    });
+  }
+});</code></pre>
+
+  <h3>replace — Current Entry Replacement</h3>
+
+  <p>
+    The current history entry is being replaced (redirects, <code>replaceState</code>):
+  </p>
+
+  <pre><code>navigation.addEventListener('navigate', (event) => {
+  if (event.navigationType === 'replace') {
+    // Usually a redirect — keep the UI transition minimal
+    event.intercept({
+      handler: () => replaceUI(event.destination.url),
+      scroll: 'manual', // Don't auto-scroll on replace
+    });
+  }
+});</code></pre>
+
+  <h3>traverse — Back/Forward/Go</h3>
+
+  <p>
+    The user is moving through history (back button, forward button, <code>history.go()</code>):
+  </p>
+
+  <pre><code>navigation.addEventListener('navigate', (event) => {
+  if (event.navigationType === 'traverse') {
+    // Restore from cache if available — don't refetch
+    event.intercept({
+      handler: async () => {
+        const cached = pageCache.get(event.destination.url);
+        if (cached) {
+          document.querySelector('#content').innerHTML = cached;
+        } else {
+          await fetchAndRender(event.destination.url);
+        }
+      },
+      scroll: 'after-transition',
+    });
+  }
+});</code></pre>
+
+  <h3>reload — Page Reload</h3>
+
+  <p>
+    Full page reload — you can intercept and make it a soft reload:
+  </p>
+
+  <pre><code>navigation.addEventListener('navigate', (event) => {
+  if (event.navigationType === 'reload') {
+    // Turn a hard reload into a soft data refresh
+    event.intercept({
+      handler: async () => {
+        await refreshData();
+        // URL stays the same, no full page load
+      }
+    });
+  }
+});</code></pre>
+
+  <h2>Building an SPA Router with the Navigation API</h2>
+
+  <p>
+    Here's a complete, production-ready SPA router in ~60 lines — no library needed:
+  </p>
+
+  <pre><code>// router.js — A complete SPA router using the Navigation API
+class Router {
+  #routes = new Map();
+  #root = null;
+
+  constructor(rootSelector = '#app') {
+    this.#root = document.querySelector(rootSelector);
+  }
+
+  // Register a route with an async handler
+  on(pattern, handler) {
+    this.#routes.set(pattern, handler);
+    return this;
+  }
+
+  // Start listening for navigations
+  start() {
+    navigation.addEventListener('navigate', (event) => {
+      const url = new URL(event.destination.url);
+      const match = this.#matchRoute(url.pathname);
+      
+      if (!match) return; // Let unhandled routes pass through
+
+      event.intercept({
+        handler: async () => {
+          this.#root.innerHTML = '<div class="spinner">Loading...</div>';
+          const { html, state } = await match.handler(url, match.params);
+          this.#root.innerHTML = html;
+          document.title = state?.title || 'My App';
+        },
+        scroll: event.navigationType === 'traverse' ? 'after-transition' : 'manual',
+      });
+    });
+
+    // Handle the initial page load
+    this.#handleInitialLoad();
+    return this;
+  }
+
+  #matchRoute(pathname) {
+    for (const [pattern, handler] of this.#routes) {
+      const params = this.#extractParams(pattern, pathname);
+      if (params !== null) return { handler, params };
+    }
+    return null;
+  }
+
+  #extractParams(pattern, pathname) {
+    const regex = new RegExp(
+      '^' + pattern.replace(/:\\w+/g, '([^/]+)') + '$'
+    );
+    const match = pathname.match(regex);
+    if (!match) return null;
+    
+    const keys = [...pattern.matchAll(/:(\\w+)/g)].map(m => m[1]);
+    const params = {};
+    keys.forEach((key, i) => params[key] = match[i + 1]);
+    return params;
+  }
+
+  async #handleInitialLoad() {
+    const url = new URL(location.href);
+    const match = this.#matchRoute(url.pathname);
+    if (match) {
+      const { html, state } = await match.handler(url, match.params);
+      this.#root.innerHTML = html;
+      document.title = state?.title || 'My App';
+    }
+  }
+}
+
+// ── Usage ──
+const router = new Router('#app');
+
+router
+  .on('/', async (url, params) => ({
+    html: '<h1>Home</h1><p>Welcome!</p>',
+    state: { title: 'Home — My App' }
+  }))
+  .on('/users/:id', async (url, params) => ({
+    html: \`<h1>User \${params.id}</h1><p>User profile page</p>\`,
+    state: { title: \`User \${params.id} — My App\` }
+  }))
+  .on('/search', async (url, params) => {
+    const query = url.searchParams.get('q') || '';
+    const results = await fetch(\`/api/search?q=\${query}\`).then(r => r.json());
+    return {
+      html: \`<h1>Search: \${query}</h1><ul>\${results.map(r => \`<li>\${r.title}</li>\`).join('')}</ul>\`,
+      state: { title: \`Search: \${query} — My App\` }
+    };
+  })
+  .start();</code></pre>
+
+  <p>
+    No dependencies, no bundles, no framework — just the Navigation API and DOM.
+  </p>
+
+  <h2>Form Submission Interception</h2>
+
+  <p>
+    One of the Navigation API's best features: it catches form submissions and gives you the <code>FormData</code>:
+  </p>
+
+  <pre><code>navigation.addEventListener('navigate', (event) => {
+  if (event.formData) {
+    // This is a form submission — GET or POST
+    event.intercept({
+      handler: async () => {
+        const body = Object.fromEntries(event.formData); // FormData → object
+        
+        if (event.destination.url.includes('/api/search')) {
+          const results = await fetch(\`/api/search?q=\${body.q}\`).then(r => r.json());
+          renderSearchResults(results);
+        } else if (event.destination.url.includes('/api/contact')) {
+          const response = await fetch('/api/contact', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(body),
+          });
+          if (response.ok) {
+            document.querySelector('#app').innerHTML = '<p>Message sent!</p>';
+          }
+        }
+      },
+    });
+  }
+});</code></pre>
+
+  <p>
+    No more <code>event.preventDefault()</code> on every form. No more manually constructing <code>FormData</code>. The API gives you everything.
+  </p>
+
+  <h2>Scroll Restoration, Done Right</h2>
+
+  <p>
+    The old <code>history.scrollRestoration</code> was a global on/off switch. The Navigation API gives you per-navigation control:
+  </p>
+
+  <pre><code>navigation.addEventListener('navigate', (event) => {
+  event.intercept({
+    handler: async () => {
+      await renderPage(event.destination.url);
+    },
+    // Four scroll modes:
+    scroll: 'after-transition',  // Restore after handler resolves (default for traverse)
+    // scroll: 'immediate',      // Restore immediately
+    // scroll: 'manual',         // You control scroll yourself
+  });
+});</code></pre>
+
+  <p>
+    For <code>traverse</code> navigations (back/forward), scroll position is automatically restored. For <code>push</code> navigations, it scrolls to top. And you can override any of this.
+  </p>
+
+  <h2>Current Entry & History Traversal</h2>
+
+  <p>
+    The Navigation API also gives you structured access to the current entry:
+  </p>
+
+  <pre><code>// navigation.currentEntry — the current NavigationHistoryEntry
+console.log(navigation.currentEntry.url);       // Full URL
+console.log(navigation.currentEntry.key);       // Unique key (persists across sessions)
+console.log(navigation.currentEntry.id);        // Unique ID (per-session)
+console.log(navigation.currentEntry.index);     // Position in the history stack
+console.log(navigation.currentEntry.sameDocument); // true if this was an SPA navigation
+
+// navigation.entries() — the full history stack (async iterator)
+for await (const entry of navigation.entries()) {
+  console.log(\`\${entry.index}: \${entry.url}\`);
+}
+
+// Navigate programmatically (replaces history.go/back/forward)
+navigation.navigate('/new-page', { history: 'push' });
+navigation.navigate('/new-page', { history: 'replace' });
+navigation.reload();
+navigation.traverseTo(key);        // Go to a specific entry by key
+navigation.back();
+navigation.forward();
+
+// Or use info-passing (replaces history.state)
+navigation.navigate('/new-page', {
+  history: 'push',
+  info: { timestamp: Date.now(), scrollPosition: 0 },
+});
+
+navigation.addEventListener('navigate', (event) => {
+  console.log(event.info.timestamp); // Access the info you passed
+});</code></pre>
+
+  <h2>View Transitions — Native Page Animations</h2>
+
+  <p>
+    The Navigation API integrates with the View Transitions API for smooth, coordinated page transitions:
+  </p>
+
+  <pre><code>navigation.addEventListener('navigate', (event) => {
+  event.intercept({
+    handler: async () => {
+      // startViewTransition wraps your DOM update in a transition
+      await document.startViewTransition(async () => {
+        await renderNewPage(event.destination.url);
+      }).ready;
+    },
+  });
+});</code></pre>
+
+  <pre><code>/* With this CSS, elements animate between pages automatically */
+::view-transition-old(root) {
+  animation: fade-out 0.3s ease-out;
+}
+::view-transition-new(root) {
+  animation: fade-in 0.3s ease-in;
+}</code></pre>
+
+  <p>
+    The combination of <code>navigation.intercept()</code> + <code>document.startViewTransition()</code> gives you native, 60fps page transitions — what previously required complex JavaScript animation libraries.
+  </p>
+
+  <h2>Handling Failed Navigations</h2>
+
+  <p>
+    Navigations can fail — the Navigation API gives you structured error handling:
+  </p>
+
+  <pre><code>navigation.addEventListener('navigate', (event) => {
+  event.intercept({
+    handler: async () => {
+      try {
+        const response = await fetch(event.destination.url);
+        if (!response.ok) throw new Error(\`HTTP \${response.status}\`);
+        const html = await response.text();
+        document.querySelector('#content').innerHTML = html;
+      } catch (err) {
+        // Navigate to an error page instead
+        document.querySelector('#content').innerHTML = \`
+          <div class="error">
+            <h2>Navigation Failed</h2>
+            <p>\${err.message}</p>
+            <button onclick="navigation.reload()">Retry</button>
+          </div>
+        \`;
+      }
+    },
+  });
+});
+
+// Global error handler
+navigation.addEventListener('navigateerror', (event) => {
+  console.error('Navigation failed:', event.error);
+  // event.error contains the thrown error
+});</code></pre>
+
+  <h2>Migration Guide: History API → Navigation API</h2>
+
+  <table>
+    <thead>
+      <tr><th>Old (History API)</th><th>New (Navigation API)</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><code>history.pushState(state, '', url)</code></td><td><code>navigation.navigate(url, { history: 'push', info: state })</code></td></tr>
+      <tr><td><code>history.replaceState(state, '', url)</code></td><td><code>navigation.navigate(url, { history: 'replace', info: state })</code></td></tr>
+      <tr><td><code>window.addEventListener('popstate', handler)</code></td><td><code>navigation.addEventListener('navigate', handler)</code> with <code>event.navigationType === 'traverse'</code></td></tr>
+      <tr><td><code>history.back()</code></td><td><code>navigation.back()</code></td></tr>
+      <tr><td><code>history.forward()</code></td><td><code>navigation.forward()</code></td></tr>
+      <tr><td><code>history.go(-2)</code></td><td><code>navigation.traverseTo(key)</code></td></tr>
+      <tr><td><code>window.addEventListener('beforeunload', ...)</code></td><td><code>navigation.addEventListener('navigate', ...)</code> + <code>event.preventDefault()</code></td></tr>
+      <tr><td><code>history.scrollRestoration = 'manual'</code></td><td>Per-navigation <code>scroll</code> option in <code>event.intercept()</code></td></tr>
+      <tr><td><code>history.state</code></td><td><code>navigation.currentEntry.getState()</code></td></tr>
+    </tbody>
+  </table>
+
+  <h2>Real-World Patterns</h2>
+
+  <h3>Pattern: Optimistic Navigation</h3>
+
+  <p>
+    Start rendering immediately, update URL after:
+  </p>
+
+  <pre><code>navigation.addEventListener('navigate', (event) => {
+  if (event.navigationType !== 'push') return;
+
+  event.intercept({
+    handler: async () => {
+      const url = new URL(event.destination.url);
+      
+      // Start the fetch immediately
+      const pagePromise = fetch(url);
+      
+      // Show a loading state after 150ms (avoid flash for fast loads)
+      const loadingTimer = setTimeout(() => {
+        document.querySelector('#content').innerHTML = 
+          '<div class="loading">Loading...</div>';
+      }, 150);
+      
+      try {
+        const response = await pagePromise;
+        clearTimeout(loadingTimer);
+        const html = await response.text();
+        document.querySelector('#content').innerHTML = html;
+      } finally {
+        clearTimeout(loadingTimer);
+      }
+    },
+    scroll: 'after-transition',
+  });
+});</code></pre>
+
+  <h3>Pattern: Data-Dependent Routing</h3>
+
+  <p>
+    Block navigation if async conditions aren't met:
+  </p>
+
+  <pre><code>navigation.addEventListener('navigate', async (event) => {
+  if (hasUnsavedChanges) {
+    event.preventDefault();
+    const confirmed = await showUnsavedChangesDialog();
+    if (confirmed) {
+      await saveChanges();
+      navigation.navigate(event.destination.url, { history: 'push' });
+    }
+  }
+});</code></pre>
+
+  <h2>Browser Support & Progressive Enhancement</h2>
+
+  <p>
+    The Navigation API is Baseline 2026 — Chrome 102+, Firefox 137+, Safari 18.2+, Edge 102+. For older browsers, you can progressively enhance:
+  </p>
+
+  <pre><code>if ('navigation' in window) {
+  // Use the modern Navigation API
+  navigation.addEventListener('navigate', handleNavigation);
+} else {
+  // Fall back to History API + link interception
+  document.addEventListener('click', (e) => {
+    const link = e.target.closest('a[href]');
+    if (!link) return;
+    
+    e.preventDefault();
+    const url = new URL(link.href);
+    history.pushState(null, '', url);
+    renderPage(url);
+  });
+  
+  window.addEventListener('popstate', () => {
+    renderPage(new URL(location.href));
+  });
+}</code></pre>
+
+  <h2>Summary</h2>
+
+  <div class="highlight-box">
+    <strong>Key takeaways:</strong>
+    <ul>
+      <li><strong>The Navigation API replaces</strong> <code>window.history</code> and <code>beforeunload</code> — intercept, prevent, and handle all navigations from a single event listener</li>
+      <li><strong>Promise-based lifecycle</strong> — <code>navigate</code>, <code>navigateSuccess</code>, <code>navigateError</code> events with async handlers</li>
+      <li><strong>Interception without hacks</strong> — no more monkey-patching <code>pushState</code> or intercepting link clicks manually</li>
+      <li><strong>Per-navigation scroll control</strong> — <code>scroll: 'after-transition' | 'immediate' | 'manual'</code></li>
+      <li><strong>info-passing</strong> — carry arbitrary data through navigations instead of encoding it in URLs or <code>history.state</code></li>
+      <li><strong>FormData support</strong> — form submissions expose <code>event.formData</code> for easy processing</li>
+      <li><strong>View Transitions integration</strong> — combine with <code>document.startViewTransition()</code> for native page transitions</li>
+      <li><strong>Baseline 2026</strong> — Chrome 102+, Firefox 137+, Safari 18.2+, Edge 102+</li>
+    </ul>
+  </div>
+
+  <div class="highlight-box highlight-positive">
+    <strong>Start today:</strong> If you maintain a SPA router — whether a custom one or a framework fork — wrap a <code>'navigation' in window</code> check around your initialization and add a Navigation API path. You can ship both paths simultaneously (Navigation API for modern browsers, History API fallback for older ones) and remove the fallback once your support matrix catches up to Baseline 2026. Check out the <a href="/tools/url-parser/">URL Parser</a> and <a href="/tools/keycode-info/">Keycode Info</a> tools while you're here — they're built with the same zero-dependency philosophy.
+  </div>
+</div>`,
+  },
 ];
