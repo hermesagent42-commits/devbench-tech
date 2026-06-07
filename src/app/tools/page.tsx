@@ -113,6 +113,7 @@ import {
   FileArchive,
   Cookie,
   Pipette,
+  Gamepad2,
 } from 'lucide-react';
 
 export const metadata: Metadata = {
@@ -1305,6 +1306,13 @@ const allTools = [
     href: '/tools/cookie-editor',
     icon: Cookie,
     tags: ['Cookies', 'Debug', 'Storage', 'Browser API'],
+  },
+  {
+    title: 'Gamepad API Tester',
+    description: 'Test and visualize connected gamepads in real-time — buttons, joysticks, triggers, and vibration. Xbox, PlayStation, and Switch Pro layouts. Built on the Web Gamepad API.',
+    href: '/tools/gamepad-api-tester',
+    icon: Gamepad2,
+    tags: ['Gamepad', 'Browser API', 'Controller', 'Vibration'],
   },
   {
     title: 'Code Minifier',
