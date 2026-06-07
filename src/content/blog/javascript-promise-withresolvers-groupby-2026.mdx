@@ -1,0 +1,358 @@
+---
+title: "Promise.withResolvers() and Object.groupBy(): The Two ES2024 APIs Every Developer Should Be Using"
+date: "2026-06-07"
+excerpt: "Promise.withResolvers() eliminates the deferred pattern that cluttered JavaScript for a decade. Object.groupBy() and Map.groupBy() replace hand-rolled reduce() loops with one native call. Both are Baseline 2026 across every browser. Here's why they matter, how they work, and the real-world patterns they enable."
+tags: ["JavaScript", "ES2024", "Promise.withResolvers", "Object.groupBy", "Baseline 2026", "Promises", "Data"]
+---
+
+## Two APIs, One Pattern: JavaScript Is Removing Boilerplate
+
+ES2024 shipped two deceptively simple APIs that together solve a huge class of problems — the kind that used to require 5+ lines of boilerplate and a comment saying "I know this looks weird, but trust me."
+
+- **`Promise.withResolvers()`** replaces the **deferred promise pattern** — the awkward dance of declaring `resolve` and `reject` outside the `Promise` constructor
+- **`Object.groupBy()` and `Map.groupBy()`** replace the **group-by reduce()** pattern — the cryptic `arr.reduce((acc, item) => { (acc[item.key] ??= []).push(item); return acc; }, {})` that shows up in every codebase
+
+Both are now Baseline 2026, meaning they ship in every major browser. No polyfill needed. No TypeScript config tweaks. Just write the code.
+
+---
+
+## Part 1: Promise.withResolvers()
+
+### The Problem: The Deferred Pattern
+
+For over a decade, JavaScript developers who needed to resolve a Promise *outside* the Promise constructor were forced into this awkward pattern:
+
+```javascript
+// The "deferred" pattern — JavaScript 2015-2023
+let resolve, reject;
+const promise = new Promise((res, rej) => {
+  resolve = res;
+  reject = rej;
+});
+
+// Later, in an event handler or callback:
+button.onclick = () => resolve("clicked");
+setTimeout(() => reject(new Error("timeout")), 5000);
+```
+
+This works, but it has problems:
+
+1. **TypeScript ergonomics are terrible.** You have to declare `resolve` and `reject` with explicit types, often with `!` assertions or `undefined` initializers.
+2. **It's not obvious what's happening.** A dev reading the code has to trace two declarations, a constructor, and an assignment just to understand that you're creating a deferred promise.
+3. **It's easy to forget error handling.** The `reject` variable can be forgotten, leading to unhandled promise rejections.
+4. **It doesn't compose well.** Wrapping this in a utility function requires generic type parameters that are hard to get right.
+
+### The Solution: Promise.withResolvers()
+
+```javascript
+const { promise, resolve, reject } = Promise.withResolvers();
+
+// That's it. No boilerplate. TypeScript infers everything.
+button.onclick = () => resolve("clicked");
+setTimeout(() => reject(new Error("timeout")), 5000);
+
+await promise;
+```
+
+`Promise.withResolvers()` returns an object with three properties: `promise` (a new Promise), `resolve` (bound to that promise), and `reject` (also bound). It's a clean, declarative, one-line replacement for the deferred pattern.
+
+### Real-World Use Cases
+
+#### 1. Event-to-Promise Bridge
+
+```javascript
+// Before: deferred pattern
+function waitForClick(el) {
+  let resolve;
+  const promise = new Promise(r => { resolve = r; });
+  el.addEventListener("click", () => resolve(el), { once: true });
+  return promise;
+}
+
+// After: withResolvers
+function waitForClick(el) {
+  const { promise, resolve } = Promise.withResolvers();
+  el.addEventListener("click", () => resolve(el), { once: true });
+  return promise;
+}
+```
+
+#### 2. Timeout Wrapper
+
+```javascript
+function withTimeout(promise, ms) {
+  const { promise: timeout, reject } = Promise.withResolvers();
+  const timer = setTimeout(() => reject(new Error(`Timed out after ${ms}ms`)), ms);
+  return Promise.race([promise, timeout]).finally(() => clearTimeout(timer));
+}
+```
+
+#### 3. Request Queue with Backpressure
+
+```javascript
+class RequestQueue {
+  #queue = [];
+  #pending = null;
+
+  async enqueue(task) {
+    if (this.#pending) {
+      const { promise, resolve } = Promise.withResolvers();
+      this.#queue.push({ task, resolve });
+      return promise;
+    }
+    return this.#processTask(task);
+  }
+
+  async #processTask(task) {
+    this.#pending = task;
+    const result = await task();
+    if (this.#queue.length > 0) {
+      const { task: nextTask, resolve } = this.#queue.shift();
+      this.#processTask(nextTask).then(resolve);
+    } else {
+      this.#pending = null;
+    }
+    return result;
+  }
+}
+```
+
+#### 4. Cancellable Async Operations
+
+```javascript
+function createCancellableOperation(asyncFn) {
+  const { promise, resolve, reject } = Promise.withResolvers();
+  const controller = new AbortController();
+  asyncFn(controller.signal).then(resolve).catch(reject);
+  return {
+    promise,
+    cancel(reason = "Cancelled") {
+      controller.abort();
+      reject(new DOMException(reason, "AbortError"));
+    }
+  };
+}
+```
+
+#### 5. WebSocket Message as Promise
+
+```javascript
+function waitForMessage(ws, predicate) {
+  const { promise, resolve } = Promise.withResolvers();
+  function handler(event) {
+    const data = JSON.parse(event.data);
+    if (predicate(data)) {
+      ws.removeEventListener("message", handler);
+      resolve(data);
+    }
+  }
+  ws.addEventListener("message", handler);
+  return promise;
+}
+```
+
+### TypeScript
+
+```typescript
+const { promise, resolve, reject } = Promise.withResolvers<string>();
+// promise: Promise<string>, resolve: (value: string) => void
+
+interface User { id: number; name: string; }
+const { promise: userPromise } = Promise.withResolvers<User>();
+// userPromise: Promise<User>
+```
+
+### Browser Support
+
+| Browser | Support Since |
+|---------|--------------|
+| Chrome 119 | October 2023 |
+| Firefox 121 | December 2023 |
+| Safari 17.4 | March 2024 |
+| Node.js 22 | April 2024 |
+
+**Baseline 2026: Widely Available.** No polyfill needed.
+
+---
+
+## Part 2: Object.groupBy() and Map.groupBy()
+
+### The Problem: The Reduce Boilerplate
+
+```javascript
+// The reduce() pattern — cryptic, error-prone
+const byRole = people.reduce((acc, person) => {
+  (acc[person.role] ??= []).push(person);
+  return acc;
+}, {});
+```
+
+Problems: not readable, error-prone (forget `??=` and it breaks), only produces plain objects, slower than native.
+
+### The Solution: Object.groupBy()
+
+```javascript
+const byRole = Object.groupBy(people, person => person.role);
+```
+
+One line. Crystal clear. No accumulator, no nullish coalescing, no `return acc`.
+
+### Key Differences
+
+**1. Null-prototype object** — no inherited properties like `toString` or `constructor`. You can safely group by keys like `"toString"` without collisions.
+
+**2. Throws on non-objects** — `Object.groupBy(null, x => x)` throws TypeError.
+
+### Map.groupBy() — For Non-String Keys
+
+```javascript
+const orders = [
+  { id: 1, date: new Date("2026-01-15"), total: 250 },
+  { id: 2, date: new Date("2026-01-15"), total: 400 },
+  { id: 3, date: new Date("2026-02-01"), total: 150 },
+];
+
+const byDate = Map.groupBy(orders, o => o.date);
+byDate.get(new Date("2026-01-15")); // [{ id: 1, ... }, { id: 2, ... }]
+
+for (const [date, batch] of byDate) {
+  const total = batch.reduce((sum, o) => sum + o.total, 0);
+  console.log(`${date.toDateString()}: $${total}`);
+}
+```
+
+### Real-World Patterns
+
+**Group HTTP Responses by Status Code Class:**
+
+```javascript
+const byStatus = Object.groupBy(
+  responses.map(r => r.value),
+  ({ status }) => `${Math.floor(status / 100)}xx`
+);
+// { "2xx": [...], "4xx": [...], "5xx": [...] }
+```
+
+**Categorize Logs by Severity:**
+
+```javascript
+const byLevel = Object.groupBy(logs, log => log.level);
+console.log(`${byLevel.ERROR.length} errors, ${byLevel.WARN?.length ?? 0} warnings`);
+```
+
+**Bucket Users by Signup Month (non-string keys):**
+
+```javascript
+const byMonth = Map.groupBy(users, u => {
+  const d = new Date(u.signupDate);
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+});
+```
+
+**Partition a List:**
+
+```javascript
+function partition(arr, predicate) {
+  return Object.groupBy(arr, item => predicate(item) ? "pass" : "fail");
+}
+const { pass: evens, fail: odds } = partition(numbers, n => n % 2 === 0);
+```
+
+### Browser Support
+
+| Browser | Support Since |
+|---------|--------------|
+| Chrome 117 | September 2023 |
+| Firefox 119 | October 2023 |
+| Safari 17.4 | March 2024 |
+| Node.js 21 | October 2023 |
+
+**Baseline 2026: Widely Available.**
+
+---
+
+## Putting It All Together
+
+```javascript
+async function batchFetch(urls, { timeout = 5000, concurrency = 3 } = {}) {
+  const { promise: batchDone, resolve: markDone } = Promise.withResolvers();
+  const results = [];
+  const queue = [...urls];
+  let active = 0;
+
+  async function worker() {
+    while (queue.length > 0) {
+      const url = queue.shift();
+      active++;
+      const { promise: fetchPromise, resolve, reject } = Promise.withResolvers();
+      const timer = setTimeout(() => reject(new Error(`Timeout: ${url}`)), timeout);
+      fetch(url)
+        .then(r => r.json().then(data => resolve({ ok: true, status: r.status, url, data })))
+        .catch(err => resolve({ ok: false, status: 0, url, error: err.message }))
+        .finally(() => clearTimeout(timer));
+      try { results.push(await Promise.race([fetchPromise, timer])); }
+      catch (err) { results.push({ ok: false, status: 0, url, error: err.message }); }
+      active--;
+    }
+    if (active === 0) markDone();
+  }
+
+  for (let i = 0; i < concurrency; i++) worker();
+  await batchDone;
+
+  const grouped = Object.groupBy(results, r => {
+    if (r.ok) return "success";
+    if (r.status === 0) return "timeout";
+    return `error_${r.status}`;
+  });
+
+  return {
+    total: results.length,
+    success: grouped.success?.length ?? 0,
+    timeout: grouped.timeout?.length ?? 0,
+    errors: Object.fromEntries(
+      Object.entries(grouped).filter(([key]) => key.startsWith("error_"))
+    ),
+  };
+}
+```
+
+---
+
+## The Pattern: JavaScript Is Removing the Ceremony
+
+- **`Promise.withResolvers()`** says: "You shouldn't need 4 lines of variable declarations just to defer a promise."
+- **`Object.groupBy()`** says: "Grouping items by a property shouldn't require reduce(), accumulator logic, and nullish coalescing."
+- **`Map.groupBy()`** says: "And if your keys aren't strings, the standard library should handle that too."
+
+These aren't flashy features. But they'll save you 5-10 lines of boilerplate every time you use them.
+
+---
+
+## Quick Reference
+
+### Promise.withResolvers()
+
+| Property | Type | Description |
+|----------|------|-------------|
+| `promise` | `Promise<T>` | A new Promise |
+| `resolve` | `(value: T) => void` | Resolves the promise |
+| `reject` | `(reason?: any) => void` | Rejects the promise |
+
+### Object.groupBy() / Map.groupBy()
+
+| API | Key Type | Returns |
+|-----|---------|---------|
+| `Object.groupBy(items, fn)` | string or symbol | null-prototype object |
+| `Map.groupBy(items, fn)` | any type | Map |
+
+---
+
+## Further Reading
+
+- [MDN: Promise.withResolvers()](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise/withResolvers)
+- [MDN: Object.groupBy()](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/groupBy)
+- [MDN: Map.groupBy()](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map/groupBy)
+- [TC39 Proposal: Promise.withResolvers](https://github.com/tc39/proposal-promise-with-resolvers)
+- [TC39 Proposal: Array Grouping](https://github.com/tc39/proposal-array-grouping)
+- [Can I Use: Promise.withResolvers](https://caniuse.com/mdn-javascript_builtins_promise_withresolvers)
