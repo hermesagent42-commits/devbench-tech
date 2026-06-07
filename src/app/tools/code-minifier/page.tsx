@@ -2,344 +2,319 @@
 
 import { useState, useCallback, useMemo } from 'react';
 import { ToolLayout } from '@/components/ToolLayout';
-import { Copy, Check, Trash2, FileCode, ArrowRightLeft, Zap, Minimize2, FileText } from 'lucide-react';
+import { Copy, Trash2, Minimize2, ArrowLeftRight, FileCode, FileType, FileJson, Braces } from 'lucide-react';
 import toast from 'react-hot-toast';
 
-type Language = 'css' | 'javascript' | 'html';
+type Lang = 'css' | 'js' | 'html' | 'auto';
 
-const LANGUAGES: { key: Language; label: string; icon: React.FC<{ className?: string }> }[] = [
-  { key: 'css', label: 'CSS', icon: FileCode },
-  { key: 'javascript', label: 'JavaScript', icon: FileCode },
-  { key: 'html', label: 'HTML', icon: FileText },
+// ─── Minifiers ────────────────────────────────────────────────────
+
+function minifyCSS(input: string): string {
+  let output = input;
+  // Remove comments
+  output = output.replace(/\/\*[\s\S]*?\*\//g, '');
+  // Collapse whitespace
+  output = output.replace(/\s+/g, ' ');
+  // Remove spaces around { } : ; ,
+  output = output.replace(/\s*{\s*/g, '{');
+  output = output.replace(/\s*}\s*/g, '}');
+  output = output.replace(/\s*:\s*/g, ':');
+  output = output.replace(/\s*;\s*/g, ';');
+  output = output.replace(/\s*,\s*/g, ',');
+  // Remove last semicolon in a rule block
+  output = output.replace(/;\s*}/g, '}');
+  // Remove leading/trailing whitespace
+  output = output.trim();
+  return output;
+}
+
+function minifyJS(input: string): string {
+  let output = input;
+  // Remove block comments
+  output = output.replace(/\/\*[\s\S]*?\*\//g, '');
+  // Remove line comments (but not URLs)
+  output = output.replace(/\/\/(?!\/)[^\n]*/g, '');
+  // Collapse whitespace (preserving newlines minimally)
+  output = output.replace(/[ \t]+/g, ' ');
+  // Remove spaces around operators (selective)
+  output = output.replace(/\s*([{}();,:])\s*/g, '$1');
+  output = output.replace(/\s*([=+\-*/%<>&|!^~?])\s*/g, '$1');
+  // Clean up multiple newlines
+  output = output.replace(/\n\s*\n/g, '\n');
+  // Remove trailing semicolons before }
+  output = output.replace(/;\s*}/g, '}');
+  output = output.trim();
+  return output;
+}
+
+function minifyHTML(input: string): string {
+  let output = input;
+  // Remove HTML comments (but not IE conditional)
+  output = output.replace(/<!--(?!\[if)[\s\S]*?-->/g, '');
+  // Collapse whitespace between tags
+  output = output.replace(/>\s+</g, '><');
+  // Collapse remaining whitespace
+  output = output.replace(/\s{2,}/g, ' ');
+  // Minify inline CSS in style tags
+  output = output.replace(/(<style[^>]*>)([\s\S]*?)(<\/style>)/gi, (_, open, css, close) => {
+    return open + minifyCSS(css) + close;
+  });
+  // Minify inline JS in script tags (conservative)
+  output = output.replace(/(<script[^>]*>)([\s\S]*?)(<\/script>)/gi, (_, open, js, close) => {
+    return open + minifyJS(js) + close;
+  });
+  output = output.trim();
+  return output;
+}
+
+function detectLanguage(input: string): Lang {
+  const trimmed = input.trim();
+  if (trimmed.startsWith('<')) return 'html';
+  if (trimmed.startsWith('{') || trimmed.startsWith('[') || trimmed.includes('@import') || trimmed.includes('@media') || /[.#]\w+\s*\{/.test(trimmed)) return 'css';
+  // If starts with import/const/let/var/function/class or has common JS patterns
+  if (/^(import|export|const|let|var|function|class|async|await|if|for|while|switch|return|try|throw|debugger)\b/.test(trimmed)) return 'js';
+  if (trimmed.includes('{') && /:\s*[\w"'(<]/.test(trimmed)) return 'css';
+  return 'js';
+}
+
+// ─── Component ────────────────────────────────────────────────────
+
+const LANG_OPTIONS: { value: Lang; label: string; icon: typeof FileCode }[] = [
+  { value: 'auto', label: 'Auto', icon: Braces },
+  { value: 'css', label: 'CSS', icon: FileType },
+  { value: 'js', label: 'JavaScript', icon: FileJson },
+  { value: 'html', label: 'HTML', icon: FileCode },
 ];
 
-// ── Minification Functions ──────────────────────────────────────────────────
-
-function minifyCSS(code: string): string {
-  let result = code;
-
-  // Remove comments
-  result = result.replace(/\/\*[\s\S]*?\*\//g, '');
-
-  // Collapse whitespace — but preserve inside quotes and data: URIs
-  // Remove newlines, tabs, and multiple spaces
-  result = result.replace(/\s+/g, ' ');
-
-  // Remove spaces around selectors/operators
-  result = result.replace(/\s*([{};:,>+~()])\s*/g, '$1');
-
-  // Remove last semicolon before closing brace
-  result = result.replace(/;}/g, '}');
-
-  // Remove units on zero values
-  result = result.replace(/(:|\s)0(px|em|rem|%|vh|vw|vmin|vmax|ch|ex|cm|mm|in|pt|pc)/g, '$10');
-
-  // Remove leading zeros from decimal values
-  result = result.replace(/(:|\s)0\.(\d+)/g, '$1.$2');
-
-  // Remove trailing semicolons after last property in a block
-  result = result.replace(/;}/g, '}');
-
-  // Remove spaces after opening brace and before closing
-  result = result.replace(/\{ /g, '{');
-  result = result.replace(/ \}/g, '}');
-
-  // Remove spaces around commas in values
-  result = result.replace(/,\s+/g, ',');
-
-  // Trim whitespace
-  result = result.trim();
-
-  return result;
-}
-
-function minifyJS(code: string): string {
-  let result = code;
-
-  // Remove single-line comments (but not URLs with //)
-  result = result.replace(/(?<!https?:)\/\/.*?$/gm, '');
-
-  // Remove multi-line comments
-  result = result.replace(/\/\*[\s\S]*?\*\//g, '');
-
-  // Remove newlines and tabs
-  result = result.replace(/\n/g, ' ');
-  result = result.replace(/\t/g, ' ');
-
-  // Collapse multiple spaces
-  result = result.replace(/[ ]{2,}/g, ' ');
-
-  // Remove spaces around operators and delimiters
-  result = result.replace(/\s*([{}();,:+\-*/%=<>&|^!?~])\s*/g, '$1');
-
-  // Restore spaces around keywords to prevent merging
-  const keywords = ['var', 'let', 'const', 'function', 'return', 'if', 'else', 'for', 'while',
-    'do', 'switch', 'case', 'break', 'continue', 'new', 'typeof', 'instanceof',
-    'in', 'of', 'class', 'extends', 'import', 'export', 'from', 'default',
-    'throw', 'try', 'catch', 'finally', 'async', 'await', 'yield', 'delete'];
-  keywords.forEach(kw => {
-    const pattern = new RegExp(`([^a-zA-Z0-9_$])(${kw})([^a-zA-Z0-9_$])`, 'g');
-    result = result.replace(pattern, '$1 $2 $3');
-  });
-
-  // Fix: add space after return/new/typeof/etc if directly followed by identifier
-  result = result.replace(/(return|new|typeof|delete|void)([a-zA-Z_$])/g, '$1 $2');
-
-  // Remove leading/trailing whitespace
-  result = result.trim();
-
-  return result;
-}
-
-function minifyHTML(code: string): string {
-  let result = code;
-
-  // Remove HTML comments (but not conditional comments for IE)
-  result = result.replace(/<!--(?!\[if\s)[\s\S]*?-->/g, '');
-
-  // Collapse whitespace — reduce to single spaces
-  result = result.replace(/\s+/g, ' ');
-
-  // Remove spaces between HTML tags
-  result = result.replace(/>\s+</g, '><');
-
-  // Remove spaces after opening tag name and before attributes
-  // <div   class="foo"   >  →  <div class="foo">
-  result = result.replace(/<\s+/g, '<');
-  result = result.replace(/\s+>/g, '>');
-
-  // Remove spaces around = in attributes
-  result = result.replace(/\s*=\s*/g, '=');
-
-  // Remove whitespace-only content between block tags (but preserve in inline)
-  result = result.replace(/>\s+</g, '><');
-
-  // Remove spaces after < and before > in self-closing tags
-  result = result.replace(/<\s+/g, '<');
-  result = result.replace(/\s+\/?>/g, (match: string) => {
-    return match.replace(/\s+/g, '');
-  });
-
-  // Trim
-  result = result.trim();
-
-  return result;
-}
-
-function minifyCode(code: string, language: Language): string {
-  switch (language) {
-    case 'css': return minifyCSS(code);
-    case 'javascript': return minifyJS(code);
-    case 'html': return minifyHTML(code);
-  }
-}
-
-// ── Stats ───────────────────────────────────────────────────────────────────
-
-function formatBytes(bytes: number): string {
-  if (bytes < 1024) return `${bytes} B`;
-  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
-  return `${(bytes / (1024 * 1024)).toFixed(2)} MB`;
-}
-
-// ── Main Component ──────────────────────────────────────────────────────────
-
 export default function CodeMinifierPage() {
-  const [language, setLanguage] = useState<Language>('css');
   const [input, setInput] = useState('');
-  const [copied, setCopied] = useState(false);
-  const [autoMinify, setAutoMinify] = useState(true);
+  const [lang, setLang] = useState<Lang>('auto');
+  const [detected, setDetected] = useState<Lang | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  const effectiveLang = useMemo<Lang>(() => {
+    if (lang !== 'auto') return lang;
+    if (!input.trim()) return 'css';
+    const d = detectLanguage(input);
+    setDetected(d);
+    return d;
+  }, [input, lang]);
 
   const output = useMemo(() => {
+    setError(null);
     if (!input.trim()) return '';
-    return minifyCode(input, language);
-  }, [input, language]);
-
-  const inputSize = useMemo(() => new Blob([input]).size, [input]);
-  const outputSize = useMemo(() => new Blob([output]).size, [output]);
-  const reduction = useMemo(() => {
-    if (inputSize === 0) return 0;
-    return ((1 - outputSize / inputSize) * 100);
-  }, [inputSize, outputSize]);
-
-  const handleCopy = useCallback(async () => {
-    if (!output) return;
     try {
-      await navigator.clipboard.writeText(output);
-      setCopied(true);
-      toast.success('Minified code copied!');
-      setTimeout(() => setCopied(false), 2000);
-    } catch {
-      toast.error('Failed to copy');
+      switch (effectiveLang) {
+        case 'css': return minifyCSS(input);
+        case 'js': return minifyJS(input);
+        case 'html': return minifyHTML(input);
+        default: return '';
+      }
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Minification error');
+      return '';
     }
-  }, [output]);
+  }, [input, effectiveLang]);
 
-  const handleClear = useCallback(() => {
+  const stats = useMemo(() => {
+    if (!output) return null;
+    const inBytes = new TextEncoder().encode(input).length;
+    const outBytes = new TextEncoder().encode(output).length;
+    const saved = inBytes - outBytes;
+    const pct = inBytes > 0 ? Math.round((saved / inBytes) * 100) : 0;
+    return { inBytes, outBytes, saved, pct };
+  }, [input, output]);
+
+  const clear = useCallback(() => {
     setInput('');
+    setError(null);
   }, []);
 
-  const LanguageIcon = LANGUAGES.find(l => l.key === language)?.icon ?? FileCode;
+  const copyOutput = useCallback(() => {
+    if (!output) return;
+    navigator.clipboard.writeText(output).then(
+      () => toast.success('Copied minified code'),
+      () => toast.error('Copy failed')
+    );
+  }, [output]);
+
+  const swap = useCallback(() => {
+    if (!output) return;
+    setInput(output);
+  }, [output]);
 
   return (
     <ToolLayout
       title="Code Minifier"
-      description={`Minify CSS, JavaScript, and HTML — strip comments, collapse whitespace, and reduce file size. ${autoMinify ? 'Real-time' : 'On demand'} — entirely client-side.`}
+      description="Minify CSS, JavaScript, and HTML — strip whitespace, comments, and redundancy. Auto-detects language, shows size savings, 100% client-side."
     >
-      {/* Language Selector */}
-      <div className="card mb-6">
-        <h2 className="text-white font-semibold text-sm mb-3">Language</h2>
-        <div className="flex flex-wrap gap-2">
-          {LANGUAGES.map((lang) => (
+      <div className="space-y-6">
+        {/* Language selector + stats */}
+        <div className="flex flex-wrap items-center gap-3">
+          <div className="flex items-center gap-1 bg-surface rounded-lg p-1 border border-slate-700/50">
+            {LANG_OPTIONS.map((opt) => {
+              const Icon = opt.icon;
+              const isActive = lang === opt.value;
+              return (
+                <button
+                  key={opt.value}
+                  onClick={() => setLang(opt.value)}
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-all ${
+                    isActive
+                      ? 'bg-brand-500/20 text-brand-400'
+                      : 'text-slate-400 hover:text-slate-200 hover:bg-slate-700/30'
+                  }`}
+                >
+                  <Icon className="w-3.5 h-3.5" />
+                  {opt.label}
+                </button>
+              );
+            })}
+          </div>
+
+          {lang === 'auto' && input.trim() && detected && (
+            <span className="text-xs text-slate-500">
+              Detected: <span className="text-brand-400 font-medium">{detected.toUpperCase()}</span>
+            </span>
+          )}
+        </div>
+
+        {/* Input */}
+        <div className="card">
+          <div className="flex items-center justify-between mb-3">
+            <h2 className="text-white font-semibold text-sm flex items-center gap-2">
+              <FileCode className="w-4 h-4 text-brand-400" />
+              Input
+            </h2>
             <button
-              key={lang.key}
-              onClick={() => setLanguage(lang.key)}
-              className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all flex items-center gap-2 ${
-                language === lang.key
-                  ? 'bg-brand-500/20 text-brand-400 border border-brand-500/40 shadow-sm shadow-brand-500/10'
-                  : 'bg-surface border border-slate-700/50 text-slate-400 hover:text-white hover:border-slate-600'
-              }`}
+              onClick={clear}
+              className="p-1.5 rounded-md text-slate-500 hover:text-red-400 hover:bg-surface transition-colors"
+              title="Clear"
             >
-              <lang.icon className="w-4 h-4" />
-              {lang.label}
+              <Trash2 className="w-4 h-4" />
             </button>
-          ))}
-        </div>
-
-        {/* Quick examples */}
-        <div className="mt-4 flex flex-wrap gap-2">
-          <button
-            onClick={() => {
-              setLanguage('css');
-              setInput(`/* Button Component Styles */\n.button {\n  display: inline-flex;\n  align-items: center;\n  gap: 0.5rem;\n  padding: 0.75rem 1.5rem;\n  border-radius: 8px;\n  font-weight: 600;\n  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);\n  color: white;\n  transition: all 0.2s ease;\n  cursor: pointer;\n}\n\n.button:hover {\n  transform: translateY(-2px);\n  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);\n}\n\n/* Large variant */\n.button--large {\n  padding: 1rem 2rem;\n  font-size: 1.125rem;\n}`);}}
-            className="px-3 py-1.5 rounded-lg text-xs bg-surface border border-slate-700/50 text-slate-400 hover:text-white hover:border-slate-600 transition-colors"
-          >
-            CSS Button Styles
-          </button>
-          <button
-            onClick={() => {
-              setLanguage('javascript');
-              setInput(`/**\n * Deep clone utility\n * Handles objects, arrays, dates, and primitives\n */\nfunction deepClone(obj) {\n  // Handle null and primitives\n  if (obj === null || typeof obj !== 'object') {\n    return obj;\n  }\n\n  // Handle Date\n  if (obj instanceof Date) {\n    return new Date(obj.getTime());\n  }\n\n  // Handle Array\n  if (Array.isArray(obj)) {\n    return obj.map(item => deepClone(item));\n  }\n\n  // Handle Object\n  const cloned = {};\n  for (const key of Object.keys(obj)) {\n    cloned[key] = deepClone(obj[key]);\n  }\n  return cloned;\n}`);}}
-            className="px-3 py-1.5 rounded-lg text-xs bg-surface border border-slate-700/50 text-slate-400 hover:text-white hover:border-slate-600 transition-colors"
-          >
-            JS deepClone
-          </button>
-          <button
-            onClick={() => {
-              setLanguage('html');
-              setInput(`<!DOCTYPE html>\n<html lang="en">\n<head>\n  <meta charset="UTF-8">\n  <meta name="viewport" content="width=device-width, initial-scale=1.0">\n  <title>My Page</title>\n  <link rel="stylesheet" href="styles.css">\n</head>\n<body>\n  <!-- Header Section -->\n  <header>\n    <nav>\n      <ul>\n        <li><a href="/">Home</a></li>\n        <li><a href="/about">About</a></li>\n        <li><a href="/contact">Contact</a></li>\n      </ul>\n    </nav>\n  </header>\n\n  <!-- Main Content -->\n  <main>\n    <h1>Welcome</h1>\n    <p>This is a sample page.</p>\n  </main>\n\n  <script src="app.js"></script>\n</body>\n</html>`);}}
-            className="px-3 py-1.5 rounded-lg text-xs bg-surface border border-slate-700/50 text-slate-400 hover:text-white hover:border-slate-600 transition-colors"
-          >
-            HTML Template
-          </button>
-        </div>
-      </div>
-
-      {/* Input */}
-      <div className="card mb-6">
-        <div className="flex items-center justify-between mb-3">
-          <h2 className="text-white font-semibold text-sm flex items-center gap-2">
-            <LanguageIcon className="w-4 h-4 text-brand-400" />
-            Input ({language.toUpperCase()})
-          </h2>
-          <div className="flex items-center gap-2">
-            {input && (
-              <span className="text-xs text-slate-500 font-mono bg-surface border border-slate-700/50 px-2 py-1 rounded">
-                {formatBytes(inputSize)}
-              </span>
-            )}
-            {input && (
-              <button
-                onClick={handleClear}
-                className="text-slate-500 hover:text-red-400 transition-colors"
-                title="Clear"
-              >
-                <Trash2 className="w-4 h-4" />
-              </button>
-            )}
           </div>
+          <textarea
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            placeholder={`Paste ${effectiveLang === 'auto' ? 'CSS, JS, or HTML' : effectiveLang.toUpperCase()} code to minify...`}
+            className="input-field w-full h-48 resize-y font-mono text-sm"
+            spellCheck={false}
+          />
         </div>
-        <textarea
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          placeholder={`Paste your ${language.toUpperCase()} code here...`}
-          className="input-field w-full h-64 resize-y font-mono text-xs"
-          spellCheck={false}
-        />
-      </div>
 
-      {/* Arrow + Stats */}
-      <div className="flex items-center justify-center mb-6">
-        <div className="flex items-center gap-4 px-6 py-3 rounded-lg bg-surface border border-slate-700/50">
-          <Zap className="w-4 h-4 text-amber-400" />
-          <div className="flex items-center gap-4 text-sm">
-            <span className="text-slate-400">
-              <span className="text-white font-semibold">{formatBytes(inputSize)}</span>
-            </span>
-            <ArrowRightLeft className="w-4 h-4 text-slate-600" />
-            <span className="text-slate-400">
-              <span className="text-green-400 font-semibold">{formatBytes(outputSize)}</span>
-            </span>
-            {inputSize > 0 && (
-              <span className={`text-xs font-semibold px-2 py-0.5 rounded ${
-                reduction >= 20 ? 'bg-green-500/20 text-green-400' :
-                reduction > 0 ? 'bg-amber-500/20 text-amber-400' :
-                'bg-slate-700/50 text-slate-500'
-              }`}>
-                {reduction >= 0 ? '-' : '+'}{Math.abs(reduction).toFixed(1)}%
-              </span>
-            )}
-          </div>
+        {/* Minify action */}
+        <div className="flex items-center justify-center">
+          <button
+            onClick={() => {}} // output is computed automatically
+            disabled={!input.trim()}
+            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-brand-500 text-white font-medium text-sm hover:bg-brand-600 disabled:opacity-40 disabled:cursor-not-allowed transition-all"
+          >
+            <Minimize2 className="w-4 h-4" />
+            Minify
+          </button>
         </div>
-      </div>
 
-      {/* Output */}
-      <div className="card">
-        <div className="flex items-center justify-between mb-3">
-          <h2 className="text-white font-semibold text-sm flex items-center gap-2">
-            <Minimize2 className="w-4 h-4 text-green-400" />
-            Minified Output
-          </h2>
-          {output && (
+        {/* Output */}
+        <div className="card">
+          <div className="flex items-center justify-between mb-3">
+            <h2 className="text-white font-semibold text-sm flex items-center gap-2">
+              <ArrowLeftRight className="w-4 h-4 text-green-400" />
+              Minified Output
+            </h2>
             <div className="flex items-center gap-2">
-              <span className="text-xs text-slate-500 font-mono bg-surface border border-slate-700/50 px-2 py-1 rounded">
-                {formatBytes(outputSize)}
-              </span>
               <button
-                onClick={handleCopy}
-                className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
-                  copied
-                    ? 'bg-green-500/20 text-green-400 border border-green-500/30'
-                    : 'bg-brand-500/10 text-brand-400 hover:bg-brand-500/20 border border-brand-500/20'
-                }`}
+                onClick={swap}
+                disabled={!output}
+                className="p-1.5 rounded-md text-slate-500 hover:text-blue-400 hover:bg-surface transition-colors disabled:opacity-30"
+                title="Use as input"
               >
-                {copied ? (
-                  <>
-                    <Check className="w-3.5 h-3.5" />
-                    Copied!
-                  </>
-                ) : (
-                  <>
-                    <Copy className="w-3.5 h-3.5" />
-                    Copy
-                  </>
-                )}
+                <ArrowLeftRight className="w-4 h-4" />
               </button>
+              <button
+                onClick={copyOutput}
+                disabled={!output}
+                className="p-1.5 rounded-md text-slate-500 hover:text-brand-400 hover:bg-surface transition-colors disabled:opacity-30"
+                title="Copy"
+              >
+                <Copy className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+
+          {error ? (
+            <div className="p-4 rounded-lg bg-red-500/10 border border-red-500/30 text-red-400 text-sm font-mono">
+              {error}
+            </div>
+          ) : output ? (
+            <pre className="bg-surface rounded-lg p-3 border border-slate-700/50 font-mono text-sm text-slate-300 overflow-x-auto whitespace-pre-wrap break-all max-h-96 overflow-y-auto">
+              <code>{output}</code>
+            </pre>
+          ) : (
+            <div className="text-center py-12 text-slate-500 text-sm">
+              <Minimize2 className="w-8 h-8 text-slate-600 mx-auto mb-2" />
+              Minified output will appear here
             </div>
           )}
         </div>
 
-        {output ? (
-          <pre className="bg-surface rounded-lg border border-slate-700/50 p-4 overflow-auto max-h-96">
-            <code className="font-mono text-xs text-green-300 whitespace-pre-wrap break-all">{output}</code>
-          </pre>
-        ) : (
-          <div className="bg-surface rounded-lg border border-slate-700/50 p-8 text-center">
-            <Minimize2 className="w-10 h-10 text-slate-600 mx-auto mb-3" />
-            <p className="text-slate-500 text-sm">
-              Paste code above to see minified output.
-            </p>
+        {/* Stats */}
+        {stats && (
+          <div className="card">
+            <h3 className="text-white font-semibold text-sm mb-4">Size Savings</h3>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+              <div className="text-center p-3 rounded-lg bg-surface-light border border-slate-700/50">
+                <div className="text-2xl font-bold text-white font-mono">{stats.inBytes.toLocaleString()}</div>
+                <div className="text-xs text-slate-500 mt-1">Original (bytes)</div>
+              </div>
+              <div className="text-center p-3 rounded-lg bg-surface-light border border-slate-700/50">
+                <div className="text-2xl font-bold text-white font-mono">{stats.outBytes.toLocaleString()}</div>
+                <div className="text-xs text-slate-500 mt-1">Minified (bytes)</div>
+              </div>
+              <div className="text-center p-3 rounded-lg bg-surface-light border border-slate-700/50">
+                <div className="text-2xl font-bold text-green-400 font-mono">{stats.saved.toLocaleString()}</div>
+                <div className="text-xs text-slate-500 mt-1">Saved (bytes)</div>
+              </div>
+              <div className="text-center p-3 rounded-lg bg-surface-light border border-slate-700/50">
+                <div className="text-2xl font-bold text-green-400 font-mono">{stats.pct}%</div>
+                <div className="text-xs text-slate-500 mt-1">Reduction</div>
+              </div>
+            </div>
+            {/* Progress bar */}
+            <div className="mt-4">
+              <div className="flex justify-between text-xs text-slate-500 mb-1">
+                <span>0%</span>
+                <span>Reduction: {stats.pct}%</span>
+                <span>100%</span>
+              </div>
+              <div className="h-2 rounded-full bg-slate-700 overflow-hidden">
+                <div
+                  className="h-full rounded-full bg-gradient-to-r from-brand-500 to-green-400 transition-all duration-500"
+                  style={{ width: `${stats.pct}%` }}
+                />
+              </div>
+            </div>
           </div>
         )}
+
+        {/* Info */}
+        <div className="mt-8 p-4 rounded-lg bg-surface-light border border-slate-700/50">
+          <h3 className="text-white font-medium text-sm mb-3">About Code Minification</h3>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-sm text-slate-400">
+            <div>
+              <h4 className="text-slate-300 font-medium text-xs mb-1">CSS Minification</h4>
+              <p>Removes comments, collapses whitespace, strips unnecessary semicolons, and removes spaces around braces, colons, and commas.</p>
+            </div>
+            <div>
+              <h4 className="text-slate-300 font-medium text-xs mb-1">JavaScript Minification</h4>
+              <p>Strips comments (both line and block), collapses spaces, removes spacing around operators, and cleans up unnecessary semicolons.</p>
+            </div>
+            <div>
+              <h4 className="text-slate-300 font-medium text-xs mb-1">HTML Minification</h4>
+              <p>Removes HTML comments, collapses whitespace between tags, and minifies embedded CSS and JavaScript in <code className="text-brand-400">&lt;style&gt;</code> and <code className="text-brand-400">&lt;script&gt;</code> tags.</p>
+            </div>
+          </div>
+        </div>
       </div>
     </ToolLayout>
   );

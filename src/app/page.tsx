@@ -137,6 +137,13 @@ const featuredTools = [
     tags: ['XML', 'Formatter', 'Minifier'],
   },
   {
+    title: 'Code Minifier',
+    description: 'Minify CSS, JavaScript, and HTML — strip whitespace, comments, and redundancy. Auto-detects language and shows size savings. 100% client-side, three languages in one tool.',
+    href: '/tools/code-minifier',
+    icon: Minimize2,
+    tags: ['Minifier', 'CSS', 'JS', 'HTML'],
+  },
+  {
     title: 'Base64 Encoder/Decoder',
     description: 'Encode and decode Base64 strings instantly. Supports UTF-8 text and binary data.',
     href: '/tools/base64',
