@@ -114,6 +114,7 @@ import {
   Cookie,
   Pipette,
   Gamepad2,
+  Bookmark,
 } from 'lucide-react';
 
 export const metadata: Metadata = {
@@ -138,11 +139,25 @@ const allTools = [
     tags: ['Base64', 'Encoder', 'Decoder'],
   },
   {
+    title: 'Bookmarklet Builder',
+    description: 'Write JavaScript and instantly convert it into a bookmarklet — drag to your bookmarks bar or copy the URL. 11 presets for common tasks like dark mode, color picking, table sorting, and more.',
+    href: '/tools/bookmarklet-builder',
+    icon: Bookmark,
+    tags: ['Bookmarklet', 'JavaScript', 'Bookmark', 'Generator'],
+  },
+  {
     title: 'UUID Generator',
     description: 'Generate cryptographically random UUID v4 identifiers. Batch generation supported.',
     href: '/tools/uuid-generator',
     icon: Fingerprint,
     tags: ['UUID', 'Generator', 'Batch'],
+  },
+  {
+    title: 'Box Model Visualizer',
+    description: 'Interactively build and visualize the CSS box model — margin, border, padding, and content. Real-time rendering, 6 presets, generated CSS output.',
+    href: '/tools/box-model-visualizer',
+    icon: Box,
+    tags: ['CSS', 'Box Model', 'Layout', 'Visualizer'],
   },
   {
     title: 'Regex Tester',
