@@ -1096,6 +1096,13 @@ const featuredTools = [
     tags: ['Docker', 'Compose', 'DevOps', 'YAML'],
   },
   {
+    title: 'Docker Run Command Builder',
+    description: 'Visually construct docker run commands — image picker, ports, volumes, env vars, restart policies, resource limits, and 8 presets. Copy the ready-to-run command.',
+    href: '/tools/docker-run-builder',
+    icon: Container,
+    tags: ['Docker', 'DevOps', 'CLI', 'Container'],
+  },
+  {
     title: 'PWA Manifest Generator',
     description: 'Build a web app manifest.json visually — name, icons, theme colors, display mode, screenshots, shortcuts, and more. Instant JSON output for installable PWAs.',
     href: '/tools/pwa-manifest-generator',
