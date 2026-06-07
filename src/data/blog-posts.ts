@@ -4370,4 +4370,279 @@ background: color-mix(in oklch, #3b82f6, #eab308);
   </div>
 </div>`,
   },
+
+  {
+    slug: 'scheduler-posttask-prioritized-scheduling-2026',
+    title: "scheduler.postTask(): Stop Using setTimeout(fn, 0) — The Prioritized Task Scheduling API",
+    description:
+      "The Prioritized Task Scheduling API (scheduler.postTask()) replaces setTimeout(fn, 0), requestIdleCallback, and isInputPending() with a unified, priority-aware scheduling system. Three priority levels, dynamic re-prioritization, TaskController, AbortSignal cancellation, and yielding control back to the main thread — all native, all Baseline 2026.",
+    date: '2026-06-07',
+    author: 'DevBench',
+    tags: ['JavaScript', 'Performance', 'Task Scheduling', 'scheduler.postTask', 'Browser APIs', 'INP', 'Core Web Vitals', '2026', 'Baseline 2026'],
+    readingTime: '12 min read',
+    content: `<div class="prose-content">
+  <p class="lead">
+    Every JavaScript developer knows the ritual: you need to yield to the main thread so the browser can paint, process input, or run garbage collection. So you reach for <code>setTimeout(fn, 0)</code> — the worst scheduling primitive that somehow became universal. Then you discovered <code>requestAnimationFrame</code> for visual work, <code>requestIdleCallback</code> for low-priority cleanup, and maybe even <code>navigator.scheduling.isInputPending()</code> for interaction responsiveness. Four different APIs, zero coordination between them, and no way to dynamically change a task’s priority once it was queued. The <strong>Prioritized Task Scheduling API</strong> (<code>scheduler.postTask()</code>) — Baseline 2026 across Chrome, Firefox, and Safari — replaces all of them with a single, coherent scheduling system.
+  </p>
+
+  <h2>The Scheduling Nightmare We All Lived Through</h2>
+
+  <p>Before <code>scheduler.postTask()</code>, every scheduling primitive had a different interface, different priority semantics, and different cancellation behavior:</p>
+
+  <div class="table-wrapper">
+    <table>
+      <thead>
+        <tr><th>API</th><th>Priority</th><th>Cancellable?</th><th>When it runs</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>setTimeout(fn, 0)</code></td><td>Undefined (depends on nesting)</td><td>Via <code>clearTimeout</code></td><td>After current task + microtask queue</td></tr>
+        <tr><td><code>requestAnimationFrame(fn)</code></td><td>High (before paint)</td><td>Via <code>cancelAnimationFrame</code></td><td>Before the next frame render</td></tr>
+        <tr><td><code>requestIdleCallback(fn)</code></td><td>Lowest (idle time)</td><td>Via <code>cancelIdleCallback</code></td><td>When browser has nothing else to do</td></tr>
+        <tr><td><code>queueMicrotask(fn)</code></td><td>Highest (microtask)</td><td>No</td><td>Immediately after current task</td></tr>
+        <tr><td><code>MessageChannel.postMessage</code></td><td>Macrotask</td><td>Complex</td><td>Next event loop macrotask</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p>
+    This fragmentation meant every framework built its own scheduler on top of these primitives — React’s concurrent mode scheduler, Vue’s async scheduler, Svelte’s tick system. All of them reinventing the same wheel with slightly different tradeoffs. <code>scheduler.postTask()</code> gives the browser enough information to schedule work optimally while giving developers a unified interface.
+  </p>
+
+  <h2>scheduler.postTask(): The Basics</h2>
+
+  <pre><code>// High-priority: run ASAP (input handling)
+scheduler.postTask(() => handleUserClick(), { priority: ‘user-blocking’ });
+
+// Default: standard work (rendering, data processing)
+scheduler.postTask(() => renderResults(), { priority: ‘user-visible’ });
+
+// Low priority: deferred (analytics, logging)
+scheduler.postTask(() => flushAnalytics(), { priority: ‘background’ });</code></pre>
+
+  <p>The three priority levels:</p>
+
+  <div class="table-wrapper">
+    <table>
+      <thead>
+        <tr><th>Priority</th><th>When it runs</th><th>Use case</th><th>Typical delay</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>user-blocking</code></td><td>Before user-visible tasks</td><td>Input handling, UI feedback</td><td>Immediately</td></tr>
+        <tr><td><code>user-visible</code></td><td>Default; balanced</td><td>Rendering, data fetch, DOM updates</td><td>~50ms</td></tr>
+        <tr><td><code>background</code></td><td>Lowest; deferred until idle</td><td>Analytics, prefetching</td><td>Idle-dependent</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h2>The Return Value: Promise + Signal</h2>
+
+  <p>
+    <code>scheduler.postTask()</code> returns a promise that resolves when the task completes — plus it’s an extended Promise with a <code>signal</code> property:
+  </p>
+
+  <pre><code>const task = scheduler.postTask(() => computeResult(), { priority: ‘user-visible’ });
+
+task.then(result => console.log(‘Done:’, result));
+task.signal.addEventListener(‘abort’, () => console.log(‘Cancelled’));
+
+// AbortSignal available inside the callback
+scheduler.postTask(({ signal }) => {
+  if (signal.aborted) return;
+}, { priority: ‘user-blocking’ });</code></pre>
+
+  <h2>Cancellation with AbortController</h2>
+
+  <pre><code>const controller = new AbortController();
+
+scheduler.postTask(() => fetchLargeDataset(), {
+  priority: ‘background’,
+  signal: controller.signal
+});
+
+controller.abort();  // Cancel
+
+// Timeout signal
+scheduler.postTask(() => heavyWork(), {
+  priority: ‘user-blocking’,
+  signal: AbortSignal.timeout(5000)  // Auto-cancel after 5s
+});</code></pre>
+
+  <h2>Dynamic Re-Prioritization: The Killer Feature</h2>
+
+  <p>
+    Change a task’s priority <strong>after</strong> scheduling — no other primitive does this:
+  </p>
+
+  <pre><code>const controller = new TaskController({ priority: ‘user-visible’ });
+
+scheduler.postTask(() => renderDataGrid(data), { signal: controller.signal });
+
+// User interacts — boost!
+controller.setPriority(‘user-blocking’);
+
+// User navigates away — demote
+controller.setPriority(‘background’);</code></pre>
+
+  <p>
+    <code>TaskController</code> = <code>AbortController</code> + <code>setPriority()</code>. Callback receives a <code>TaskSignal</code> with <code>priority</code> and <code>onprioritychange</code>:
+  </p>
+
+  <pre><code>const ctrl = new TaskController({ priority: ‘user-visible’ });
+
+scheduler.postTask(async ({ signal }) => {
+  for (const chunk of chunks) {
+    renderChunk(chunk);
+    // Respond to priority changes
+    if (signal.priority === ‘background’) await scheduler.yield();
+    if (signal.aborted) return;
+  }
+}, { signal: ctrl.signal });</code></pre>
+
+  <h2>scheduler.yield(): Yield to Main Thread</h2>
+
+  <p>
+    Long tasks kill INP scores. <code>setTimeout(fn, 0)</code> adds fixed 4ms delay. <code>scheduler.yield()</code> returns a promise that resolves when the browser has processed pending input:
+  </p>
+
+  <pre><code>async function processLargeArray(items) {
+  const CHUNK = 100;
+  for (let i = 0; i < items.length; i += CHUNK) {
+    processChunk(items.slice(i, i + CHUNK));
+    await scheduler.yield();  // Let browser handle input + paint
+  }
+}</code></pre>
+
+  <h2>Real-World: Self-Healing SPA Render Queue</h2>
+
+  <pre><code>class RenderQueue {
+  #controller = new TaskController({ priority: ‘user-visible’ });
+
+  async renderRoute(route) {
+    this.#controller.abort();
+    this.#controller = new TaskController({ priority: ‘user-visible’ });
+    const { signal } = this.#controller;
+
+    await scheduler.postTask(() => renderShell(route),
+      { signal, priority: ‘user-blocking’ });
+    await scheduler.postTask(() => renderMainContent(route),
+      { signal, priority: ‘user-visible’ });
+    scheduler.postTask(async () => {
+      await prefetchLinkedRoutes(route);
+      renderFooter(); logPageView(route);
+    }, { signal, priority: ‘background’ });
+  }
+}</code></pre>
+
+  <h2>Real-World: Input-Responsive Search</h2>
+
+  <pre><code>let searchCtrl = new TaskController({ priority: ‘user-visible’ });
+
+searchInput.addEventListener(‘input’, (e) => {
+  searchCtrl.abort();
+  searchCtrl = new TaskController({ priority: ‘user-visible’ });
+
+  debounce(async () => {
+    searchCtrl.setPriority(‘user-blocking’); // User waiting!
+    await scheduler.postTask(async ({ signal }) => {
+      const results = await fetch(‘/api/search?’ + new URLSearchParams({ q }),
+        { signal }).then(r => r.json());
+      if (!signal.aborted) renderResults(results);
+    }, { signal: searchCtrl.signal, priority: ‘user-blocking’ });
+  }, 300);
+});</code></pre>
+
+  <h2>Real-World: Progressive Image Loading</h2>
+
+  <pre><code>function loadImagesProgressive(urls) {
+  const ctrl = new TaskController({ priority: ‘background’ });
+
+  for (const url of urls) {
+    scheduler.postTask(async ({ signal }) => {
+      if (signal.aborted) return;
+      const img = new Image(); img.src = url;
+      await img.decode();
+      if (!signal.aborted) document.getElementById(‘gallery’).appendChild(img);
+    }, { signal: ctrl.signal, priority: ‘background’ });
+  }
+
+  // Boost when visible
+  new IntersectionObserver(([e]) => {
+    if (e.isIntersecting) { ctrl.setPriority(‘user-visible’); }
+  }).observe(document.getElementById(‘gallery’));
+  return ctrl;
+}</code></pre>
+
+  <h2>When NOT to Use scheduler.postTask()</h2>
+
+  <ul>
+    <li><strong>Animation work</strong> — use <code>requestAnimationFrame</code> for frame-synced work</li>
+    <li><strong>Truly idle work with deadline</strong> — use <code>requestIdleCallback</code></li>
+    <li><strong>Microtasks</strong> — use <code>queueMicrotask</code> for pre-next-macrotask work</li>
+    <li><strong>Explicit delays</strong> — use <code>setTimeout</code> if you need a specific delay</li>
+  </ul>
+
+  <h2>Impact on Core Web Vitals</h2>
+
+  <ul>
+    <li><strong>INP:</strong> Chunked tasks with <code>scheduler.yield()</code> prevent long-task paint delays</li>
+    <li><strong>TBT/Long Tasks:</strong> Breaking >50ms operations into short tasks eliminates Total Blocking Time</li>
+  </ul>
+
+  <div class="highlight-box highlight-positive">
+    <strong>Before / After — SPA route change:</strong><br/>
+    <strong>Before:</strong> 350ms sync task. INP: 350ms (poor).<br/>
+    <strong>After:</strong> 20ms shell + 30ms content + yield + 40ms parse + yield + 15ms analytics. INP: 20ms (good).
+  </div>
+
+  <h2>Browser Support</h2>
+
+  <div class="table-wrapper">
+    <table>
+      <thead><tr><th>Browser</th><th>Version</th><th>Release</th></tr></thead>
+      <tbody>
+        <tr><td>Chrome</td><td>94+</td><td>Sep 2021</td></tr>
+        <tr><td>Firefox</td><td>134+</td><td>Jan 2025</td></tr>
+        <tr><td>Safari</td><td>18.2+</td><td>Dec 2024</td></tr>
+        <tr><td>Edge</td><td>94+</td><td>Sep 2021</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p><strong>Baseline January 2025.</strong> Over 95% global support.</p>
+
+  <pre><code>if (‘scheduler’ in globalThis && ‘postTask’ in scheduler) {
+  scheduler.postTask(() => doWork(), { priority: ‘user-visible’ });
+} else {
+  setTimeout(() => doWork(), 0);
+}</code></pre>
+
+  <h2>Framework Integration &amp; The Future</h2>
+
+  <ul>
+    <li><strong>React:</strong> <code>useScheduler()</code> hook can delegate to native API</li>
+    <li><strong>Angular:</strong> Zone.js hooks into postTask for tracking</li>
+    <li><strong>Lit:</strong> Async rendering aligns with <code>scheduler.yield()</code></li>
+  </ul>
+
+  <p>TC39 <code>Promise.scheduler</code> (Stage 1) — priority-aware promises coming to JavaScript itself.</p>
+
+  <h2>Summary</h2>
+
+  <div class="highlight-box">
+    <strong>Key takeaways:</strong>
+    <ul>
+      <li><strong>Replace <code>setTimeout(fn, 0)</code></strong> with <code>scheduler.postTask(fn, { priority: ‘user-visible’ })</code></li>
+      <li><strong>Three priorities:</strong> user-blocking (input), user-visible (render), background (analytics)</li>
+      <li><strong>Dynamic re-prioritization</strong> via <code>TaskController.setPriority()</code></li>
+      <li><strong>Full AbortController integration</strong> — cancel tasks, pass signals to fetch()</li>
+      <li><strong><code>scheduler.yield()</code></strong> for proper main-thread yielding, no 4ms clamps</li>
+      <li><strong>Baseline 2026</strong> — Chrome 94+, Firefox 134+, Safari 18.2+, Edge 94+</li>
+    </ul>
+  </div>
+
+  <div class="highlight-box highlight-positive">
+    <strong>Start today:</strong> Find your worst INP interaction (DevTools → Performance → INP). Break the long task into chunks with <code>scheduler.postTask()</code> + <code>scheduler.yield()</code>. You’ll see improvement immediately — no framework changes needed.
+  </div>
+</div>`,
+  },
 ];
