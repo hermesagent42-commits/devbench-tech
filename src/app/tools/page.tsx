@@ -111,6 +111,7 @@ import {
   Mic,
   Radio,
   FileArchive,
+  Cookie,
 } from 'lucide-react';
 
 export const metadata: Metadata = {
@@ -1296,6 +1297,13 @@ const allTools = [
     href: '/tools/compression-playground',
     icon: FileArchive,
     tags: ['Compression', 'GZIP', 'Deflate', 'Performance'],
+  },
+  {
+    title: 'Cookie Editor',
+    description: 'Inspect, edit, add, import, and delete browser cookies — full control over name, value, domain, path, max-age, expires, secure flag, and SameSite. Copy all or individual cookies. The document.cookie API, visualized.',
+    href: '/tools/cookie-editor',
+    icon: Cookie,
+    tags: ['Cookies', 'Debug', 'Storage', 'Browser API'],
   },
 ];
 
