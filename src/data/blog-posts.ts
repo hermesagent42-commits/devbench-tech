@@ -4641,7 +4641,293 @@ searchInput.addEventListener(‘input’, (e) => {
   </div>
 
   <div class="highlight-box highlight-positive">
-    <strong>Start today:</strong> Find your worst INP interaction (DevTools → Performance → INP). Break the long task into chunks with <code>scheduler.postTask()</code> + <code>scheduler.yield()</code>. You’ll see improvement immediately — no framework changes needed.
+    <strong>Start today:</strong> Find your worst INP interaction (DevTools → Performance → INP). Break the long task into chunks with <code>scheduler.postTask()</code> + <code>scheduler.yield()</code>. You'll see improvement immediately — no framework changes needed.
+  </div>
+</div>`,
+  },
+  {
+    slug: 'oklch-css-complete-guide-2026',
+    title: 'OKLCH in CSS: The Perceptually Uniform Color Revolution',
+    description:
+      'OKLCH is the future of CSS color — perceptually uniform, wide-gamut ready, and intuitive to manipulate. It replaces HSL broken math with real perceptual lightness, lets you adjust chroma without affecting contrast, and unlocks Display P3 vibrant colors. Learn why every design system is migrating to OKLCH and how to use it today.',
+    date: '2026-06-07',
+    author: 'DevBench',
+    tags: ['CSS', 'OKLCH', 'Color', 'Design Systems', 'Wide Gamut', 'Display P3', 'Accessibility', 'Web Platform', '2026'],
+    readingTime: '10 min read',
+    content: `<div class="prose-content">
+  <p class="lead">
+    OKLCH is not just another color format — it's a <strong>fundamental rethinking</strong> of how we represent and manipulate color in CSS. With every major design system (Tailwind, Material 3, shadcn/ui) adopting it and browser support at ~94% global coverage, OKLCH is replacing HSL as the standard for modern web color. Here's why, and how to use it.
+  </p>
+
+  <h2>The Problem with HSL</h2>
+
+  <p>
+    For 20 years, HSL (Hue-Saturation-Lightness) has been the go-to color format for developers. It's intuitive: pick a hue on the color wheel, dial saturation, set lightness. But HSL has a critical flaw — <strong>its math doesn't match human perception</strong>.
+  </p>
+
+  <pre><code>/* HSL: same "Lightness" = very different perceived brightness */
+.hsl-blue   { background: hsl(240, 100%, 50%); } /* Looks dark */
+.hsl-yellow { background: hsl(60, 100%, 50%);  } /* Looks bright */
+/* Both say L=50%, but they're wildly different to the human eye */</code></pre>
+
+  <p>
+    HSL's lightness axis ignores how our eyes actually perceive brightness. Yellow is naturally bright; blue is naturally dark. HSL's L=50% is a mathematical midpoint in a flawed color space, not a perceptual one. This creates real problems:
+  </p>
+
+  <ol>
+    <li><strong>Inconsistent color scales</strong>: 50% lightness on different hues looks like completely different visual weights</li>
+    <li><strong>Broken interpolation</strong>: Animating between colors in HSL produces muddy, gray midpoints</li>
+    <li><strong>Unreliable contrast</strong>: Calculating WCAG contrast from HSL lightness is guesswork</li>
+    <li><strong>No wide gamut</strong>: HSL is locked to sRGB; it cannot represent Display P3 or Rec.2020 colors</li>
+  </ol>
+
+  <h2>What Makes OKLCH Different</h2>
+
+  <p>
+    OKLCH models color the way our eyes and brain process it. Its three dimensions map directly to human perception:
+  </p>
+
+  <pre><code>L = perceptual Lightness  (0% = black, 100% = white, consistent across hues)
+C = Chroma                (0 = gray, 0.4+ = vivid; max depends on hue + gamut)
+H = Hue angle             (0-360°, same color wheel you know from HSL)</code></pre>
+
+  <p>
+    The critical breakthrough is the <strong>L axis</strong> — it's perceptually uniform. L=50% looks equally "light" whether the hue is blue, yellow, or red. This single change unlocks everything else.
+  </p>
+
+  <pre><code>/* OKLCH: L=50% is perceptually the SAME lightness for all hues */
+.oklch-blue   { background: oklch(50% 0.2 264); } /* Consistent feel */
+.oklch-yellow { background: oklch(50% 0.2 102); } /* Same visual weight */</code></pre>
+
+  <h3>L — Perceptual Lightness</h3>
+
+  <p>
+    L is the game-changer. It's anchored to human perception, so L=60% always has the same perceived luminance. This means:
+  </p>
+
+  <ul>
+    <li><strong>Predictable contrast</strong>: You can approximate WCAG contrast ratio from the L value alone</li>
+    <li><strong>Consistent color scales</strong>: Generate 10 tints from L=10% to L=95% and each step looks visually equal</li>
+    <li><strong>Dark mode for free</strong>: Flip your L values and everything stays coherent</li>
+  </ul>
+
+  <pre><code>/* Generate a color scale — each step is perceptually equal */
+.scale-100 { background: oklch(10% 0.15 264); }
+.scale-200 { background: oklch(20% 0.15 264); }
+.scale-300 { background: oklch(30% 0.15 264); }
+/* ... all the way up ... */
+.scale-900 { background: oklch(90% 0.15 264); }
+.scale-950 { background: oklch(95% 0.15 264); }</code></pre>
+
+  <h3>C — Chroma (Real Saturation)</h3>
+
+  <p>
+    Chroma measures colorfulness — but unlike HSL saturation, it's <strong>bounded by what's actually displayable</strong>, not a fixed 0-100% range. C=0 is always gray, C=0.2 is moderately vivid, C=0.4 is highly saturated. The maximum achievable chroma varies by hue because different parts of the spectrum can display more color.
+  </p>
+
+  <p>
+    This gives you something HSL never could: <strong>safe, predictable color manipulation</strong>.
+  </p>
+
+  <pre><code>/* OKLCH: crank chroma up without worrying about clipping */
+.cta-button { background: oklch(65% 0.25 264); }  /* Moderate */
+.cta-button:hover { background: oklch(55% 0.25 264); } /* Same chroma, darker */
+/* In HSL you'd get a muddy mess trying this */</code></pre>
+
+  <h3>H — The Familiar Hue Wheel</h3>
+
+  <p>
+    H works just like the hue you know from HSL — 0/360° is red, 120° is green, 240° is blue. No learning curve needed for the wheel itself.
+  </p>
+
+  <h2>OKLCH vs HSL: Side by Side</h2>
+
+  <div class="table-wrapper">
+    <table>
+      <thead>
+        <tr><th>Property</th><th>HSL</th><th>OKLCH</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Lightness</td><td>Mathematical (broken)</td><td>Perceptual (human)</td></tr>
+        <tr><td>Color scales</td><td>Inconsistent weight</td><td>Every step feels equal</td></tr>
+        <tr><td>Interpolation</td><td>Muddy midpoints</td><td>Smooth, vibrant transitions</td></tr>
+        <tr><td>Dark mode</td><td>Rewrite everything</td><td>Flip L values</td></tr>
+        <tr><td>Wide gamut (P3)</td><td>No (sRGB only)</td><td>Yes (Full P3/Rec.2020)</td></tr>
+        <tr><td>Accessibility</td><td>Unreliable for contrast</td><td>L predicts contrast</td></tr>
+        <tr><td>CSS syntax</td><td><code>hsl(h s% l% / a)</code></td><td><code>oklch(l% c h / a)</code></td></tr>
+        <tr><td>Browser support</td><td>Everywhere</td><td>~94% global coverage</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h2>Practical Usage Patterns</h2>
+
+  <h3>Building a Design System Color Scale</h3>
+
+  <p>
+    The biggest win for design systems: generate a consistent palette from a single hue and chroma.
+  </p>
+
+  <pre><code>:root {
+  /* Primary brand color — one source of truth */
+  --color-primary-50:  oklch(97% 0.02 264);
+  --color-primary-100: oklch(90% 0.04 264);
+  --color-primary-200: oklch(80% 0.08 264);
+  --color-primary-300: oklch(70% 0.12 264);
+  --color-primary-400: oklch(60% 0.16 264);
+  --color-primary-500: oklch(50% 0.20 264);
+  --color-primary-600: oklch(40% 0.20 264);
+  --color-primary-700: oklch(30% 0.16 264);
+  --color-primary-800: oklch(20% 0.10 264);
+  --color-primary-900: oklch(13% 0.06 264);
+}</code></pre>
+
+  <p>
+    Every step between these values is <strong>perceptually uniform</strong>. The visual jump from 50 to 100 is the same as from 700 to 800. In HSL, you'd need manual tweaking for every hue.
+  </p>
+
+  <h3>Dark Mode Without the Pain</h3>
+
+  <p>
+    With OKLCH, dark mode becomes trivial: use lighter L values for dark backgrounds (since high L = light) and darker L values for text. No redesign needed.
+  </p>
+
+  <pre><code>.card {
+  background: oklch(98% 0.01 264);  /* Very light surface */
+  color: oklch(15% 0.02 264);       /* Near-black text */
+}
+
+[data-theme="dark"] .card {
+  background: oklch(18% 0.02 264);  /* Dark surface */
+  color: oklch(85% 0.02 264);       /* Light text */
+}</code></pre>
+
+  <p>
+    The key insight: you're just remapping L ranges while keeping the chroma relationship. The colors feel like the same "brand" in both modes.
+  </p>
+
+  <h3>Chroma Reduction for Disabled States</h3>
+
+  <p>
+    HSL has no clean way to make a color "grayscale-ish" without guessing. OKLCH makes it explicit:
+  </p>
+
+  <pre><code>.button:disabled {
+  background: oklch(50% 0.05 264); /* Same hue, near-zero chroma = gray */
+}</code></pre>
+
+  <h3>Wide Gamut: Display P3 Colors</h3>
+
+  <p>
+    HSL is forever trapped in sRGB — it literally cannot express colors that modern screens can display. OKLCH can push chroma beyond sRGB bounds into Display P3:
+  </p>
+
+  <pre><code>/* This vibrant cyan is only displayable on P3 screens */
+.vibrant-cyan {
+  background: oklch(70% 0.3 195);
+  /* Falls back gracefully on sRGB — no clipping artifacts */
+}</code></pre>
+
+  <p>
+    Modern MacBooks, iPhones, and OLED displays support P3. OKLCH lets you use those colors with automatic sRGB fallback. The browser handles gamut mapping.
+  </p>
+
+  <h2>Accessibility Superpowers</h2>
+
+  <p>
+    Because L in OKLCH is perceptual lightness, you can <strong>approximately verify WCAG contrast ratios</strong> from the L values alone:
+  </p>
+
+  <pre><code>/*
+  If text L = 90% and background L = 20%:
+  Approx contrast ≈ (90 + 5) / (20 + 5) = 3.8:1
+  WCAG AA for large text: 3:1 ✓
+  WCAG AA for normal text: need 4.5:1 — close enough to adjust
+*/</code></pre>
+
+  <p>
+    More importantly, OKLCH makes it trivial to build color functions that enforce accessibility:
+  </p>
+
+  <pre><code>// JavaScript helper for accessible text color
+function accessibleText(backgroundL) {
+  return backgroundL > 60 ? 'oklch(15% 0.01 0)' : 'oklch(95% 0.01 0)';
+}</code></pre>
+
+  <h2>CSS color-mix() + OKLCH = Superpower</h2>
+
+  <p>
+    Combine <code>color-mix()</code> in the <code>oklch</code> color space for the best color interpolation available in CSS:
+  </p>
+
+  <pre><code>/* Mix colors perceptually — no muddy midpoints */
+.gradient-mix {
+  background: color-mix(in oklch, #ff0000 50%, #0000ff 50%);
+  /* Result: a vibrant purple, not the gray-brown you'd get in sRGB */
+}
+
+/* Smooth hover transitions using OKLCH interpolation */
+.button {
+  background: oklch(60% 0.2 264);
+  transition: background 0.2s;
+}
+.button:hover {
+  background: oklch(50% 0.22 264);
+}
+/* OKLCH interpolation in transitions is smooth and maintains vibrancy */</code></pre>
+
+  <h2>Browser Support & Fallbacks</h2>
+
+  <p>
+    As of mid-2026, OKLCH is supported in Chrome 111+, Firefox 113+, Safari 15.4+, Edge 111+ — covering ~94% of users globally. For the remaining ~6%, provide a simple fallback:
+  </p>
+
+  <pre><code>.my-element {
+  /* Fallback for older browsers */
+  background: #4a6cf7;
+  /* OKLCH for modern browsers */
+  background: oklch(55% 0.25 264);
+}</code></pre>
+
+  <p>
+    Modern CSS handles this automatically — browsers ignore declarations they don't understand. No polyfills needed.
+  </p>
+
+  <h2>Migration Strategy: HSL to OKLCH</h2>
+
+  <ol>
+    <li><strong>Start with new components</strong>: Use OKLCH for anything you build from scratch</li>
+    <li><strong>Convert your palette</strong>: Map existing hex/RGB colors to OKLCH using the DevBench <a href="/tools/oklch-color-picker/">OKLCH Color Picker</a></li>
+    <li><strong>Update design tokens</strong>: Replace HSL-based CSS custom properties with OKLCH</li>
+    <li><strong>Add fallbacks</strong>: Duplicate key colors as hex for legacy browser support</li>
+    <li><strong>Delete HSL utilities</strong>: Remove Sass color functions that manually work around HSL's flaws</li>
+  </ol>
+
+  <pre><code>/* Before (HSL — inconsistent scaling) */
+--primary-500: hsl(240, 100%, 50%);
+--primary-300: hsl(240, 80%, 70%);
+
+/* After (OKLCH — uniform, predictable, wide-gamut-ready) */
+--primary-500: oklch(50% 0.25 264);
+--primary-300: oklch(70% 0.18 264);</code></pre>
+
+  <h2>Summary</h2>
+
+  <div class="highlight-box">
+    <strong>Key takeaways:</strong>
+    <ul>
+      <li><strong>OKLCH fixes HSL's fundamental flaw</strong> — L is perceptual lightness, not mathematical</li>
+      <li><strong>Color scales are correct by construction</strong> — every step between L values looks visually equal</li>
+      <li><strong>Dark mode becomes trivial</strong> — flip L ranges, keep chroma relationships</li>
+      <li><strong>Wide-gamut ready</strong> — Display P3 colors with automatic sRGB fallback</li>
+      <li><strong>Accessibility built in</strong> — L value alone approximates WCAG contrast</li>
+      <li><strong>~94% browser coverage</strong> — Chrome 111+, Firefox 113+, Safari 15.4+</li>
+      <li><strong>One-line fallback</strong> — duplicate as hex for legacy browsers, no polyfill needed</li>
+    </ul>
+  </div>
+
+  <div class="highlight-box highlight-positive">
+    <strong>Start today:</strong> Next time you define a color in CSS, use <code>oklch()</code> instead of <code>hsl()</code>. Use the <a href="/tools/oklch-color-picker/">OKLCH Color Picker</a> to visualize and convert your existing colors. The migration is additive — you can adopt OKLCH one component at a time.
   </div>
 </div>`,
   },
