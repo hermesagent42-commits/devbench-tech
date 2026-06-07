@@ -1305,6 +1305,13 @@ const allTools = [
     icon: Cookie,
     tags: ['Cookies', 'Debug', 'Storage', 'Browser API'],
   },
+  {
+    title: 'Code Minifier',
+    description: 'Minify CSS, JavaScript, and HTML — strip comments, collapse whitespace, and reduce file size. Real-time before/after comparison with byte savings. Entirely client-side.',
+    href: '/tools/code-minifier',
+    icon: Minimize2,
+    tags: ['Minifier', 'CSS', 'JavaScript', 'HTML', 'Size Optimization'],
+  },
 ];
 
 export default function ToolsPage() {
