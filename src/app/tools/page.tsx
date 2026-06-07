@@ -110,6 +110,7 @@ import {
   Waves,
   Mic,
   Radio,
+  FileArchive,
 } from 'lucide-react';
 
 export const metadata: Metadata = {
@@ -1288,6 +1289,13 @@ const allTools = [
     href: '/tools/srcset-generator',
     icon: Image,
     tags: ['Image', 'srcset', 'Responsive', 'HTML', 'Performance'],
+  },
+  {
+    title: 'Compression Playground',
+    description: 'Compare GZIP, Deflate, and Deflate Raw compression in real-time. See size savings, compression ratios, hex dumps, and verify round-trip decompression — all client-side via CompressionStream.',
+    href: '/tools/compression-playground',
+    icon: FileArchive,
+    tags: ['Compression', 'GZIP', 'Deflate', 'Performance'],
   },
 ];
 
