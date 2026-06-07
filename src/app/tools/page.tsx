@@ -112,6 +112,7 @@ import {
   Radio,
   FileArchive,
   Cookie,
+  Pipette,
 } from 'lucide-react';
 
 export const metadata: Metadata = {
@@ -1311,6 +1312,20 @@ const allTools = [
     href: '/tools/code-minifier',
     icon: Minimize2,
     tags: ['Minifier', 'CSS', 'JavaScript', 'HTML', 'Size Optimization'],
+  },
+  {
+    title: 'CSS color-mix() Playground',
+    description: 'Interactively blend colors with CSS color-mix() — 8 color spaces, live preview, copy-ready CSS and Tailwind values. Build dynamic theme effects without preprocessors.',
+    href: '/tools/css-color-mix-playground',
+    icon: Droplets,
+    tags: ['CSS', 'Color', 'color-mix', 'Design', 'OKLCH'],
+  },
+  {
+    title: 'CSS linear() Easing Builder',
+    description: 'Design unlimited-stop CSS linear() easing curves — a superset of cubic-bezier(). Create bounce, spring, stepped, and custom easing profiles with a visual curve editor.',
+    href: '/tools/css-linear-easing-builder',
+    icon: Pipette,
+    tags: ['CSS', 'Easing', 'linear()', 'Animation', 'Timing'],
   },
 ];
 

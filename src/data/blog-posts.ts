@@ -4008,10 +4008,183 @@ blockquote { padding-inline-start: 1rem; border-inline-start: 3px solid blue; }<
       <li><strong>Automatic RTL and vertical writing mode support.</strong> No JavaScript, no separate stylesheets, no build-step transforms.</li>
       <li><strong>Flexbox and Grid are already logical.</strong> Logical properties complete the flow-relative mental model.</li>
       <li><strong>Baseline 2026, use today without polyfills.</strong> 97%+ global support.</li>
-      <li><strong>Start with the most I18N-sensitive components.</strong> Navigation, content areas, forms. Migrate incrementally.</li>
     </ul>
   </div>
 </div>`,
   },
+  {
+    slug: 'css-color-mix-complete-guide-2026',
+    title: 'CSS color-mix(): The One CSS Function That Replaces Your Preprocessor Color Pipeline',
+    description:
+      'The color-mix() function is 2026\'s most underrated CSS superpower. It blends colors natively in 8 color spaces — no Sass, no PostCSS, no JavaScript. Build hover states, dynamic themes, accessible contrast adjustments, and entire design-system color palettes with a single CSS function. Complete guide: syntax, color space comparison, real-world patterns, and performance.',
+    date: '2026-06-07',
+    author: 'DevBench',
+    tags: ['CSS', 'color-mix', 'Colors', 'Design Systems', 'OKLCH', '2026', 'Dynamic Theming'],
+    readingTime: '10 min read',
+    content: `<div class="prose-content">
+  <p class="lead">
+    For two decades, CSS had exactly one way to set a color: you gave it a value. If you wanted a lighter version, you used <code>opacity</code> or recalculated in your preprocessor. If you wanted to blend two brand colors for a gradient midpoint, you opened your design tool and eye-dropped it. <strong>CSS color-mix()</strong> — Baseline across all browsers — changes this. You can now blend any two colors in any of 8 color spaces, natively in CSS, with a single function call. This isn&apos;t just a nice-to-have. It&apos;s a fundamental shift in how we build design systems.
+  </p>
 
+  <h2>The Basic Syntax</h2>
+
+  <pre><code>/* Blend two colors 50/50 in sRGB */
+background: color-mix(in srgb, #3b82f6, #ef4444);
+
+/* 70% blue, 30% red — in OKLCH for perceptual blending */
+background: color-mix(in oklch, #3b82f6 70%, #ef4444);
+
+/* Mix with currentColor for dynamic theming */
+color: color-mix(in srgb, currentColor 80%, white);</code></pre>
+
+  <p>The syntax is <code>color-mix(in &lt;colorspace&gt;, &lt;color1&gt; [&lt;%&gt;], &lt;color2&gt; [&lt;%&gt;])</code>. If percentages don&apos;t sum to 100%, the browser scales them proportionally. If you omit the second percentage, the browser infers it.</p>
+
+  <h2>The Color Space Decision: This Is the Critical Part</h2>
+
+  <p>The choice of color space <strong>radically</strong> changes the result. Here&apos;s what you need to know:</p>
+
+  <div class="table-wrapper">
+    <table>
+      <thead>
+        <tr><th>Space</th><th>Best For</th><th>Watch Out For</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>srgb</code></td><td>Default, compatible, predictable</td><td>Gray dead zone between complements</td></tr>
+        <tr><td><code>oklch</code></td><td>Perceptual blending, smooth gradients, themes</td><td>Slightly higher computation cost</td></tr>
+        <tr><td><code>oklab</code></td><td>Linear perceptual blending</td><td>Less intuitive than OKLCH for hue-based work</td></tr>
+        <tr><td><code>hsl</code></td><td>Familiar mental model</td><td>Not perceptually uniform — 50% isn&apos;t "halfway" visually</td></tr>
+        <tr><td><code>hwb</code></td><td>Intuitive whiteness/blackness blending</td><td>Same perceptual limitations as HSL</td></tr>
+        <tr><td><code>lab</code></td><td>Device-independent, very precise</td><td>Unfamiliar coordinates for most developers</td></tr>
+        <tr><td><code>lch</code></td><td>Polar Lab — lightness/chroma/hue</td><td>Less supported than OKLCH</td></tr>
+        <tr><td><code>xyz</code></td><td>Absolute reference space</td><td>Rarely needed; mostly for color science</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="highlight-box">
+    <strong>Rule of thumb:</strong> Use <code>in oklch</code> for nearly everything. It avoids the "gray mud" problem where blending blue and yellow in sRGB gives a desaturated gray instead of a vibrant blend. OKLCH preserves hue and chroma across the entire blend range.
+  </div>
+
+  <h2>Real-World Pattern 1: Hover States Without Extra Variables</h2>
+
+  <pre><code>.btn-primary {
+  background: #6366f1; /* Indigo-500 */
+  transition: background 0.15s;
+}
+.btn-primary:hover {
+  /* Lighten by mixing with 15% white — in OKLCH for clean results */
+  background: color-mix(in oklch, #6366f1 85%, white);
+}
+.btn-primary:active {
+  /* Darken by mixing with 15% black */
+  background: color-mix(in oklch, #6366f1 85%, black);
+}
+
+/* This replaces: */
+/* .btn-primary:hover { background: #818cf8; } — manually computed */
+/* .btn-primary:active { background: #4f46e5; } — manually computed */</code></pre>
+
+  <p>No more computing hover/active colors in your design tool. No more hex-to-HSL conversions. One base color, infinite interactions.</p>
+
+  <h2>Real-World Pattern 2: Dynamic Opacity Without RGBA Artifacts</h2>
+
+  <pre><code>/* Traditional RGBA opacity — can wash out colors */
+.card { background: rgba(99, 102, 241, 0.1); }
+
+/* color-mix() in OKLCH — preserves color identity */
+.card { background: color-mix(in oklch, #6366f1 10%, transparent); }
+
+/* The difference is subtle but real: OKLCH blending maintains
+   the perceived hue even at low "opacity" equivalents */</code></pre>
+
+  <h2>Real-World Pattern 3: Design System Color Scales With CSS Custom Properties</h2>
+
+  <pre><code>:root {
+  --brand: #6366f1;
+  --brand-50: color-mix(in oklch, var(--brand) 5%, white);
+  --brand-100: color-mix(in oklch, var(--brand) 10%, white);
+  --brand-200: color-mix(in oklch, var(--brand) 25%, white);
+  --brand-300: color-mix(in oklch, var(--brand) 45%, white);
+  --brand-400: color-mix(in oklch, var(--brand) 70%, white);
+  --brand-500: var(--brand);
+  --brand-600: color-mix(in oklch, var(--brand) 85%, black);
+  --brand-700: color-mix(in oklch, var(--brand) 70%, black);
+  --brand-800: color-mix(in oklch, var(--brand) 50%, black);
+  --brand-900: color-mix(in oklch, var(--brand) 30%, black);
+  --brand-950: color-mix(in oklch, var(--brand) 15%, black);
+}</code></pre>
+
+  <p>Change <code>--brand</code> and your entire 11-step color scale recalculates automatically. No JS, no build step, no PostCSS. This is what makes color-mix() truly revolutionary for design systems.</p>
+
+  <h2>Real-World Pattern 4: Accessible Contrast Adjustments</h2>
+
+  <pre><code>/* Darken a color until it meets WCAG AA contrast on white */
+.accessible-text {
+  color: color-mix(in oklch, var(--user-color) 60%, black);
+}
+
+/* Alternatively, lighten for dark backgrounds */
+.dark-mode .accessible-text {
+  color: color-mix(in oklch, var(--user-color) 50%, white);
+}</code></pre>
+
+  <h2>Real-World Pattern 5: Multi-Color Blending (Firefox 150+, Chrome 2026)</h2>
+
+  <p>The latest browsers now support blending <strong>more than two</strong> colors in a single color-mix() call:</p>
+
+  <pre><code>/* Three-way blend — Chrome 134+, Firefox 150+ */
+background: color-mix(
+  in oklch,
+  #3b82f6 40%,
+  color-mix(in oklch, #ef4444 50%, #10b981) 60%
+);</code></pre>
+
+  <p>While not yet Baseline, this unlocks advanced palette generation directly in CSS. Expect full cross-browser support by late 2026.</p>
+
+  <h2>The sRGB vs OKLCH Showdown</h2>
+
+  <p>This is where most developers get tripped up. Let&apos;s visualize the same blend in different spaces:</p>
+
+  <pre><code>/* Blue (#3b82f6) + Yellow (#eab308) at 50% each */
+
+/* sRGB — produces a muddy gray-purple */
+background: color-mix(in srgb, #3b82f6, #eab308);
+/* Result ≈ #8f97b7 — desaturated, grayish */
+
+/* OKLCH — produces a vibrant green-tinted blend */
+background: color-mix(in oklch, #3b82f6, #eab308);
+/* Result ≈ #6cab8a — much more saturated, retains character */</code></pre>
+
+  <p>sRGB blends by averaging channel values — complementary colors cancel each other out. OKLCH blends in a perceptually uniform space, preserving the "colorfulness" of the source colors. For brand colors and design systems, <strong>always use OKLCH</strong>.</p>
+
+  <h2>Practical Gotchas</h2>
+
+  <ul>
+    <li><strong>transparent counts as black in sRGB</strong> — blending with transparent in sRGB darkens your color. In OKLCH it behaves more intuitively.</li>
+    <li><strong>currentColor works</strong> — you can mix with currentColor for dynamic, context-aware theming.</li>
+    <li><strong>Nesting works</strong> — color-mix() can contain other color-mix() calls, enabling multi-color blends.</li>
+    <li><strong>No JavaScript needed</strong> — everything resolves at computed-value time in the browser&apos;s rendering engine. Zero performance cost.</li>
+    <li><strong>Animation-friendly</strong> — you can transition between color-mix() values. The browser interpolates the percentages.</li>
+  </ul>
+
+  <h2>Browser Support</h2>
+
+  <p>color-mix() is <strong>Baseline 2026</strong>. Chrome 111+ (March 2023), Firefox 113+ (May 2023), Safari 16.2+ (December 2022), Edge 111+. Over 95% of global users. Use it in production today without polyfills.</p>
+
+  <h2>Summary</h2>
+
+  <p>CSS color-mix() isn&apos;t just a new function — it&apos;s a paradigm shift. For 20 years, color manipulation required preprocessors, JavaScript, or manual calculation. Now it&apos;s a native CSS function that works with custom properties, animations, and every other CSS feature. Hover states, design-system scales, accessible contrast, dynamic theming — all of it becomes simpler, more maintainable, and more performant. The only question is: <strong>which color space will you choose?</strong> (Answer: OKLCH.)</p>
+
+  <div class="highlight-box">
+    <strong>Key takeaways:</strong>
+    <ul>
+      <li><strong>color-mix() blends two colors in any of 8 color spaces.</strong> Syntax: <code>color-mix(in &lt;space&gt;, &lt;color1&gt; [%], &lt;color2&gt; [%])</code></li>
+      <li><strong>Always use <code>in oklch</code> for design work.</strong> sRGB blending creates gray dead zones between complementary colors. OKLCH preserves hue and chroma.</li>
+      <li><strong>Replace preprocessor color functions.</strong> No more <code>lighten()</code>, <code>darken()</code>, or <code>mix()</code> in Sass. CSS handles it natively.</li>
+      <li><strong>Works with custom properties.</strong> Change one <code>--brand</code> variable and your entire color scale recalculates.</li>
+      <li><strong>Baseline 2026, use today.</strong> 95%+ global support. Zero polyfills, zero JavaScript, zero build steps.</li>
+    </ul>
+  </div>
+</div>`,
+  },
 ];
