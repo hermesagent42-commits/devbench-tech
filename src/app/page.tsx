@@ -111,6 +111,7 @@ import {
   Mail,
   Component,
   Puzzle,
+  Languages,
 } from 'lucide-react';
 
 export const metadata: Metadata = {
@@ -1534,6 +1535,13 @@ const featuredTools = [
     href: '/tools/morse-code',
     icon: Radio,
     tags: ['Morse Code', 'Encoder', 'Decoder', 'Audio', 'Web Audio API'],
+  },
+  {
+    title: 'NATO Phonetic Alphabet',
+    description: 'Translate text to NATO phonetic alphabet (Alpha, Bravo, Charlie...) and decode back. Clickable reference table with pronunciations, dashed-format export — perfect for reading codes over the phone.',
+    href: '/tools/nato-phonetic',
+    icon: Languages,
+    tags: ['NATO', 'Phonetic', 'Translator', 'Radio', 'Alphabet'],
   },
   {
     title: 'CSS Pseudo-Elements Playground',
