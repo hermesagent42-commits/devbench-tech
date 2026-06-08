@@ -109,6 +109,8 @@ import {
   Radio,
   AlignCenterVertical,
   Mail,
+  Component,
+  Puzzle,
 } from 'lucide-react';
 
 export const metadata: Metadata = {
@@ -544,6 +546,13 @@ const featuredTools = [
     href: '/tools/html-entity-converter',
     icon: FileText,
     tags: ['HTML', 'Entities', 'Encoder'],
+  },
+  {
+    title: 'Web Component Builder',
+    description: 'Visually build custom elements with Shadow DOM — edit template, scoped CSS, and lifecycle logic in real-time. Preview live, 4 presets, one-click JS + HTML export. Zero dependencies.',
+    href: '/tools/web-component-builder',
+    icon: Component,
+    tags: ['Web Components', 'Custom Elements', 'Shadow DOM', 'JS'],
   },
   {
     title: 'Image Color Extractor',
