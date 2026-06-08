@@ -1,0 +1,242 @@
+---
+title: "CSS env() Complete Guide: Safe Areas, Titlebars, Keyboards, and Viewport Segments"
+date: "2026-06-08"
+excerpt: "CSS env() gives you access to browser-defined environment variables — safe-area-inset for notched phones, titlebar-area for PWAs, keyboard-inset for virtual keyboards, and viewport-segments for foldables. Complete guide with real-world patterns for every device form factor."
+tags: ["CSS", "env()", "Safe Area", "PWA", "Keyboard", "Foldable", "Mobile", "2026"]
+---
+
+`env()` is one of the most underutilized CSS functions — yet it's absolutely essential for building layouts that work across every device form factor. From the notch on an iPhone to the hinge on a Surface Duo, `env()` gives you the exact pixel values you need to avoid UI behind system chrome.
+
+Unlike `var()`, which reads custom properties *you* define, `env()` reads variables set by the **browser and operating system**. You can't set them — you can only read them and provide fallbacks.
+
+## The Problem: Notches, Keyboards, and Titlebars
+
+Here's what happens when you don't use `env()`:
+
+```css
+/* Without env() — your content hides behind system UI */
+body {
+  padding: 0; /* Content goes under the notch/home indicator */
+}
+
+.fixed-bottom {
+  bottom: 0; /* Buttons hidden behind the home indicator */
+}
+```
+
+```css
+/* With env() — your content respects system chrome */
+body {
+  padding:
+    env(safe-area-inset-top, 0px)
+    env(safe-area-inset-right, 0px)
+    env(safe-area-inset-bottom, 0px)
+    env(safe-area-inset-left, 0px);
+}
+
+.fixed-bottom {
+  bottom: env(safe-area-inset-bottom, 16px); /* Always visible */
+}
+```
+
+The fallback (the second argument) is what the browser uses if the variable isn't available — which it won't be on desktop browsers without a notched display.
+
+## The Complete env() Variable Catalog
+
+### Safe Area Insets
+
+These are the most widely supported `env()` variables, shipped in iOS Safari 11 and Chrome 69+. They tell you exactly how many pixels are taken up by the notch, status bar, home indicator, and rounded corners.
+
+| Variable | What It Measures | Typical iPhone Value |
+|---|---|---|
+| `safe-area-inset-top` | Top notch / status bar height | 47px (dynamic island) |
+| `safe-area-inset-right` | Right rounded corner inset | 0px (portrait) |
+| `safe-area-inset-bottom` | Bottom home indicator height | 34px |
+| `safe-area-inset-left` | Left rounded corner inset | 0px (portrait) |
+
+Usage pattern:
+
+```css
+.header {
+  padding-top: env(safe-area-inset-top, 20px);
+  padding-left: env(safe-area-inset-left, 16px);
+  padding-right: env(safe-area-inset-right, 16px);
+}
+
+.tab-bar {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+```
+
+### Titlebar Area (PWA window controls)
+
+When your PWA runs in standalone mode with window controls overlay enabled, the browser tells you exactly where the titlebar controls (minimize, maximize, close) are positioned. This lets you place your own UI alongside them without overlaps.
+
+```json
+// manifest.json
+{
+  "display_override": ["window-controls-overlay"],
+  "display": "standalone"
+}
+```
+
+```css
+/* Drag region for your app's custom titlebar */
+.app-titlebar {
+  position: fixed;
+  top: env(titlebar-area-y, 0px);
+  left: env(titlebar-area-x, 0px);
+  width: env(titlebar-area-width, 100%);
+  height: env(titlebar-area-height, 32px);
+  -webkit-app-region: drag;
+}
+```
+
+### Keyboard Insets (Virtual Keyboard API)
+
+When the virtual keyboard appears on mobile, `keyboard-inset-*` tells you exactly where it sits. This is a game-changer for chat apps, forms, and any UI that needs to stay above the keyboard.
+
+```css
+/* When keyboard appears, push the input area above it */
+.chat-input {
+  position: fixed;
+  bottom: env(keyboard-inset-height, 0px);
+  left: env(keyboard-inset-left, 0px);
+  right: env(keyboard-inset-right, 0px);
+  transition: bottom 0.3s ease;
+}
+```
+
+Browser support: Chrome 108+ on Android, Safari 15.4+ on iOS.
+
+### Viewport Segments (Foldable Devices)
+
+For foldable devices like the Surface Duo or Samsung Galaxy Fold, `viewport-segment-*` lets you detect the hinge and position content on each screen independently.
+
+```css
+@media (vertical-viewport-segments: 2) {
+  /* Two screens side by side — split layout at the hinge */
+  .main {
+    display: flex;
+    flex-direction: row;
+  }
+  .left-panel {
+    width: env(viewport-segment-width 0 0, 50%);
+  }
+  .right-panel {
+    width: env(viewport-segment-width 0 1, 50%);
+    margin-left: env(viewport-segment-left 0 1, 0px);
+  }
+}
+
+@media (horizontal-viewport-segments: 2) {
+  /* Two screens stacked — split layout at the fold */
+  .main {
+    flex-direction: column;
+  }
+}
+```
+
+The syntax takes two indices: `viewport-segment-width <x> <y>` — where (0,0) is the top-left segment, (0,1) is the top-right, etc.
+
+## The viewport-fit Meta Tag
+
+For `env()` to work properly on iOS, you need `viewport-fit=cover` in your meta tag:
+
+```html
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+```
+
+Without this, the browser reserves a safe area margin that `env()` can't access, and your content will be letterboxed.
+
+## Real-World Patterns
+
+### Pattern 1: Full-Bleed Hero with Safe Content
+
+```css
+.hero {
+  /* Background bleeds edge to edge */
+  margin-left: calc(env(safe-area-inset-left, 0px) * -1);
+  margin-right: calc(env(safe-area-inset-right, 0px) * -1);
+  padding-left: env(safe-area-inset-left, 24px);
+  padding-right: env(safe-area-inset-right, 24px);
+  padding-top: env(safe-area-inset-top, 0px);
+}
+```
+
+### Pattern 2: Sticky Bottom Bar
+
+```css
+.bottom-bar {
+  position: sticky;
+  bottom: 0;
+  padding-bottom: env(safe-area-inset-bottom, 16px);
+  background: var(--surface);
+}
+```
+
+### Pattern 3: PWA with Custom Titlebar
+
+```css
+.app-layout {
+  display: grid;
+  grid-template-rows: 
+    env(titlebar-area-height, 40px) 
+    1fr 
+    auto;
+  min-height: 100dvh;
+}
+
+.custom-titlebar {
+  display: flex;
+  align-items: center;
+  padding: 0 env(titlebar-area-x, 16px);
+  -webkit-app-region: drag;
+  user-select: none;
+}
+
+.custom-titlebar button {
+  -webkit-app-region: no-drag;
+}
+```
+
+## Feature Detection
+
+Use `@supports` to progressively enhance:
+
+```css
+@supports (padding: env(safe-area-inset-top)) {
+  .content {
+    padding-top: env(safe-area-inset-top, 16px);
+  }
+}
+
+@supports (bottom: env(keyboard-inset-height)) {
+  .chat-input {
+    bottom: env(keyboard-inset-height, 8px);
+  }
+}
+```
+
+## Browser Support (2026)
+
+| Feature | Chrome | Safari | Firefox | Edge |
+|---|---|---|---|---|
+| `safe-area-inset-*` | 69+ | 11+ | 91+ | 79+ |
+| `titlebar-area-*` | 93+ | — | — | 93+ |
+| `keyboard-inset-*` | 108+ | 15.4+ | — | 108+ |
+| `viewport-segment-*` | — | — | — | 89+ (dual-screen) |
+
+## Try It Yourself
+
+We've built an interactive **CSS env() Playground** on DevBench where you can adjust every environment variable with sliders and see the layout update in real-time on simulated iPhone, foldable, and desktop previews. [Open the playground →](/tools/css-env-playground)
+
+## Key Takeaways
+
+1. **Always use `env(safe-area-inset-*)`** on iOS-targeted layouts — it's the only way to avoid content behind the notch and home indicator
+2. **Add `viewport-fit=cover`** to your meta tag or `env()` won't work on iOS
+3. **Use `keyboard-inset-height`** for chat inputs and form footers — no more JavaScript keyboard detection
+4. **Design for foldables** with `viewport-segment-*` — it's a small audience today but growing fast
+5. **Provide fallbacks** — the second argument in `env()` is your safety net for unsupported browsers
+
+The `env()` function turns device quirks into predictable, queryable CSS variables. Don't fight the notch — work with it.

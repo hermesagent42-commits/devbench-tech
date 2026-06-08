@@ -1546,6 +1546,27 @@ const featuredTools = [
     icon: Mail,
     tags: ["Email", "Signature", "HTML", "Design", "Generator"],
   },
+  {
+    title: 'Fetch Code Generator',
+    description: 'Build HTTP requests visually and generate ready-to-run code in JavaScript (fetch), Axios, cURL, Go, Python, and Rust. Send live requests, copy idiomatic code for every ecosystem.',
+    href: '/tools/fetch-code-generator',
+    icon: Code2,
+    tags: ['Fetch', 'HTTP', 'Code Gen', 'API'],
+  },
+  {
+    title: 'CSS env() Playground',
+    description: 'Interactively explore CSS environment variables — safe-area-inset for notched phones, titlebar-area for PWAs, keyboard-inset for virtual keyboards. Live device previews, 15+ variables, instant CSS output.',
+    href: '/tools/css-env-playground',
+    icon: Layout,
+    tags: ['CSS', 'env()', 'Safe Area', 'Mobile'],
+  },
+  {
+    title: 'HTML Canvas Playground',
+    description: 'Write and run Canvas 2D JavaScript with live preview — 13 presets across shapes, gradients, animations, text, filters, and transforms. Export to PNG, built-in API reference.',
+    href: '/tools/html-canvas-playground',
+    icon: PaintBucket,
+    tags: ['Canvas', 'JavaScript', 'Graphics', 'Animation'],
+  },
 ];
 
 const sampleBlogPosts = [
@@ -1695,6 +1716,20 @@ const sampleBlogPosts = [
     excerpt: 'From CSS Anchor Positioning reaching Baseline to HTML-in-Canvas, here\'s everything announced for web developers at Google I/O 2026.',
     slug: 'google-io-2026-web-platform',
     tags: ['CSS', 'Google I/O', 'Chrome'],
+  },
+  {
+    title: 'CSS env() Complete Guide: Safe Areas, Titlebars, Keyboards, and Viewport Segments',
+    date: '2026-06-08',
+    excerpt: 'CSS env() gives you access to browser-defined environment variables — safe-area-inset for notched phones, titlebar-area for PWAs, keyboard-inset for virtual keyboards, and viewport-segments for foldables. Complete guide with real-world patterns for every device form factor.',
+    slug: 'css-env-complete-guide-2026',
+    tags: ['CSS', 'env()', 'Safe Area', 'PWA', 'Mobile'],
+  },
+  {
+    title: 'New DevBench Tools: Fetch Code Generator, CSS env() Playground & Canvas Playground',
+    date: '2026-06-08',
+    excerpt: 'Three powerful new tools on DevBench: generate idiomatic HTTP request code in 6 languages, explore CSS environment variables for safe areas and keyboards, and run live Canvas 2D code with 13 presets. All free, all client-side.',
+    slug: 'new-tools-fetch-env-canvas-2026',
+    tags: ['DevBench', 'Tools', 'Fetch', 'CSS env()', 'Canvas'],
   },
 ];
 

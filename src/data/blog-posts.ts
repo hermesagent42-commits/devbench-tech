@@ -6159,4 +6159,127 @@ const component = await import(modulePath);</code></pre>
 </div>`,
 
   },
+  {
+    slug: 'css-env-complete-guide-2026',
+    title: 'CSS env() Complete Guide: Safe Areas, Titlebars, Keyboards, and Viewport Segments',
+    description:
+      'CSS env() gives you access to browser-defined environment variables — safe-area-inset for notched phones, titlebar-area for PWAs, keyboard-inset for virtual keyboards, and viewport-segments for foldables. Complete guide with real-world patterns for every device form factor.',
+    date: '2026-06-08',
+    author: 'DevBench',
+    tags: ['CSS', 'env()', 'Safe Area', 'PWA', 'Keyboard', 'Foldable', 'Mobile', '2026'],
+    readingTime: '8 min read',
+    content: `<div class="prose-content">
+  <p class="lead">
+    <strong>env()</strong> is one of the most underutilized CSS functions — yet it's absolutely essential for building layouts that work across every device form factor. From the notch on an iPhone to the hinge on a Surface Duo, <code>env()</code> gives you the exact pixel values you need to avoid UI behind system chrome.
+  </p>
+
+  <h2>The Problem: Notches, Keyboards, and Titlebars</h2>
+
+  <p>Without <code>env()</code>, your fixed bottom buttons are hidden behind the iPhone home indicator. Your PWA titlebar overlaps with window controls. Your chat input sits behind the virtual keyboard.</p>
+
+  <div class="highlight-box">
+    <strong>Key insight:</strong> Unlike <code>var()</code>, which reads custom properties <em>you</em> define, <code>env()</code> reads variables set by the <strong>browser and operating system</strong>. You can't set them — you can only read them and provide fallbacks.
+  </div>
+
+  <h2>Safe Area Insets</h2>
+
+  <p>These are the most widely supported <code>env()</code> variables:</p>
+
+  <ul>
+    <li><strong>safe-area-inset-top</strong> — top notch / status bar height (47px on iPhone dynamic island)</li>
+    <li><strong>safe-area-inset-right</strong> — right rounded corner inset</li>
+    <li><strong>safe-area-inset-bottom</strong> — bottom home indicator height (34px)</li>
+    <li><strong>safe-area-inset-left</strong> — left rounded corner inset</li>
+  </ul>
+
+  <pre><code>body {
+  padding:
+    env(safe-area-inset-top, 0px)
+    env(safe-area-inset-right, 0px)
+    env(safe-area-inset-bottom, 0px)
+    env(safe-area-inset-left, 0px);
+}
+
+.fixed-bottom {
+  bottom: env(safe-area-inset-bottom, 16px);
+}</code></pre>
+
+  <h2>Keyboard Insets</h2>
+
+  <p>When the virtual keyboard appears on mobile, <code>keyboard-inset-*</code> tells you exactly where it sits. No more JavaScript keyboard detection.</p>
+
+  <pre><code>.chat-input {
+  position: fixed;
+  bottom: env(keyboard-inset-height, 0px);
+  transition: bottom 0.3s ease;
+}</code></pre>
+
+  <h2>The viewport-fit Meta Tag</h2>
+
+  <p>For <code>env()</code> to work properly on iOS, you must add <code>viewport-fit=cover</code> to your meta tag:</p>
+
+  <pre><code>&lt;meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" /&gt;</code></pre>
+
+  <div class="highlight-box highlight-positive">
+    <strong>Browser support (2026):</strong> <code>safe-area-inset-*</code> is universal (Chrome 69+, Safari 11+, Firefox 91+). <code>keyboard-inset-*</code> works in Chrome 108+ and Safari 15.4+. <code>titlebar-area-*</code> is Chrome/Edge only. <code>viewport-segment-*</code> is Edge dual-screen.
+  </div>
+
+  <p>
+    <a href="/tools/css-env-playground/" class="inline-link">Try the interactive CSS env() Playground →</a>
+  </p>
+</div>`,
+  },
+  {
+    slug: 'new-tools-fetch-env-canvas-2026',
+    title: 'New DevBench Tools: Fetch Code Generator, CSS env() Playground & Canvas Playground',
+    description:
+      'Three powerful new tools on DevBench: generate idiomatic HTTP request code in 6 languages, explore CSS environment variables for safe areas and keyboards, and run live Canvas 2D code with 13 presets. All free, all client-side.',
+    date: '2026-06-08',
+    author: 'DevBench',
+    tags: ['DevBench', 'Tools', 'Fetch', 'CSS env()', 'Canvas', 'Code Generation', '2026'],
+    readingTime: '4 min read',
+    content: `<div class="prose-content">
+  <p class="lead">
+    We just shipped three new developer tools on DevBench — and they're all free, all client-side, and ready to use today.
+  </p>
+
+  <h2>1. Fetch Code Generator</h2>
+  <p><strong>Build HTTP requests visually and get ready-to-run code in 6 languages.</strong></p>
+
+  <ul>
+    <li>Choose <strong>GET, POST, PUT, PATCH, DELETE, HEAD, OPTIONS</strong></li>
+    <li>Add custom headers with a visual editor</li>
+    <li>Send the request live and see the response</li>
+    <li>Generate idiomatic code in JavaScript (fetch), Axios, cURL, Go, Python, and Rust</li>
+  </ul>
+
+  <h2>2. CSS env() Playground</h2>
+  <p><strong>Interactively explore CSS environment variables with live device previews.</strong></p>
+
+  <ul>
+    <li>Adjust 15 env() variables with interactive sliders</li>
+    <li>Preview on simulated iPhone, foldable, and desktop</li>
+    <li>See safe areas, titlebars, and keyboards rendered visually</li>
+    <li>Get instant CSS output customized to your chosen values</li>
+  </ul>
+
+  <h2>3. HTML Canvas Playground</h2>
+  <p><strong>Write Canvas 2D JavaScript and see it render live.</strong></p>
+
+  <ul>
+    <li>Live code editor with real-time preview</li>
+    <li>13 presets across 6 categories: shapes, gradients, animations, text, filters, and transforms</li>
+    <li>Download as PNG for quick exports</li>
+    <li>Built-in quick API reference</li>
+  </ul>
+
+  <div class="highlight-box highlight-positive">
+    <strong>All tools are 100% client-side</strong> — no data leaves your browser, no sign-up required, instant results.
+  </div>
+
+  <p>
+    <a href="/tools/" class="inline-link">Browse all 230+ developer tools →</a>
+  </p>
+</div>`,
+  },
 ];

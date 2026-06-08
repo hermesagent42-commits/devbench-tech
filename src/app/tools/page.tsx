@@ -1402,6 +1402,27 @@ const allTools = [
     icon: SunMoon,
     tags: ['Timezone', 'World Clock', 'Meeting', 'Planner', 'UTC'],
   },
+  {
+    title: 'Fetch Code Generator',
+    description: 'Build HTTP requests visually and generate ready-to-run code in JavaScript (fetch), Axios, cURL, Go, Python, and Rust. Send live requests, copy idiomatic code for every ecosystem.',
+    href: '/tools/fetch-code-generator',
+    icon: Code2,
+    tags: ['Fetch', 'HTTP', 'Code Generation', 'cURL', 'API'],
+  },
+  {
+    title: 'CSS env() Playground',
+    description: 'Interactively explore CSS env() variables — safe-area-inset, titlebar-area, keyboard-inset. Visual preview on simulated iPhone, foldable, and desktop with real-time CSS output.',
+    href: '/tools/css-env-playground',
+    icon: Layout,
+    tags: ['CSS', 'env()', 'Safe Area', 'Mobile', 'PWA'],
+  },
+  {
+    title: 'HTML Canvas Playground',
+    description: 'Write Canvas 2D JavaScript with a live preview — 13 presets across shapes, gradients, animations, text, filters, and transforms. Built-in API reference, export to PNG.',
+    href: '/tools/html-canvas-playground',
+    icon: PaintBucket,
+    tags: ['Canvas', 'JavaScript', 'Graphics', 'Animation', '2D'],
+  },
 ];
 
 export default function ToolsPage() {

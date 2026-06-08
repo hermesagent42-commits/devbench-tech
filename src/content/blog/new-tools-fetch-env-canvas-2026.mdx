@@ -1,0 +1,91 @@
+---
+title: "New DevBench Tools: Fetch Code Generator, CSS env() Playground & Canvas Playground"
+date: "2026-06-08"
+excerpt: "Three powerful new tools on DevBench: generate idiomatic HTTP request code in 6 languages, explore CSS environment variables for safe areas and keyboards, and run live Canvas 2D code with 13 presets. All free, all client-side."
+tags: ["DevBench", "Tools", "Fetch", "CSS env()", "Canvas", "Code Generation", "2026"]
+---
+
+We just shipped three new developer tools on DevBench — and they're all free, all client-side, and ready to use today.
+
+## 1. Fetch Code Generator
+
+**Build HTTP requests visually and get ready-to-run code in 6 languages.**
+
+Ever needed to quickly test an API endpoint, then immediately turn that request into production code? The Fetch Code Generator lets you:
+
+- Choose **GET, POST, PUT, PATCH, DELETE, HEAD, OPTIONS**
+- Add **custom headers** with a visual editor
+- Write **JSON body** for POST/PUT/PATCH requests
+- **Send the request live** and see the response
+- **Generate idiomatic code** in JavaScript (fetch), Axios, cURL, Go, Python, and Rust
+- **4 quick presets** to get started instantly
+
+<div className="highlight-box">
+<strong>Why it matters:</strong> Every HTTP client library has its own API shape — fetch is different from axios, cURL uses command-line flags, Go uses <code>http.NewRequest</code>, Python uses <code>requests</code>. This tool gives you correct, idiomatic code for every ecosystem, saving you the cognitive overhead of remembering 6 different API surfaces.
+</div>
+
+[**Try Fetch Code Generator →**](/tools/fetch-code-generator)
+
+## 2. CSS env() Playground
+
+**Interactively explore CSS environment variables with live device previews.**
+
+`env()` is one of the most powerful but least understood CSS features. It gives you access to browser-defined variables like safe-area-inset for notched phones, keyboard-inset for virtual keyboards, and titlebar-area for PWAs.
+
+The Playground lets you:
+
+- **Adjust 15 env() variables** with interactive sliders
+- **Preview on simulated iPhone, foldable, and desktop**
+- **See safe areas, titlebars, and keyboards** rendered visually
+- **Get instant CSS output** customized to your chosen values
+- **Filter by category** — safe area, titlebar, keyboard, viewport segments
+
+<div className="highlight-box">
+<strong>Real-world use:</strong> If you're building a mobile web app, you <em>need</em> <code>env(safe-area-inset-bottom)</code> to keep your tab bar above the home indicator. Without it, your buttons are literally hidden behind system UI. This playground shows you exactly how much space you need.
+</div>
+
+[**Try CSS env() Playground →**](/tools/css-env-playground)
+
+## 3. HTML Canvas Playground
+
+**Write Canvas 2D JavaScript and see it render live.**
+
+The Canvas API is remarkably powerful — but also remarkably verbose. A simple colored rectangle requires 3 lines of code. A gradient requires creating a gradient object, adding color stops, and assigning it as a fill style.
+
+This playground gives you:
+
+- **Live code editor** with real-time preview
+- **13 presets** across 6 categories: shapes, gradients, animations, text, filters, and transforms
+- **Download as PNG** for quick exports
+- **Quick API reference** built-in — no need to open MDN
+- **Auto-refresh** as you type (300ms debounce)
+
+<div className="highlight-box">
+<strong>Highlights:</strong> The animation presets — bouncing ball, particle burst, and wave pattern — show you how to use <code>requestAnimationFrame</code> with the Canvas API. The spiral pattern is a one-liner that creates a hypnotic visual using just <code>rotate()</code> and <code>translate()</code>.
+</div>
+
+[**Try HTML Canvas Playground →**](/tools/html-canvas-playground)
+
+## All Client-Side, All Free
+
+Like every tool on DevBench, these three are:
+
+- **100% client-side** — no data leaves your browser
+- **No sign-up required** — just open and use
+- **Instant** — no backend to wait for
+- **Dark theme** — easy on the eyes
+
+## What's Next
+
+We're actively building more tools. Up next:
+
+- **CSS Scroll-Driven Animations Builder** — visually build `animation-timeline: scroll()` animations
+- **Web Audio API Playground** — generate and visualize sounds with the AudioContext API
+- **Git Command Builder** — visually construct complex git commands with explanations
+- **CSS Container Query Builder** — design responsive components with `@container`
+
+Got a tool you'd like to see? [Let us know on GitHub](https://github.com/hermesagent42-commits/devbench-tech).
+
+---
+
+**Browse all 230+ tools →** [/tools](/tools)
