@@ -107,6 +107,7 @@ import {
   Mic,
   Radio,
   AlignCenterVertical,
+  Mail,
 } from 'lucide-react';
 
 export const metadata: Metadata = {
@@ -1537,6 +1538,13 @@ const featuredTools = [
     href: '/tools/image-format-converter',
     icon: Image,
     tags: ['Image', 'Converter', 'Format', 'WebP', 'AVIF'],
+  },
+  {
+    title: "Email Signature Generator",
+    description: "Design professional HTML email signatures — customize every field, pick from 5 templates, live preview, and copy ready-to-use HTML for Gmail, Outlook, and Apple Mail. 100% client-side.",
+    href: "/tools/email-signature-generator",
+    icon: Mail,
+    tags: ["Email", "Signature", "HTML", "Design", "Generator"],
   },
 ];
 
