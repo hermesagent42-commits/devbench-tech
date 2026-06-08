@@ -674,6 +674,13 @@ const allTools = [
     tags: ['SVG', 'Wave', 'Divider', 'Design', 'Generator'],
   },
   {
+    title: 'SVG Chart Generator',
+    description: 'Generate beautiful, responsive SVG charts — bar, line, area, pie, donut. Custom data and colors, live preview, copy/download SVG — 100% client-side, zero dependencies.',
+    href: '/tools/svg-chart-generator',
+    icon: BarChart3,
+    tags: ['SVG', 'Chart', 'Data', 'Visualization'],
+  },
+  {
     title: 'Date Calculator',
     description: 'Calculate date differences with year/month/day breakdowns, add or subtract durations, and count down to events. 100% client‑side.',
     href: '/tools/date-calculator',
