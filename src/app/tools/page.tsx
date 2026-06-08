@@ -115,6 +115,7 @@ import {
   Pipette,
   Gamepad2,
   Bookmark,
+  AlignCenterVertical,
 } from 'lucide-react';
 
 export const metadata: Metadata = {
@@ -1370,6 +1371,13 @@ const allTools = [
     href: '/tools/css-linear-easing-builder',
     icon: Pipette,
     tags: ['CSS', 'Easing', 'linear()', 'Animation', 'Timing'],
+  },
+  {
+    title: 'CSS text-box Playground',
+    description: 'Master text-box-trim and text-box-edge — the Baseline 2026 CSS properties for killing half-leading. Side-by-side comparison, 7 presets, live text properties, copy-ready CSS.',
+    href: '/tools/css-text-box-playground',
+    icon: AlignCenterVertical,
+    tags: ['CSS', 'text-box-trim', 'Typography', 'Baseline 2026'],
   },
 ];
 

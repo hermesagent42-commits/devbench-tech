@@ -106,6 +106,7 @@ import {
   Waves,
   Mic,
   Radio,
+  AlignCenterVertical,
 } from 'lucide-react';
 
 export const metadata: Metadata = {
@@ -310,6 +311,13 @@ const featuredTools = [
     href: '/tools/css-tooltip-generator',
     icon: MousePointer2,
     tags: ['CSS', 'Tooltip', 'Design', 'Animation'],
+  },
+  {
+    title: 'CSS text-box Playground',
+    description: 'Master text-box-trim — kill half-leading for perfect vertical text alignment. Side-by-side comparison, 7 presets, copy-ready CSS. Baseline 2026.',
+    href: '/tools/css-text-box-playground',
+    icon: AlignCenterVertical,
+    tags: ['CSS', 'text-box-trim', 'Typography', 'Baseline 2026'],
   },
   {
     title: 'Color Converter',
