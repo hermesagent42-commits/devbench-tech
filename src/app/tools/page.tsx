@@ -1445,6 +1445,13 @@ const allTools = [
     icon: Layers,
     tags: ['CSS', 'z-index', 'Stacking', 'Education'],
   },
+  {
+    title: 'Roman Numeral Converter',
+    description: 'Convert between Arabic numbers and Roman numerals bidirectionally — standard (1–3,999) and extended mode with vinculum for numbers up to 3,999,999. Presets, reference table, instant conversion.',
+    href: '/tools/roman-numeral-converter',
+    icon: ListOrdered,
+    tags: ['Roman Numerals', 'Converter', 'Math', 'Reference'],
+  },
 ];
 
 export default function ToolsPage() {

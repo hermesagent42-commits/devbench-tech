@@ -436,6 +436,13 @@ const featuredTools = [
     tags: ['Number', 'Base', 'Binary', 'Hex'],
   },
   {
+    title: 'Roman Numeral Converter',
+    description: 'Convert between Arabic numbers and Roman numerals — standard (1–3,999) and extended vinculum mode. Presets, reference table, instant bidrectional conversion.',
+    href: '/tools/roman-numeral-converter',
+    icon: ListOrdered,
+    tags: ['Roman Numerals', 'Math', 'Converter', 'History'],
+  },
+  {
     title: 'Password Strength Checker',
     description: 'Check password strength with entropy analysis, crack-time estimates, and a 10-point security checklist — all client-side.',
     href: '/tools/password-strength-checker',
