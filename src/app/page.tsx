@@ -1466,6 +1466,13 @@ const featuredTools = [
     tags: ['CSS', 'Caret', 'Accessibility', 'Forms'],
   },
   {
+    title: 'CSS color-scheme Playground',
+    description: 'Explore how color-scheme affects native form controls, scrollbars, and system colors. Toggle light/dark, compare side-by-side, and get instant CSS for proper dark mode integration.',
+    href: '/tools/css-color-scheme-playground',
+    icon: SunMoon,
+    tags: ['CSS', 'color-scheme', 'Dark Mode', 'Forms'],
+  },
+  {
     title: 'CSS content-visibility Playground',
     description: 'Speed up rendering with content-visibility: auto — skip layout for off-screen content. Live scroll test, performance metrics, and production-ready CSS.',
     href: '/tools/content-visibility-playground',
