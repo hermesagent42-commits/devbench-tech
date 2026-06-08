@@ -1579,6 +1579,13 @@ const featuredTools = [
 
 const sampleBlogPosts = [
   {
+    title: 'CSS Grid Layout: The Complete Guide for 2026 — From Basics to Production Patterns',
+    date: '2026-06-08',
+    excerpt: 'CSS Grid is the most powerful layout system ever built into the browser. This comprehensive guide covers every property, the fr unit, minmax(), auto-fill vs auto-fit, named grid areas, subgrid, and 10 production-ready layout patterns — all with live code examples.',
+    slug: 'css-grid-complete-guide-2026',
+    tags: ['CSS', 'Grid', 'Layout', 'CSS Grid', 'Responsive', '2026'],
+  },
+  {
     title: 'CSS Container Queries: The End of Media-Query-Only Responsive Design',
     date: '2026-06-05',
     excerpt: 'Container Queries let components respond to their own size — not the viewport. Now Baseline 2026 across all browsers, they fundamentally change how we build reusable, context-independent UI components. Complete guide to @container, style queries, and container query units.',
