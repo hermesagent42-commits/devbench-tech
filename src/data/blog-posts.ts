@@ -5517,4 +5517,356 @@ navigation.addEventListener('navigateerror', (event) => {
   </div>
 </div>`,
   },
+  {
+    slug: 'css-text-wrap-balance-pretty-2026',
+    title: 'CSS text-wrap: balance and pretty — Finally, Beautiful Typography Without a Build Step',
+    description:
+      'Two new text-wrap values — balance and pretty — are Baseline 2026 across all browsers. balance eliminates ragged headline edges with a multi-line text balancing algorithm. pretty prevents widows (single words on the last line) using a paragraph-aware layout strategy. Both work with zero JavaScript, zero dependencies, and zero performance cost beyond layout.',
+    date: '2026-06-08',
+    author: 'DevBench',
+    tags: ['CSS', 'text-wrap', 'Typography', 'Baseline 2026', 'Web Platform', 'Design', 'Performance', '2026'],
+    readingTime: '8 min read',
+    content: `<div class="prose-content">
+  <p class="lead">
+    Typography on the web has always been a compromise. Headlines that look gorgeous in Figma become ragged disasters in the browser. Paragraphs end with lonely orphan words dangling on the final line. For years, developers resorted to manual <code>&lt;br&gt;</code> tags, JavaScript balance libraries, or server-side line-breaking algorithms. <strong>All of that is now obsolete.</strong> Two values of the <code>text-wrap</code> property — <code>balance</code> and <code>pretty</code> — are Baseline 2026 across Chrome, Firefox, Safari, and Edge. They solve these typographic problems natively in the browser engine.
+  </p>
+
+  <h2>The Problem: Why Web Typography Has Always Been Broken</h2>
+
+  <p>
+    Browsers lay out text one line at a time, greedily filling each line to its maximum width before wrapping. This is called <strong>"first-fit" wrapping</strong> and it's the sole reason headlines look uneven:
+  </p>
+
+  <pre><code>/* A 4-word headline on a narrow viewport — first-fit wrapping: */
+
+The Future of Web
+Typography</code></pre>
+
+  <p>
+    The browser fills line 1 with "The Future of Web" because it fits, then drops "Typography" alone on line 2. The result is visually unbalanced — a fat top line and a stubby bottom line. Designers fight this constantly with manual line breaks:
+  </p>
+
+  <pre><code>&lt;h1&gt;The Future&lt;br&gt;of Web Typography&lt;/h1&gt;</code></pre>
+
+  <p>
+    This "solution" breaks at every viewport width, every font size change, every translation. It's not a solution — it's a hack that creates more problems than it solves.
+  </p>
+
+  <p>
+    Paragraphs have a different problem: <strong>widows</strong> — single words stranded on the last line. They look orphaned, break the visual rhythm, and signal amateur typography:
+  </p>
+
+  <pre><code>The quick brown fox jumps over the lazy dog and runs
+into the forest where it meets a squirrel named
+Bob.</code></pre>
+
+  <p>
+    That lonely "Bob." at the end is a widow. Traditional CSS has <strong>zero</strong> tools to prevent this. Until now.
+  </p>
+
+  <h2>text-wrap: balance — Beautiful Headlines, Automatically</h2>
+
+  <p>
+    <code>text-wrap: balance</code> tells the browser to <strong>distribute words evenly across lines</strong> instead of greedily filling the first line. The browser evaluates multiple wrapping positions and picks the one that minimizes variance in line lengths:
+  </p>
+
+  <pre><code>h1, h2, h3, h4, h5, h6 {
+  text-wrap: balance;
+  max-width: 40ch; /* Optional: constrain for even better results */
+}
+
+/* That's it. No JavaScript. No build step. No manual <br> tags. */</code></pre>
+
+  <p>The result is transformative. A 4-word headline becomes:</p>
+
+  <pre><code>/* Before (first-fit):         After (balance): */
+The Future of Web               The Future
+Typography                      of Web Typography</code></pre>
+
+  <p>
+    The algorithm works by analyzing all possible line-break positions and choosing the one that minimizes the <strong>sum of squared line widths</strong>. A 3-line headline with widths 80%, 85%, 90% is preferred over one with 95%, 60%, 70% — because balanced lines are more visually pleasing.
+  </p>
+
+  <h3>How balance works under the hood</h3>
+
+  <p>
+    The browser keeps <strong>all words in the same text block</strong> — it doesn't reorder them. It only adjusts <em>where</em> lines break. The algorithm considers up to 6 wrapped lines; beyond that, the performance cost of exhaustively checking all break positions outweighs the visual benefit:
+  </p>
+
+  <pre><code>/* ✅ Ideal use cases: headings, hero text, pull quotes */
+h1 { text-wrap: balance; }
+blockquote { text-wrap: balance; }
+.hero p { text-wrap: balance; }
+
+/* ⚠️ Not recommended: body text (6+ lines; negligible benefit) */
+p { text-wrap: balance; } /* Don't do this */</code></pre>
+
+  <div class="highlight-box">
+    <strong>Performance note:</strong> <code>text-wrap: balance</code> adds a small layout cost because the browser evaluates multiple wrapping configurations. This cost is capped — the browser limits analysis to 6 lines. For short headings (2–4 lines), the impact is imperceptible.
+  </div>
+
+  <h2>text-wrap: pretty — Paragraphs Without Widows</h2>
+
+  <p>
+    <code>text-wrap: pretty</code> solves the widow problem. It uses a <strong>paragraph-aware algorithm</strong> that looks at the entire block and adjusts line breaks to ensure the last line has at least 2 words:
+  </p>
+
+  <pre><code>p, li, figcaption, blockquote {
+  text-wrap: pretty;
+}
+
+/* Every paragraph on your site now has
+   widow prevention — guaranteed. */</code></pre>
+
+  <p>Under the hood, <code>pretty</code> works differently from <code>balance</code>:</p>
+
+  <div class="table-wrapper">
+    <table>
+      <thead>
+        <tr><th>Property</th><th><code>text-wrap: balance</code></th><th><code>text-wrap: pretty</code></th></tr>
+      </thead>
+      <tbody>
+        <tr><td><strong>Goal</strong></td><td>Equalize line widths</td><td>Prevent widows / orphans</td></tr>
+        <tr><td><strong>Algorithm</strong></td><td>Multi-line optimization (all lines)</td><td>Last-line adjustment (last 2–3 lines only)</td></tr>
+        <tr><td><strong>Line limit</strong></td><td>Up to 6 lines</td><td>No limit (cost scales with last lines only)</td></tr>
+        <tr><td><strong>Performance</strong></td><td>Small cost, capped</td><td>Negligible cost</td></tr>
+        <tr><td><strong>Best for</strong></td><td>Headings, short text</td><td>Body text, long paragraphs</td></tr>
+        <tr><td><strong>Use globally?</strong></td><td>No — only on headings</td><td><strong>Yes</strong> — safe to apply to all <code>&lt;p&gt;</code></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>How pretty works</h3>
+
+  <p>
+    When a paragraph would end with a single word on the last line, <code>pretty</code> looks backward and adjusts line breaks in the last 2–4 lines to pull at least one more word onto the final line. It's a local optimization — it doesn't reflow the entire paragraph:
+  </p>
+
+  <pre><code>/* Before (wrap):                 After (pretty): */
+The cat sat on the mat            The cat sat on the
+and looked at the dog.            mat and looked at
+Bob.                              the dog. Bob.</code></pre>
+
+  <p>
+    The algorithm may also adjust <strong>hyphenation</strong> if the browser supports it — it can insert optional hyphens in long words to prevent them from becoming widows. This is entirely automatic and respects the <code>hyphens</code> property.
+  </p>
+
+  <h2>The Complete Typography Reset for 2026</h2>
+
+  <p>
+    Here's the one CSS snippet that gives every site beautiful, professional typography with zero effort:
+  </p>
+
+  <pre><code>/* Balance headlines for even edges */
+h1, h2, h3, h4, h5, h6,
+blockquote, .hero, .pull-quote, figcaption {
+  text-wrap: balance;
+}
+
+/* Prevent widows in body text */
+p, li, dd, dt, td, th, label, legend {
+  text-wrap: pretty;
+}
+
+/* Legacy browsers: no-op, text wraps normally */
+/* No polyfill needed — progressive enhancement */</code></pre>
+
+  <h2>Real-World Examples</h2>
+
+  <h3>Example 1: Hero Section</h3>
+
+  <pre><code>&lt;section class="hero"&gt;
+  &lt;h1 class="hero-title"&gt;Build Better Products, Faster&lt;/h1&gt;
+  &lt;p class="hero-subtitle"&gt;
+    The all-in-one platform that combines design, development,
+    and deployment into a single, seamless workflow.
+  &lt;/p&gt;
+&lt;/section&gt;
+
+&lt;style&gt;
+.hero-title {
+  text-wrap: balance;
+  font-size: clamp(2rem, 5vw, 4rem);
+  /* The headline always looks balanced, at every viewport */
+}
+
+.hero-subtitle {
+  text-wrap: pretty;
+  /* No single-word last line, ever */
+}
+&lt;/style&gt;</code></pre>
+
+  <h3>Example 2: Blog Post Headings</h3>
+
+  <pre><code>/* Blog heading hierarchy */
+.post h1 { text-wrap: balance; }
+.post h2 { text-wrap: balance; }
+.post h3 { text-wrap: balance; }
+.post p  { text-wrap: pretty; }
+
+/* That's it. Your entire blog now has
+   professional-grade typography. */</code></pre>
+
+  <h3>Example 3: Card Components</h3>
+
+  <pre><code>.card-title {
+  text-wrap: balance;
+  /* Cards with 1–3 word titles look crisp.
+     Cards with longer titles balance automatically. */
+}
+
+.card-description {
+  text-wrap: pretty;
+  /* No orphans in card descriptions */
+}</code></pre>
+
+  <h2>Browser Support & Progressive Enhancement</h2>
+
+  <p>
+    Both <code>text-wrap: balance</code> and <code>text-wrap: pretty</code> are <strong>Baseline 2026</strong>:
+  </p>
+
+  <div class="table-wrapper">
+    <table>
+      <thead>
+        <tr><th>Value</th><th>Chrome</th><th>Firefox</th><th>Safari</th><th>Edge</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>balance</code></td><td>114+</td><td>121+</td><td>17.5+</td><td>114+</td></tr>
+        <tr><td><code>pretty</code></td><td>117+</td><td>137+</td><td>18.2+</td><td>117+</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p>
+    <strong>No polyfill needed.</strong> Browsers that don't understand <code>text-wrap: balance</code> or <code>text-wrap: pretty</code> simply ignore the declaration and use the default <code>text-wrap: wrap</code> behavior — which is what you had before. It's pure progressive enhancement:
+  </p>
+
+  <pre><code>/* In an older browser, this is just ignored.
+   Text wraps normally. Nothing breaks. */
+h1 {
+  text-wrap: balance; /* Modern browsers: beautiful headlines */
+                       /* Old browsers: same as before */
+}</code></pre>
+
+  <h2>Performance: What You Need to Know</h2>
+
+  <p>
+    The Chrome team has published performance guidance that every developer should understand:
+  </p>
+
+  <div class="highlight-box">
+    <strong>Key performance rules:</strong>
+    <ul>
+      <li><strong><code>balance</code> on 10,000+ headings</strong> — negligible layout cost (<strong>~0.5ms</strong> in Chrome benchmarks). The 6-line cap makes it constant-time per element.</li>
+      <li><strong><code>balance</code> on body text</strong> — if you have a page with 500 paragraphs, <code>balance</code> would evaluate multi-line wrap options for each one. This is wasteful for long text. Just use <code>pretty</code>.</li>
+      <li><strong><code>pretty</code> everywhere</strong> — the cost is near-zero even on large pages because it only touches the last 2–4 lines.</li>
+      <li><strong>Layout thrashing</strong> — <code>balance</code> recalculates on every layout change (resize, font load, dynamic content). For animated text or rapidly-changing content, consider disabling it.</li>
+    </ul>
+  </div>
+
+  <h2>What NOT to Do</h2>
+
+  <pre><code>/* ❌ Don't apply balance to everything */
+* { text-wrap: balance; }
+
+/* ❌ Don't apply balance to body text — use pretty */
+article p { text-wrap: balance; }
+
+/* ❌ Don't use both on the same element — they're mutually exclusive */
+h1 { text-wrap: balance pretty; } /* Invalid */
+
+/* ❌ Don't use on long, dynamic content (chat messages, live feeds) */
+.chat-message { text-wrap: balance; }
+
+/* ✅ Do this instead */
+h1, h2, h3 { text-wrap: balance; }
+p { text-wrap: pretty; }</code></pre>
+
+  <h2>text-wrap: balance + max-width = Typography Perfection</h2>
+
+  <p>
+    Combining <code>text-wrap: balance</code> with a sensible <code>max-width</code> produces the best results. When a heading is too wide, even balanced lines can feel stretched:
+  </p>
+
+  <pre><code>h1 {
+  text-wrap: balance;
+  max-width: 30ch; /* 30 characters — optimal for readability */
+  margin-inline: auto;
+}
+
+/* Narrow viewport: balance distributes words evenly
+   Wide viewport: max-width caps the width so lines
+   don't stretch too far */</code></pre>
+
+  <h2>Comparison to JavaScript Solutions</h2>
+
+  <p>
+    Before <code>text-wrap: balance</code>, many sites used JavaScript libraries like <code>react-wrap-balancer</code> (600k+ weekly downloads on npm). Here's how native CSS compares:
+  </p>
+
+  <div class="table-wrapper">
+    <table>
+      <thead>
+        <tr><th>Aspect</th><th>JS Libraries</th><th><code>text-wrap: balance</code></th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Bundle size</td><td>3–6 kB gzipped</td><td>0 bytes</td></tr>
+        <tr><td>Runtime cost</td><td>Layout shifts during hydration</td><td>No layout shifts</td></tr>
+        <tr><td>Server rendering</td><td>Requires client hydration</td><td>Works server-side (SSR, static)</td></tr>
+        <tr><td>Dynamic content</td><td>Re-runs on every update</td><td>Handles natively in layout engine</td></tr>
+        <tr><td>Accessibility</td><td>Can break screen readers</td><td>Zero impact on a11y tree</td></tr>
+        <tr><td>Browser optimization</td><td>None</td><td>Optimized in engine C++ layer</td></tr>
+        <tr><td>Edge cases</td><td>Container queries, zoom, RTL — each needs testing</td><td>All handled by the layout engine</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h2>text-wrap-mode and text-wrap-style — The Longhand Properties</h2>
+
+  <p>
+    The <code>text-wrap</code> shorthand decomposes into two longhands that give finer control:
+  </p>
+
+  <pre><code>/* Shorthand (what you should use 95% of the time) */
+h1 { text-wrap: balance; }
+p  { text-wrap: pretty; }
+
+/* Equivalent longhands: */
+/* text-wrap: balance */
+h1 {
+  text-wrap-mode: wrap;
+  text-wrap-style: balance;
+}
+
+/* text-wrap: pretty */
+p {
+  text-wrap-mode: wrap;
+  text-wrap-style: pretty;
+}</code></pre>
+
+  <p>
+    <code>text-wrap-mode</code> controls whether text wraps at all (<code>wrap</code> vs <code>nowrap</code>). <code>text-wrap-style</code> controls <em>how</em> it wraps (<code>auto</code> | <code>balance</code> | <code>pretty</code> | <code>stable</code>). The <code>stable</code> value (still experimental in some engines) prevents reflow when content is edited inline — useful for editable regions.
+  </p>
+
+  <h2>Summary</h2>
+
+  <div class="highlight-box">
+    <strong>Key takeaways:</strong>
+    <ul>
+      <li><strong><code>text-wrap: balance</code></strong> — distributes words evenly across lines. Best for <strong>headings</strong>, hero text, blockquotes, and any short text (2–6 lines). Capped at 6 lines for performance.</li>
+      <li><strong><code>text-wrap: pretty</code></strong> — prevents widows (single-word last lines). Best for <strong>paragraphs</strong>, list items, and any body text. Safe to apply globally.</li>
+      <li><strong>Both are Baseline 2026</strong> — Chrome 114/117+, Firefox 121/137+, Safari 17.5/18.2+. Progressive enhancement: browsers that don't understand them ignore the declaration.</li>
+      <li><strong>Zero dependencies</strong> — no JavaScript, no npm packages, no build step. Just one line of CSS.</li>
+      <li><strong>Server-side compatible</strong> — works in SSR and static generation because it's pure CSS.</li>
+      <li><strong>Pairs with <code>max-width</code></strong> — combine with <code>max-width: 30ch</code> for optimal heading readability.</li>
+      <li><strong>Don't overuse balance</strong> — only on headings and short text. Use <code>pretty</code> for body text.</li>
+    </ul>
+  </div>
+
+  <div class="highlight-box highlight-positive">
+    <strong>Start today:</strong> Add the typography reset snippet to your global CSS. It's one block, zero dependencies, and every browser from the last 18 months gets beautiful text immediately. Older browsers get the same text they always had — no degradation. While you're here, try the <a href="/tools/css-text-wrap-playground/">CSS Text Wrap Playground</a> to experiment with <code>balance</code> and <code>pretty</code> live, or dive into the <a href="/tools/css-typography-playground/">CSS Typography Playground</a> for the full typography toolkit.
+  </div>
+</div>`,
+  },
 ];
