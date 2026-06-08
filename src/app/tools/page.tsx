@@ -1386,6 +1386,13 @@ const allTools = [
     icon: AlignCenterVertical,
     tags: ['CSS', 'text-box-trim', 'Typography', 'Baseline 2026'],
   },
+  {
+    title: 'FormData Explorer',
+    description: 'Construct, inspect, and debug FormData objects. Add text and file entries, test all 9 FormData methods (has, get, getAll, set, delete, forEach, entries, keys, values), upload real files, and see live iteration results — 100% client-side.',
+    href: '/tools/formdata-explorer',
+    icon: FormInput,
+    tags: ['FormData', 'Browser API', 'File Upload', 'Debugging', 'Client-Side'],
+  },
 ];
 
 export default function ToolsPage() {
