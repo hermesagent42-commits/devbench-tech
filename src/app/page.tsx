@@ -173,6 +173,13 @@ const featuredTools = [
     tags: ['Keyboard', 'Events'],
   },
   {
+    title: 'HTML Input Explorer',
+    description: 'Interactive reference for every HTML <input> type — see them rendered live, browse by category, and copy the HTML instantly.',
+    href: '/tools/html-input-explorer',
+    icon: FormInput,
+    tags: ['HTML', 'Input', 'Reference', 'Forms'],
+  },
+  {
     title: 'ASCII Table',
     description: 'Complete ASCII character reference — 0–127 with hex, binary, HTML entities, CSS escapes, and URL encoding. Grid or table view.',
     href: '/tools/ascii-table',
