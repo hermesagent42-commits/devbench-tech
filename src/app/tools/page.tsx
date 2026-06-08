@@ -1318,6 +1318,14 @@ const allTools = [
     icon: Share2,
     tags: ['Web Share', 'Browser API', 'Share', 'Mobile'],
   },
+
+  {
+    title: 'Web Crypto Playground',
+    description: 'Explore the SubtleCrypto API — hash, HMAC, AES encrypt/decrypt, sign, verify, and generate cryptographic random bytes. 100% client-side.',
+    href: '/tools/web-crypto-playground',
+    icon: Shield,
+    tags: ['Crypto', 'Web Crypto', 'Security', 'AES', 'SHA', 'Browser API'],
+  },
   {
     title: 'EXIF Metadata Viewer',
     description: 'Extract and view EXIF metadata from JPEG photos — camera settings, GPS coordinates, timestamps, lens info, and more. 100% client-side binary parsing.',
