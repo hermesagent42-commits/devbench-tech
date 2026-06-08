@@ -1423,6 +1423,13 @@ const allTools = [
     icon: PaintBucket,
     tags: ['Canvas', 'JavaScript', 'Graphics', 'Animation', '2D'],
   },
+  {
+    title: 'CSS Stacking Context Visualizer',
+    description: 'Interactive visualizer for CSS stacking contexts — see how opacity, transform, filter, isolation, and 13+ other properties create invisible z-index boundaries. 5 presets with layered visualizations.',
+    href: '/tools/css-stacking-context',
+    icon: Layers,
+    tags: ['CSS', 'z-index', 'Stacking', 'Education'],
+  },
 ];
 
 export default function ToolsPage() {
