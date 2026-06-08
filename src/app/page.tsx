@@ -18,6 +18,7 @@ import {
   PaintBucket,
   Palette,
   Clock,
+  Cpu,
   Droplets,
   MonitorSmartphone,
   FileCode,
@@ -991,6 +992,13 @@ const featuredTools = [
     href: '/tools/notification-playground',
     icon: Bell,
     tags: ['Browser API', 'Notification', 'Push'],
+  },
+  {
+    title: 'Browser Feature Detector',
+    description: 'Scan your browser for web platform features — WebGL, WebGPU, CSS Grid, WebRTC, WebAuthn, and 90+ APIs. See exactly what your browser supports with a detailed compatibility score.',
+    href: '/tools/browser-feature-detector',
+    icon: Cpu,
+    tags: ['Browser', 'Feature Detection', 'Web APIs', 'Compatibility'],
   },
   {
     title: 'Social Card Preview',
