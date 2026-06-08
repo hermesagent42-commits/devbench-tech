@@ -11,6 +11,408 @@ export interface BlogPost {
 
 export const blogPosts: BlogPost[] = [
   {
+    slug: 'css-grid-complete-guide-2026',
+    title: 'CSS Grid Layout: The Complete Guide for 2026 — From Basics to Production Patterns',
+    description:
+      'CSS Grid is the most powerful layout system ever built into the browser. This comprehensive guide covers every CSS Grid property, the fr unit, minmax(), auto-fill vs auto-fit, named grid areas, subgrid, CSS Grid animation support, and 10 production-ready layout patterns — all with live code examples.',
+    date: '2026-06-08',
+    author: 'DevBench',
+    tags: ['CSS', 'Grid', 'Layout', 'CSS Grid', 'Subgrid', 'Responsive', '2026', 'Production'],
+    readingTime: '13 min read',
+    content: `<div class="prose-content">
+  <p class="lead">
+    <strong>CSS Grid Layout</strong> is the most powerful layout system ever built into the browser. It's a two-dimensional layout engine — rows <em>and</em> columns, simultaneously — that lets you build complex page layouts with a few lines of CSS. Grid became Baseline across every major browser in 2017, but with <strong>subgrid</strong> reaching Baseline 2024 and improved animation support in 2025-2026, Grid keeps getting better. This guide covers everything: every property, every pattern, every gotcha.
+  </p>
+
+  <h2>Why CSS Grid?</h2>
+
+  <p>
+    Before 2017, web layouts were built with tables, floats, inline-block hacks, and finally Flexbox. Each solved one dimension at a time. CSS Grid solves two dimensions at once:
+  </p>
+
+  <div class="highlight-box">
+    <strong>Flexbox</strong> = 1D layout (row OR column). Perfect for navigation bars, button groups, centered content.<br/>
+    <strong>CSS Grid</strong> = 2D layout (rows AND columns). Perfect for page layouts, card grids, dashboards, magazine layouts.
+  </div>
+
+  <p>They're complementary. Use Grid for the macro layout; use Flexbox for micro layouts inside Grid cells.</p>
+
+  <h2>Defining a Grid</h2>
+
+  <p>A Grid starts with <code>display: grid</code> on a container and column/row definitions:</p>
+
+  <pre><code>/* The simplest Grid */
+.container {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 16px;
+}</code></pre>
+
+  <p>This creates three equal-width columns with 16px gaps. No media queries needed — the <code>fr</code> unit handles proportional distribution.</p>
+
+  <h2>The <code>fr</code> Unit: Flexible Sizing</h2>
+
+  <p>
+    The <code>fr</code> (fraction) unit is CSS Grid's killer feature. It distributes available space proportionally:
+  </p>
+
+  <pre><code>grid-template-columns: 1fr 2fr 1fr;
+/* 25% - 50% - 25% distribution */</code></pre>
+
+  <p><code>fr</code> competes with fixed sizes:</p>
+
+  <pre><code>grid-template-columns: 200px 1fr 1fr;
+/* 200px fixed, remaining space split 50/50 */</code></pre>
+
+  <p><code>fr</code> respects <code>gap</code>, <code>min-content</code>, and <code>max-content</code>. Unlike percentages, <code>fr</code> won't overflow — it subtracts gaps first, then distributes the remainder.</p>
+
+  <div class="highlight-box highlight-warning">
+    <strong>Gotcha:</strong> <code>fr</code> divides <em>available</em> space, not total space. If a grid item has <code>min-width: 300px</code> and the column is <code>1fr</code>, the column won't shrink below 300px. Use <code>minmax(0, 1fr)</code> to prevent this overflow protection.
+  </div>
+
+  <h2>Repeat, minmax(), auto-fill, auto-fit</h2>
+
+  <h3>repeat()</h3>
+
+  <pre><code>/* 12 equal columns */
+grid-template-columns: repeat(12, 1fr);
+
+/* Pattern repeat */
+grid-template-columns: repeat(3, 100px 1fr);
+/* Same as: 100px 1fr 100px 1fr 100px 1fr */</code></pre>
+
+  <h3>minmax()</h3>
+
+  <pre><code>/* Each column is at least 200px, at most 1fr */
+grid-template-columns: repeat(3, minmax(200px, 1fr));</code></pre>
+
+  <h3>auto-fill vs auto-fit</h3>
+
+  <p>This is the most powerful responsive pattern in CSS — zero media queries:</p>
+
+  <pre><code>/* auto-fill: creates as many tracks as possible, even empty ones */
+grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+
+/* auto-fit: collapses empty tracks, items stretch to fill */
+grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));</code></pre>
+
+  <p><strong>auto-fill</strong> preserves column slots even when empty — great for a fixed grid that wraps cleanly.<br/>
+  <strong>auto-fit</strong> collapses empty tracks, letting filled tracks grow — great for card grids that should always fill the container.</p>
+
+  <div class="highlight-box highlight-positive">
+    <strong>Production pattern:</strong> <code>grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr));</code> — This creates responsive cards that never overflow. The <code>min(100%, 300px)</code> ensures cards don't exceed the viewport width on small screens, while <code>auto-fit</code> fills the space elegantly.
+  </div>
+
+  <h2>Named Grid Lines and Areas</h2>
+
+  <h3>Named Lines</h3>
+
+  <pre><code>grid-template-columns:
+  [col-start] 1fr
+  [main-start] 2fr
+  [main-end] 1fr
+  [col-end];
+
+.item {
+  grid-column: main-start / main-end;
+}</code></pre>
+
+  <h3>Grid Template Areas</h3>
+
+  <pre><code>.layout {
+  display: grid;
+  grid-template-columns: 200px 1fr 1fr;
+  grid-template-rows: auto 1fr auto;
+  grid-template-areas:
+    "header  header  header"
+    "sidebar main   aside"
+    "footer  footer  footer";
+  min-height: 100vh;
+}
+
+.header  { grid-area: header; }
+.sidebar { grid-area: sidebar; }
+.main    { grid-area: main; }
+.aside   { grid-area: aside; }
+.footer  { grid-area: footer; }
+
+/* Responsive: go single-column on mobile */
+@media (max-width: 768px) {
+  .layout {
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      "header"
+      "main"
+      "sidebar"
+      "aside"
+      "footer";
+  }
+}</code></pre>
+
+  <p>Grid areas are the most readable way to define page layouts. The ASCII-art syntax makes the layout visually obvious. For a visual builder, use the <a href="/tools/css-grid-areas">CSS Grid Areas tool</a> on DevBench.</p>
+
+  <h2>Implicit vs Explicit Grids</h2>
+
+  <p>When you define <code>grid-template-columns</code>, you create <strong>explicit tracks</strong>. Items beyond those definitions create <strong>implicit tracks</strong>:</p>
+
+  <pre><code>.container {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr); /* explicit: 3 columns */
+  grid-auto-rows: 100px;                 /* implicit row height */
+  grid-auto-flow: row;                   /* fill row by row (default) */
+}
+
+/* grid-auto-flow: row dense — fills holes, may reorder items visually */
+/* grid-auto-flow: column — fill column by column */</code></pre>
+
+  <p>Use <code>grid-auto-rows</code> and <code>grid-auto-columns</code> to control the size of auto-generated tracks. The default is <code>auto</code>, which sizes to content.</p>
+
+  <h2>Alignment: The Complete Reference</h2>
+
+  <p>CSS Grid has six alignment properties, matching the Flexbox model:</p>
+
+  <div class="table-wrapper">
+    <table>
+      <thead>
+        <tr><th>Property</th><th>Applies to</th><th>Axis</th><th>Values</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>justify-items</code></td><td>Grid container</td><td>Inline (row)</td><td>start, end, center, stretch (default)</td></tr>
+        <tr><td><code>align-items</code></td><td>Grid container</td><td>Block (column)</td><td>start, end, center, stretch (default)</td></tr>
+        <tr><td><code>place-items</code></td><td>Grid container</td><td>Shorthand</td><td>align-items / justify-items</td></tr>
+        <tr><td><code>justify-content</code></td><td>Grid container</td><td>Inline (row)</td><td>start, end, center, stretch, space-around, space-between, space-evenly</td></tr>
+        <tr><td><code>align-content</code></td><td>Grid container</td><td>Block (column)</td><td>start, end, center, stretch, space-around, space-between, space-evenly</td></tr>
+        <tr><td><code>place-content</code></td><td>Grid container</td><td>Shorthand</td><td>align-content / justify-content</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p>Individual items can override with <code>justify-self</code>, <code>align-self</code>, and <code>place-self</code>.</p>
+
+  <p><strong>When to use which:</strong><br/>
+  - <code>stretch</code> (default): Items fill their grid cells — best for full-width cards<br/>
+  - <code>center</code>: Perfect for hero sections, logos, single centered elements<br/>
+  - <code>space-between</code>: Navigation bars, evenly distributing navigation items<br/>
+  - <code>space-around</code>: Gallery grids with breathing room around each item</p>
+
+  <h2>CSS Grid Gap: The Modern Way</h2>
+
+  <pre><code>.container {
+  display: grid;
+  gap: 16px;              /* shorthand for row-gap + column-gap */
+  row-gap: 24px;          /* vertical spacing */
+  column-gap: 16px;       /* horizontal spacing */
+}</code></pre>
+
+  <p><code>gap</code> works in Flexbox and multi-column too. The old <code>grid-gap</code>, <code>grid-row-gap</code>, and <code>grid-column-gap</code> are deprecated — use the unprefixed versions.</p>
+
+  <h2>Subgrid: Inherit Parent Tracks</h2>
+
+  <p>Subgrid lets nested grids align to their parent's tracks — no more manual coordination:</p>
+
+  <pre><code>/* Parent grid */
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+
+/* Child grid: inherit parent's column tracks */
+.card {
+  display: grid;
+  grid-template-rows: subgrid;   /* inherit parent's row tracks */
+  grid-template-columns: subgrid; /* inherit parent's column tracks */
+  grid-row: span 2;              /* this card spans 2 rows */
+}</code></pre>
+
+  <p>
+    Before subgrid, aligning nested items to a parent grid required complex CSS or matching gap/padding values manually. With subgrid, child items automatically align. Subgrid reached <strong>Baseline 2024</strong> — Chrome 117+, Safari 16+, Firefox 71+. For interactive exploration, try the <a href="/tools/css-subgrid-playground">CSS Subgrid Playground</a> on DevBench.
+  </p>
+
+  <h2>CSS Grid + Animation</h2>
+
+  <p>Modern browsers (Chrome 116+, Safari 18+, Firefox 128+) can animate grid track sizes:</p>
+
+  <pre><code>.sidebar {
+  display: grid;
+  grid-template-columns: var(--sidebar-width, 250px) 1fr;
+  transition: grid-template-columns 0.3s ease;
+}
+
+.sidebar.collapsed {
+  --sidebar-width: 0px;
+}</code></pre>
+
+  <p>This enables smooth sidebar toggle animations without JavaScript layout calculations. Combine with <code>interpolate-size: allow-keywords</code> for animating to <code>auto</code> or <code>min-content</code>.</p>
+
+  <div class="highlight-box highlight-warning">
+    <strong>Caution:</strong> Animating <code>grid-template-columns</code> or <code>grid-template-rows</code> triggers layout on every frame. For 60fps sidebar toggles, prefer <code>transform: translateX()</code> on a fixed-width sidebar. Reserve Grid animation for infrequent one-shot transitions (expand panels, responsive breakpoint changes).
+  </div>
+
+  <h2>10 Production-Ready Grid Patterns</h2>
+
+  <h3>1. Holy Grail Layout</h3>
+  <pre><code>.holy-grail {
+  display: grid;
+  grid-template-columns: 200px 1fr 200px;
+  grid-template-rows: auto 1fr auto;
+  grid-template-areas: "header header header" "nav main aside" "footer footer footer";
+  min-height: 100vh;
+}</code></pre>
+
+  <h3>2. Responsive Card Grid (Zero Media Queries)</h3>
+  <pre><code>.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr));
+  gap: 24px;
+}</code></pre>
+
+  <h3>3. Centered Single Element</h3>
+  <pre><code>.hero {
+  display: grid;
+  place-items: center;
+  min-height: 400px;
+}</code></pre>
+
+  <h3>4. Full-Bleed + Centered Content</h3>
+  <pre><code>.article {
+  display: grid;
+  grid-template-columns:
+    1fr min(65ch, 100% - 2rem) 1fr;
+}
+.article > * { grid-column: 2; }
+.article > .full-bleed { grid-column: 1 / -1; }</code></pre>
+
+  <h3>5. Overlapping Elements</h3>
+  <pre><code>.hero-banner {
+  display: grid;
+  grid-template: 1fr / 1fr; /* one cell */
+}
+.hero-banner > * {
+  grid-area: 1 / 1; /* stack everything */
+}
+.hero-banner .overlay {
+  z-index: 1;
+  align-self: end;
+}</code></pre>
+
+  <h3>6. Dashboard Layout</h3>
+  <pre><code>.dashboard {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  grid-auto-rows: 120px;
+  gap: 16px;
+}
+.chart-tall { grid-row: span 2; }
+.chart-wide { grid-column: span 2; }
+.kpi-card  { grid-column: span 1; grid-row: span 1; }</code></pre>
+
+  <h3>7. Masonry (Pinterest-Style) with Columns</h3>
+  <pre><code>.masonry {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  grid-template-rows: masonry; /* Experimental: Firefox only */
+  gap: 16px;
+}</code></pre>
+  <p><strong>Note:</strong> <code>masonry</code> is experimental and only supported in Firefox behind a flag. For cross-browser, use CSS columns or a JS library.</p>
+
+  <h3>8. Sticky Header + Scrollable Content</h3>
+  <pre><code>.app-layout {
+  display: grid;
+  grid-template-rows: auto 1fr;
+  height: 100vh;
+}
+.app-layout header { position: sticky; top: 0; }
+.app-layout main   { overflow-y: auto; }</code></pre>
+
+  <h3>9. Form Layout</h3>
+  <pre><code>.form-grid {
+  display: grid;
+  grid-template-columns: 150px 1fr;
+  gap: 16px 12px;
+  align-items: baseline;
+}
+.form-grid label { grid-column: 1; text-align: right; }
+.form-grid input[type="submit"] { grid-column: 1 / -1; }</code></pre>
+
+  <h3>10. Auto-Generated Image Gallery</h3>
+  <pre><code>.gallery {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  grid-auto-rows: 150px;
+  grid-auto-flow: dense;
+  gap: 8px;
+}
+.gallery img { width: 100%; height: 100%; object-fit: cover; }
+.gallery .featured { grid-column: span 2; grid-row: span 2; }</code></pre>
+
+  <h2>Performance Considerations</h2>
+
+  <ul>
+    <li><strong>Avoid excessive nesting.</strong> Every nested grid adds layout calculation overhead. Use subgrid to inherit parent tracks instead of defining new ones.</li>
+    <li><strong>Avoid <code>repeat(auto-fill, ...)</code> with thousands of items.</strong> It creates a track per potential item. Use <code>auto-fit</code> or fixed <code>repeat()</code> for large datasets.</li>
+    <li><strong>Prefer <code>gap</code> over margin on grid items.</strong> Gaps are calculated once by the container; margins require per-item calculation.</li>
+    <li><strong>Use <code>will-change</code> sparingly.</strong> Only for elements that animate frequently. Grid repaints are expensive; don't force them onto the GPU unless needed.</li>
+  </ul>
+
+  <h2>Common Pitfalls</h2>
+
+  <h3>"My grid items aren't filling the container"</h3>
+  <p>Check that you have <code>display: grid</code> on the parent, not the items. Grid properties only work on the grid container and its direct children.</p>
+
+  <h3>"Grid is overflowing the viewport"</h3>
+  <p>Use <code>min(100%, 300px)</code> inside <code>minmax()</code> to prevent track sizes from exceeding the viewport. Example: <code>minmax(min(100%, 300px), 1fr)</code>.</p>
+
+  <h3>"My grid gap is adding extra space at the edges"</h3>
+  <p>That's correct — <code>gap</code> adds space between tracks, not around the container. Use <code>padding</code> on the container for edge breathing room.</p>
+
+  <h3>"implicit rows are shorter than my content"</h3>
+  <p>By default, <code>grid-auto-rows: auto</code> sizes to content. Set explicit <code>grid-auto-rows</code> or use <code>minmax(0, auto)</code> to prevent height constraints.</p>
+
+  <h2>Browser Support</h2>
+
+  <div class="table-wrapper">
+    <table>
+      <thead>
+        <tr><th>Feature</th><th>Chrome</th><th>Firefox</th><th>Safari</th><th>Edge</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>CSS Grid (Level 1)</td><td>57+</td><td>52+</td><td>10.1+</td><td>16+</td></tr>
+        <tr><td>Subgrid</td><td>117+</td><td>71+</td><td>16+</td><td>117+</td></tr>
+        <tr><td>Grid animation</td><td>116+</td><td>128+</td><td>18+</td><td>116+</td></tr>
+        <tr><td>masonry layout</td><td>🔜</td><td>🚩 flag</td><td>🔜</td><td>🔜</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p>CSS Grid Level 1 has been <strong>Baseline since 2018</strong>. Subgrid reached <strong>Baseline in 2024</strong>. You can use both in production today.</p>
+
+  <h2>Grid vs Flexbox: When to Use Which</h2>
+
+  <div class="table-wrapper">
+    <table>
+      <thead>
+        <tr><th>Scenario</th><th>Use</th><th>Why</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Page layout (header-content-footer)</td><td>Grid</td><td>2D control, template areas</td></tr>
+        <tr><td>Navigation bar</td><td>Flexbox</td><td>1D row, easy spacing</td></tr>
+        <tr><td>Card grid</td><td>Grid</td><td>auto-fill/auto-fit, equal sizing</td></tr>
+        <tr><td>Centering a single element</td><td>Either</td><td>Both support place-items/place-content</td></tr>
+        <tr><td>Form label-input pairs</td><td>Grid</td><td>Aligned columns for labels</td></tr>
+        <tr><td>Button group</td><td>Flexbox</td><td>Simple 1D row, wrap support</td></tr>
+        <tr><td>Dashboard with varying sizes</td><td>Grid</td><td>Row/column spanning</td></tr>
+        <tr><td>Footer with links</td><td>Flexbox</td><td>Space-between distribution</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="highlight-box highlight-positive">
+    <strong>Start using CSS Grid today:</strong> Pick any page layout you've built with Flexbox or floats, and rebuild it with <code>grid-template-areas</code>. The difference in clarity is immediate. For interactive practice, use the <a href="/tools/css-grid-generator">CSS Grid Generator</a>, <a href="/tools/css-grid-areas">Grid Template Areas tool</a>, and <a href="/tools/css-subgrid-playground">Subgrid Playground</a> — all on DevBench, all free, all client-side.
+  </div>
+</div>`,
+  },
+  {
     slug: 'css-container-queries-complete-guide-2026',
     title: 'CSS Container Queries: The End of Media-Query-Only Responsive Design',
     description:
