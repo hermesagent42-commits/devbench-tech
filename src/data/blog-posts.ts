@@ -5869,4 +5869,294 @@ p {
   </div>
 </div>`,
   },
+  {
+    slug: 'es-import-maps-complete-guide-2026',
+    title: 'ES Import Maps: Bare-Specifier Imports Without a Bundler',
+    description:
+      'Import Maps let you use bare specifiers like <code>import { map } from \'lodash\'</code> in the browser — no build step, no node_modules, no bundler. Now universally Baseline, they&rsquo;re a fundamental shift in how we ship JavaScript. Complete guide: &lt;script type=&quot;importmap&quot;&gt;, scopes, integrity hashes, depcache, and real-world migration patterns.',
+    date: '2026-06-08',
+    author: 'DevBench',
+    tags: ['JavaScript', 'Import Maps', 'ES Modules', 'Baseline 2024', 'Bundler-Free', 'Web Platform', 'importmap', '2026'],
+    readingTime: '9 min read',
+    content: `<div class="prose-content">
+  <p class="lead">
+    For over a decade, writing modern JavaScript meant a build step. You&rsquo;d write <code>import { map } from &apos;lodash&apos;</code> and let Webpack, Vite, or esbuild resolve that bare specifier to an actual file in <code>node_modules</code>. In the browser, that import fails — the runtime has no idea where &apos;lodash&apos; lives. <strong>Import Maps</strong> — Baseline across all browsers since March 2024 — change this. You can now use bare specifiers natively in the browser, pulling modules from CDNs, local files, or any URL, without a bundler.
+  </p>
+
+  <h2>The Problem Import Maps Solve</h2>
+
+  <p>
+    Native ES modules work in every modern browser. But they require full URLs or relative paths:
+  </p>
+
+  <pre><code>// ❌ Bare specifier — browsers don&apos;t know where this is
+import { map } from &apos;lodash&apos;;
+
+// ✅ Full URL — works but is fragile and verbose
+import { map } from &apos;https://unpkg.com/lodash-es@4.17.21/lodash.js&apos;;
+
+// ✅ Relative path — works but ties you to a file structure
+import { map } from &apos;../node_modules/lodash-es/map.js&apos;;</code></pre>
+
+  <p>
+    This is the <strong>bare-specifier problem</strong>. Every bundler solves it, but that requires a build step. Import Maps solve it natively in the browser.
+  </p>
+
+  <h2>Import Maps 101</h2>
+
+  <p>An Import Map is a JSON object in a <code>&lt;script type=&quot;importmap&quot;&gt;</code> tag. It maps bare specifiers to URLs:</p>
+
+  <pre><code>&lt;script type=&quot;importmap&quot;&gt;
+{
+  &quot;imports&quot;: {
+    &quot;lodash&quot;: &quot;https://unpkg.com/lodash-es@4.17.21/lodash.js&quot;,
+    &quot;lodash/&quot;: &quot;https://unpkg.com/lodash-es@4.17.21/&quot;,
+    &quot;react&quot;: &quot;https://esm.sh/react@19.0.0&quot;,
+    &quot;react-dom/&quot;: &quot;https://esm.sh/react-dom@19.0.0/&quot;,
+    &quot;utils/&quot;: &quot;/js/utils/&quot;
+  }
+}
+&lt;/script&gt;
+
+&lt;script type=&quot;module&quot;&gt;
+// Now these all work in the browser — no build step
+import { map, debounce } from &apos;lodash&apos;;
+import { useState } from &apos;react&apos;;
+import { render } from &apos;react-dom/client&apos;;
+import { formatDate } from &apos;utils/dates.js&apos;; // resolves to /js/utils/dates.js
+&lt;/script&gt;</code></pre>
+
+  <p><strong>Key rules:</strong></p>
+  <ul>
+    <li>Must be the <strong>first</strong> <code>&lt;script&gt;</code> element on the page (after <code>&lt;base&gt;</code> elements) — the browser processes it before any <code>&lt;script type=&quot;module&quot;&gt;</code></li>
+    <li>Must appear <strong>before</strong> any module scripts that use the mappings</li>
+    <li>Only one Import Map per document (multiple are ignored; only the first is used)</li>
+    <li>Must be inline — external import maps (<code>&lt;script type=&quot;importmap&quot; src=&quot;...&quot;&gt;</code>) are not yet supported</li>
+  </ul>
+
+  <h2>Package Trailing Slashes: The <code>&quot;lodash/&quot;</code> Pattern</h2>
+
+  <p>
+    The <code>/</code> suffix is critical. <code>&quot;lodash&quot;</code> maps the bare specifier itself. <code>&quot;lodash/&quot;</code> maps any specifier <em>starting with</em> <code>lodash/</code>:
+  </p>
+
+  <pre><code>&lt;script type=&quot;importmap&quot;&gt;
+{
+  &quot;imports&quot;: {
+    &quot;lodash&quot;: &quot;https://unpkg.com/lodash-es@4.17.21/lodash.js&quot;,
+    &quot;lodash/&quot;: &quot;https://unpkg.com/lodash-es@4.17.21/&quot;
+  }
+}
+&lt;/script&gt;
+
+&lt;script type=&quot;module&quot;&gt;
+// &quot;lodash&quot; → the mapped URL as-is
+import _ from &apos;lodash&apos;;
+
+// &quot;lodash/map.js&quot; → resolves to https://unpkg.com/lodash-es@4.17.21/map.js
+import map from &apos;lodash/map.js&apos;;
+
+// &quot;lodash/fp.js&quot; → resolves to https://unpkg.com/lodash-es@4.17.21/fp.js
+import fp from &apos;lodash/fp.js&apos;;
+&lt;/script&gt;</code></pre>
+
+  <p>
+    <strong>Without the trailing-slash entry</strong>, <code>import map from &apos;lodash/map.js&apos;</code> would fail — the browser looks for a key matching the full string, finds nothing, and throws.
+  </p>
+
+  <h2>Scopes: Environment-Specific Mappings</h2>
+
+  <p>
+    The <code>&quot;scopes&quot;</code> field lets you override mappings for specific paths. This is how you handle environment-specific modules:
+  </p>
+
+  <pre><code>&lt;script type=&quot;importmap&quot;&gt;
+{
+  &quot;imports&quot;: {
+    &quot;api-client&quot;: &quot;/modules/api-client-browser.js&quot;
+  },
+  &quot;scopes&quot;: {
+    &quot;/admin/&quot;: {
+      &quot;api-client&quot;: &quot;/modules/api-client-admin.js&quot;
+    },
+    &quot;/preview/&quot;: {
+      &quot;api-client&quot;: &quot;/modules/api-client-preview.js&quot;,
+      &quot;lodash&quot;: &quot;https://cdn.example.com/lodash-patched.js&quot;
+    }
+  }
+}
+&lt;/script&gt;</code></pre>
+
+  <p>
+    <strong>Scopes are URL-prefix-based.</strong> If a module being imported is from a path that <em>starts with</em> a scope prefix, the scope&rsquo;s mappings override the top-level <code>&quot;imports&quot;</code>. Scopes are evaluated most-specific-first — <code>&quot;/admin/super/&quot;</code> wins over <code>&quot;/admin/&quot;</code>.
+  </p>
+
+  <h2>Integrity Hashes</h2>
+
+  <p>Import Map entries can include <code>integrity</code> attributes for subresource integrity:</p>
+
+  <pre><code>&lt;script type=&quot;importmap&quot;&gt;
+{
+  &quot;imports&quot;: {
+    &quot;lodash&quot;: &quot;https://cdn.example.com/lodash-es@4.17.21/lodash.js&quot;,
+    &quot;lodash/&quot;: &quot;https://cdn.example.com/lodash-es@4.17.21/&quot;
+  },
+  &quot;integrity&quot;: {
+    &quot;https://cdn.example.com/lodash-es@4.17.21/lodash.js&quot;: &quot;sha384-abc123...&quot;,
+    &quot;https://cdn.example.com/lodash-es@4.17.21/map.js&quot;: &quot;sha384-def456...&quot;
+  }
+}
+&lt;/script&gt;</code></pre>
+
+  <p>
+    The browser verifies the hash before executing the module. If the hash doesn&rsquo;t match (tampered CDN, cache corruption, version mismatch), the module fails to load.
+  </p>
+
+  <h2>Real-World Patterns</h2>
+
+  <h3>Pattern 1: CDN-Based Development (No npm Required)</h3>
+
+  <pre><code>&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+  &lt;script type=&quot;importmap&quot;&gt;
+  {
+    &quot;imports&quot;: {
+      &quot;react&quot;: &quot;https://esm.sh/react@19.0.0&quot;,
+      &quot;react-dom/&quot;: &quot;https://esm.sh/react-dom@19.0.0/&quot;,
+      &quot;htm&quot;: &quot;https://esm.sh/htm@3.1.1&quot;
+    }
+  }
+  &lt;/script&gt;
+&lt;/head&gt;
+&lt;body&gt;
+  &lt;div id=&quot;root&quot;&gt;&lt;/div&gt;
+  &lt;script type=&quot;module&quot;&gt;
+    import { createRoot } from &apos;react-dom/client&apos;;
+    const root = createRoot(document.getElementById(&apos;root&apos;));
+    root.render(/* ... */);
+  &lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;</code></pre>
+
+  <p>This is a fully functional React app — <strong>no package.json, no node_modules, no npm install</strong>. Just an HTML file and a CDN.</p>
+
+  <h3>Pattern 2: Dev vs. Prod with Dynamic Import Maps</h3>
+
+  <pre><code>&lt;script&gt;
+const isDev = location.hostname === &apos;localhost&apos;;
+const importMap = {
+  imports: isDev
+    ? {
+        &apos;my-lib/&apos;: &apos;/src/lib/&apos;,
+        &apos;my-lib&apos;: &apos;/src/lib/index.js&apos;
+      }
+    : {
+        &apos;my-lib/&apos;: &apos;https://cdn.example.com/my-lib@1.0.0/&apos;,
+        &apos;my-lib&apos;: &apos;https://cdn.example.com/my-lib@1.0.0/index.js&apos;
+      }
+};
+
+const script = document.createElement(&apos;script&apos;);
+script.type = &apos;importmap&apos;;
+script.textContent = JSON.stringify(importMap);
+document.head.appendChild(script);
+&lt;/script&gt;</code></pre>
+
+  <p>
+    During development, <code>import { foo } from &apos;my-lib/foo.js&apos;</code> resolves to local source files. In production, it hits the CDN. <strong>Important:</strong> Dynamically injected import maps must be added before any module scripts execute.
+  </p>
+
+  <h3>Pattern 3: Testing Libraries Without Installing</h3>
+
+  <pre><code>&lt;script type=&quot;importmap&quot;&gt;
+{
+  &quot;imports&quot;: {
+    &quot;chai&quot;: &quot;https://esm.sh/chai@5.1.0&quot;
+  }
+}
+&lt;/script&gt;
+
+&lt;script type=&quot;module&quot;&gt;
+import { expect } from &apos;chai&apos;;
+// Test a library in seconds without npm install
+expect(2 + 2).to.equal(4);
+&lt;/script&gt;</code></pre>
+
+  <h2>Dynamic Import Maps: <code>import.meta.resolve()</code></h2>
+
+  <p>With Import Maps, you can resolve specifiers programmatically:</p>
+
+  <pre><code>// Resolve a bare specifier using the current import map
+const url = import.meta.resolve(&apos;lodash/map.js&apos;);
+// → &apos;https://unpkg.com/lodash-es@4.17.21/map.js&apos;
+
+// Useful for dynamic imports
+const modulePath = import.meta.resolve(&#96;components/\${name}.js&#96;);
+const component = await import(modulePath);</code></pre>
+
+  <h2>Migration: From Bundler to Import Maps</h2>
+
+  <p>
+    <strong>Step 1:</strong> Identify bare specifiers in your imports.<br/>
+    <strong>Step 2:</strong> Find CDN equivalents on esm.sh or unpkg.<br/>
+    <strong>Step 3:</strong> Build the import map JSON.<br/>
+    <strong>Step 4:</strong> Remove the bundler. You still need TypeScript compilation, but not module resolution.
+  </p>
+
+  <h2>Browser Support</h2>
+
+  <div class="table-wrapper">
+    <table>
+      <thead>
+        <tr><th>Browser</th><th>Version</th><th>Release Date</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Chrome</td><td>89+</td><td>March 2021</td></tr>
+        <tr><td>Edge</td><td>89+</td><td>March 2021</td></tr>
+        <tr><td>Firefox</td><td>108+</td><td>December 2022</td></tr>
+        <tr><td>Safari</td><td>16.4+</td><td>March 2023</td></tr>
+        <tr><td>iOS Safari</td><td>16.4+</td><td>March 2023</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p>Import Maps became <strong>Baseline Widely Available</strong> in March 2024, covering 96%+ of global users.</p>
+
+  <h2>When NOT to Use Import Maps</h2>
+
+  <p>Import Maps aren&rsquo;t a universal bundler replacement. They don&rsquo;t:</p>
+  <ul>
+    <li><strong>Bundle code</strong> — each module is a separate HTTP request</li>
+    <li><strong>Transpile</strong> — no TypeScript, JSX, or CSS-in-JS transformation</li>
+    <li><strong>Tree-shake</strong> — unused exports are still fetched</li>
+    <li><strong>Minify</strong> — you get whatever the CDN serves</li>
+  </ul>
+
+  <p>
+    The sweet spot: <strong>prototypes, documentation sites, internal tools, learning environments, and apps with &lt; 50 module dependencies</strong>.
+  </p>
+
+  <h2>Summary</h2>
+
+  <div class="highlight-box">
+    <strong>Key takeaways:</strong>
+    <ul>
+      <li><strong>Import Maps</strong> let browsers resolve bare specifiers like <code>&apos;react&apos;</code> to actual URLs without a bundler. Baseline across all browsers since March 2024.</li>
+      <li><strong><code>&lt;script type=&quot;importmap&quot;&gt;</code></strong> must appear before any module scripts. Only one per document.</li>
+      <li><strong>Trailing <code>/</code> entries</strong> map sub-path imports: <code>&quot;lodash/&quot;</code> covers <code>lodash/map.js</code>, <code>lodash/fp.js</code>, etc.</li>
+      <li><strong>Scopes</strong> override mappings for specific URL prefixes — ideal for environment-specific modules.</li>
+      <li><strong>Integrity hashes</strong> provide SRI for import-mapped modules.</li>
+      <li><strong><code>import.meta.resolve()</code></strong> resolves specifiers programmatically for dynamic imports.</li>
+      <li><strong>Best for:</strong> prototypes, documentation, learning, internal tools. Not a full replacement for production bundling.</li>
+      <li><strong>Pair with:</strong> Service Workers for caching, <code>modulepreload</code> for performance, and CDNs like esm.sh.</li>
+    </ul>
+  </div>
+
+  <div class="highlight-box highlight-positive">
+    <strong>Start today:</strong> Add an import map to any HTML page and try loading a library from esm.sh. No npm, no build step, no configuration. Just a <code>&lt;script type=&quot;importmap&quot;&gt;</code> block and native ES module <code>&lt;script type=&quot;module&quot;&gt;</code> tags. For a practical start, try loading Preact + HTM (JSX alternative without a transpiler) — you can build a reactive SPA in a single HTML file. Check out the <a href=&quot;/tools/html-playground/&quot;>HTML Playground</a> to experiment with import maps live.
+  </div>
+</div>`,
+
+  },
 ];
