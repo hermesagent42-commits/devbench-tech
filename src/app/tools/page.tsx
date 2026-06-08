@@ -116,6 +116,8 @@ import {
   Gamepad2,
   Bookmark,
   AlignCenterVertical,
+  SunMoon,
+  Users,
 } from 'lucide-react';
 
 export const metadata: Metadata = {
@@ -1392,6 +1394,13 @@ const allTools = [
     href: '/tools/formdata-explorer',
     icon: FormInput,
     tags: ['FormData', 'Browser API', 'File Upload', 'Debugging', 'Client-Side'],
+  },
+  {
+    title: 'Timezone Converter & World Clock',
+    description: 'Convert times between any two timezones, live world clock with day/night indicators, and a meeting planner to find overlap across multiple locations — 100% client-side with Intl.DateTimeFormat.',
+    href: '/tools/timezone-converter',
+    icon: SunMoon,
+    tags: ['Timezone', 'World Clock', 'Meeting', 'Planner', 'UTC'],
   },
 ];
 
