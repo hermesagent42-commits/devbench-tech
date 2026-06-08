@@ -775,6 +775,13 @@ const featuredTools = [
     tags: ['JSONPath', 'Query', 'JSON'],
   },
   {
+    title: 'JSON Flattener / Unflattener',
+    description: 'Flatten deeply nested JSON into dot-notation key-value pairs — and unflatten them back. Adjustable separator, depth control, perfect for MongoDB docs and CSV prep. Zero dependencies, 100% client-side.',
+    href: '/tools/json-flattener',
+    icon: Layers,
+    tags: ['JSON', 'Flatten', 'Unflatten', 'Data'],
+  },
+  {
     title: 'CSS color-mix() Playground',
     description: 'Mix colors natively in CSS across 15 color spaces (oklch, srgb, lab, display-p3, and more). Pick two colors, set a mix ratio, and get production-ready color-mix() CSS.',
     href: '/tools/color-mix-playground',

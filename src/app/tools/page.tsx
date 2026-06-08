@@ -560,6 +560,13 @@ const allTools = [
     tags: ['JSON', 'Diff', 'Compare', 'API'],
   },
   {
+    title: 'JSON Flattener / Unflattener',
+    description: 'Flatten nested JSON into dot-notation key-value pairs and unflatten them back. Adjustable separator, depth control, array index handling. Perfect for MongoDB docs, CSV prep, and log analysis — 100% client-side.',
+    href: '/tools/json-flattener',
+    icon: Layers,
+    tags: ['JSON', 'Flatten', 'Unflatten', 'MongoDB', 'CSV'],
+  },
+  {
     title: 'Container Query Builder',
     description: 'Visually build container size queries — set container-type/inline-size/size, add range conditions, preview at any width, and copy production-ready CSS.',
     href: '/tools/container-query-builder',
