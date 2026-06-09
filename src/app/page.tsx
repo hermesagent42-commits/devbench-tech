@@ -115,6 +115,7 @@ import {
   Barcode,
   Gauge as GaugeIcon,
   ShieldCheck as ShieldCheckIcon,
+  ShieldAlert,
 } from 'lucide-react';
 
 export const metadata: Metadata = {
@@ -193,6 +194,13 @@ const featuredTools = [
     href: '/tools/ascii-table',
     icon: Table2,
     tags: ['ASCII', 'Reference', 'Encoding'],
+  },
+  {
+    title: 'HTTP Security Headers',
+    description: 'Scan HTTP security headers — CSP, HSTS, X-Frame-Options, Referrer-Policy, and more. Get a security grade (A-F) and actionable recommendations.',
+    href: '/tools/http-security-headers',
+    icon: ShieldAlert,
+    tags: ['Security', 'HTTP', 'Headers', 'Scanner'],
   },
   {
     title: 'URL Parser',
