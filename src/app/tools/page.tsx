@@ -1067,6 +1067,13 @@ const allTools = [
     tags: ['CSS', '@counter-style', 'Lists', 'Typography'],
   },
   {
+    title: 'CSS animation-composition Playground',
+    description: 'Visualize how animation-composition (replace | add | accumulate) controls how multiple animations combine. Layer animations, toggle composition per-layer, compare solo vs combined — live preview with generated CSS.',
+    href: '/tools/css-animation-composition-playground',
+    icon: Layers,
+    tags: ['CSS', 'animation-composition', 'Animation', 'Keyframes'],
+  },
+  {
     title: 'HTTP Headers Reference',
     description: 'Complete searchable reference for 60+ HTTP headers — security, CORS, caching, authentication, proxies, cookies. Filter by category, view examples, copy in one click.',
     href: '/tools/http-headers',
