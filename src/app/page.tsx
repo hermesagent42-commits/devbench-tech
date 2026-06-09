@@ -117,6 +117,7 @@ import {
   ShieldCheck as ShieldCheckIcon,
   ShieldAlert,
   ToggleLeft,
+  Contrast,
 } from 'lucide-react';
 
 export const metadata: Metadata = {
@@ -1119,6 +1120,13 @@ const featuredTools = [
     href: '/tools/css-custom-properties',
     icon: Variable,
     tags: ['CSS', 'Custom Properties', 'Variables', 'Themes'],
+  },
+  {
+    title: 'CSS System Colors',
+    description: 'Explore all CSS system colors — OS-adaptive tokens like Canvas, Highlight, LinkText, ButtonFace that auto-match light/dark/forced-colors. Live previews, UI patterns, copy-ready CSS.',
+    href: '/tools/css-system-colors',
+    icon: Contrast,
+    tags: ['CSS', 'System Colors', 'Accessibility', 'Theming'],
   },
   {
     title: 'CSS Specificity Calculator',
