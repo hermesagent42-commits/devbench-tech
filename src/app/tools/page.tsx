@@ -102,6 +102,7 @@ import {
   FormInput,
   Clipboard,
   ClipboardPaste,
+  Brackets,
   Crosshair,
   Gauge,
   Underline,
@@ -309,6 +310,13 @@ const allTools = [
     href: '/tools/html-to-jsx',
     icon: FileCode,
     tags: ['HTML', 'JSX', 'React', 'Converter'],
+  },
+  {
+    title: 'SVG to JSX Converter',
+    description: 'Convert SVG markup to JSX for React — camelCase all attributes, self-close void elements, convert style strings to JSX objects, live SVG preview. Supports 50+ SVG attributes. 100% client-side.',
+    href: '/tools/svg-to-jsx',
+    icon: Brackets,
+    tags: ['SVG', 'JSX', 'React', 'Converter', 'Icon'],
   },
   {
     title: 'Number Base Converter',
