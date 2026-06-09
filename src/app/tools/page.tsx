@@ -976,6 +976,13 @@ const allTools = [
     tags: ['CSS', '@font-palette-values', 'COLRv1', 'Color Fonts'],
   },
   {
+    title: 'Variable Fonts Playground',
+    description: 'Explore variable fonts in real-time — adjust weight, width, slant, optical size, and more across 7 fonts (Roboto Flex, Inter, Recursive, Fraunces, and more). 8 presets, live preview, and instant CSS output.',
+    href: '/tools/variable-fonts-playground',
+    icon: Type,
+    tags: ['CSS', 'Variable Fonts', 'Typography', 'font-variation-settings'],
+  },
+  {
     title: 'CSS Named Colors',
     description: 'Explore all 148 CSS named colors — search, filter by family, sort by hue or lightness, and copy hex/RGB/HSL values. Interactive color grid with instant preview.',
     href: '/tools/css-named-colors',
