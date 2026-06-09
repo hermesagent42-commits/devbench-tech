@@ -1696,6 +1696,13 @@ const featuredTools = [
     icon: ShieldCheckIcon,
     tags: ['License', 'Open Source', 'Legal', 'GitHub'],
   },
+  {
+    title: 'Web Vitals Visualizer',
+    description: 'Interactive demos for Core Web Vitals — LCP (Largest Contentful Paint), CLS (Cumulative Layout Shift), and INP (Interaction to Next Paint). Simulate page loads, layout shifts, and input delays to understand Google ranking metrics.',
+    href: '/tools/web-vitals-visualizer',
+    icon: Gauge,
+    tags: ['Web Vitals', 'LCP', 'CLS', 'INP', 'Performance'],
+  },
 ];
 
 const sampleBlogPosts = [

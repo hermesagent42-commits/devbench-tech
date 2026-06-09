@@ -1503,6 +1503,13 @@ const allTools = [
     icon: ArrowLeftRight,
     tags: ['String', 'Similarity', 'Diff', 'Levenshtein', 'Fuzzy'],
   },
+  {
+    title: 'Web Vitals Visualizer',
+    description: 'Interactive demos for Core Web Vitals — LCP (Largest Contentful Paint), CLS (Layout Shift), and INP (Interaction Delay). Simulate page loads, layout shifts, and click delays.',
+    href: '/tools/web-vitals-visualizer',
+    icon: Gauge,
+    tags: ['Web Vitals', 'LCP', 'CLS', 'INP', 'Performance', 'Google'],
+  },
 ];
 
 export default function ToolsPage() {
