@@ -1,0 +1,535 @@
+---
+title: "CSS Anchor Positioning: Kill Your Positioning JavaScript — The Complete 2026 Guide"
+date: "2026-06-09"
+excerpt: "CSS Anchor Positioning is now Baseline across all major browsers — position any element relative to any other element using only CSS. No more measuring DOM rects, no more resize observers, no more Popper.js. Learn anchor(), anchor-size(), position-area, position-try, and inset-area with real-world examples."
+tags: ["CSS", "Anchor Positioning", "Baseline 2026", "Layout", "Tooltips", "Popover", "Positioning", "CSS Functions", "2026"]
+---
+
+## The JavaScript Positioning Tax
+
+For two decades, positioning one element relative to another was JavaScript's job. If you wanted a tooltip to appear above a button, a dropdown to align with its trigger, or a context menu pinned to a click target — you needed DOM rects.
+
+Here's what every developer has written at least once:
+
+```javascript
+function positionTooltip(trigger, tooltip) {
+  const triggerRect = trigger.getBoundingClientRect();
+  const tooltipRect = tooltip.getBoundingClientRect();
+
+  tooltip.style.left = `${
+    triggerRect.left + triggerRect.width / 2 - tooltipRect.width / 2
+  }px`;
+  tooltip.style.top = `${triggerRect.top - tooltipRect.height - 8}px`;
+
+  // Oh wait — what if it overflows the viewport?
+  if (tooltipRect.top < 0) {
+    tooltip.style.top = `${triggerRect.bottom + 8}px`;
+  }
+  if (tooltipRect.left < 0) {
+    tooltip.style.left = `${triggerRect.left}px`;
+  }
+  if (tooltipRect.right > window.innerWidth) {
+    tooltip.style.left = `${triggerRect.right - tooltipRect.width}px`;
+  }
+}
+```
+
+This code breaks when the user scrolls. It breaks when the window resizes. It breaks when the trigger moves because of a layout shift. So you add a `ResizeObserver`. And a `scroll` listener. And a `MutationObserver`. Now you're maintaining 50 lines of positioning logic for every tooltip component in your app.
+
+Libraries like Popper.js and Floating UI exist to abstract this pain, but they're still JavaScript. They still measure DOM rects. They still ship kilobytes to the client. And at the end of the day, they're solving a layout problem with imperative code — which is exactly what CSS was designed to do declaratively.
+
+**CSS Anchor Positioning** solves all of this. Define an anchor element. Define a positioned element. Tell CSS how they relate. The browser handles everything else — scroll, resize, layout shifts, overflow, fallbacks. All declarative. All zero JavaScript.
+
+As of 2026, Anchor Positioning is **Baseline** — supported in Chrome 125+, Edge 125+, Firefox 137+, and Safari 18+. You can use it in production today.
+
+## The Core Concept: Anchors and Positioned Elements
+
+Anchor positioning connects two elements:
+
+- The **anchor element** — the reference point (e.g., a button, an input, an icon)
+- The **positioned element** — the thing that moves relative to the anchor (e.g., a tooltip, a dropdown, a popover)
+
+The connection is made through the `anchor-name` property (on the anchor) and the `position-anchor` property (on the positioned element):
+
+```css
+.trigger {
+  anchor-name: --my-trigger;
+}
+
+.tooltip {
+  position: absolute;
+  position-anchor: --my-trigger;
+}
+```
+
+That's it. Now `.tooltip` is anchored to `.trigger`. Any positioning you do on `.tooltip` will be relative to `.trigger`.
+
+But wait — there's a critically important constraint: **the positioned element must be a descendant of the anchor element in the DOM, or the anchor's containing block must be an ancestor of the positioned element.** This means you can't anchor an element in a completely different subtree unless they share an ancestor. For the common tooltip-in-a-component case (tooltip as a sibling or child), this works perfectly.
+
+### The anchor() Function
+
+The real power comes from the `anchor()` function. It lets you reference any edge or dimension of the anchor element directly in CSS values:
+
+```css
+.tooltip {
+  position: absolute;
+  position-anchor: --my-trigger;
+  bottom: anchor(top);
+  left: anchor(center);
+  translate: -50% 0;
+}
+```
+
+This says: place the bottom edge of the tooltip at the top edge of the trigger, and center it horizontally. The `translate: -50%` centers the tooltip by shifting left by half its own width.
+
+The `anchor()` function accepts these edge keywords: `top`, `right`, `bottom`, `left`, `center`, `start`, `end`, `self-start`, `self-end`, and percentage values like `anchor(50%)`.
+
+Here's a practical set of four positioning variants:
+
+```css
+/* Tooltip above */
+.tooltip-top {
+  bottom: anchor(top);
+  left: anchor(center);
+  translate: -50% calc(-8px); /* 8px gap */
+}
+
+/* Tooltip below */
+.tooltip-bottom {
+  top: anchor(bottom);
+  left: anchor(center);
+  translate: -50% 8px;
+}
+
+/* Tooltip left */
+.tooltip-left {
+  right: anchor(left);
+  top: anchor(center);
+  translate: calc(-8px) -50%;
+}
+
+/* Tooltip right */
+.tooltip-right {
+  left: anchor(right);
+  top: anchor(center);
+  translate: 8px -50%;
+}
+```
+
+No JavaScript. No `getBoundingClientRect`. No resize observers. Just CSS.
+
+## anchor-size(): Sizing Relative to the Anchor
+
+What if you want a dropdown to match the width of its trigger button? Instead of measuring and setting `min-width` in JavaScript, use `anchor-size()`:
+
+```css
+.dropdown {
+  position: absolute;
+  position-anchor: --trigger;
+  top: anchor(bottom);
+  left: anchor(left);
+  width: anchor-size(width);
+}
+```
+
+The dropdown now always matches the trigger's width — even if the trigger resizes due to longer text, a different language, or a responsive layout. `anchor-size()` accepts `width`, `height`, `block-size`, `inline-size`, `min-width`, `max-width`, `min-height`, and `max-height`.
+
+You can also do math with it:
+
+```css
+.dropdown {
+  /* 80% of anchor width, but at least 200px */
+  width: max(anchor-size(width) * 0.8, 200px);
+
+  /* Anchor height plus 16px padding */
+  min-height: calc(anchor-size(height) + 16px);
+}
+```
+
+## Multiple Anchors: Different Edges From Different Elements
+
+One positioned element can reference multiple anchors. This is perfect for a popover that positions its left edge to one anchor and its right edge to another:
+
+```css
+.sidebar-trigger {
+  anchor-name: --sidebar-btn;
+}
+
+.content-area {
+  anchor-name: --content-ref;
+}
+
+.drawer {
+  position: absolute;
+  position-anchor: --sidebar-btn;
+  top: anchor(--sidebar-btn top);
+  bottom: anchor(--content-ref bottom);
+  left: anchor(--sidebar-btn right);
+  right: anchor(--content-ref left);
+}
+```
+
+The `anchor()` function takes the anchor name as an optional first argument — this lets you reference any named anchor, not just the one set in `position-anchor`.
+
+## position-area: Grid-Based Positioning
+
+Writing `top`, `bottom`, `left`, `right` for every placement gets repetitive. The `position-area` property provides a shorthand that maps to a 9-cell grid around the anchor:
+
+```
+┌─────────────┬─────────────┬─────────────┐
+│  top/left   │     top     │  top/right   │
+├─────────────┼─────────────┼─────────────┤
+│    left     │  (anchor)   │    right     │
+├─────────────┼─────────────┼─────────────┤
+│ bottom/left │   bottom    │ bottom/right │
+└─────────────┴─────────────┴─────────────┘
+```
+
+Instead of setting four properties individually:
+
+```css
+.tooltip {
+  position-area: top; /* centered above the anchor */
+}
+```
+
+This is equivalent to setting `bottom: anchor(top)` and `justify-self: anchor-center`. You can combine axis values:
+
+```css
+/* Bottom-right corner */
+.tooltip { position-area: bottom right; }
+
+/* Top center (defaults to center on the cross-axis) */
+.tooltip { position-area: top; }
+
+/* Left, vertically centered */
+.tooltip { position-area: left; }
+
+/* Span the full width below */
+.tooltip { position-area: bottom span-inline; }
+
+/* Span full height to the right */
+.tooltip { position-area: right span-block; }
+```
+
+The `span-inline` and `span-block` keywords make the positioned element stretch to match the anchor's dimensions on that axis — equivalent to `width: anchor-size(width)` or `height: anchor-size(height)`.
+
+## position-try and @position-try: Overflow Fallbacks
+
+This is the feature that truly replaces JavaScript positioning libraries. When a positioned element would overflow the viewport (or its containing block), `position-try` automatically tries fallback positions.
+
+```css
+.tooltip {
+  position: absolute;
+  position-anchor: --trigger;
+  position-area: top;
+  position-try: flip-block, flip-inline;
+}
+```
+
+`flip-block` tries flipping the vertical position (top → bottom). `flip-inline` tries flipping the horizontal position (left → right). The browser evaluates them in order and picks the first one that fits.
+
+Built-in try tactics include:
+
+- `flip-block` — flip vertical axis
+- `flip-inline` — flip horizontal axis
+- `flip-start` — flip to the start of the relevant axis
+- `most-block-size` — pick the position with the most available block space
+- `most-inline-size` — pick the position with the most available inline space
+- `most-width` / `most-height` — self-explanatory
+
+For custom fallbacks, use `@position-try`:
+
+```css
+@position-try --top-then-right {
+  position-area: top;
+}
+
+@position-try --right-then-bottom {
+  position-area: right;
+}
+
+@position-try --bottom-fallback {
+  position-area: bottom span-inline;
+}
+
+.tooltip {
+  position: absolute;
+  position-anchor: --trigger;
+  position-area: top;
+  position-try: --top-then-right, --right-then-bottom, --bottom-fallback;
+}
+```
+
+The browser tries each fallback in order, selecting the first one where the positioned element fits without overflowing. This happens automatically on scroll, resize, or any layout change — no event listeners needed.
+
+You can even specify conditions with `position-try-options`:
+
+```css
+.tooltip {
+  position-try-options: inset-area(top) flip-block;
+  /* Only consider the flip-block fallback when the default (top) doesn't fit */
+}
+```
+
+## inset-area: Logical Positioning for Writing Modes
+
+`inset-area` is similar to `position-area` but uses logical properties. It works with writing modes and text direction:
+
+```css
+.tooltip {
+  inset-area: block-start; /* top in LTR horizontal, right in vertical-rl */
+}
+```
+
+Available values: `block-start`, `block-end`, `inline-start`, `inline-end`, `center`, `span-block`, `span-inline`, and their combinations (e.g., `block-start inline-end`).
+
+This is especially powerful for internationalized interfaces where "above" might mean "to the right" in a vertical writing mode.
+
+## Real-World Example: A Complete Tooltip System
+
+Here's a production-ready tooltip system using Anchor Positioning, CSS Transitions, and `@starting-style`:
+
+```css
+/* The anchor — any interactive element that needs a tooltip */
+[data-tooltip] {
+  anchor-name: --tooltip-anchor;
+  position: relative;
+}
+
+/* The tooltip itself */
+[data-tooltip]::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  position-anchor: --tooltip-anchor;
+  position-area: top;
+  position-try: flip-block;
+
+  /* Visual styling */
+  background: #1e293b;
+  color: #f8fafc;
+  font-size: 0.75rem;
+  padding: 6px 10px;
+  border-radius: 6px;
+  white-space: nowrap;
+  pointer-events: none;
+  margin-block-end: 4px;
+
+  /* Show/hide with transitions */
+  opacity: 0;
+  transition: opacity 0.15s ease, display 0.15s ease allow-discrete;
+}
+
+[data-tooltip]:hover::after,
+[data-tooltip]:focus-visible::after {
+  opacity: 1;
+}
+```
+
+Usage is a single HTML attribute:
+
+```html
+<button data-tooltip="Save changes (⌘S)">Save</button>
+```
+
+No JavaScript. No positioning calculations. Works at any viewport size. The tooltip automatically flips below if there's not enough room above. It handles scroll, resize, and layout shifts for free.
+
+## Real-World Example: Select Dropdown With Search
+
+A custom select dropdown that opens below its trigger and matches its width:
+
+```css
+.select-trigger {
+  anchor-name: --select-trigger;
+}
+
+.select-dropdown {
+  position: absolute;
+  position-anchor: --select-trigger;
+  position-area: bottom span-inline;
+  position-try: flip-block;
+  margin-block-start: 4px;
+  max-height: 300px;
+  overflow-y: auto;
+}
+```
+
+The dropdown always matches the trigger width, opens below by default, and flips above if there's not enough space — all without a single `getBoundingClientRect()` call.
+
+## Real-World Example: Context Menu
+
+```css
+.context-menu {
+  position: absolute;
+  position-anchor: --context-anchor;
+  position-area: bottom;
+  position-try: flip-block, flip-inline;
+
+  /* Prevent the menu from overflowing horizontally */
+  max-width: anchor-size(width);
+  min-width: 160px;
+}
+```
+
+For a context menu positioned at the click point, you can dynamically set the anchor:
+
+```html
+<div
+  style="anchor-name: --context-anchor;
+         position: fixed;
+         left: ${x}px; top: ${y}px;
+         width: 0; height: 0;"
+></div>
+<menu class="context-menu" popover>...</menu>
+```
+
+A tiny invisible anchor at the click coordinates drives the entire positioning system.
+
+## Performance: Why This Matters Beyond Convenience
+
+When you position elements with JavaScript using `getBoundingClientRect()`, you force a synchronous layout recalculation (a "layout thrash"). Every frame, the browser must:
+
+1. Calculate the layout of all elements (layout)
+2. Run your JavaScript to read the rects
+3. Apply new styles (forcing another layout)
+4. Paint the result
+
+With CSS Anchor Positioning, the browser handles positioning during its normal layout pass. There's no JavaScript interleaving, no forced synchronous layouts, and no extra painting. Your tooltips, dropdowns, and popovers render as efficiently as any other CSS layout.
+
+This is the same reason `position: sticky` is faster than a JavaScript-based sticky header — the browser can optimize what it fully controls.
+
+## Anchor Positioning + Popover API: The Dream Team
+
+The Popover API (`popover` attribute) and Anchor Positioning are designed to work together:
+
+```css
+[popover] {
+  position: absolute;
+  position-anchor: --trigger;
+  position-area: bottom;
+  position-try: flip-block;
+  inset: unset; /* Reset default UA popover positioning */
+}
+```
+
+```html
+<button popovertarget="my-popover" style="anchor-name: --trigger">
+  Open Menu
+</button>
+
+<div id="my-popover" popover>
+  <nav>...</nav>
+</div>
+```
+
+You get a positioned popover that automatically handles:
+- Light-dismiss (click outside, press Escape)
+- Focus management
+- Top-layer rendering (above everything else)
+- Anchor-relative positioning with overflow fallbacks
+- Zero JavaScript (except `popovertarget` — fully declarative HTML)
+
+## Browser Support & Progressive Enhancement
+
+| Feature | Chrome | Edge | Firefox | Safari |
+|---------|--------|------|---------|--------|
+| `anchor-name` / `position-anchor` | 125 | 125 | 137 | 18.0 |
+| `anchor()` function | 125 | 125 | 137 | 18.0 |
+| `anchor-size()` | 125 | 125 | 137 | 18.0 |
+| `position-area` | 128 | 128 | 137 | 18.0 |
+| `position-try` | 128 | 128 | 137 | 18.0 |
+| `@position-try` | 128 | 128 | 137 | 18.0 |
+
+Progressive enhancement is straightforward:
+
+```css
+.tooltip {
+  /* Traditional absolute positioning — works everywhere */
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  translate: -50% 0;
+}
+
+/* If anchor positioning is supported, use it */
+@supports (anchor-name: --x) {
+  .trigger {
+    anchor-name: --tooltip-anchor;
+  }
+
+  .tooltip {
+    bottom: auto;
+    left: auto;
+    translate: none;
+    position-anchor: --tooltip-anchor;
+    position-area: top;
+    position-try: flip-block;
+  }
+}
+```
+
+Browsers that don't support anchor positioning fall back to your traditional approach. Browsers that do get the full power — overflow handling, resize responsiveness, and zero JavaScript.
+
+## When to Use Anchor Positioning (and When Not To)
+
+**Use Anchor Positioning for:**
+- Tooltips and popovers attached to specific elements
+- Dropdowns that should align with their triggers
+- Context menus positioned relative to a click
+- Toast notifications anchored to a container
+- Teaching/coachmark overlays that point at UI elements
+- Any UI where one element's position depends on another's geometry
+
+**Don't use Anchor Positioning for:**
+- Elements that don't share an ancestor in the DOM
+- Elements in completely separate stacking contexts (anchors don't cross shadow DOM boundaries)
+- General page layout (use Flexbox or Grid)
+- Cases where you need complex collision detection beyond `position-try`
+- When your positioned element's parent has `overflow: hidden` (it clips absolutely-positioned children)
+
+## The Death of `getBoundingClientRect()` for Positioning
+
+The most common use case for `getBoundingClientRect()` — measuring an element to position something near it — is now obsolete. You no longer need to:
+
+- Measure trigger elements with `getBoundingClientRect()`
+- Calculate tooltip offsets manually
+- Add `ResizeObserver` to re-position on layout changes
+- Add `scroll` listeners to re-position on scroll
+- Add `MutationObserver` for DOM changes
+- Ship 3KB+ of positioning library code
+- Handle viewport overflow with imperative fallback logic
+
+All of that becomes:
+
+```css
+.tooltip {
+  position: absolute;
+  position-anchor: --my-trigger;
+  position-area: top;
+  position-try: flip-block;
+}
+```
+
+Three properties. Zero bytes of JavaScript. The browser does the rest.
+
+## What's Next for Anchor Positioning
+
+The spec continues to evolve. Upcoming additions include:
+
+- **`position-visibility`** — control whether the anchor-positioned element is visible, hidden, or partially visible when it overflows
+- **`anchor-scope`** — limit which anchors a positioned element can reference (useful for nested components)
+- **Chaining anchors** — position an element relative to another anchored element
+- **Animation of anchor properties** — smoothly animate between anchor positions
+
+These will further reduce the need for JavaScript positioning, making anchor positioning the default approach for all contextual UI.
+
+## Resources
+
+- [W3C CSS Anchor Positioning Specification](https://www.w3.org/TR/css-anchor-position-1/)
+- [MDN: CSS Anchor Positioning](https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_anchor_positioning)
+- [Chrome Developers: Anchor Positioning Guide](https://developer.chrome.com/docs/css-ui/css-anchor-positioning)
+- [Una Kravets: Tether elements to each other with CSS anchor positioning](https://developer.chrome.com/blog/tether-elements-to-each-other-with-css-anchor-positioning/)
+
+---
+
+*Anchor Positioning is the last piece of the puzzle for positioning. Flexbox solved one-dimensional layout. Grid solved two-dimensional layout. Anchor Positioning solves relative positioning — the one remaining layout problem that forced developers into JavaScript. Combined with the Popover API and `@starting-style`, it gives us a complete declarative toolkit for building rich, interactive interfaces without JavaScript positioning logic. The era of `getBoundingClientRect()`-based positioning is over.*
