@@ -444,6 +444,13 @@ const featuredTools = [
     tags: ['Roman Numerals', 'Math', 'Converter', 'History'],
   },
   {
+    title: 'String Similarity Checker',
+    description: 'Compare two strings with Levenshtein, Damerau-Levenshtein, Jaro-Winkler, and visual character-level diff — perfect for fuzzy matching, spell checking, and dedup.',
+    href: '/tools/string-similarity',
+    icon: ArrowLeftRight,
+    tags: ['String', 'Similarity', 'Diff', 'Levenshtein'],
+  },
+  {
     title: 'Password Strength Checker',
     description: 'Check password strength with entropy analysis, crack-time estimates, and a 10-point security checklist — all client-side.',
     href: '/tools/password-strength-checker',

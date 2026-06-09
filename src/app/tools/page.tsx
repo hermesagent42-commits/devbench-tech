@@ -1466,6 +1466,13 @@ const allTools = [
     icon: ListOrdered,
     tags: ['Roman Numerals', 'Converter', 'Math', 'Reference'],
   },
+  {
+    title: 'String Similarity Checker',
+    description: 'Compare two strings with Levenshtein, Damerau-Levenshtein, Jaro-Winkler, and a visual character-level diff — perfect for fuzzy matching, spell checking, and dedup.',
+    href: '/tools/string-similarity',
+    icon: ArrowLeftRight,
+    tags: ['String', 'Similarity', 'Diff', 'Levenshtein', 'Fuzzy'],
+  },
 ];
 
 export default function ToolsPage() {
