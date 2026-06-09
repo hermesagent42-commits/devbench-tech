@@ -130,10 +130,17 @@ export const metadata: Metadata = {
 const allTools = [
   {
     title: 'JSON Formatter',
-    description: 'Format, minify, and validate JSON with syntax highlighting and error detection.',
+    description: 'Format, minify, and validate JSON with syntax highlighting. Perfect for debugging API responses.',
     href: '/tools/json-formatter',
     icon: Braces,
-    tags: ['JSON', 'Formatter', 'Validator'],
+    tags: ['JSON', 'Formatter'],
+  },
+  {
+    title: 'GraphQL Formatter',
+    description: 'Format, minify, and prettify GraphQL queries, mutations, and schemas with syntax highlighting. Supports fragments, variables, and directives — 100% client-side.',
+    href: '/tools/graphql-formatter',
+    icon: GitGraph,
+    tags: ['GraphQL', 'Formatter', 'Query', 'Minifier'],
   },
   {
     title: 'Base64 Encoder/Decoder',
