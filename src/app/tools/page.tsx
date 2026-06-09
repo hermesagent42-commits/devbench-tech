@@ -646,6 +646,13 @@ const allTools = [
     tags: ['SVG', 'Preview', 'Optimizer', 'Minifier'],
   },
   {
+    title: 'SVG to Data URI Converter',
+    description: 'Convert SVG markup to optimized data URIs for CSS backgrounds, HTML img tags, JavaScript constants, and Markdown. Supports base64 and URL encoding, minification, charset control, live preview, and multi-format output.',
+    href: '/tools/svg-to-data-uri',
+    icon: FileCode,
+    tags: ['SVG', 'Data URI', 'Encoder', 'Base64', 'Inline'],
+  },
+  {
     title: 'SVG Path Builder',
     description: 'Visually build and edit SVG path data with a live canvas. Drag anchor points, apply 10 shape templates, customize stroke/fill, and export production-ready SVG — 100% client-side.',
     href: '/tools/svg-path-builder',
