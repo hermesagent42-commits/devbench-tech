@@ -1,0 +1,545 @@
+---
+title: "Speculation Rules API: Instant Page Loads with Native Prerendering — Zero JavaScript Required (2026 Guide)"
+date: "2026-06-09"
+excerpt: "The Speculation Rules API gives you browser-native prerendering and prefetching — instant page loads via JSON config, no service worker, no JavaScript library. Trigger on hover, visible links, or custom patterns. Complete guide with production patterns, eagerness settings, score-based rules, analytics integration, and CDN deployment strategies."
+tags: ["speculation-rules", "prerendering", "prefetching", "performance", "core-web-vitals", "web-platform", "chrome", "baseline-2026", "instant-navigation"]
+---
+
+The average web page takes 2–5 seconds to load. Even well-optimized sites with CDNs, code splitting, and critical CSS still require a round-trip to the server — DNS, TLS, request, response, parse, paint. That's physics. You can't beat it.
+
+Unless you don't wait for the click.
+
+The **Speculation Rules API** lets the browser **prerender entire pages** or **prefetch their subresources** before the user clicks. Configured with a JSON snippet in your HTML (or an HTTP header), it tells the browser: "When the user hovers over this link, start loading the page so it's ready instantly when they click." No service worker. No `<link rel="prerender">` (deprecated). No JavaScript library. Just a declarative config that the browser handles natively.
+
+This is the single most impactful performance feature of 2026 for multi-page websites. Let's dive into everything you need to know — from the one-liner to production patterns with analytics, CDN deployment, and dynamic score-based rules.
+
+## The Problem: Why `<link rel="prerender">` Failed (and Why This Won't)
+
+Chrome shipped `<link rel="prerender">` in 2011 and killed it in 2019. It prerendered exactly one URL, unconditionally, immediately on page load. Result: massive bandwidth waste. If you prerendered `/about` and the user clicked `/pricing`, you downloaded the wrong page. If they didn't click anything, you burned their data plan for nothing.
+
+The Speculation Rules API fixes all three failure modes:
+
+1. **Multiple URLs** — You can define rules for dozens of links, and the browser picks which to prerender based on available resources
+2. **Conditional triggers** — Prerender on hover, on viewport entry, or on demand. Not just on page load
+3. **Eagerness levels** — `immediate` (start now), `eager` (start on hover/mousedown), `moderate` (start after 200ms hover), `conservative` (start on mousedown/pointerdown only)
+
+The result: browsers can now prerender aggressively without wasting bandwidth, because they only start loading when a user *shows intent* to navigate.
+
+## The One-Line Setup
+
+Add this to your `<head>`:
+
+```html
+<script type="speculationrules">
+{
+  "prerender": [
+    {
+      "source": "document",
+      "where": {
+        "href_matches": "/*"
+      },
+      "eagerness": "moderate"
+    }
+  ]
+}
+</script>
+```
+
+That's it. Every link on your page (`href_matches: "/*"`) matching your origin will prerender when the user hovers for 200ms. When they click, the page appears **instantly** — zero network round-trip, zero parsing, zero paint delay. The browser hands them a fully rendered page.
+
+If you want to test this: open DevTools → Application → Background Services → "Speculative Loads". You'll see prerendered pages appear as the user hovers over links.
+
+## How Prerendering Works Under the Hood
+
+When the browser decides to prerender a page, here's what happens:
+
+1. **A new renderer process is created** (or recycled from a previous prerender). It's isolated — no shared state with the main page
+2. **The full page is fetched, parsed, and executed** — JavaScript runs, styles are computed, layout is performed, images are fetched
+3. **Resource limits are enforced**: Chrome limits to one prerender at a time, with a 50MB memory cap. Exceed it and the oldest prerender is discarded
+4. **On activation (user clicks)**: the renderer is promoted to the foreground, the URL bar updates, `document.prerendering` becomes `false`, and `prerenderingchange` fires
+5. **On cancellation (user clicks elsewhere)**: the renderer is killed (or frozen for reuse with **NoState Prefetch**)
+
+The key distinction: **prerendering renders the whole page** — CSS, JavaScript, layout, paint. Prefetching only fetches the document and subresources but doesn't render them.
+
+### Prefetch vs Prerender
+
+| Action | What it loads | Memory cost | When to use |
+|--------|--------------|-------------|-------------|
+| `prefetch` | HTML + subresources (CSS, JS, images, fonts) | Very low (subresources cached, no renderer) | Links the user *might* click. Pre-warms the HTTP cache. |
+| `prerender` | Everything above + full render (JS execution, layout, paint) | Moderate (renderer process, ~10–50MB) | Links the user *will probably* click. Instant navigation. |
+
+For most sites, `prerender` with `eagerness: "moderate"` or `"eager"` is the sweet spot. The user hovers → prerender starts → they click → instant.
+
+```html
+<script type="speculationrules">
+{
+  "prefetch": [
+    {
+      "source": "document",
+      "where": { "href_matches": "/blog/*" },
+      "eagerness": "moderate"
+    }
+  ],
+  "prerender": [
+    {
+      "source": "document",
+      "where": { "href_matches": "/docs/*" },
+      "eagerness": "eager"
+    }
+  ]
+}
+</script>
+```
+
+This setup: blog posts get prefetched (low cost, warms the cache), docs pages get prerendered (high value, instant loads). Two different strategies for two different link types.
+
+## Eagerness Levels: The Spectrum of Aggression
+
+The `eagerness` field controls **when** the browser starts speculating. Here's the full spectrum:
+
+| Value | Trigger | Best for |
+|-------|---------|----------|
+| `immediate` | As soon as the page loads, before user interaction | The *one link* everyone clicks — "Next" in a tutorial, "Pricing" on a landing page |
+| `eager` | On `pointerdown` or `pointerhover` — effectively on mouseover/tap | Primary CTAs, navigation links you're confident about |
+| `moderate` | After 200ms of continuous hover | Most use cases. Balances speed with bandwidth. User showed intent. |
+| `conservative` | On `pointerdown` only — the user is actively clicking | Very bandwidth-conscious sites, mobile data users, low-confidence links |
+
+The default is `"immediate"` — which is aggressive. Unless you know the user **will** click a specific link (e.g., "Next page" in a flow), always set an explicit eagerness.
+
+### Practical Example: E-Commerce Product Listing
+
+```html
+<script type="speculationrules">
+{
+  "prerender": [
+    {
+      "source": "document",
+      "where": {
+        "and": [
+          { "href_matches": "/products/*" },
+          { "selector_matches": ".product-card__link" }
+        ]
+      },
+      "eagerness": "eager"
+    }
+  ]
+}
+</script>
+```
+
+When a shopper hovers over any product card (`.product-card__link`), the product detail page prerenders. When they click, it's instant. No loading spinner. No layout shift. The "Add to Cart" button is ready before their finger lifts off the mouse.
+
+This is the pattern that e-commerce sites like Shopify and BigCommerce are adopting in 2026. Combined with [View Transitions](/tools/view-transitions-playground), you get a native-app-quality browsing experience with zero JavaScript animation libraries.
+
+## Score-Based Rules: Prerender What Matters
+
+Not all links are equally valuable. You can use **scores** to tell the browser which links to prioritize when resources are constrained:
+
+```html
+<script type="speculationrules">
+{
+  "prerender": [
+    {
+      "source": "document",
+      "where": {
+        "and": [
+          { "href_matches": "/blog/*" }
+        ]
+      },
+      "eagerness": "moderate",
+      "score": 0.5
+    },
+    {
+      "source": "document",
+      "where": {
+        "and": [
+          { "href_matches": "/pricing" },
+          { "href_matches": "/docs/*" }
+        ]
+      },
+      "eagerness": "eager",
+      "score": 1.0
+    }
+  ]
+}
+</script>
+```
+
+Scores are floating-point, from 0 to 1. Higher scores win when the browser reaches its prerender limit (typically 1–2 simultaneous prerenders). The `/pricing` and `/docs/*` links will always beat `/blog/*` links for prerender slots.
+
+You can also use `not` and `or` conditions:
+
+```html
+<script type="speculationrules">
+{
+  "prerender": [
+    {
+      "source": "document",
+      "where": {
+        "and": [
+          { "href_matches": "/products/*" },
+          { "not": { "href_matches": "/products/archived/*" } }
+        ]
+      },
+      "eagerness": "eager"
+    }
+  ]
+}
+</script>
+```
+
+Prerender product pages, but skip archived products. No JavaScript needed.
+
+## Dynamic Rules: Injecting Rules from JavaScript
+
+The `source: "document"` source pulls links from the DOM. But you can also inject rules dynamically using `source: "list"`:
+
+```html
+<script type="speculationrules">
+{
+  "prerender": [
+    {
+      "source": "list",
+      "urls": [],
+      "eagerness": "immediate"
+    }
+  ]
+}
+</script>
+```
+
+Then, from JavaScript, push URLs into the list:
+
+```js
+// After analytics tells us which links are most popular
+const speculationRules = document.querySelector('script[type="speculationrules"]');
+const rules = JSON.parse(speculationRules.textContent);
+
+// Replace the URLs list dynamically
+rules.prerender[0].urls = ['/pricing', '/docs/getting-started', '/blog/top-post'];
+speculationRules.textContent = JSON.stringify(rules);
+```
+
+This pattern is powerful for **personalized prerendering**:
+
+```js
+// Prerender the user's most frequently visited pages
+fetch('/api/user/most-visited')
+  .then(r => r.json())
+  .then(urls => {
+    const rules = {
+      prerender: [{
+        source: 'list',
+        urls: urls.slice(0, 3), // top 3 most-visited
+        eagerness: 'immediate'
+      }]
+    };
+    const script = document.createElement('script');
+    script.type = 'speculationrules';
+    script.textContent = JSON.stringify(rules);
+    document.head.appendChild(script);
+  });
+```
+
+Now returning users get their most-visited pages prerendered **on arrival** — zero interaction required. For a SaaS dashboard where 80% of users click one of three pages, this eliminates load time for the majority of navigation.
+
+## Detecting When a Page is Prerendered
+
+Pages being prerendered need to know they're in a hidden state so they don't fire analytics, play audio, or start expensive animations:
+
+```js
+// Check if the page is currently prerendering
+if (document.prerendering) {
+  // Don't fire analytics yet
+  // Don't start video playback
+  // Don't open WebSocket connections
+  
+  // Wait until activation
+  document.addEventListener('prerenderingchange', () => {
+    // Now the page is visible. Fire analytics, start animations.
+    initializeAnalytics();
+    startVideoPlayback();
+    connectWebSocket();
+  });
+} else {
+  // Normal page load — the user navigated here directly
+  initializeAnalytics();
+}
+```
+
+### Analytics: Track Only Real Page Views
+
+This is critical. If you fire a pageview event during prerendering, you'll double-count: once during prerender, once on activation. Here's the correct pattern:
+
+```js
+// analytics.js — loaded on every page
+function trackPageView() {
+  if (document.prerendering) {
+    // Defer until the page is actually visible
+    document.addEventListener('prerenderingchange', sendPageView, { once: true });
+  } else {
+    sendPageView();
+  }
+}
+
+function sendPageView() {
+  // Your analytics call here
+  gtag('event', 'page_view', {
+    page_location: window.location.href,
+    page_title: document.title
+  });
+}
+
+trackPageView();
+```
+
+This pattern works for Google Analytics 4, Plausible, Fathom, Mixpanel, PostHog — any analytics system. The `{ once: true }` option ensures the listener cleans itself up after firing.
+
+### Performance Metrics with Prerendering
+
+When a page is activated from prerender, the Performance API reflects it:
+
+```js
+// Check if this page load was a prerender activation
+const navEntry = performance.getEntriesByType('navigation')[0];
+
+if (navEntry.activationStart > 0) {
+  console.log('Activated from prerender');
+  console.log('Time in prerender before activation:', navEntry.activationStart, 'ms');
+}
+```
+
+`activationStart` is the time (relative to `performance.timeOrigin`) when the prerendered page was activated. This is how you measure "time the user waited after clicking" (hint: it's measured in single-digit milliseconds).
+
+## The HTTP Header Approach (No HTML Changes)
+
+You can also deliver speculation rules as an HTTP header — useful for CDNs, edge functions, and sites where you can't modify every template:
+
+```http
+Speculation-Rules: "/speculation-rules.json"
+```
+
+The browser fetches `/speculation-rules.json` and applies the rules. This separates performance configuration from your HTML entirely:
+
+```json
+// /speculation-rules.json (served with Content-Type: application/speculationrules+json)
+{
+  "prerender": [
+    {
+      "source": "document",
+      "where": {
+        "and": [
+          { "href_matches": "/*" },
+          { "not": { "href_matches": "/api/*" } },
+          { "not": { "href_matches": "/admin/*" } }
+        ]
+      },
+      "eagerness": "moderate"
+    }
+  ]
+}
+```
+
+### CDN Deployment Pattern
+
+The real power of the header approach: your CDN can inject speculation rules **dynamically per-request**:
+
+```js
+// Cloudflare Worker / Vercel Edge / Deno Deploy
+export default {
+  async fetch(request) {
+    const response = await fetch(request);
+    const url = new URL(request.url);
+    
+    // Don't speculate on API/admin pages
+    const headers = new Headers(response.headers);
+    
+    if (url.pathname.startsWith('/docs') || url.pathname === '/') {
+      headers.set('Speculation-Rules', '/speculation-rules/docs.json');
+    } else if (url.pathname.startsWith('/products')) {
+      headers.set('Speculation-Rules', '/speculation-rules/products.json');
+    }
+    
+    return new Response(response.body, { headers, status: response.status });
+  }
+};
+```
+
+Different sections of your site get different speculation strategies — product pages prerender other products, docs prerender sibling pages — all configured at the edge, zero application code changes.
+
+## Prerendering and Authentication
+
+A common concern: "Won't prerendering expose authenticated content?" The answer is no — but you need to understand how it works.
+
+**Prerendering uses the same cookies and credentials as the main page.** If the user is logged in, the prerendered page will render with their authenticated state. This is actually what you want — the page should be *ready* when they click.
+
+However, **prerendered pages should not trigger side effects**. No POST requests. No database writes. No email sends. No WebSocket connections. The page can *prepare* its UI but shouldn't *mutate* state.
+
+```js
+// Good: prepare the UI
+if (document.prerendering) {
+  // Fetch data, render components, prepare the DOM
+  // But don't: track analytics, start videos, connect WebSockets
+}
+
+// Bad: mutate state during prerender
+if (!document.prerendering) {
+  // This runs on activation, which is correct
+  recordPageView();
+}
+```
+
+Use `document.prerendering` as a gate. If it's `true`, you're in a prerender. Delay side effects until `prerenderingchange` fires.
+
+## Speculation Rules + CSS `@view-transition`
+
+The most exciting combination of 2026: speculation rules for instant loads, `@view-transition` for the visual polish:
+
+```css
+/* Add to every page */
+@view-transition {
+  navigation: auto;
+}
+```
+
+```html
+<!-- Add to the layout -->
+<script type="speculationrules">
+{
+  "prerender": [
+    {
+      "source": "document",
+      "where": { "href_matches": "/*" },
+      "eagerness": "moderate"
+    }
+  ]
+}
+</script>
+```
+
+The result: **hover → instant crossfade to the fully rendered next page**. No white flash. No loading spinner. No content shift. It feels like a native app, but it's standard multi-page HTML. Every page is still an independent URL — SEO-friendly, progressively enhanced, accessible.
+
+### Named View Transitions with Prerendered Content
+
+For shared-element transitions (hero images, product photos, avatars), combine with `view-transition-name`:
+
+```css
+.product-card img {
+  view-transition-name: var(--product-image);
+}
+.product-detail img {
+  view-transition-name: var(--product-image);
+}
+```
+
+When the user hovers, the product page prerenders. When they click, the thumbnail morphs into the hero image. No JavaScript animation library. The browser handles everything on the compositor thread.
+
+For a deeper dive on View Transitions, see our [complete guide](/blog/view-transitions-api-complete-guide) and the [interactive playground](/tools/view-transitions-playground).
+
+## Speculation Rules and Core Web Vitals
+
+This API directly improves two Core Web Vitals:
+
+### LCP (Largest Contentful Paint)
+
+When a page is activated from prerender, LCP is effectively **0ms** — the content was already painted in the hidden renderer. The user perceives the load as instant. Google's CrUX data already shows improvements for sites that adopt prerendering.
+
+### INP (Interaction to Next Paint)
+
+The combination of instant page loads (via prerendering) and smooth transitions (via View Transitions) means the user's next interaction — scrolling, clicking a button on the new page — happens without a paint delay. INP drops from hundreds of milliseconds to single digits.
+
+For a deeper dive on scheduling and responsiveness, check our [scheduler.postTask() guide](/blog/scheduler-posttask-prioritized-scheduling-2026).
+
+## Limits and Constraints
+
+Chrome's current implementation has sensible defaults:
+
+- **One prerender at a time** (prevents runaway memory usage)
+- **50MB memory limit** per prerendered page (exceeding this cancels the prerender)
+- **10-minute timeout**: if a prerendered page isn't activated within 10 minutes, it's discarded
+- **Same-origin only**: speculation rules apply to same-origin URLs. Cross-origin speculation requires the target site to opt in via `Supports-Loading-Mode: credentialed-prerender` header
+- **No speculative POST navigations**: only GET navigations are speculated
+
+### NoState Prefetch: The Graceful Degradation
+
+If the browser can't prerender (memory pressure, too many concurrent preloads, unsupported origin), it falls back to **NoState Prefetch**: fetches the document and subresources, warms the HTTP cache, but doesn't execute JavaScript or compute layout. The initial paint is still faster than a cold load — CSS and images come from cache, the HTML is already parsed — but JavaScript needs to execute on activation.
+
+You can detect this with `PerformanceResourceTiming`:
+
+```js
+const observer = new PerformanceObserver((list) => {
+  for (const entry of list.getEntries()) {
+    if (entry.deliveryType === 'navigational-prefetch') {
+      console.log('Activated from NoState Prefetch', entry);
+    }
+  }
+});
+observer.observe({ type: 'navigation', buffered: true });
+```
+
+## What NOT to Prerender
+
+Not every link should be prerendered. Here's what to exclude:
+
+```html
+<script type="speculationrules">
+{
+  "prerender": [
+    {
+      "source": "document",
+      "where": {
+        "and": [
+          { "href_matches": "/*" },
+          { "not": { "href_matches": "/logout" } },
+          { "not": { "href_matches": "/api/*" } },
+          { "not": { "href_matches": "/auth/*" } },
+          { "not": { "href_matches": "/admin/*" } },
+          { "not": { "selector_matches": "[rel~=nofollow]" } }
+        ]
+      },
+      "eagerness": "moderate"
+    }
+  ]
+}
+</script>
+```
+
+Exclude:
+- **Logout links** — prerendering would create a renderer with the authenticated session, and logging out during prerender creates confusing state
+- **API endpoints** — they return JSON, not renderable HTML. Prefetching is fine; prerendering is wasteful
+- **Auth flows** — login/signup pages during prerender could trigger unwanted redirects
+- **Admin panels** — high memory usage, often personalized, rarely navigated to
+- **`rel="nofollow"` links** — the HTML itself signals these aren't priority links
+- **File downloads** — prerendering a PDF download wastes memory
+- **External links** — cross-origin speculation requires explicit server opt-in
+
+## Production Deployment Checklist
+
+1. **Add speculation rules to your layout** — the `<script type="speculationrules">` in `<head>` or the `Speculation-Rules` HTTP header
+2. **Set explicit eagerness** — never use the `immediate` default unless you know the user will click that link
+3. **Add `document.prerendering` guards** — defer analytics, video, audio, WebSocket connections
+4. **Listen for `prerenderingchange`** — activate deferred features on page activation
+5. **Exclude dangerous links** — logout, admin, API endpoints
+6. **Test with DevTools** — Application → Background Services → Speculative Loads
+7. **Monitor your analytics** — filter out prerender pageviews, compare LCP before/after
+8. **Deploy with a CDN** — use the header approach for per-route rule customization
+
+## Browser Support (June 2026)
+
+The Speculation Rules API is shipping in Chrome 109+ (including Edge, Opera, Samsung Internet, Brave, Arc, and all Chromium-based browsers). This covers approximately **82% of global web traffic**.
+
+Firefox and Safari have not yet shipped an implementation, but the spec is being developed at the W3C with multi-vendor participation. In the meantime, the API is a **progressive enhancement**: browsers that don't support it simply ignore the `<script type="speculationrules">` block and the page loads normally. Zero downside to adding it.
+
+```css
+/* Feature detection is not needed — unsupported browsers ignore speculationrules */
+```
+
+## The Bottom Line
+
+The Speculation Rules API is the most impactful performance feature since HTTP/2 multiplexing. It costs one JSON snippet to add and delivers what every web developer has wanted for decades: **instant page loads**. Combine it with View Transitions for the visual polish, and your multi-page site feels indistinguishable from a native app — without sacrificing SEO, accessibility, or progressive enhancement.
+
+Add it to your site today. Your users will notice.
+
+---
+
+*Published June 9, 2026. Updated for Chrome 135+ with `"eagerness: conservative"` support and cross-origin prerendering via `Supports-Loading-Mode` opt-in. Try our [View Transitions Playground](/tools/view-transitions-playground) and [DNS Lookup](/tools/dns-lookup) tools for related performance workflows.*
