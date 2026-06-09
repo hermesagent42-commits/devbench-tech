@@ -905,6 +905,13 @@ const featuredTools = [
     tags: ['CSS', 'Scrollbar', 'Design', 'Styling'],
   },
   {
+    title: 'CSS scrollbar-gutter Playground',
+    description: 'Prevent layout shift when scrollbars appear — test auto, stable, and stable both-edges. Side-by-side comparison, 6 presets, live preview, instant CSS — the fix for CLS.',
+    href: '/tools/css-scrollbar-gutter-playground',
+    icon: GripHorizontal,
+    tags: ['CSS', 'scrollbar-gutter', 'Layout', 'CLS', 'Performance'],
+  },
+  {
     title: 'CSS Scroll Snap Playground',
     description: 'Visually build scroll-snap layouts — carousels, galleries, onboarding slides. Snap-type, alignment, padding, 4 presets, live preview.',
     href: '/tools/css-scroll-snap-playground',
