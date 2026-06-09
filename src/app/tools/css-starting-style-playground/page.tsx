@@ -1,455 +1,683 @@
 'use client';
 
-import { useState, useCallback, useRef, useEffect } from 'react';
+import { useState, useMemo, useCallback, useEffect, useRef } from 'react';
 import { ToolLayout } from '@/components/ToolLayout';
-import { Copy, Play, Pause, RotateCcw, Code2, Sparkles, Palette, Eye } from 'lucide-react';
+import {
+  Copy, Play, Pause, RotateCcw, Sparkles, Eye, EyeOff,
+  ChevronDown, Zap, Layers, Timer, ArrowUp, ArrowDown,
+  Maximize2, Minimize2, MoveHorizontal, MoveVertical,
+} from 'lucide-react';
 import toast from 'react-hot-toast';
 
-type AnimProperty = 'opacity' | 'scale' | 'translateY' | 'translateX' | 'rotate';
-type PresetKey = 'dialog' | 'tooltip' | 'drawer' | 'card' | 'notification' | 'slide-in';
+// ── Types ──────────────────────────────────────────────────────────────────
+
+interface StartingStyleConfig {
+  opacity: number;
+  translateX: number;
+  translateY: number;
+  scale: number;
+  rotate: number;
+  blur: number;
+}
 
 interface Preset {
-  name: string;
+  label: string;
   description: string;
-  properties: Record<AnimProperty, { from: number; to: number }>;
-  duration: number;
+  icon: string;
+  config: StartingStyleConfig;
   easing: string;
-  elementLabel: string;
-  elementStyles: string;
+  duration: number;
 }
 
-const PRESETS: Record<PresetKey, Preset> = {
-  dialog: {
-    name: 'Dialog / Modal',
-    description: 'Scale + fade in from center with backdrop',
-    properties: {
-      opacity: { from: 0, to: 1 },
-      scale: { from: 0.95, to: 1 },
-      translateY: { from: 10, to: 0 },
-      translateX: { from: 0, to: 0 },
-      rotate: { from: 0, to: 0 },
-    },
-    duration: 0.25,
-    easing: 'ease-out',
-    elementLabel: 'Dialog Content',
-    elementStyles: 'background: linear-gradient(135deg, #1e293b, #0f172a); border: 2px solid #475569; border-radius: 16px; padding: 32px 40px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5); width: 300px;',
-  },
-  tooltip: {
-    name: 'Tooltip',
-    description: 'Subtle fade + slide up on hover',
-    properties: {
-      opacity: { from: 0, to: 1 },
-      scale: { from: 0.98, to: 1 },
-      translateY: { from: 4, to: 0 },
-      translateX: { from: 0, to: 0 },
-      rotate: { from: 0, to: 0 },
-    },
-    duration: 0.15,
-    easing: 'ease-out',
-    elementLabel: '💡 Useful Tooltip',
-    elementStyles: 'background: #1e293b; border: 1px solid #475569; border-radius: 8px; padding: 8px 14px; font-size: 13px; box-shadow: 0 4px 12px rgba(0,0,0,0.4);',
-  },
-  drawer: {
-    name: 'Drawer / Side Panel',
-    description: 'Slide in from the right edge',
-    properties: {
-      opacity: { from: 0, to: 1 },
-      scale: { from: 1, to: 1 },
-      translateY: { from: 0, to: 0 },
-      translateX: { from: 40, to: 0 },
-      rotate: { from: 0, to: 0 },
-    },
-    duration: 0.3,
-    easing: 'cubic-bezier(0.16, 1, 0.3, 1)',
-    elementLabel: '☰ Drawer Menu',
-    elementStyles: 'background: #0f172a; border-left: 2px solid #334155; border-radius: 12px 0 0 12px; padding: 24px; box-shadow: -10px 0 30px rgba(0,0,0,0.3); width: 260px;',
-  },
-  card: {
-    name: 'Card Entrance',
-    description: 'Pop in with slight bounce effect',
-    properties: {
-      opacity: { from: 0, to: 1 },
-      scale: { from: 0.9, to: 1 },
-      translateY: { from: 20, to: 0 },
-      translateX: { from: 0, to: 0 },
-      rotate: { from: 0, to: 0 },
-    },
-    duration: 0.35,
-    easing: 'cubic-bezier(0.34, 1.56, 0.64, 1)',
-    elementLabel: '🎴 Animated Card',
-    elementStyles: 'background: linear-gradient(145deg, #1e293b, #0f172a); border: 2px solid #3b82f6; border-radius: 16px; padding: 28px; box-shadow: 0 10px 40px rgba(59,130,246,0.15); width: 260px;',
-  },
-  notification: {
-    name: 'Toast Notification',
-    description: 'Slide down from top with fade',
-    properties: {
-      opacity: { from: 0, to: 1 },
-      scale: { from: 0.98, to: 1 },
-      translateY: { from: -20, to: 0 },
-      translateX: { from: 0, to: 0 },
-      rotate: { from: 0, to: 0 },
-    },
-    duration: 0.2,
-    easing: 'ease-out',
-    elementLabel: '🔔 New Notification!',
-    elementStyles: 'background: #065f46; border: 2px solid #10b981; border-radius: 12px; padding: 14px 20px; box-shadow: 0 8px 24px rgba(16,185,129,0.2); width: 280px;',
-  },
-  'slide-in': {
-    name: 'Slide In (Bottom)',
-    description: 'Slide up from below with fade',
-    properties: {
-      opacity: { from: 0, to: 1 },
-      scale: { from: 1, to: 1 },
-      translateY: { from: 30, to: 0 },
-      translateX: { from: 0, to: 0 },
-      rotate: { from: 0, to: 0 },
-    },
-    duration: 0.3,
-    easing: 'cubic-bezier(0.16, 1, 0.3, 1)',
-    elementLabel: '📋 Slide-in Panel',
-    elementStyles: 'background: linear-gradient(135deg, #1e293b, #172554); border: 2px solid #6366f1; border-radius: 14px; padding: 20px 28px; box-shadow: 0 12px 40px rgba(99,102,241,0.2); width: 270px;',
-  },
-};
+// ── Presets ────────────────────────────────────────────────────────────────
 
-const EASING_OPTIONS = [
-  'ease', 'ease-in', 'ease-out', 'ease-in-out',
-  'cubic-bezier(0.16, 1, 0.3, 1)', 'cubic-bezier(0.34, 1.56, 0.64, 1)',
-  'cubic-bezier(0.65, 0, 0.35, 1)', 'cubic-bezier(0.25, 0.1, 0.25, 1)',
+const PRESETS: Preset[] = [
+  {
+    label: 'Fade In',
+    description: 'Classic opacity fade from transparent to visible',
+    icon: '🌅',
+    config: { opacity: 0, translateX: 0, translateY: 0, scale: 1, rotate: 0, blur: 0 },
+    easing: 'ease-out',
+    duration: 0.4,
+  },
+  {
+    label: 'Slide Up',
+    description: 'Element slides up from below while fading in',
+    icon: '⬆️',
+    config: { opacity: 0, translateX: 0, translateY: 30, scale: 1, rotate: 0, blur: 0 },
+    easing: 'cubic-bezier(0.34, 1.56, 0.64, 1)',
+    duration: 0.5,
+  },
+  {
+    label: 'Slide Down',
+    description: 'Element drops in from above',
+    icon: '⬇️',
+    config: { opacity: 0, translateX: 0, translateY: -30, scale: 1, rotate: 0, blur: 0 },
+    easing: 'cubic-bezier(0.34, 1.56, 0.64, 1)',
+    duration: 0.5,
+  },
+  {
+    label: 'Slide Left',
+    description: 'Element slides in from the right',
+    icon: '⬅️',
+    config: { opacity: 0, translateX: 40, translateY: 0, scale: 1, rotate: 0, blur: 0 },
+    easing: 'ease-out',
+    duration: 0.45,
+  },
+  {
+    label: 'Slide Right',
+    description: 'Element slides in from the left',
+    icon: '➡️',
+    config: { opacity: 0, translateX: -40, translateY: 0, scale: 1, rotate: 0, blur: 0 },
+    easing: 'ease-out',
+    duration: 0.45,
+  },
+  {
+    label: 'Scale Up',
+    description: 'Element grows from 0 to full size with a bounce',
+    icon: '🔍',
+    config: { opacity: 0, translateX: 0, translateY: 0, scale: 0.3, rotate: 0, blur: 0 },
+    easing: 'cubic-bezier(0.34, 1.56, 0.64, 1)',
+    duration: 0.5,
+  },
+  {
+    label: 'Pop In',
+    description: 'Bouncy entrance — scale + fade combo',
+    icon: '💥',
+    config: { opacity: 0, translateX: 0, translateY: 0, scale: 0.5, rotate: 0, blur: 0 },
+    easing: 'cubic-bezier(0.34, 1.56, 0.64, 1)',
+    duration: 0.55,
+  },
+  {
+    label: 'Blur Reveal',
+    description: 'Element sharpens from a blur while fading in',
+    icon: '🔮',
+    config: { opacity: 0, translateX: 0, translateY: 0, scale: 1, rotate: 0, blur: 12 },
+    easing: 'ease-out',
+    duration: 0.6,
+  },
+  {
+    label: 'Rotate In',
+    description: 'Element spins into view from -90°',
+    icon: '🔄',
+    config: { opacity: 0, translateX: 0, translateY: 0, scale: 1, rotate: -90, blur: 0 },
+    easing: 'cubic-bezier(0.34, 1.56, 0.64, 1)',
+    duration: 0.6,
+  },
+  {
+    label: '3D Flip',
+    description: 'Element flips in from a 90° X rotation',
+    icon: '🎴',
+    config: { opacity: 0, translateX: 0, translateY: 0, scale: 1, rotate: 90, blur: 0 },
+    easing: 'ease-out',
+    duration: 0.55,
+  },
 ];
 
-function generateCSS(
-  preset: Preset,
-  duration: number,
-  easing: string
-): { normal: string; startingStyle: string; full: string } {
-  const props = preset.properties;
-  const className = '.animated-element';
+// ── Helpers ────────────────────────────────────────────────────────────────
 
-  const normalProps: string[] = [];
-  const startingProps: string[] = [];
-  const transitionParts: string[] = [];
+function buildCSS(config: StartingStyleConfig, easing: string, duration: number): string {
+  const props: string[] = [];
+  if (config.opacity !== 1) props.push('opacity');
+  if (config.translateX !== 0 || config.translateY !== 0) props.push('translate');
+  if (config.scale !== 1) props.push('scale');
+  if (config.rotate !== 0) props.push('rotate');
+  if (config.blur !== 0) props.push('filter');
 
-  for (const [key, val] of Object.entries(props)) {
-    if (val.from === val.to) continue;
-    const cssKey = key === 'scale' ? 'transform: scale' : key === 'translateY' ? 'transform: translateY' : key === 'translateX' ? 'transform: translateX' : key === 'rotate' ? 'transform: rotate' : key;
-    const unit = key === 'opacity' ? '' : key === 'rotate' ? 'deg' : 'px';
-    normalProps.push(`${cssKey}(${val.to}${unit})`);
-    startingProps.push(`${cssKey}(${val.from}${unit})`);
-    transitionParts.push(`${key === 'scale' ? 'transform' : key === 'translateY' || key === 'translateX' || key === 'rotate' ? 'transform' : key} ${duration}s ${easing}`);
+  const transitionProps = props.length > 0 ? props.join(', ') : 'opacity';
+
+  const lines = [
+    '/* The element — final (visible) state */',
+    '.card {',
+    `  transition: ${transitionProps} ${duration}s ${easing};`,
+  ];
+
+  if (config.blur > 0) {
+    lines.push('  filter: blur(0);');
   }
 
-  if (props.opacity.from !== props.opacity.to) {
-    normalProps.unshift(`opacity: ${props.opacity.to}`);
-    startingProps.unshift(`opacity: ${props.opacity.from}`);
-  }
-  if (props.scale.from !== props.scale.to) {
-    normalProps.push(`transform: scale(${props.scale.to})`);
-    startingProps.push(`transform: scale(${props.scale.from})`);
-  }
-  if (props.translateY.from !== props.translateY.to) {
-    normalProps.push(`transform: translateY(${props.translateY.to}px)`);
-    startingProps.push(`transform: translateY(${props.translateY.from}px)`);
-  }
-  if (props.translateX.from !== props.translateX.to) {
-    normalProps.push(`transform: translateX(${props.translateX.to}px)`);
-    startingProps.push(`transform: translateX(${props.translateX.from}px)`);
-  }
-  if (props.rotate.from !== props.rotate.to) {
-    normalProps.push(`transform: rotate(${props.rotate.to}deg)`);
-    startingProps.push(`transform: rotate(${props.rotate.from}deg)`);
-  }
+  lines.push('  opacity: 1;');
+  lines.push('  translate: 0 0;');
+  lines.push('  scale: 1;');
+  lines.push('  rotate: 0deg;');
+  lines.push('}');
+  lines.push('');
+  lines.push('/* @starting-style — initial state before render */');
+  lines.push('@starting-style {');
+  lines.push('  .card {');
 
-  // Build a proper combined transform
-  const buildTransform = (scale: number, ty: number, tx: number, rot: number): string => {
-    const parts: string[] = [];
-    if (scale !== 1) parts.push(`scale(${scale})`);
-    if (ty !== 0) parts.push(`translateY(${ty}px)`);
-    if (tx !== 0) parts.push(`translateX(${tx}px)`);
-    if (rot !== 0) parts.push(`rotate(${rot}deg)`);
-    return parts.length > 0 ? parts.join(' ') : 'none';
-  };
-
-  const toTransform = buildTransform(props.scale.to, props.translateY.to, props.translateX.to, props.rotate.to);
-  const fromTransform = buildTransform(props.scale.from, props.translateY.from, props.translateX.from, props.rotate.from);
-
-  const normalCSS = `${className} {
-  opacity: ${props.opacity.to};
-  transform: ${toTransform};
-  transition: opacity ${duration}s ${easing}, transform ${duration}s ${easing}, display ${duration}s ${easing} allow-discrete;
-}`;
-
-  const startingCSS = `@starting-style {
-  ${className} {
-    opacity: ${props.opacity.from};
-    transform: ${fromTransform};
+  if (config.opacity !== 1) lines.push(`    opacity: ${config.opacity};`);
+  if (config.translateX !== 0 || config.translateY !== 0) {
+    lines.push(`    translate: ${config.translateX}px ${config.translateY}px;`);
   }
-}`;
+  if (config.scale !== 1) lines.push(`    scale: ${config.scale};`);
+  if (config.rotate !== 0) lines.push(`    rotate: ${config.rotate}deg;`);
+  if (config.blur !== 0) lines.push(`    filter: blur(${config.blur}px);`);
 
-  const fullCSS = `${normalCSS}\n\n${startingCSS}`;
+  lines.push('  }');
+  lines.push('}');
 
-  return { normal: normalCSS, startingStyle: startingCSS, full: fullCSS };
+  // If using with display:none → display:block
+  lines.push('');
+  lines.push('/* For display:none → display:block transitions */');
+  lines.push('/* Add transition-behavior: allow-discrete; to .card */');
+
+  return lines.join('\n');
 }
 
-export default function CssStartingStylePage() {
-  const [preset, setPreset] = useState<PresetKey>('dialog');
-  const [duration, setDuration] = useState(0.25);
-  const [easing, setEasing] = useState('ease-out');
-  const [visible, setVisible] = useState(false);
-  const [animating, setAnimating] = useState(false);
-  const [customLabel, setCustomLabel] = useState('');
-  const [customStyles, setCustomStyles] = useState('');
-  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+function buildHTML(): string {
+  return `<div class="card">
+  <h2>Hello, @starting-style!</h2>
+  <p>This element animates in without JavaScript.</p>
+</div>
 
-  const currentPreset = PRESETS[preset];
+<button onclick="document.querySelector('.card').classList.toggle('hidden')">
+  Toggle Card
+</button>`;
+}
 
-  const css = generateCSS(currentPreset, duration, easing);
+// ── Component ───────────────────────────────────────────────────────────────
+
+export default function CSSStartingStylePlaygroundPage() {
+  const [config, setConfig] = useState<StartingStyleConfig>({
+    opacity: 0,
+    translateX: 0,
+    translateY: 30,
+    scale: 1,
+    rotate: 0,
+    blur: 0,
+  });
+  const [easing, setEasing] = useState('cubic-bezier(0.34, 1.56, 0.64, 1)');
+  const [duration, setDuration] = useState(0.5);
+  const [visible, setVisible] = useState(true);
+  const [showCode, setShowCode] = useState(true);
+  const [showHTML, setShowHTML] = useState(false);
+  const [useDiscrete, setUseDiscrete] = useState(false);
+  const cardKey = useRef(0);
 
   const toggleVisibility = useCallback(() => {
-    if (animating) return;
-    setAnimating(true);
-    if (visible) {
-      setVisible(false);
-      timerRef.current = setTimeout(() => setAnimating(false), (duration * 1000) + 50);
-    } else {
-      setVisible(true);
-      timerRef.current = setTimeout(() => setAnimating(false), (duration * 1000) + 50);
-    }
-  }, [visible, animating, duration]);
-
-  useEffect(() => {
-    return () => {
-      if (timerRef.current) clearTimeout(timerRef.current);
-    };
+    setVisible((v) => !v);
+    cardKey.current += 1;
   }, []);
+
+  const reset = useCallback(() => {
+    setVisible(true);
+    cardKey.current += 1;
+  }, []);
+
+  const applyPreset = useCallback((preset: Preset) => {
+    setConfig(preset.config);
+    setEasing(preset.easing);
+    setDuration(preset.duration);
+    setVisible(true);
+    cardKey.current += 1;
+  }, []);
+
+  const cssCode = useMemo(() => buildCSS(config, easing, duration), [config, easing, duration]);
+  const htmlCode = useMemo(() => buildHTML(), []);
 
   const copyCSS = useCallback(() => {
-    navigator.clipboard.writeText(css.full).then(
-      () => toast.success('CSS copied!'),
-      () => toast.error('Copy failed')
-    );
-  }, [css.full]);
+    navigator.clipboard.writeText(cssCode);
+    toast.success('CSS copied!');
+  }, [cssCode]);
 
-  const resetAll = useCallback(() => {
-    setPreset('dialog');
-    setDuration(0.25);
-    setEasing('ease-out');
-    setVisible(false);
-    setAnimating(false);
-    setCustomLabel('');
-    setCustomStyles('');
-  }, []);
+  const copyHTML = useCallback(() => {
+    navigator.clipboard.writeText(htmlCode);
+    toast.success('HTML copied!');
+  }, [htmlCode]);
 
-  const label = customLabel || currentPreset.elementLabel;
-  const elementInlineStyles = customStyles || currentPreset.elementStyles;
+  // Build the starting style object for the live preview
+  const startingStyle = useMemo(() => {
+    const s: Record<string, string> = {};
+    if (config.opacity !== 1) s.opacity = String(config.opacity);
+    if (config.translateX !== 0 || config.translateY !== 0) {
+      s.translate = `${config.translateX}px ${config.translateY}px`;
+    }
+    if (config.scale !== 1) s.scale = String(config.scale);
+    if (config.rotate !== 0) s.rotate = `${config.rotate}deg`;
+    if (config.blur !== 0) s.filter = `blur(${config.blur}px)`;
+    return s;
+  }, [config]);
 
-  const fromTransform = (() => {
-    const p = currentPreset.properties;
-    const parts: string[] = [];
-    if (p.scale.from !== 1) parts.push(`scale(${p.scale.from})`);
-    if (p.translateY.from !== 0) parts.push(`translateY(${p.translateY.from}px)`);
-    if (p.translateX.from !== 0) parts.push(`translateX(${p.translateX.from}px)`);
-    if (p.rotate.from !== 0) parts.push(`rotate(${p.rotate.from}deg)`);
-    return parts.join(' ');
-  })();
+  const finalStyle = useMemo(() => {
+    const s: Record<string, string> = {
+      opacity: '1',
+      translate: '0 0',
+      scale: '1',
+      rotate: '0deg',
+    };
+    if (config.blur > 0) s.filter = 'blur(0)';
+    return s;
+  }, [config]);
 
-  const toTransform = (() => {
-    const p = currentPreset.properties;
-    const parts: string[] = [];
-    if (p.scale.to !== 1) parts.push(`scale(${p.scale.to})`);
-    if (p.translateY.to !== 0) parts.push(`translateY(${p.translateY.to}px)`);
-    if (p.translateX.to !== 0) parts.push(`translateX(${p.translateX.to}px)`);
-    if (p.rotate.to !== 0) parts.push(`rotate(${p.rotate.to}deg)`);
-    return parts.join(' ');
-  })();
+  const transitionStyle = useMemo(() => {
+    const props: string[] = [];
+    if (config.opacity !== 1) props.push('opacity');
+    if (config.translateX !== 0 || config.translateY !== 0) props.push('translate');
+    if (config.scale !== 1) props.push('scale');
+    if (config.rotate !== 0) props.push('rotate');
+    if (config.blur !== 0) props.push('filter');
+    if (props.length === 0) props.push('opacity');
+
+    const s: Record<string, string> = {
+      transition: `${props.join(', ')} ${duration}s ${easing}`,
+    };
+    if (useDiscrete) {
+      s.transitionBehavior = 'allow-discrete';
+    }
+    return s;
+  }, [config, easing, duration, useDiscrete]);
+
+  const EASING_PRESETS = [
+    { label: 'ease', value: 'ease' },
+    { label: 'ease-in', value: 'ease-in' },
+    { label: 'ease-out', value: 'ease-out' },
+    { label: 'ease-in-out', value: 'ease-in-out' },
+    { label: 'linear', value: 'linear' },
+    { label: 'Bounce', value: 'cubic-bezier(0.34, 1.56, 0.64, 1)' },
+    { label: 'Elastic', value: 'cubic-bezier(0.68, -0.55, 0.27, 1.55)' },
+    { label: 'Smooth', value: 'cubic-bezier(0.4, 0, 0.2, 1)' },
+  ];
 
   return (
     <ToolLayout
       title="CSS @starting-style Playground"
-      description="Design entry and exit animations with the new @starting-style at-rule — now cross-browser Baseline 2026. Animate from display:none without JavaScript."
+      description="Build declarative entry animations with the new @starting-style at-rule — no JavaScript required. Define the initial state of any element and let CSS transitions handle the rest. Baseline 2026."
     >
-      {/* Preset Selector */}
-      <div className="mb-6">
-        <label className="block text-sm font-medium text-slate-300 mb-2">Preset Animation</label>
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2">
-          {(Object.entries(PRESETS) as [PresetKey, Preset][]).map(([key, p]) => (
-            <button
-              key={key}
-              onClick={() => { setPreset(key); setVisible(false); setAnimating(false); }}
-              className={`text-left p-3 rounded-xl border transition-all ${
-                preset === key
-                  ? 'border-brand-500/60 bg-brand-500/10 text-brand-300'
-                  : 'border-slate-700/50 bg-slate-800/40 text-slate-400 hover:border-slate-600 hover:text-slate-300'
-              }`}
-            >
-              <div className="text-xs font-semibold mb-0.5">{p.name}</div>
-              <div className="text-[10px] text-slate-500 leading-tight">{p.description}</div>
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {/* Controls */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
-        <div>
-          <label className="block text-sm font-medium text-slate-300 mb-1">
-            Duration: <span className="text-brand-400">{duration}s</span>
-          </label>
-          <input
-            type="range"
-            min="0.05"
-            max="1.5"
-            step="0.05"
-            value={duration}
-            onChange={(e) => setDuration(parseFloat(e.target.value))}
-            className="w-full accent-brand-500"
-          />
-          <div className="flex justify-between text-[10px] text-slate-600 mt-0.5">
-            <span>0.05s</span>
-            <span>1.5s</span>
-          </div>
-        </div>
-        <div>
-          <label className="block text-sm font-medium text-slate-300 mb-1">Easing Function</label>
-          <select
-            value={easing}
-            onChange={(e) => setEasing(e.target.value)}
-            className="w-full bg-slate-800/70 text-slate-200 text-sm rounded-lg px-3 py-2 border border-slate-700 focus:outline-none focus:border-brand-500/60"
-          >
-            {EASING_OPTIONS.map((e) => (
-              <option key={e} value={e}>{e}</option>
-            ))}
-          </select>
-        </div>
-      </div>
-
-      {/* Custom label / styles */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6">
-        <input
-          type="text"
-          value={customLabel}
-          onChange={(e) => setCustomLabel(e.target.value)}
-          placeholder={`Custom label (default: "${currentPreset.elementLabel}")`}
-          className="bg-slate-800/70 text-slate-200 text-sm rounded-lg px-3 py-2 border border-slate-700 focus:outline-none focus:border-brand-500/60 placeholder-slate-500 font-mono"
-        />
-        <input
-          type="text"
-          value={customStyles}
-          onChange={(e) => setCustomStyles(e.target.value)}
-          placeholder="Custom inline styles (CSS properties)"
-          className="bg-slate-800/70 text-slate-200 text-sm rounded-lg px-3 py-2 border border-slate-700 focus:outline-none focus:border-brand-500/60 placeholder-slate-500 font-mono"
-        />
-      </div>
-
-      {/* Live Preview */}
-      <div className="mb-8 p-6 rounded-xl bg-slate-800/30 border border-slate-700/50">
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="text-sm font-semibold text-slate-300 flex items-center gap-2">
-            <Eye className="w-4 h-4 text-brand-400" />
-            Live Preview
-          </h3>
-          <div className="flex gap-2">
-            <button
-              onClick={toggleVisibility}
-              disabled={animating}
-              className="flex items-center gap-2 px-4 py-2 rounded-lg bg-brand-500/20 text-brand-400 border border-brand-500/30 hover:bg-brand-500/30 disabled:opacity-50 transition-all text-sm font-medium"
-            >
-              {visible ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
-              {visible ? 'Hide' : 'Animate In'}
-            </button>
-            <button
-              onClick={resetAll}
-              className="flex items-center gap-1.5 px-3 py-2 rounded-lg border border-slate-700 text-slate-400 hover:text-slate-200 hover:border-slate-600 transition-colors text-sm"
-            >
-              <RotateCcw className="w-4 h-4" />
-            </button>
-          </div>
-        </div>
-
-        <div className="flex items-center justify-center min-h-[180px] bg-slate-900/60 rounded-xl border border-slate-700/30 p-6">
-          {visible ? (
-            <div
-              key="animated"
-              style={{
-                opacity: currentPreset.properties.opacity.to,
-                transform: toTransform,
-                transition: `opacity ${duration}s ${easing}, transform ${duration}s ${easing}`,
-                ...(elementInlineStyles ? {} : {}),
-              } as React.CSSProperties}
-              className="inline-flex items-center justify-center"
-            >
-              <div style={elementInlineStyles ? {} : {}} dangerouslySetInnerHTML={!elementInlineStyles ? undefined : { __html: '' }} />
-              <span className="text-slate-200 text-sm font-medium">{label}</span>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* ── Left: Live Preview ── */}
+        <div className="lg:col-span-2 space-y-4">
+          {/* Preview Area */}
+          <div className="bg-slate-900 border border-slate-700 rounded-lg p-4">
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="text-sm font-medium text-slate-300 flex items-center gap-2">
+                <Eye className="w-4 h-4 text-brand-400" /> Live Preview
+              </h3>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => setShowCode((v) => !v)}
+                  className={`px-2 py-1 text-xs rounded transition-colors ${
+                    showCode ? 'bg-slate-700 text-slate-300' : 'text-slate-500'
+                  }`}
+                >
+                  CSS
+                </button>
+                <button
+                  onClick={() => setShowHTML((v) => !v)}
+                  className={`px-2 py-1 text-xs rounded transition-colors ${
+                    showHTML ? 'bg-slate-700 text-slate-300' : 'text-slate-500'
+                  }`}
+                >
+                  HTML
+                </button>
+              </div>
             </div>
-          ) : (
-            <p className="text-slate-500 text-sm">Click &quot;Animate In&quot; to see the @starting-style effect</p>
+
+            {/* Preview Canvas */}
+            <div className="relative min-h-[320px] bg-slate-950 border border-slate-700 rounded-lg flex flex-col items-center justify-center gap-4 p-6">
+              {/* Toggle Buttons */}
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={toggleVisibility}
+                  className="px-4 py-2 bg-brand-600 hover:bg-brand-500 text-white text-sm font-medium rounded-lg transition-colors flex items-center gap-2"
+                >
+                  {visible ? (
+                    <>
+                      <EyeOff className="w-4 h-4" /> Hide Card
+                    </>
+                  ) : (
+                    <>
+                      <Eye className="w-4 h-4" /> Show Card
+                    </>
+                  )}
+                </button>
+                <button
+                  onClick={reset}
+                  className="px-3 py-2 bg-slate-700 hover:bg-slate-600 text-slate-300 text-sm rounded-lg transition-colors flex items-center gap-1.5"
+                >
+                  <RotateCcw className="w-3.5 h-3.5" /> Reset
+                </button>
+              </div>
+
+              {/* The Animated Card */}
+              {visible && (
+                <div
+                  key={cardKey.current}
+                  className="w-64 bg-gradient-to-br from-brand-600/20 to-purple-600/20 border border-brand-400/30 rounded-xl p-5 shadow-xl"
+                  style={{
+                    ...startingStyle,
+                    animation: 'none',
+                  }}
+                  ref={(el) => {
+                    if (el) {
+                      // Apply final state after a frame to trigger transition
+                      requestAnimationFrame(() => {
+                        requestAnimationFrame(() => {
+                          Object.assign(el.style, finalStyle, transitionStyle);
+                        });
+                      });
+                    }
+                  }}
+                >
+                  <div className="flex items-center gap-2 mb-2">
+                    <Sparkles className="w-5 h-5 text-brand-400" />
+                    <h3 className="text-sm font-semibold text-white">@starting-style</h3>
+                  </div>
+                  <p className="text-xs text-slate-400 leading-relaxed">
+                    This card animates in using only CSS. No JavaScript animation libraries needed — just
+                    define the starting state and let transitions do the work.
+                  </p>
+                  <div className="mt-3 flex items-center gap-2 text-[10px] text-slate-500">
+                    <Zap className="w-3 h-3 text-yellow-500" />
+                    Baseline 2026
+                  </div>
+                </div>
+              )}
+
+              {!visible && (
+                <div className="text-sm text-slate-500 flex items-center gap-2">
+                  <EyeOff className="w-4 h-4" />
+                  Card hidden — click &quot;Show Card&quot; to see the animation
+                </div>
+              )}
+
+              {/* Starting state indicator */}
+              {!visible && (
+                <div className="mt-2 text-[10px] text-slate-600 text-center max-w-xs">
+                  When the card appears, it transitions from its @starting-style (initial state) to its
+                  final computed style. The transition properties you configure control the animation.
+                </div>
+              )}
+            </div>
+
+            <div className="mt-2 text-center text-xs text-slate-500">
+              This preview simulates @starting-style by applying the initial state inline and then
+              transitioning to the final state. In a browser with native @starting-style support, the
+              at-rule handles this automatically.
+            </div>
+          </div>
+
+          {/* CSS Code Output */}
+          {showCode && (
+            <div className="bg-slate-900 border border-slate-700 rounded-lg p-4">
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="text-sm font-medium text-slate-300 flex items-center gap-2">
+                  <Layers className="w-4 h-4 text-brand-400" /> Generated CSS
+                </h3>
+                <button
+                  onClick={copyCSS}
+                  className="px-3 py-1.5 bg-slate-700 hover:bg-slate-600 text-slate-300 text-xs rounded-lg transition-colors flex items-center gap-1.5"
+                >
+                  <Copy className="w-3.5 h-3.5" /> Copy CSS
+                </button>
+              </div>
+              <pre className="bg-slate-950 border border-slate-700 rounded-lg p-4 text-xs text-slate-300 overflow-x-auto font-mono leading-relaxed">
+                {cssCode}
+              </pre>
+            </div>
+          )}
+
+          {/* HTML Code Output */}
+          {showHTML && (
+            <div className="bg-slate-900 border border-slate-700 rounded-lg p-4">
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="text-sm font-medium text-slate-300 flex items-center gap-2">
+                  <Layers className="w-4 h-4 text-purple-400" /> Example HTML
+                </h3>
+                <button
+                  onClick={copyHTML}
+                  className="px-3 py-1.5 bg-slate-700 hover:bg-slate-600 text-slate-300 text-xs rounded-lg transition-colors flex items-center gap-1.5"
+                >
+                  <Copy className="w-3.5 h-3.5" /> Copy HTML
+                </button>
+              </div>
+              <pre className="bg-slate-950 border border-slate-700 rounded-lg p-4 text-xs text-slate-300 overflow-x-auto font-mono leading-relaxed">
+                {htmlCode}
+              </pre>
+            </div>
           )}
         </div>
 
-        <div className="mt-3 flex items-center gap-4 text-xs text-slate-500">
-          <span>From: opacity({currentPreset.properties.opacity.from}) + transform({fromTransform || 'none'})</span>
-          <span className="text-slate-600">→</span>
-          <span>To: opacity({currentPreset.properties.opacity.to}) + transform({toTransform || 'none'})</span>
-        </div>
-      </div>
+        {/* ── Right: Controls ── */}
+        <div className="space-y-4">
+          {/* Presets */}
+          <div className="bg-slate-900 border border-slate-700 rounded-lg p-4">
+            <h3 className="text-sm font-medium text-slate-300 mb-3 flex items-center gap-2">
+              <Sparkles className="w-4 h-4 text-brand-400" /> Presets
+            </h3>
+            <div className="space-y-1.5 max-h-[340px] overflow-y-auto">
+              {PRESETS.map((preset) => (
+                <button
+                  key={preset.label}
+                  onClick={() => applyPreset(preset)}
+                  className="w-full text-left px-3 py-2 rounded-lg hover:bg-slate-800 transition-colors group"
+                >
+                  <div className="flex items-center gap-2">
+                    <span className="text-base">{preset.icon}</span>
+                    <div>
+                      <div className="text-xs font-medium text-slate-300 group-hover:text-white transition-colors">
+                        {preset.label}
+                      </div>
+                      <div className="text-[10px] text-slate-500">{preset.description}</div>
+                    </div>
+                  </div>
+                </button>
+              ))}
+            </div>
+          </div>
 
-      {/* Property Details */}
-      <div className="mb-8 p-5 rounded-xl bg-slate-800/20 border border-slate-700/30">
-        <h3 className="text-sm font-semibold text-slate-300 mb-3 flex items-center gap-2">
-          <Palette className="w-4 h-4 text-purple-400" />
-          Animation Properties
-        </h3>
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
-          {(Object.entries(currentPreset.properties) as [AnimProperty, { from: number; to: number }][]).map(([key, val]) => (
-            <div key={key} className="p-3 rounded-lg bg-slate-900/50 border border-slate-700/40">
-              <div className="text-[10px] uppercase tracking-wider text-slate-500 mb-1">{key}</div>
-              <div className="flex items-center gap-1.5 text-sm">
-                <span className="text-red-400 font-mono">{val.from}</span>
-                <span className="text-slate-600">→</span>
-                <span className="text-emerald-400 font-mono">{val.to}</span>
+          {/* Starting Style Properties */}
+          <div className="bg-slate-900 border border-slate-700 rounded-lg p-4">
+            <h3 className="text-sm font-medium text-slate-300 mb-3 flex items-center gap-2">
+              <Zap className="w-4 h-4 text-yellow-400" /> Starting State
+            </h3>
+            <div className="space-y-3">
+              {/* Opacity */}
+              <div>
+                <div className="flex items-center justify-between mb-1">
+                  <label className="text-[11px] text-slate-400">Opacity</label>
+                  <span className="text-[11px] text-brand-400 tabular-nums">{config.opacity}</span>
+                </div>
+                <input
+                  type="range"
+                  min="0"
+                  max="1"
+                  step="0.05"
+                  value={config.opacity}
+                  onChange={(e) => setConfig((c) => ({ ...c, opacity: parseFloat(e.target.value) }))}
+                  className="w-full h-1.5 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-brand-500"
+                />
+              </div>
+
+              {/* Translate X */}
+              <div>
+                <div className="flex items-center justify-between mb-1">
+                  <label className="text-[11px] text-slate-400 flex items-center gap-1">
+                    <MoveHorizontal className="w-3 h-3" /> Translate X
+                  </label>
+                  <span className="text-[11px] text-brand-400 tabular-nums">{config.translateX}px</span>
+                </div>
+                <input
+                  type="range"
+                  min="-100"
+                  max="100"
+                  step="5"
+                  value={config.translateX}
+                  onChange={(e) => setConfig((c) => ({ ...c, translateX: parseInt(e.target.value) }))}
+                  className="w-full h-1.5 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-brand-500"
+                />
+              </div>
+
+              {/* Translate Y */}
+              <div>
+                <div className="flex items-center justify-between mb-1">
+                  <label className="text-[11px] text-slate-400 flex items-center gap-1">
+                    <MoveVertical className="w-3 h-3" /> Translate Y
+                  </label>
+                  <span className="text-[11px] text-brand-400 tabular-nums">{config.translateY}px</span>
+                </div>
+                <input
+                  type="range"
+                  min="-100"
+                  max="100"
+                  step="5"
+                  value={config.translateY}
+                  onChange={(e) => setConfig((c) => ({ ...c, translateY: parseInt(e.target.value) }))}
+                  className="w-full h-1.5 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-brand-500"
+                />
+              </div>
+
+              {/* Scale */}
+              <div>
+                <div className="flex items-center justify-between mb-1">
+                  <label className="text-[11px] text-slate-400 flex items-center gap-1">
+                    <Maximize2 className="w-3 h-3" /> Scale
+                  </label>
+                  <span className="text-[11px] text-brand-400 tabular-nums">{config.scale}</span>
+                </div>
+                <input
+                  type="range"
+                  min="0"
+                  max="2"
+                  step="0.1"
+                  value={config.scale}
+                  onChange={(e) => setConfig((c) => ({ ...c, scale: parseFloat(e.target.value) }))}
+                  className="w-full h-1.5 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-brand-500"
+                />
+              </div>
+
+              {/* Rotate */}
+              <div>
+                <div className="flex items-center justify-between mb-1">
+                  <label className="text-[11px] text-slate-400">Rotate</label>
+                  <span className="text-[11px] text-brand-400 tabular-nums">{config.rotate}°</span>
+                </div>
+                <input
+                  type="range"
+                  min="-180"
+                  max="180"
+                  step="5"
+                  value={config.rotate}
+                  onChange={(e) => setConfig((c) => ({ ...c, rotate: parseInt(e.target.value) }))}
+                  className="w-full h-1.5 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-brand-500"
+                />
+              </div>
+
+              {/* Blur */}
+              <div>
+                <div className="flex items-center justify-between mb-1">
+                  <label className="text-[11px] text-slate-400">Blur</label>
+                  <span className="text-[11px] text-brand-400 tabular-nums">{config.blur}px</span>
+                </div>
+                <input
+                  type="range"
+                  min="0"
+                  max="20"
+                  step="1"
+                  value={config.blur}
+                  onChange={(e) => setConfig((c) => ({ ...c, blur: parseInt(e.target.value) }))}
+                  className="w-full h-1.5 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-brand-500"
+                />
               </div>
             </div>
-          ))}
-        </div>
-      </div>
+          </div>
 
-      {/* Generated CSS */}
-      <div className="p-5 rounded-xl bg-slate-800/30 border border-slate-700/50">
-        <div className="flex items-center justify-between mb-3">
-          <h3 className="text-sm font-semibold text-slate-300 flex items-center gap-2">
-            <Code2 className="w-4 h-4 text-emerald-400" />
-            Generated CSS
-          </h3>
-          <button
-            onClick={copyCSS}
-            className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg bg-slate-700/50 text-slate-300 border border-slate-600/30 hover:bg-slate-700 hover:text-slate-100 transition-colors"
-          >
-            <Copy className="w-3.5 h-3.5" />
-            Copy CSS
-          </button>
-        </div>
-        <pre className="text-xs text-slate-300 bg-slate-900/60 rounded-lg p-4 border border-slate-700/30 overflow-x-auto font-mono leading-relaxed">
-          <code>{css.full}</code>
-        </pre>
-        <p className="mt-3 text-xs text-slate-500">
-          Requires <code className="text-brand-400 bg-brand-500/10 px-1 rounded">transition-behavior: allow-discrete</code> on <code className="text-brand-400 bg-brand-500/10 px-1 rounded">display</code> for the full entry effect. Baseline 2026 across Chrome, Firefox, Safari.
-        </p>
-      </div>
+          {/* Transition Settings */}
+          <div className="bg-slate-900 border border-slate-700 rounded-lg p-4">
+            <h3 className="text-sm font-medium text-slate-300 mb-3 flex items-center gap-2">
+              <Timer className="w-4 h-4 text-brand-400" /> Transition
+            </h3>
+            <div className="space-y-3">
+              {/* Duration */}
+              <div>
+                <div className="flex items-center justify-between mb-1">
+                  <label className="text-[11px] text-slate-400">Duration</label>
+                  <span className="text-[11px] text-brand-400 tabular-nums">{duration}s</span>
+                </div>
+                <input
+                  type="range"
+                  min="0.1"
+                  max="2"
+                  step="0.05"
+                  value={duration}
+                  onChange={(e) => setDuration(parseFloat(e.target.value))}
+                  className="w-full h-1.5 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-brand-500"
+                />
+              </div>
 
-      {/* How it works */}
-      <div className="mt-8 p-5 rounded-xl bg-slate-800/20 border border-slate-700/30">
-        <h3 className="text-sm font-semibold text-slate-300 mb-2 flex items-center gap-2">
-          <Sparkles className="w-4 h-4 text-amber-400" />
-          How @starting-style Works
-        </h3>
-        <p className="text-sm text-slate-400 leading-relaxed">
-          CSS transitions need a &quot;before&quot; state and an &quot;after&quot; state. When an element appears from{' '}
-          <code className="text-brand-400 bg-brand-500/10 px-1 rounded">display: none</code>, there is no &quot;before&quot; state.{' '}
-          <code className="text-brand-400 bg-brand-500/10 px-1 rounded">@starting-style</code> defines that missing starting point.{' '}
-          The browser uses it only during the first frame the element exists, then transitions to the normal state.
-          Pair with <code className="text-brand-400 bg-brand-500/10 px-1 rounded">transition-behavior: allow-discrete</code> to animate{' '}
-          <code className="text-brand-400 bg-brand-500/10 px-1 rounded">display</code> itself. Read the full guide on{' '}
-          <a href="https://developer.mozilla.org/en-US/docs/Web/CSS/@starting-style" target="_blank" rel="noopener noreferrer" className="text-brand-400 hover:underline">MDN</a>.
-        </p>
+              {/* Easing */}
+              <div>
+                <label className="text-[11px] text-slate-400 block mb-1">Easing</label>
+                <select
+                  value={easing}
+                  onChange={(e) => setEasing(e.target.value)}
+                  className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-xs text-slate-300 focus:outline-none focus:border-brand-500 appearance-none cursor-pointer"
+                >
+                  {EASING_PRESETS.map((ep) => (
+                    <option key={ep.value} value={ep.value}>
+                      {ep.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Discrete toggle */}
+              <div className="flex items-center justify-between">
+                <label className="text-[11px] text-slate-400 flex items-center gap-1.5">
+                  <Layers className="w-3 h-3" />
+                  transition-behavior: allow-discrete
+                </label>
+                <button
+                  onClick={() => setUseDiscrete((v) => !v)}
+                  className={`relative w-9 h-5 rounded-full transition-colors ${
+                    useDiscrete ? 'bg-brand-500' : 'bg-slate-700'
+                  }`}
+                >
+                  <div
+                    className={`absolute top-0.5 w-4 h-4 rounded-full bg-white transition-transform ${
+                      useDiscrete ? 'translate-x-4' : 'translate-x-0.5'
+                    }`}
+                  />
+                </button>
+              </div>
+              {useDiscrete && (
+                <p className="text-[10px] text-slate-500 leading-relaxed">
+                  Required when transitioning from <code className="text-brand-400">display: none</code> to{' '}
+                  <code className="text-brand-400">display: block</code> (or other discrete properties).
+                </p>
+              )}
+            </div>
+          </div>
+
+          {/* How It Works */}
+          <div className="bg-slate-900 border border-slate-700 rounded-lg p-4">
+            <h3 className="text-sm font-medium text-slate-300 mb-2 flex items-center gap-2">
+              <Sparkles className="w-4 h-4 text-brand-400" /> How @starting-style Works
+            </h3>
+            <div className="space-y-2 text-[11px] text-slate-400 leading-relaxed">
+              <p>
+                <code className="text-brand-400">@starting-style</code> is a CSS at-rule that defines the
+                initial state of an element <em>before</em> it first renders in the DOM.
+              </p>
+              <p>
+                When the element appears (e.g., a popover opens, a dialog shows, or an element is inserted
+                via JavaScript), the browser applies the @starting-style values first, then immediately
+                transitions to the element&apos;s computed final state.
+              </p>
+              <p>
+                This means you can create entry animations with <strong>zero JavaScript</strong> — just
+                define the starting state and let CSS transitions handle the rest.
+              </p>
+              <div className="mt-2 p-2 bg-slate-950 rounded border border-slate-700">
+                <p className="text-[10px] text-slate-500">
+                  <strong className="text-yellow-400">Baseline 2026:</strong> @starting-style is newly
+                  available across all major browsers. It works with popovers, dialogs, and any element
+                  that transitions from not-rendered to rendered.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </ToolLayout>
   );

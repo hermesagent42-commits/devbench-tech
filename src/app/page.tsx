@@ -1144,6 +1144,13 @@ const featuredTools = [
     tags: ['CSS', 'Popover', 'Baseline 2026', 'Tooltip', 'Dialog'],
   },
   {
+    title: 'CSS @starting-style Playground',
+    description: 'Build declarative entry animations with the new @starting-style at-rule — fade, slide, scale, blur, and rotate presets. Define the initial state of any element and let CSS transitions handle the rest. Zero JavaScript, Baseline 2026.',
+    href: '/tools/css-starting-style-playground',
+    icon: Sparkles,
+    tags: ['CSS', '@starting-style', 'Animation', 'Baseline 2026', 'Transitions'],
+  },
+  {
     title: 'Web Audio Synthesizer',
     description: 'Play a synthesizer in your browser — sine, square, sawtooth, and triangle waves with ADSR envelope, live waveform visualization, presets, and keyboard input.',
     href: '/tools/audio-synthesizer',
