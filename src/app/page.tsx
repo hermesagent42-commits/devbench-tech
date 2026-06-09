@@ -112,6 +112,7 @@ import {
   Component,
   Puzzle,
   Languages,
+  Barcode,
 } from 'lucide-react';
 
 export const metadata: Metadata = {
@@ -1626,6 +1627,13 @@ const featuredTools = [
     href: '/tools/html-canvas-playground',
     icon: PaintBucket,
     tags: ['Canvas', 'JavaScript', 'Graphics', 'Animation'],
+  },
+  {
+    title: 'Barcode Generator',
+    description: 'Generate professional barcodes in 4 formats — Code 128, Code 39, EAN-13, and UPC-A. Pure Canvas rendering, PNG download, zero dependencies.',
+    href: '/tools/barcode-generator',
+    icon: Barcode,
+    tags: ['Barcode', 'Generator', 'Code128', 'EAN'],
   },
 ];
 
