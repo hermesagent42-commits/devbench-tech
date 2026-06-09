@@ -7653,4 +7653,278 @@ animation-range: contain 20% contain 80%;</code></pre>
   </p>
 </div>`,
   },
+  {
+    slug: 'css-interpolate-size-calc-size-2026',
+    title: 'CSS interpolate-size and calc-size(): Finally, Animate to height:auto in 2026',
+    description:
+      'For decades, animating to height:auto has been the holy grail of CSS animations — every solution required JavaScript. Now with interpolate-size: allow-keywords and calc-size(), browsers natively animate between fixed lengths and intrinsic sizes. Complete guide with production patterns, browser support, and the death of JS height hacks.',
+    date: '2026-06-09',
+    author: 'DevBench',
+    tags: ['CSS', 'interpolate-size', 'calc-size()', 'Animation', 'Intrinsic Sizing', 'Baseline 2026', 'Transitions'],
+    readingTime: '10 min read',
+    content: `<div class="prose-content">
+  <p class="lead">
+    <strong>For 25 years, one CSS animation has been impossible:</strong> smoothly expanding a collapsed element to its natural <code>height: auto</code>. Every solution — JavaScript <code>scrollHeight</code> measurement, ResizeObserver hacks, max-height workarounds — came with compromises. In 2026, the browser finally ships a native solution: <code>interpolate-size: allow-keywords</code> and the <code>calc-size()</code> function.
+  </p>
+
+  <p>These two features work together to unlock animations between fixed lengths and intrinsic sizes — <code>auto</code>, <code>min-content</code>, <code>max-content</code>, and <code>fit-content</code>. They're shipping as <strong>Baseline 2026</strong> across Chrome, Firefox, and Safari. This is the most significant CSS animation advancement since keyframes.</p>
+
+  <h2>The Problem: Why height:auto Has Resisted Animation</h2>
+
+  <p>CSS transitions and animations need calculable interpolated values. When you go from <code>0px</code> to <code>200px</code>, the browser can compute every intermediate frame — at 50% progress, the height is 100px.</p>
+
+  <p>But <code>auto</code> is not a number. It's a directive meaning "figure out the size from the content." The browser can't interpolate from <code>0px</code> to "whatever the content needs" because it doesn't know the target until layout runs — and layout doesn't run at animation-frame granularity.</p>
+
+  <div class="highlight-box">
+    <strong>The core problem:</strong> CSS interpolation requires both the start and end values to be of the same calculable type. <code>auto</code> is a keyword, not a length — so <code>transition: height 0.3s</code> simply snaps between states with no animation.
+  </div>
+
+  <p>Developers have worked around this for decades. Every approach had a trade-off:</p>
+
+  <ul>
+    <li><strong>max-height hack:</strong> Set <code>max-height: 500px</code> and transition that. Problem: if content is smaller than 500px, the animation is jarringly fast. If content is larger, it gets clipped. Hardcoding a max height is fragile.</li>
+    <li><strong>JavaScript scrollHeight:</strong> Measure with <code>element.scrollHeight</code>, set <code>height</code> to a pixel value, then animate. Problem: requires DOM access, breaks with dynamic content, and causes layout thrashing.</li>
+    <li><strong>FLIP technique:</strong> Record the auto height, set it to a fixed value, animate, then remove the inline style. Problem: complex and prone to race conditions with dynamic content.</li>
+    <li><strong>ResizeObserver + requestAnimationFrame:</strong> Continuously poll the computed height and feed it to a JS-driven animation. Problem: runs on the main thread, consumes CPU, and still isn't truly smooth.</li>
+  </ul>
+
+  <h2>The Solution: interpolate-size and calc-size()</h2>
+
+  <p>Two complementary features ship together in 2026:</p>
+
+  <h3>interpolate-size: allow-keywords</h3>
+
+  <p>This is a new CSS property that tells the browser: "when transitioning or animating this element, I want you to handle intrinsic sizing keywords as interpolation endpoints."</p>
+
+  <pre><code>/* The global opt-in */
+:root {
+  interpolate-size: allow-keywords;
+}
+
+/* Or per-element */
+.collapsible {
+  interpolate-size: allow-keywords;
+  overflow: hidden;
+  height: 0;
+  transition: height 0.3s ease;
+}
+
+.collapsible.open {
+  height: auto; /* ← This now animates! */
+}</code></pre>
+
+  <p>With just <code>interpolate-size: allow-keywords</code> on the element (or globally on <code>:root</code>), transitions to and from <code>height: auto</code>, <code>width: auto</code>, <code>min-content</code>, and <code>max-content</code> just work. No JavaScript. No hacks. No max-height guessing.</p>
+
+  <div class="highlight-positive">
+    <strong>What makes this special:</strong> The browser now calculates the intrinsic size as a pixel value at transition start, then interpolates smoothly. It's essentially doing the <code>scrollHeight</code> measurement for you, at native speed, off the main thread where possible.
+  </div>
+
+  <h3>calc-size(): Math with Intrinsic Sizes</h3>
+
+  <p><code>calc-size()</code> is a companion function that lets you perform calculations on intrinsic sizes. While <code>calc()</code> only works with resolvable lengths, <code>calc-size()</code> accepts keywords like <code>auto</code>, <code>min-content</code>, <code>max-content</code>, and <code>fit-content</code> as operands:</p>
+
+  <pre><code>/* Animate to auto + 16px padding */
+.drawer {
+  interpolate-size: allow-keywords;
+  height: 0;
+  overflow: hidden;
+  transition: height 0.3s ease;
+}
+
+.drawer.open {
+  height: calc-size(auto, size + 16px);
+  /* ^ Resolves auto to a pixel value, adds 16px */
+}
+
+/* Animate to 80% of the max-content width */
+.expandable-column {
+  interpolate-size: allow-keywords;
+  width: 0;
+  transition: width 0.4s ease;
+}
+
+.expandable-column.open {
+  width: calc-size(max-content, size * 0.8);
+}</code></pre>
+
+  <p>The <code>calc-size()</code> function accepts two arguments: a basis keyword (what to measure), and a calculation expression where <code>size</code> represents the resolved pixel value of that basis. This unlocks patterns like "animate to auto plus padding" or "expand to 80% of the max-content width" — all in pure CSS.</p>
+
+  <h2>Production Patterns</h2>
+
+  <h3>Pattern 1: Accordion / FAQ Section</h3>
+
+  <pre><code>.accordion-panel {
+  interpolate-size: allow-keywords;
+  height: 0;
+  overflow: hidden;
+  transition: height 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.accordion-panel[open] {
+  height: auto;
+}</code></pre>
+
+  <p>That's it. No JavaScript required for the animation. The <code>&lt;details&gt;</code> element with <code>[open]</code> attribute or a simple class toggle is all you need. The browser measures the content height once and interpolates perfectly.</p>
+
+  <h3>Pattern 2: Notification Toast Slide-Down</h3>
+
+  <pre><code>.toast {
+  interpolate-size: allow-keywords;
+  height: 0;
+  opacity: 0;
+  margin-bottom: 0;
+  overflow: hidden;
+  transition:
+    height 0.3s ease,
+    opacity 0.3s ease,
+    margin-bottom 0.3s ease;
+}
+
+.toast.visible {
+  height: auto;
+  opacity: 1;
+  margin-bottom: 12px;
+}</code></pre>
+
+  <p>Multi-property transitions work seamlessly. The toast slides into existence with its natural height, then slides out when dismissed. This is what every notification library has been faking with JavaScript for years.</p>
+
+  <h3>Pattern 3: Progressive Disclosure with calc-size()</h3>
+
+  <pre><code>.details-panel {
+  interpolate-size: allow-keywords;
+  height: 0;
+  overflow: hidden;
+  transition: height 0.4s cubic-bezier(0.25, 0.8, 0.25, 1.2);
+}
+
+.details-panel.expanded {
+  height: calc-size(auto, size + 24px);
+  /* Natural height plus breathing room — no layout shift */
+}</code></pre>
+
+  <p>The <code>+ 24px</code> gives the panel a comfortable bottom margin that's part of the animated space — no separate margin animation needed. This is cleaner and more predictable than animating margin separately.</p>
+
+  <h3>Pattern 4: Width Animation for Sidebar</h3>
+
+  <pre><code>.sidebar {
+  interpolate-size: allow-keywords;
+  width: 48px;
+  overflow: hidden;
+  white-space: nowrap;
+  transition: width 0.3s ease;
+}
+
+.sidebar.expanded {
+  width: calc-size(max-content, size + 16px);
+}</code></pre>
+
+  <p>Instead of hardcoding a sidebar width (which breaks when labels change or translations are longer), <code>max-content</code> adapts to the actual content. The <code>calc-size()</code> function adds 16px of padding to the calculated width.</p>
+
+  <h2>Understanding the Two-Part Opt-In</h2>
+
+  <p>You must use both <code>interpolate-size</code> and an intrinsic keyword together for the animation to work:</p>
+
+  <table>
+    <thead>
+      <tr><th>Setup</th><th>Behavior</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><code>interpolate-size: allow-keywords</code> + <code>height: auto</code></td><td>✅ Smooth interpolation from any fixed length to the content's natural height</td></tr>
+      <tr><td><code>interpolate-size: allow-keywords</code> + <code>calc-size(auto, …)</code></td><td>✅ Smooth interpolation with calculations applied to the resolved size</td></tr>
+      <tr><td>No <code>interpolate-size</code>, just <code>height: auto</code></td><td>❌ Snaps — no animation (legacy behavior)</td></tr>
+      <tr><td><code>interpolate-size: allow-keywords</code> + fixed <code>height: 200px</code></td><td>✅ Animate — but only between fixed lengths (same as before)</td></tr>
+    </tbody>
+  </table>
+
+  <p>The property is an explicit opt-in because changing the animation behavior of <code>auto</code> is a web-compatible risk. Some sites may have relied on <code>auto</code> values not interpolating. The opt-in protects backward compatibility while enabling the feature for developers who want it.</p>
+
+  <div class="highlight-box">
+    <strong>Pro tip:</strong> Set <code>interpolate-size: allow-keywords</code> on <code>:root</code> in your global stylesheet. This makes the behavior available site-wide without needing to add it to every animated element. The performance overhead is negligible — intrinsic size measurement only happens during active transitions.
+  </div>
+
+  <h2>Supported Keywords</h2>
+
+  <p>Both <code>interpolate-size: allow-keywords</code> and <code>calc-size()</code> support five intrinsic sizing keywords:</p>
+
+  <ul>
+    <li><strong><code>auto</code></strong> — the browser's default sizing (content-based for height, fill-available for width in most contexts)</li>
+    <li><strong><code>min-content</code></strong> — the smallest size the content can occupy without overflowing (the longest word)</li>
+    <li><strong><code>max-content</code></strong> — the size the content would take if allowed infinite space (all on one line)</li>
+    <li><strong><code>fit-content</code></strong> — <code>min(max-content, max(min-content, available-size))</code> — clamps to the available container</li>
+    <li><strong><code>stretch</code></strong> — fill the available space in the containing block</li>
+  </ul>
+
+  <p>These keywords can be used as endpoints in any CSS property that accepts length values and supports transitions — <code>height</code>, <code>width</code>, <code>min-height</code>, <code>max-width</code>, <code>flex-basis</code>, <code>grid-template-rows</code>, and more.</p>
+
+  <h2>Performance and Best Practices</h2>
+
+  <ul>
+    <li><strong>Add <code>overflow: hidden</code></strong> to collapsed elements. Without it, content overflows during the transition because the element's height hasn't caught up to the content yet.</li>
+    <li><strong>Prefer <code>transform</code> and <code>opacity</code> when possible.</strong> These animate on the compositor thread and avoid layout recalculations. <code>height</code> and <code>width</code> transitions trigger layout, which is more expensive. Use <code>interpolate-size</code> for elements whose size genuinely changes, not for decorative animations.</li>
+    <li><strong>Use <code>will-change: height</code> sparingly.</strong> It can help with jank on complex pages, but overusing it consumes GPU memory.</li>
+    <li><strong>Test with varying content lengths.</strong> A short notification and a long one should both animate gracefully. That's the whole point of using <code>auto</code> instead of a fixed pixel value.</li>
+  </ul>
+
+  <h2>Browser Support and Progressive Enhancement</h2>
+
+  <div class="highlight-positive">
+    <strong>Baseline 2026:</strong> Chrome 134+, Firefox 137+, Safari 18.4+. All three major engines ship <code>interpolate-size</code> and <code>calc-size()</code> in 2026.
+  </div>
+
+  <p>For older browsers, the behavior degrades gracefully — they simply snap between states without animation, exactly as they always have. You can use feature detection to apply JavaScript fallbacks only when needed:</p>
+
+  <pre><code>/* Feature query for progressive enhancement */
+@supports (interpolate-size: allow-keywords) {
+  .accordion-panel {
+    interpolate-size: allow-keywords;
+    height: 0;
+    transition: height 0.3s ease;
+  }
+  .accordion-panel.open {
+    height: auto;
+  }
+}
+
+/* Fallback: JavaScript-driven animation for older browsers */
+@supports not (interpolate-size: allow-keywords) {
+  .accordion-panel {
+    height: auto; /* No animation */
+    max-height: none;
+  }
+}</code></pre>
+
+  <p>In practice, for most sites shipping in 2026 and beyond, you can safely use this without fallbacks. The vast majority of traffic will come from browsers that support it, and the snap fallback is perfectly acceptable.</p>
+
+  <h2>What This Replaces</h2>
+
+  <p>If you're maintaining a codebase with any of the following workarounds, <code>interpolate-size: allow-keywords</code> lets you delete them:</p>
+
+  <table>
+    <thead>
+      <tr><th>Old Approach</th><th>Why It Was Flawed</th><th>New Approach</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><code>max-height: 999px</code></td><td>Animation speed matches 999px, not real content height — feels wrong</td><td><code>height: auto</code> with <code>interpolate-size</code></td></tr>
+      <tr><td>JS <code>element.scrollHeight</code></td><td>Layout thrashing, won't animate with dynamic content</td><td>Pure CSS, adapts to content changes</td></tr>
+      <tr><td>ResizeObserver polyfill</td><td>Complex, main-thread, drops frames</td><td>Browser-native, off-main-thread</td></tr>
+      <tr><td>CSS Grid <code>grid-template-rows: 0fr → 1fr</code></td><td>Works for collapsible rows but only in grid contexts</td><td>Works everywhere <code>height</code> applies</td></tr>
+      <tr><td>transform: scaleY</td><td>Content looks squished, not hidden — text distorts</td><td>Natural content-reveal animation</td></tr>
+    </tbody>
+  </table>
+
+  <h2>The Bigger Picture: Intrinsic Web Layout</h2>
+
+  <p><code>interpolate-size</code> and <code>calc-size()</code> are part of a broader trend in modern CSS: <strong>embracing intrinsic sizing</strong>. For years, CSS layout relied on developers specifying explicit pixel values — <code>width: 300px</code>, <code>height: 200px</code>. But the web is inherently fluid, and content is unpredictable.</p>
+
+  <p>Features like Container Queries, <code>min()</code>/<code>max()</code>/<code>clamp()</code>, <code>auto</code>-sized Grid tracks, and now interpolated intrinsic sizes all point in the same direction: <strong>the browser should figure out sizing, and developers should describe constraints.</strong></p>
+
+  <p>These two new features close one of the last major gaps in CSS animations — and they do it without adding complexity. Two declarations, and a problem that's persisted since CSS2 becomes trivial.</p>
+
+  <hr />
+
+  <p>
+    <em>Experiment with CSS animations interactively: try the <a href="/tools/css-keyframes-builder" class="inline-link">CSS Keyframes Builder</a>, <a href="/tools/css-transition-builder" class="inline-link">CSS Transition Builder</a>, and <a href="/tools/clamp-generator" class="inline-link">CSS clamp() Generator</a> on DevBench — all free, all client-side.</em>
+  </p>
+</div>`,
+  },
 ];
