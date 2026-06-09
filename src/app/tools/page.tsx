@@ -118,6 +118,7 @@ import {
   AlignCenterVertical,
   SunMoon,
   Users,
+  ToggleLeft,
 } from 'lucide-react';
 
 export const metadata: Metadata = {
@@ -252,6 +253,13 @@ const allTools = [
     href: '/tools/css-grid-generator',
     icon: Grid3X3,
     tags: ['CSS', 'Grid', 'Layout', 'Design'],
+  },
+  {
+    title: 'CSS Toggle Switch Generator',
+    description: 'Build pure-CSS toggle switches — iOS, Material, Neumorphic, Minimal. Live interactive preview, full size/color/shadow control, copy-ready HTML + CSS.',
+    href: '/tools/css-toggle-generator',
+    icon: ToggleLeft,
+    tags: ['CSS', 'Toggle', 'Switch', 'UI', 'Generator'],
   },
   {
     title: 'QR Code Generator',

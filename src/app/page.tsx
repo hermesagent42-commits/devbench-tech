@@ -116,6 +116,7 @@ import {
   Gauge as GaugeIcon,
   ShieldCheck as ShieldCheckIcon,
   ShieldAlert,
+  ToggleLeft,
 } from 'lucide-react';
 
 export const metadata: Metadata = {
@@ -278,6 +279,13 @@ const featuredTools = [
     href: '/tools/css-box-shadow-generator',
     icon: Square,
     tags: ['CSS', 'Box-Shadow', 'Design'],
+  },
+  {
+    title: 'CSS Toggle Switch Generator',
+    description: 'Build pure-CSS toggle switches — iOS, Material, Neumorphic, Minimal styles. Full size/color/shadow control with live interactive preview and copy-ready HTML + CSS.',
+    href: '/tools/css-toggle-generator',
+    icon: ToggleLeft,
+    tags: ['CSS', 'Toggle', 'Switch', 'UI', 'Generator'],
   },
   {
     title: 'CSS Border-Radius Generator',
