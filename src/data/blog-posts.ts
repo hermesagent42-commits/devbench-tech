@@ -11,6 +11,239 @@ export interface BlogPost {
 
 export const blogPosts: BlogPost[] = [
   {
+    slug: 'console-api-beyond-console-log-2026',
+    title: 'Beyond console.log(): The Complete Guide to the Console API in 2026',
+    description:
+      'console.log() is the first debugging tool every developer learns — and most stop there. But the Console API has 20+ methods that replace entire debugging workflows: table() for tabular data, group() for structured logging, time() for performance profiling, trace() for stack inspection, count() for frequency tracking, and %c for styled terminal output. Complete guide with production patterns for every method.',
+    date: '2026-06-09',
+    author: 'DevBench',
+    tags: ['JavaScript', 'Console', 'Debugging', 'DevTools', 'Chrome', 'Performance', 'Logging', 'Productivity'],
+    readingTime: '8 min read',
+    content: `<div class="prose-content">
+  <p class="lead">
+    <strong>console.log()</strong> is the most-used JavaScript debugging tool on the planet. Open any developer's browser console, and you'll see walls of <code>console.log('here')</code>, <code>console.log(data)</code>, <code>console.log('wtf', x)</code>. It's the first debugging method we learn, and for many, the only one they ever use.
+  </p>
+
+  <p>But the Console API has <strong>20+ methods</strong> that replace entire debugging workflows. Some have been in browsers for over a decade. Most developers don't know they exist.</p>
+
+  <p>This guide covers every <code>console.*</code> method worth knowing in 2026 - with practical use cases, browser compatibility, and production patterns you'll actually use.</p>
+
+  <h2>1. console.table(): The Data Inspector</h2>
+
+  <p>Stop logging arrays and objects with <code>console.log()</code>. <code>console.table()</code> renders them as interactive sortable tables in DevTools.</p>
+
+  <pre><code>const users = [
+  { id: 1, name: 'Alice', role: 'admin', active: true },
+  { id: 2, name: 'Bob', role: 'editor', active: false },
+  { id: 3, name: 'Carol', role: 'viewer', active: true },
+];
+
+console.table(users);
+// Sortable table with columns: id, name, role, active
+
+console.table(users, ['name', 'role']);
+// Only shows name and role columns</code></pre>
+
+  <p>This is transformative for debugging API responses, database queries, and any structured data. You can click column headers to sort ascending/descending. Chrome also lets you copy the table as CSV via right-click.</p>
+
+  <div class="highlight-box">
+    <strong>When to use:</strong> Every time you're debugging an array of objects. Replace <code>console.log(JSON.stringify(data, null, 2))</code> with <code>console.table(data)</code>.
+  </div>
+
+  <h2>2. console.group() / groupCollapsed(): Structured Logging</h2>
+
+  <p>When you have nested logic - a function that calls other functions - flat logs become unreadable. <code>console.group()</code> creates collapsible sections:</p>
+
+  <pre><code>function processOrder(order) {
+  console.group('Order #' + order.id);
+  console.log('Status:', order.status);
+  console.log('Items:', order.items.length);
+
+  console.group('Line Items');
+  order.items.forEach((item, i) => {
+    console.groupCollapsed('Item ' + (i+1) + ': ' + item.name);
+    console.log('SKU:', item.sku);
+    console.log('Price:', item.price);
+    console.groupEnd();
+  });
+  console.groupEnd();
+
+  console.groupEnd();
+}</code></pre>
+
+  <p>In Chrome DevTools, this renders as a nested tree you can expand and collapse - like a file browser. <code>groupCollapsed()</code> starts closed, perfect for details you inspect on demand.</p>
+
+  <h2>3. console.time() / timeEnd(): Performance Profiling</h2>
+
+  <p><code>console.time()</code> gives you high-precision elapsed time - no need for <code>Date.now()</code> math:</p>
+
+  <pre><code>console.time('fetchUsers');
+const users = await fetch('/api/users').then(r => r.json());
+console.timeEnd('fetchUsers');
+// -> fetchUsers: 234.5ms
+
+console.time('renderTable');
+renderUserTable(users);
+console.timeEnd('renderTable');
+// -> renderTable: 12.3ms</code></pre>
+
+  <p>Named timers can be nested and interleaved. <code>console.timeLog()</code> reports intermediate times mid-operation.</p>
+
+  <h2>4. console.assert(): Conditional Logging Without if Blocks</h2>
+
+  <p><code>console.assert()</code> only logs when its first argument is falsy. No more wrapping debug statements in <code>if</code> blocks:</p>
+
+  <pre><code>// Instead of:
+if (response.status !== 200) {
+  console.error('Status:', response.status);
+}
+
+// Write:
+console.assert(response.status === 200, 'Status:', response.status);
+// Only logs when the assertion fails</code></pre>
+
+  <h2>5. console.trace(): Stack Traces On Demand</h2>
+
+  <p>When you need to know <em>who called this function</em> - not just the function itself:</p>
+
+  <pre><code>function validateUser(user) {
+  if (!user.email) {
+    console.trace('validateUser called with missing email');
+    return false;
+  }
+  return true;
+}</code></pre>
+
+  <p>In Chrome DevTools, this outputs the full call stack with source links you can click to jump directly to the calling code.</p>
+
+  <h2>6. console.count() / countReset(): Frequency Tracking</h2>
+
+  <pre><code>function handleClick() {
+  console.count('Button clicks');
+}
+// After 3 clicks:
+// -> Button clicks: 1
+// -> Button clicks: 2
+// -> Button clicks: 3</code></pre>
+
+  <p>Use it to track how often an event fires, confirm memoization works, and detect unintended re-renders.</p>
+
+  <h2>7. console.dir(): Inspect DOM Elements as Objects</h2>
+
+  <p><code>console.log(document.body)</code> shows the HTML tree. <code>console.dir(document.body)</code> shows the JavaScript object with all properties.</p>
+
+  <h2>8. Styled Console Output with %c</h2>
+
+  <p>You can style console output with CSS using the <code>%c</code> format specifier:</p>
+
+  <pre><code>console.log(
+  '%cDeploy Successful %cv2.4.1',
+  'color: #22c55e; font-size: 18px; font-weight: bold;',
+  'color: #94a3b8; font-size: 12px;'
+);</code></pre>
+
+  <p>Supported CSS properties include <code>color</code>, <code>background</code>, <code>font-size</code>, <code>font-weight</code>, <code>padding</code>, <code>border</code>, <code>border-radius</code>, and more.</p>
+
+  <h2>9. console.warn() / error() / debug(): Semantic Levels</h2>
+
+  <p>These aren't just colored versions of <code>console.log()</code>. <code>warn()</code> writes to stderr and Chrome can break on warnings. <code>error()</code> includes a stack trace and can trigger breakpoints. <code>debug()</code> is hidden by default unless "Verbose" logging is enabled.</p>
+
+  <h2>10. console.context() (Chrome 127+, 2026): Scoped Log Filters</h2>
+
+  <p>The newest addition. <code>console.context()</code> creates a scoped logging namespace:</p>
+
+  <pre><code>const userCtx = console.context('user-service');
+const authCtx = console.context('auth-service');
+
+userCtx.log('Fetching user profile...');
+authCtx.log('Token validation passed');
+
+// In DevTools, filter by context name to see only auth-service logs</code></pre>
+
+  <h2>Format Specifiers Reference</h2>
+
+  <div class="overflow-x-auto">
+    <table>
+      <thead><tr><th>Specifier</th><th>Description</th><th>Example</th></tr></thead>
+      <tbody>
+        <tr><td><code>%s</code></td><td>String</td><td><code>console.log('User: %s', name)</code></td></tr>
+        <tr><td><code>%d</code> / <code>%i</code></td><td>Integer</td><td><code>console.log('Count: %d', count)</code></td></tr>
+        <tr><td><code>%f</code></td><td>Float</td><td><code>console.log('Price: %f', 9.99)</code></td></tr>
+        <tr><td><code>%o</code></td><td>DOM element (expandable)</td><td><code>console.log('%o', document.body)</code></td></tr>
+        <tr><td><code>%O</code></td><td>Generic object (expandable)</td><td><code>console.log('%O', complexObject)</code></td></tr>
+        <tr><td><code>%c</code></td><td>CSS styling</td><td><code>console.log('%cStyled', 'color: red')</code></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h2>Production Logging Pattern</h2>
+
+  <p>Here's a production-ready logging utility that combines everything:</p>
+
+  <pre><code>const Logger = {
+  enabled: process.env.NODE_ENV === 'development',
+
+  context(name) {
+    return {
+      log: (...args) => Logger.log('[' + name + ']', ...args),
+      warn: (...args) => Logger.warn('[' + name + ']', ...args),
+      error: (...args) => Logger.error('[' + name + ']', ...args),
+      time: (label) => Logger.time(name + ':' + label),
+      timeEnd: (label) => Logger.timeEnd(name + ':' + label),
+      table: (data, cols) => Logger.table(data, cols),
+    };
+  },
+
+  log(...args) { if (this.enabled) console.log(...args); },
+  warn(...args) { if (this.enabled) console.warn(...args); },
+  error(...args) { console.error(...args); },
+  time(label) { if (this.enabled) console.time(label); },
+  timeEnd(label) { if (this.enabled) console.timeEnd(label); },
+  table(data, cols) { if (this.enabled) console.table(data, cols); },
+  trace(...args) { if (this.enabled) console.trace(...args); },
+  count(label) { if (this.enabled) console.count(label); },
+  assert(cond, ...args) { if (this.enabled) console.assert(cond, ...args); },
+};</code></pre>
+
+  <h2>When NOT to Use Each Method</h2>
+
+  <ul>
+    <li><strong>console.log() in production</strong> - Strip them out. They slow the main thread, leak data, and clutter the console for power users.</li>
+    <li><strong>console.table() on huge arrays</strong> - Table rendering has overhead. For arrays >1000 items, fall back to <code>console.log()</code>.</li>
+    <li><strong>console.trace() in hot paths</strong> - Stack capture is expensive. Only use in error/assertion paths.</li>
+    <li><strong>%c in Node.js</strong> - Does not work. Use <code>chalk</code> or <code>kleur</code> instead.</li>
+    <li><strong>console.group() without groupEnd()</strong> - Always pair them to avoid broken nesting.</li>
+  </ul>
+
+  <h2>Browser Compatibility</h2>
+
+  <div class="overflow-x-auto">
+    <table>
+      <thead><tr><th>Method</th><th>Chrome</th><th>Firefox</th><th>Safari</th><th>Node.js</th></tr></thead>
+      <tbody>
+        <tr><td><code>log</code>/<code>warn</code>/<code>error</code></td><td>All</td><td>All</td><td>All</td><td>All</td></tr>
+        <tr><td><code>table</code></td><td>27+</td><td>34+</td><td>6+</td><td>10+</td></tr>
+        <tr><td><code>group</code>/<code>groupCollapsed</code></td><td>4+</td><td>9+</td><td>4+</td><td>8+</td></tr>
+        <tr><td><code>time</code>/<code>timeEnd</code></td><td>4+</td><td>10+</td><td>4+</td><td>0.10+</td></tr>
+        <tr><td><code>assert</code></td><td>4+</td><td>28+</td><td>4+</td><td>0.10+</td></tr>
+        <tr><td><code>trace</code></td><td>4+</td><td>10+</td><td>4+</td><td>0.10+</td></tr>
+        <tr><td><code>count</code></td><td>4+</td><td>30+</td><td>4+</td><td>8+</td></tr>
+        <tr><td><code>dir</code></td><td>4+</td><td>8+</td><td>4+</td><td>0.10+</td></tr>
+        <tr><td><code>clear</code></td><td>4+</td><td>48+</td><td>4+</td><td>8.3+</td></tr>
+        <tr><td><code>profile</code>/<code>profileEnd</code></td><td>5+</td><td>N/A</td><td>N/A</td><td>N/A</td></tr>
+        <tr><td><code>timeLog</code></td><td>72+</td><td>62+</td><td>12+</td><td>10.7+</td></tr>
+        <tr><td><code>context</code></td><td>127+</td><td>N/A</td><td>N/A</td><td>N/A (flag)</td></tr>
+        <tr><td><code>%c</code> CSS styling</td><td>4+</td><td>31+</td><td>4+</td><td>N/A</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="highlight-box" style="margin-top: 2rem;">
+    <strong>Try it live:</strong> Check out the <a href="/tools/console-api-playground" style="color: var(--brand-400);">Console API Playground</a> on DevBench to experiment with every method in real time - formatted output, performance timing, and styled logs without leaving your browser.
+  </div>
+</div>`,
+  },
+  {
     slug: 'css-grid-complete-guide-2026',
     title: 'CSS Grid Layout: The Complete Guide for 2026 — From Basics to Production Patterns',
     description:
