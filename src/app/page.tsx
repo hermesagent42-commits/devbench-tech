@@ -113,6 +113,8 @@ import {
   Puzzle,
   Languages,
   Barcode,
+  Gauge as GaugeIcon,
+  ShieldCheck as ShieldCheckIcon,
 } from 'lucide-react';
 
 export const metadata: Metadata = {
@@ -1634,6 +1636,34 @@ const featuredTools = [
     href: '/tools/barcode-generator',
     icon: Barcode,
     tags: ['Barcode', 'Generator', 'Code128', 'EAN'],
+  },
+  {
+    title: 'Data Size Converter',
+    description: 'Convert between bits, bytes, KB, MB, GB, TB, KiB, MiB, GiB, TiB — SI (decimal) and IEC (binary). See exactly why your "1 TB" drive shows only 931 GiB.',
+    href: '/tools/data-size-converter',
+    icon: HardDrive,
+    tags: ['Data', 'Bytes', 'Converter', 'SI', 'IEC'],
+  },
+  {
+    title: 'API Latency Tester',
+    description: 'Measure request latency with detailed waterfall breakdown — DNS, TCP, TLS, TTFB, download. Compare endpoints, see timing bars, inspect response headers.',
+    href: '/tools/api-latency-tester',
+    icon: GaugeIcon,
+    tags: ['API', 'Latency', 'HTTP', 'Performance', 'Timing'],
+  },
+  {
+    title: 'Git Branch Name Generator',
+    description: 'Generate clean, conventional Git branch names — feature/, fix/, chore/, hotfix/ and more. Includes ticket ID integration, slugification, and branch-type presets.',
+    href: '/tools/git-branch-name-generator',
+    icon: GitBranch,
+    tags: ['Git', 'Branch', 'Convention', 'Naming'],
+  },
+  {
+    title: 'License Selector',
+    description: 'Compare 10 open-source licenses side-by-side — MIT, Apache 2.0, GPL, BSD, MPL, and more. See permissions, conditions, and limitations at a glance with copy-ready license text.',
+    href: '/tools/license-selector',
+    icon: ShieldCheckIcon,
+    tags: ['License', 'Open Source', 'Legal', 'GitHub'],
   },
 ];
 
