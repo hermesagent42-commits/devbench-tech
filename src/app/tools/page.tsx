@@ -242,6 +242,13 @@ const allTools = [
     tags: ['Color', 'Palette', 'Design', 'CSS'],
   },
   {
+    title: 'Color Shade & Tint Generator',
+    description: 'Generate tints, shades, and tones from any color. Tailwind-style 50–950 scales, full spectrum, WCAG contrast — export CSS, Tailwind, JSON.',
+    href: '/tools/color-shades',
+    icon: Palette,
+    tags: ['Color', 'Shades', 'Tints', 'Design System', 'Tailwind'],
+  },
+  {
     title: 'Markdown Previewer',
     description: 'Write Markdown with a live split-pane preview. Formatting toolbar, HTML copy, and .md download — all client-side.',
     href: '/tools/markdown-previewer',

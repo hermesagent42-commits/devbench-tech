@@ -366,6 +366,13 @@ const featuredTools = [
     tags: ['Color', 'Palette', 'Design', 'Harmony'],
   },
   {
+    title: 'Color Shade & Tint Generator',
+    description: 'Generate tints, shades, and tones from any color. Build Tailwind-style color scales (50–950), full spectrum palettes, and export to CSS, Tailwind, or JSON. 12 design system presets.',
+    href: '/tools/color-shades',
+    icon: SunMoon,
+    tags: ['Color', 'Shades', 'Tints', 'Design System', 'Tailwind'],
+  },
+  {
     title: 'OKLCH Color Picker',
     description: 'Explore the modern OKLCH color space — perceptually uniform lightness, adjustable chroma, and continuous hue. Live sRGB gamut preview and multi-format output (HEX, RGB, HSL).',
     href: '/tools/oklch-color-picker',
