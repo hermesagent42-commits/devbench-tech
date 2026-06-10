@@ -9820,4 +9820,456 @@ inset: round(down, var(--size), 16px);
 
 </div>`,
   },
+  {
+    slug: 'css-starting-style-entry-animations-2026',
+    title: 'CSS @starting-style: Entry Animations Without JavaScript — The Complete Guide',
+    description:
+      "@starting-style lets you animate elements when they first appear — popovers, dialogs, lazy-loaded content, and display:none→block transitions. Pair it with transition-behavior:allow-discrete to animate discrete properties like display. This complete guide covers every use case with real production patterns.",
+    date: '2026-06-10',
+    author: 'DevBench',
+    tags: ['CSS', '@starting-style', 'Animations', 'Transitions', 'Popover API', 'Baseline 2026', 'Entry Animations'],
+    readingTime: '11 min read',
+    content: `<div class="blog-content">
+<h2 class="post-h2">The Missing Piece: Animating First Render</h2>
+
+<p class="post-p">
+For decades, CSS animations had a fundamental limitation: you could animate an element <em>while it existed</em>, but you couldn't animate its <em>first appearance</em>. Opening a dialog? Instant. Showing a tooltip? Instant. Toggling display? Instant. Developers resorted to JavaScript, <code>requestAnimationFrame</code> hacks, and fragile <code>setTimeout</code> tricks just to fade in a modal.
+</p>
+
+<p class="post-p">
+<strong>@starting-style</strong> fixes this. It's a CSS at-rule that defines the "before" state for a transitioning element. When the browser renders an element for the first time (or after <code>display:none</code>), it uses the @starting-style values as the initial state, then transitions to the regular values. No JavaScript. No timeouts. Just CSS.
+</p>
+
+<p class="post-p">
+In 2026, @starting-style is <strong>Baseline Widely Available</strong> — supported in Chrome 117+, Edge 117+, Safari 17.2+, Firefox 134+, and Samsung Internet 24+. Combined with <code>transition-behavior: allow-discrete</code> (also Baseline 2026), you can now animate every CSS property, including <code>display</code>.
+</p>
+
+<h2 class="post-h2">The Basic Syntax</h2>
+
+<p class="post-p">
+@starting-style wraps a ruleset that the browser uses as the "entry" state. It's always scoped inside an existing rule:
+</p>
+
+<pre><code>.tooltip {
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 0.2s, transform 0.2s;
+
+  @starting-style {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}</code></pre>
+
+<p class="post-p">
+When <code>.tooltip</code> first renders (or re-renders after <code>display:none</code>), the browser snaps it to <code>opacity: 0; transform: translateY(8px)</code>, then immediately transitions to <code>opacity: 1; transform: translateY(0)</code>. The result: a smooth fade-in + slide-up, every time.
+</p>
+
+<div class="tip-box">
+<strong>How it works under the hood:</strong> @starting-style doesn't create a separate animation. It just tells the browser "when you first paint this element, pretend these were its previous styles." The existing <code>transition</code> property does the rest — transitioning from the @starting-style values to the current computed values.
+</div>
+
+<h2 class="post-h2">Animating Display: The display + opacity Trick</h2>
+
+<p class="post-p">
+The most common real-world use case: showing and hiding elements with <code>display: none</code> while keeping animation. Before @starting-style, this required opacity+visibility hacks or JavaScript to toggle display after animation ended. Now it's one ruleset:
+</p>
+
+<pre><code>.panel {
+  display: none;
+  opacity: 1;
+  transition: opacity 0.3s, display 0.3s;
+  transition-behavior: allow-discrete;
+
+  &.open {
+    display: block;
+
+    @starting-style {
+      opacity: 0;
+    }
+  }
+}</code></pre>
+
+<p class="post-p">
+When <code>.panel.open</code> is applied, the element gets <code>display: block</code> but starts at <code>opacity: 0</code>, then transitions. <code>transition-behavior: allow-discrete</code> is needed because <code>display</code> is a discrete property — it has no intermediate values. The browser waits until the end of the transition duration to flip <code>display</code> from <code>none</code> to <code>block</code> (for entry) or vice versa (for exit).
+</p>
+
+<h3>The Exit Side: Why You Still Need @starting-style</h3>
+
+<p class="post-p">
+Exiting (hiding) works with standard transitions — animate <code>opacity: 1 → 0</code>, then the browser sets <code>display: none</code> at the end. But for entry, you need @starting-style because the element has no "before" styles when it transitions from <code>display: none</code>.
+</p>
+
+<div class="tip-box">
+<strong>Key rule:</strong> @starting-style defines the <em>entry</em> state. For exit animations, use normal transitions (opacity 1→0, etc.) and rely on <code>transition-behavior: allow-discrete</code> to delay the <code>display: none</code> until the transition completes.
+</div>
+
+<h2 class="post-h2">Popover Entry Animations</h2>
+
+<p class="post-p">
+The Popover API (<code>popover</code> attribute) is a natural match for @starting-style. Popovers transition from hidden to shown via the <code>:popover-open</code> pseudo-class:
+</p>
+
+<pre><code>[popover] {
+  opacity: 1;
+  transform: scale(1);
+  transition:
+    opacity 0.2s,
+    transform 0.2s,
+    overlay 0.2s,
+    display 0.2s;
+  transition-behavior: allow-discrete;
+
+  &:popover-open {
+    @starting-style {
+      opacity: 0;
+      transform: scale(0.95);
+    }
+  }
+}</code></pre>
+
+<p class="post-p">
+Note the <code>overlay</code> property in the transition list. Popovers render in the <strong>top layer</strong>, and <code>overlay</code> is another discrete property that needs <code>allow-discrete</code> to transition. Include it in the transition shorthand so the popover stays in the top layer during the exit transition.
+</p>
+
+<h3>Directional Popover Entry</h3>
+
+<p class="post-p">
+Make popovers enter from the direction they point. Use custom properties for reusable direction-aware animations:
+</p>
+
+<pre><code>[popover] {
+  --enter-from: translateY(4px);
+  opacity: 1;
+  transform: translate(0, 0);
+  transition: opacity 0.2s, transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  &:popover-open {
+    @starting-style {
+      opacity: 0;
+      transform: var(--enter-from);
+    }
+  }
+}
+
+.tooltip-top { --enter-from: translateY(8px); }
+.tooltip-bottom { --enter-from: translateY(-8px); }
+.tooltip-left { --enter-from: translateX(8px); }
+.tooltip-right { --enter-from: translateX(-8px); }</code></pre>
+
+<p class="post-p">
+One @starting-style rule, infinite directions — all driven by custom properties. Swap the <code>--enter-from</code> value and the popover enters from any direction.
+</p>
+
+<h2 class="post-h2">Dialog & Modal Entry</h2>
+
+<p class="post-p">
+The <code>&lt;dialog&gt;</code> element's <code>showModal()</code> method also benefits from @starting-style. Unlike popovers, dialogs use the <code>[open]</code> attribute and <code>::backdrop</code> for the overlay:
+</p>
+
+<pre><code>dialog {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  transition:
+    opacity 0.3s,
+    transform 0.3s,
+    overlay 0.3s,
+    display 0.3s;
+  transition-behavior: allow-discrete;
+
+  &[open] {
+    @starting-style {
+      opacity: 0;
+      transform: translateY(16px) scale(0.97);
+    }
+  }
+}
+
+dialog::backdrop {
+  background: rgb(0 0 0 / 50%);
+  transition: background 0.3s, overlay 0.3s, display 0.3s;
+  transition-behavior: allow-discrete;
+
+  dialog[open] & {
+    @starting-style {
+      background: rgb(0 0 0 / 0%);
+    }
+  }
+}</code></pre>
+
+<p class="post-p">
+Result: modal slides up with a gentle scale, backdrop fades in. No JS animation libraries. The <code>::backdrop</code> pseudo-element gets its own @starting-style for a simultaneous overlay fade.
+</p>
+
+<h2 class="post-h2">Staggered List Entries</h2>
+
+<p class="post-p">
+@starting-style really shines with list entries. Add items to a list and each one animates in, staggered via <code>animation-delay</code> or <code>transition-delay</code>:
+</p>
+
+<pre><code>.list-item {
+  opacity: 1;
+  transform: translateX(0);
+  transition: opacity 0.3s, transform 0.3s;
+  transition-delay: calc(var(--i, 0) * 50ms);
+
+  @starting-style {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+}</code></pre>
+
+<p class="post-p">
+Set <code>--i: 0</code>, <code>--i: 1</code>, <code>--i: 2</code> inline on each item, and they cascade in with a 50ms stagger. This pattern works with any framework — React, Vue, Svelte, or plain HTML generated server-side.
+</p>
+
+<h2 class="post-h2">Lazy-Loaded Content & Skeleton Screens</h2>
+
+<p class="post-p">
+Skeleton screens typically flash from skeleton → content. With @starting-style, the content can crossfade from the skeleton state:
+</p>
+
+<pre><code>.card-content {
+  opacity: 1;
+  filter: blur(0);
+  transition: opacity 0.4s, filter 0.4s;
+
+  @starting-style {
+    opacity: 0;
+    filter: blur(4px);
+  }
+}</code></pre>
+
+<p class="post-p">
+When the skeleton screen hides and the real content mounts, it blurs in smoothly. The <code>filter: blur()</code> transition masks any layout shift during the swap.
+</p>
+
+<h2 class="post-h2">View Transitions + @starting-style</h2>
+
+<p class="post-p">
+The View Transitions API and @starting-style are complementary, not competitive. View Transitions handle cross-document and cross-state morphing. @starting-style handles first-render entry. They can work together:
+</p>
+
+<pre><code>::view-transition-new(root) {
+  animation: none; /* Disable crossfade */
+}
+
+/* Use @starting-style for the entry instead */
+.page {
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 0.3s, transform 0.3s;
+
+  @starting-style {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+}</code></pre>
+
+<p class="post-p">
+This gives you slide-up page transitions on SPA navigation without the full View Transitions ceremony. Disable the VT crossfade, let @starting-style handle the entry animation.
+</p>
+
+<h2 class="post-h2">Performance: What to Animate</h2>
+
+<p class="post-p">
+@starting-style triggers a style recalculation and paint on entry. For smooth 60fps, stick to compositor-only properties:
+</p>
+
+<table>
+<thead><tr><th>Safe (compositor)</th><th>Avoid (layout triggers)</th></tr></thead>
+<tbody>
+<tr><td><code>opacity</code></td><td><code>width</code>, <code>height</code></td></tr>
+<tr><td><code>transform</code> (translate, scale, rotate)</td><td><code>top</code>, <code>left</code>, <code>margin</code>, <code>padding</code></td></tr>
+<tr><td><code>filter</code> (blur, brightness)</td><td><code>border-width</code></td></tr>
+<tr><td><code>clip-path</code> (simple shapes)</td><td><code>font-size</code>, <code>line-height</code></td></tr>
+</tbody>
+</table>
+
+<p class="post-p">
+Every <code>transform</code> animation is GPU-accelerated and doesn't trigger layout. A <code>width</code> transition triggers layout on every frame. When in doubt: <strong>opacity + transform</strong> is always safe.
+</p>
+
+<h2 class="post-h2">Progressive Enhancement</h2>
+
+<p class="post-p">
+@starting-style is safe to use without fallbacks. Browsers that don't support it simply render the element in its final state instantly — no broken layouts, no invisible content. The @starting-style block is ignored:
+</p>
+
+<pre><code>.banner {
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 0.4s, transform 0.4s;
+
+  @starting-style {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+}
+
+/* Older browsers: .banner renders immediately at full opacity.
+   No polyfill needed. */</code></pre>
+
+<p class="post-p">
+You can detect support with <code>@supports</code> if you need to adjust other styles:
+</p>
+
+<pre><code>@supports (transition-behavior: allow-discrete) {
+  .panel {
+    transition-behavior: allow-discrete;
+  }
+}</code></pre>
+
+<h2 class="post-h2">Common Pitfalls</h2>
+
+<h3>1. Forgetting <code>transition-behavior: allow-discrete</code></h3>
+
+<p class="post-p">
+If you're transitioning <code>display</code> or <code>overlay</code> (both discrete properties), you <em>must</em> set <code>transition-behavior: allow-discrete</code>. Without it, the browser can't animate the transition and falls back to instant display changes.
+</p>
+
+<h3>2. Not Including <code>display</code> in the Transition List</h3>
+
+<p class="post-p">
+Even with <code>allow-discrete</code>, listing only <code>opacity</code> in your transition won't animate the display change. The browser needs <code>display</code> explicitly in the transition shorthand:
+</p>
+
+<pre><code>/* Wrong: display changes instantly */
+transition: opacity 0.3s;
+
+/* Right: display flips after 0.3s */
+transition: opacity 0.3s, display 0.3s;
+transition-behavior: allow-discrete;</code></pre>
+
+<h3>3. @starting-style in the Wrong Place</h3>
+
+<p class="post-p">
+@starting-style must be nested inside the rule for the element's <em>visible</em> state, not its hidden state:
+</p>
+
+<pre><code>/* Wrong: @starting-style does nothing here */
+.element {
+  display: none;
+  @starting-style { opacity: 0; }
+}
+
+/* Right: @starting-style goes in the visible state */
+.element[open],
+.element.visible {
+  display: block;
+  opacity: 1;
+  transition: opacity 0.3s, display 0.3s;
+  transition-behavior: allow-discrete;
+
+  @starting-style {
+    opacity: 0;
+  }
+}</code></pre>
+
+<h3>4. Too Many Properties in @starting-style</h3>
+
+<p class="post-p">
+Only include the properties that are actually transitioning. Extra properties in @starting-style just create unnecessary style recalculation:
+</p>
+
+<pre><code>/* Unnecessary: transform isn't transitioning */
+.element {
+  opacity: 1;
+  transition: opacity 0.3s;
+  @starting-style {
+    opacity: 0;
+    /* transform: translateY(20px); — wasted, no transition for this */
+  }
+}</code></pre>
+
+<h2 class="post-h2">Complete Real-World Component: Notification Toast</h2>
+
+<p class="post-p">
+Putting it all together — a notification toast that slides in, auto-dismisses, and slides out:
+</p>
+
+<pre><code>.toast {
+  display: none;
+  opacity: 1;
+  transform: translateX(0);
+  transition:
+    opacity 0.3s,
+    transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1),
+    display 0.3s;
+  transition-behavior: allow-discrete;
+
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  padding: 16px 20px;
+  border-radius: 12px;
+  background: #1e293b;
+  color: #f1f5f9;
+  box-shadow: 0 8px 32px rgb(0 0 0 / 30%);
+  max-width: 400px;
+  z-index: 9999;
+}
+
+.toast.visible {
+  display: block;
+
+  @starting-style {
+    opacity: 0;
+    transform: translateX(100%);
+  }
+}
+
+/* Exit state */
+.toast.exiting {
+  opacity: 0;
+  transform: translateX(calc(100% + 24px));
+}</code></pre>
+
+<p class="post-p">
+The JavaScript is minimal — just toggling classes:
+</p>
+
+<pre><code>function showToast(message) {
+  const toast = document.querySelector('.toast');
+  toast.textContent = message;
+  toast.classList.add('visible');
+  toast.classList.remove('exiting');
+
+  setTimeout(() => {
+    toast.classList.add('exiting');
+    toast.classList.remove('visible');
+  }, 4000);
+}</code></pre>
+
+<p class="post-p">
+That's it. No animation library. No <code>animate()</code> API. Just CSS. The toast slides in from the right with a spring easing, stays for 4 seconds, then slides out further right. The <code>display</code> transition handles the mount/unmount timing.
+</p>
+
+<h2 class="post-h2">Browser Support & The Path to Baseline</h2>
+
+<p class="post-p">
+As of June 2026, @starting-style is <strong>Baseline Widely Available</strong> across all major browsers:
+</p>
+
+<table>
+<thead><tr><th>Browser</th><th>Version</th><th>Release Date</th></tr></thead>
+<tbody>
+<tr><td>Chrome</td><td>117</td><td>September 2023</td></tr>
+<tr><td>Edge</td><td>117</td><td>September 2023</td></tr>
+<tr><td>Safari</td><td>17.2</td><td>December 2023</td></tr>
+<tr><td>Firefox</td><td>134</td><td>January 2025</td></tr>
+<tr><td>Samsung Internet</td><td>24</td><td>March 2024</td></tr>
+</tbody>
+</table>
+
+<p class="post-p">
+<code>transition-behavior</code> (needed for <code>display</code> and <code>overlay</code> animations) reached Baseline in February 2026 with Firefox 134. Together, they eliminate the last reason to use JavaScript for entry animations.
+</p>
+
+<hr/>
+
+<p class="post-p"><em>Further reading: Check out the <a href="/blog/popover-api-complete-guide-2026" class="inline-link">Popover API Complete Guide</a> for declarative popovers, the <a href="/blog/view-transitions-api-guide" class="inline-link">View Transitions API Guide</a> for cross-page animations, and the <a href="/blog/css-scroll-driven-animations-complete-guide-2026" class="inline-link">Scroll-Driven Animations guide</a> for timeline-based effects.</em></p>
+
+</div>`,
+  },
 ];
