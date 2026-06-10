@@ -1,323 +1,437 @@
 ---
-title: "Web Workers in 2026: Offload Heavy Work, Keep Your UI Responsive"
-date: "2026-06-04"
-excerpt: "Web Workers run JavaScript in background threads so your UI never freezes. Dedicated workers, SharedWorkers, transferables for zero-copy performance, ESM module workers, OffscreenCanvas, and the Comlink RPC pattern — a complete guide to threading on the web."
-tags: ["JavaScript", "Web Workers", "Performance", "Browser APIs", "Multi-threading", "SharedWorker", "OffscreenCanvas", "TypeScript", "2026"]
+title: "Web Workers in 2026: Off-Main-Thread JavaScript That Actually Works"
+date: 2026-06-10
+excerpt: "Web Workers have been available since 2010, but most developers avoid them because the API is awkward, debugging is painful, and bundler support is inconsistent. In 2026, module workers, import maps, structured clone upgrades, synchronous OPFS handles, and `new URL('./worker.ts', import.meta.url)` make workers practical for the first time. A complete guide with production-ready patterns for parsing, image processing, crypto, state machines, and more."
+tags: ["JavaScript", "Web Workers", "Performance", "Concurrency", "Service Workers", "OPFS", "Structured Clone", "Transferable Objects", "SharedArrayBuffer", "Atomics", "Browser APIs", "2026"]
 ---
 
-## JavaScript Is Single-Threaded (Until It Isn't)
+## The 14-Year-Old API That Nobody Uses (But Everybody Should)
 
-Every JavaScript developer has hit this: you parse a 50MB JSON file, process a large dataset, or compress an image, and the entire page freezes. Buttons stop working. Animations stutter. Scroll janks.
+Web Workers shipped in 2010. That's the same year as the iPad, Instagram, and the first season of Game of Thrones. For context: React didn't exist yet. Neither did Webpack, TypeScript, or ES modules.
 
-The reason: **JavaScript runs on the main thread**, and the main thread also handles rendering, user input, and layout. When your code blocks the event loop for more than 50ms, the browser can't paint a new frame:
+And yet, 14 years later, the vast majority of production JavaScript applications still run **everything** on the main thread — parsing, filtering, sorting, image manipulation, cryptographic operations, state management. The same thread that handles user input, paints frames, and runs animations.
 
-```javascript
-// This blocks the main thread for several seconds
-const hugeArray = Array.from({ length: 10_000_000 }, (_, i) => i);
-const result = hugeArray.map(n => fibonacci(n)); // ❌ Page freezes
+The result? Jank. Dropped frames. Unresponsive UIs. The dreaded "Page Unresponsive" dialog.
 
-// INP (Interaction to Next Paint) goes to 5000ms. Bad.
-```
+The excuses have always been the same: "Workers are too hard to set up," "Bundler support is inconsistent," "Debugging is a nightmare," "You can't share state easily."
 
-The fix isn't `setTimeout` or `requestAnimationFrame` — those still run on the main thread. The fix is **Web Workers**: actual OS-level threads that run in parallel with the main thread.
+All of those excuses expired in 2026.
 
-## Web Workers 101
+## Why 2026 Is the Year of Workers
 
-A Web Worker is a JavaScript file that runs on a separate thread. It has its own global scope (`self`), its own event loop, and **no access to the DOM**. Communication happens via `postMessage`:
+Several browser features have matured to the point where Workers are practical for everyday development:
 
-```javascript
-// main.js
-const worker = new Worker('worker.js');
-worker.postMessage({ type: 'heavyComputation', data: hugeArray });
-worker.onmessage = (e) => {
-  console.log('Result:', e.data); // Main thread stays responsive
-};
+| Old Problem | 2026 Solution |
+|---|---|
+| No ES modules in workers | `new Worker(new URL('./worker.ts', import.meta.url), { type: 'module' })` works in every bundler |
+| Can't share complex objects | Structured Clone Algorithm handles `Map`, `Set`, `BigInt`, `Error`, `RegExp`, `ArrayBuffer`, `Blob`, `File` |
+| Synchronous file I/O impossible | OPFS `createSyncAccessHandle()` in workers |
+| Can't transfer ownership | Transferable objects: `ArrayBuffer`, `MessagePort`, `ImageBitmap`, `OffscreenCanvas` |
+| Debugging pain | Chrome DevTools has a dedicated Workers panel with breakpoints, console, and source maps |
+| Shared memory is unsafe | `SharedArrayBuffer` + `Atomics` with COOP/COEP headers |
+| Bundler chaos | Vite, Webpack 5, esbuild, and Turbopack all support `new URL()` worker syntax |
 
-// worker.js
-self.onmessage = (e) => {
-  const result = e.data.data.map(n => fibonacci(n));
-  self.postMessage(result);
-};
-```
+## Module Workers: The Syntax That Changed Everything
 
-That's the entire API. But the ecosystem around it has evolved significantly, and in 2026 there are patterns every developer should know.
-
-## Dedicated Workers vs SharedWorkers vs Service Workers
-
-Web Workers come in three flavors:
-
-| Type | Scope | Lifetime | Use Case |
-|------|-------|----------|----------|
-| **Dedicated Worker** | One tab | Tab lifetime | CPU-heavy tasks |
-| **SharedWorker** | Multiple tabs | Until all tabs close | Cross-tab state, WebSocket multiplexing |
-| **Service Worker** | Entire origin | Independently managed | Offline caching, push, background sync |
-
-Dedicated Workers are the workhorse. You spawn one when you need to do heavy lifting and it lives as long as the tab is open.
-
-**SharedWorkers** are underrated. They run a single worker instance shared across all tabs/windows/iframes from the same origin:
+The single biggest barrier to Worker adoption was how you had to load them. The classic API required a separate file served from the network:
 
 ```javascript
-// tab-a.js and tab-b.js both connect to the same SharedWorker
-const worker = new SharedWorker('shared-state.js');
-worker.port.start();
-worker.port.postMessage({ type: 'subscribe' });
-worker.port.onmessage = (e) => {
-  // Both tabs receive the same messages — perfect for synced state
-};
+// Classic worker (still works but don't use it)
+const worker = new Worker('/workers/heavy-parser.js');
 ```
 
-Use cases: WebSocket connection pooling (one connection, N tabs), cross-tab state synchronization, and coordinating audio playback across windows.
+This meant you had to configure your bundler to emit a separate chunk, manage paths, deal with CORS, and handle deployment — all before writing a single line of worker logic. Most developers gave up at step one.
 
-## The Transferable Trick: Zero-Copy Data Transfer
-
-The biggest performance bottleneck with Workers isn't computation — it's **data transfer**. By default, `postMessage` uses structured cloning, which copies the entire payload:
+In 2026, **module workers** with `new URL()` are Baseline across every browser:
 
 ```javascript
-// Default: structured clone — copies 100MB array (slow, memory-hungry)
-const bigArray = new Float64Array(100_000_000);
-worker.postMessage(bigArray); // ❌ Copies 800 MB
-
-// Transferable: zero-copy — transfers ownership (instant, no duplication)
-worker.postMessage(bigArray, [bigArray.buffer]); // ✅ Zero-copy
-// bigArray is now empty (transferred ownership)
+// Module worker: works with Vite, Webpack 5+, esbuild, Turbopack
+const worker = new Worker(
+  new URL('./parser.worker.ts', import.meta.url),
+  { type: 'module' }
+);
 ```
 
-**Transferables** move ownership instead of copying. The sender loses access; the receiver gains it. Supported types: `ArrayBuffer`, `MessagePort`, `ImageBitmap`, `OffscreenCanvas`, `ReadableStream`, `WritableStream`, `TransformStream`, and `WebTransportReceiveStream` (as of 2026).
+This tells the bundler "this is a worker entry point" and it handles chunking, hashing, code-splitting, and path resolution automatically. Your worker can `import` dependencies, use TypeScript, and get tree-shaken just like any other module.
 
-Rule of thumb: use transferables for any buffer > 1KB. The performance difference is dramatic:
+```typescript
+// parser.worker.ts
+import { parse } from 'csv-parse/sync'; // Import works fine!
+import { validateRow } from './validators';
 
-```
-Array size: 10 million floats (80 MB)
-Structured clone: ~120ms, 160 MB peak memory
-Transferable:       ~0.05ms, 80 MB peak memory
-```
-
-## Module Workers (ESM)
-
-Since 2023, Workers support ES modules natively. No more `importScripts()`:
-
-```javascript
-// Old way (classic worker)
-importScripts('./utils.js', './math.js');
-
-// New way (module worker)
-const worker = new Worker('worker.js', { type: 'module' });
-
-// worker.js
-import { fibonacci } from './utils.js';
-import { processData } from './math.js';
-
-self.onmessage = (e) => {
-  const result = processData(e.data);
-  self.postMessage(result);
+self.onmessage = (e: MessageEvent<File>) => {
+  const text = e.data.text();
+  const records = parse(text, { columns: true });
+  const cleaned = records.filter(validateRow);
+  self.postMessage(cleaned);
 };
 ```
 
-Module workers support static imports, dynamic `import()`, and top-level `await`. In 2026, you should default to module workers — they integrate with bundlers via `new Worker(new URL('./worker.ts', import.meta.url), { type: 'module' })` with full TypeScript support.
+## The Structured Clone Algorithm: What You Can Actually Send
 
-## OffscreenCanvas: Render Graphics Off the Main Thread
+Workers don't share memory by default. Everything you send via `postMessage()` is **copied** using the Structured Clone Algorithm. For years, this was frustratingly limited — you could send basic objects, arrays, strings, and numbers. Maps? No. Sets? No. BigInts? Definitely not.
 
-`OffscreenCanvas` lets you render Canvas 2D and WebGL in a Worker, completely off the main thread:
+In 2026, structured clone handles virtually everything:
 
-```javascript
-// main.js
+```typescript
+// Send complex data without serialization
+worker.postMessage({
+  users: new Map([[1, { name: 'Alice' }], [2, { name: 'Bob' }]]),
+  tags: new Set(['admin', 'editor', 'viewer']),
+  bigId: 9007199254740993n,
+  buffer: new ArrayBuffer(1024),
+  file: event.target.files[0],     // File objects clone
+  blob: new Blob(['data']),
+  error: new Error('something'),
+  date: new Date(),
+  regex: /pattern/gi,
+});
+
+// Everything arrives intact on the other side
+```
+
+**The one catch:** `Function`, `DOM` nodes, `Symbol`, and prototype chains are **not** cloned. You get plain objects, not instances of your classes. For class instances, send the data and reconstruct on the worker side.
+
+## Transferable Objects: Zero-Copy Ownership
+
+Copying large buffers is slow. For `ArrayBuffer`, `MessagePort`, `ImageBitmap`, and `OffscreenCanvas`, you can **transfer** ownership instead:
+
+```typescript
+const buffer = new ArrayBuffer(1024 * 1024 * 100); // 100 MB
+// Transfer ownership — buffer becomes unusable on the main thread
+worker.postMessage({ buffer }, [buffer]);
+
+// After transfer, buffer.byteLength is 0 on the main thread
+console.log(buffer.byteLength); // 0
+
+// But the worker gets it instantly — zero copy
+```
+
+Transfer is instantaneous regardless of buffer size because the browser just moves the pointer. This is essential for image/video processing, large file parsing, and crypto operations on big datasets.
+
+## OffscreenCanvas: GPU Rendering From Workers
+
+`OffscreenCanvas` lets you use the Canvas 2D API, WebGL, and WebGPU from workers:
+
+```typescript
+// Main thread
 const canvas = document.querySelector('canvas');
 const offscreen = canvas.transferControlToOffscreen();
 worker.postMessage({ canvas: offscreen }, [offscreen]);
 
-// worker.js
+// Worker thread
 self.onmessage = (e) => {
-  const canvas = e.data.canvas;
+  const canvas = e.data.canvas; // OffscreenCanvas
   const ctx = canvas.getContext('2d');
-
-  // Full Canvas API access — all off the main thread
-  function render() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.fillStyle = `hsl(${performance.now() / 10 % 360}, 70%, 50%)`;
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-    requestAnimationFrame(render);
+  // Do heavy rendering without blocking the main thread
+  for (let i = 0; i < 100000; i++) {
+    ctx.fillRect(x, y, w, h);
   }
-  render();
+  ctx.commit(); // Push to the display canvas
 };
 ```
 
-The main thread's `requestAnimationFrame` loop still triggers repaints, but all drawing commands execute in the Worker. Combined with `ImageBitmap` (which is also transferable), you can build 60fps canvas apps that never block the UI.
+This is how Figma, Google Docs, and Obsidian render their canvases — all heavy rendering happens off the main thread.
 
-## Comlink: The RPC Pattern for Workers
+## Worker Pools: Parallel Processing for CPU-Bound Tasks
 
-Raw `postMessage` works, but doesn't scale. Enter **Comlink** — a tiny library (2KB) that turns Worker message passing into async function calls:
+For tasks like image batch processing, CSV parsing, or data transforms, a single worker isn't enough — you want parallelism:
 
-```javascript
-// worker.ts
-import { expose } from 'comlink';
+```typescript
+class WorkerPool {
+  private workers: Worker[] = [];
+  private queue: (() => Promise<void>)[] = [];
+  private busy: Set<number> = new Set();
 
-const api = {
-  async fibonacci(n: number): Promise<number> {
-    if (n <= 1) return n;
-    return (await api.fibonacci(n - 1)) + (await api.fibonacci(n - 2));
-  },
-  async processImage(blob: Blob): Promise<ImageData> {
-    // Heavy image processing
+  constructor(url: string, size = navigator.hardwareConcurrency || 4) {
+    for (let i = 0; i < size; i++) {
+      this.workers.push(new Worker(new URL(url, import.meta.url), { type: 'module' }));
+    }
   }
-};
 
-expose(api);
+  async run<T>(data: any): Promise<T> {
+    return new Promise((resolve) => {
+      this.queue.push(() => {
+        const index = this.workers.findIndex((_, i) => !this.busy.has(i));
+        this.busy.add(index);
+        const worker = this.workers[index];
+        worker.onmessage = (e) => {
+          this.busy.delete(index);
+          resolve(e.data);
+          this.flush();
+        };
+        worker.postMessage(data);
+      });
+      this.flush();
+    });
+  }
 
-// main.ts
-import { wrap } from 'comlink';
-
-const worker = new Worker(new URL('./worker.ts', import.meta.url), { type: 'module' });
-const api = wrap<import('./worker').api>(worker);
-
-// Call worker methods like local async functions — with full TypeScript types!
-const result = await api.fibonacci(40); // Runs in worker
-const processed = await api.processImage(someBlob); // Runs in worker
-```
-
-Comlink uses `Proxy` to intercept function calls and `postMessage` to send them to the worker. It supports callbacks (with `proxy()`), transferables, and `AbortSignal` integration. In 2026, it's the de facto standard for Worker communication.
-
-## Real-World Use Cases
-
-### 1. Large File Processing (PDFs, Images, CSV)
-
-Parse, transform, and compress files in a Worker while the UI shows a progress bar:
-
-```javascript
-const worker = new Worker('file-processor.js');
-worker.postMessage({ file, operation: 'compress' });
-worker.onmessage = (e) => {
-  if (e.data.type === 'progress') updateProgress(e.data.percent);
-  if (e.data.type === 'complete') downloadBlob(e.data.blob);
-};
-```
-
-### 2. Real-Time Data Transformation
-
-WebSocket messages arrive fast. Parse JSON, filter, sort, and aggregate in a Worker:
-
-```javascript
-// main.js
-const ws = new WebSocket('wss://stream.example.com');
-ws.onmessage = (event) => worker.postMessage(event.data);
-
-// worker.js
-self.onmessage = (e) => {
-  const parsed = JSON.parse(e.data);
-  // Filter, aggregate, transform
-  const result = transformTick(parsed);
-  self.postMessage(result); // Only send processed data to main thread
-};
-```
-
-### 3. ML Inference (TensorFlow.js, ONNX)
-
-Run model inference in a Worker so predictions never block the UI:
-
-```javascript
-// worker.ts — loads the model once, runs inference on demand
-import * as tf from '@tensorflow/tfjs';
-
-let model: tf.GraphModel;
-
-async function initModel() {
-  model = await tf.loadGraphModel('/model/model.json');
+  private flush() {
+    while (this.queue.length > 0 && this.busy.size < this.workers.length) {
+      this.queue.shift()!();
+    }
+  }
 }
+```
 
-const api = {
-  async predict(input: Float32Array): Promise<Float32Array> {
-    const tensor = tf.tensor(input);
-    const output = model.predict(tensor) as tf.Tensor;
-    const result = await output.data(); // Transfer ArrayBuffer
-    return result;
-  }
+Usage:
+
+```typescript
+const pool = new WorkerPool(
+  new URL('./image-processor.worker.ts', import.meta.url),
+  8
+);
+
+// Process 100 images in parallel (8 at a time)
+const images = Array.from({ length: 100 }, (_, i) => `/img/photo-${i}.jpg`);
+const results = await Promise.all(images.map(img => pool.run({ url: img, width: 800 })));
+```
+
+## SharedArrayBuffer + Atomics: True Shared Memory
+
+For high-performance scenarios where copy overhead is unacceptable, `SharedArrayBuffer` + `Atomics` provides true shared memory:
+
+```typescript
+// Main thread
+const sab = new SharedArrayBuffer(1024);
+const view = new Int32Array(sab);
+
+// Pass to multiple workers
+worker1.postMessage({ buffer: sab });
+worker2.postMessage({ buffer: sab });
+
+// Each worker can read/write atomically:
+// Worker 1
+const view = new Int32Array(e.data.buffer);
+Atomics.add(view, 0, 1);  // Atomic increment — no race conditions
+Atomics.notify(view, 0);   // Wake up waiters
+
+// Worker 2
+Atomics.wait(view, 0, 1, 1000); // Wait until value changes (with timeout)
+```
+
+**Security requirement:** Your site needs `Cross-Origin-Opener-Policy: same-origin` and `Cross-Origin-Embedder-Policy: require-corp` headers. This isolates your context for Spectre mitigation — required for SharedArrayBuffer.
+
+## OPFS: Synchronous File I/O in Workers
+
+The Origin Private File System (OPFS) is a sandboxed filesystem per-origin. In workers, you get `createSyncAccessHandle()` — synchronous read/write without callbacks:
+
+```typescript
+// worker.ts — synchronous file operations
+const root = await navigator.storage.getDirectory();
+const file = await root.getFileHandle('database.sqlite', { create: true });
+const accessHandle = await file.createSyncAccessHandle();
+
+// Synchronous writes — no await, no callbacks
+const encoder = new TextEncoder();
+const data = encoder.encode('INSERT INTO users ...');
+accessHandle.write(data, { at: 0 });
+
+// Synchronous reads
+const buffer = new Uint8Array(1024);
+accessHandle.read(buffer, { at: 0 });
+accessHandle.flush();
+accessHandle.close();
+```
+
+This is a game-changer for SQLite in the browser. Projects like `sqlite3-wasm` and `wa-sqlite` use OPFS to run full SQL engines in workers with synchronous I/O — matching native performance.
+
+## Real-World Patterns
+
+### Pattern 1: Off-Main-Thread CSV Parser
+
+**Problem:** Parsing a 50 MB CSV file freezes the UI for 3-5 seconds.
+
+```typescript
+// Main thread: file picker
+input.addEventListener('change', (e) => {
+  const file = e.target.files?.[0];
+  const worker = new Worker(
+    new URL('./csv.worker.ts', import.meta.url),
+    { type: 'module' }
+  );
+  worker.postMessage(file); // Structured clone handles File objects
+  worker.onmessage = (e) => {
+    renderTable(e.data.rows); // Parsed data arrives without blocking
+  };
+});
+
+// csv.worker.ts — never touches the main thread
+import { parse } from 'papaparse';
+
+self.onmessage = async (e) => {
+  const file = e.data as File;
+  const text = await file.text();
+  const result = parse(text, { header: true, dynamicTyping: true });
+  self.postMessage({ rows: result.data, errors: result.errors });
 };
-
-expose(api);
-initModel(); // Start loading immediately
 ```
 
-### 4. Concurrent Operations with Thread Pools
+### Pattern 2: Image Resizer Pool
 
-One worker is single-threaded, but you can spawn a pool:
+**Problem:** Resizing 50 uploaded photos to thumbnail size takes 10+ seconds.
 
-```javascript
-const pool = Array.from({ length: navigator.hardwareConcurrency }, () =>
-  wrap(new Worker(new URL('./worker.ts', import.meta.url), { type: 'module' }))
-);
-
-// Process 100 items in parallel across all CPU cores
-const results = await Promise.all(
-  items.map((item, i) => pool[i % pool.length].process(item))
-);
+```typescript
+// image-resize.worker.ts
+self.onmessage = async (e) => {
+  const { blob, width } = e.data;
+  const bitmap = await createImageBitmap(blob);
+  const canvas = new OffscreenCanvas(width, (bitmap.height / bitmap.width) * width);
+  const ctx = canvas.getContext('2d')!;
+  ctx.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
+  const resized = await canvas.convertToBlob({ type: 'image/jpeg', quality: 0.85 });
+  self.postMessage(resized);
+};
 ```
 
-**Warning:** `navigator.hardwareConcurrency` is available in Workers too, so avoid spawning workers inside workers (or limit depth).
+### Pattern 3: Background Sync With Periodic Sync
 
-## When NOT to Use Web Workers
+**Problem:** Keep local IndexedDB data in sync with the server without blocking the UI.
 
-Workers aren't always the answer:
+```typescript
+// service-worker.ts (Service Workers are also Workers!)
+self.addEventListener('periodicsync', (event) => {
+  if (event.tag === 'sync-notes') {
+    event.waitUntil(syncNotes());
+  }
+});
 
-- **Small, fast operations** (under 1ms): The `postMessage` overhead dominates.
-- **DOM-dependent tasks**: Workers can't access `document`, `window`, or the DOM. Use `requestAnimationFrame` chunking instead.
-- **Frequent callbacks**: Crossing the thread boundary has latency (typically 0.1–0.5ms). Batch updates.
-- **State-heavy logic**: Keeping worker state in sync with main-thread state requires careful architecture.
+async function syncNotes() {
+  const localNotes = await getFromIndexedDB('notes');
+  const serverNotes = await fetch('/api/notes/sync', {
+    method: 'POST',
+    body: JSON.stringify(localNotes),
+  }).then(r => r.json());
+  await writeToIndexedDB('notes', serverNotes);
+}
+```
+
+### Pattern 4: Crypto Operations Off Thread
+
+**Problem:** Hashing large files for integrity checks blocks the main thread.
+
+```typescript
+// hash.worker.ts
+self.onmessage = async (e) => {
+  const { file, algorithm } = e.data;
+  const stream = file.stream();
+  const hash = await crypto.subtle.digest(algorithm, stream);
+  const hex = Array.from(new Uint8Array(hash))
+    .map(b => b.toString(16).padStart(2, '0'))
+    .join('');
+  self.postMessage({ hex, name: file.name, size: file.size });
+};
+```
+
+## When NOT to Use Workers
+
+Workers aren't free. Each worker has a memory overhead (~1-5 MB), and `postMessage` has serialization cost. Don't use them for:
+
+- **Trivial operations** (< 10ms) — the serialization overhead exceeds the benefit
+- **DOM manipulation** — workers can't access the DOM (use OffscreenCanvas for canvas)
+- **Frequent small updates** — batching reduces message overhead
+- **When you need synchronous results** — `postMessage` is always async
+- **Tiny data** — structured clone of `{x: 1}` is cheaper than spawning a worker
+
+## The Worker Lifecycle: Error Handling and Cleanup
+
+Workers don't clean up automatically. If you create workers and lose references, they keep running — consuming memory and CPU:
+
+```typescript
+class ManagedWorker {
+  private worker: Worker;
+  private terminated = false;
+
+  constructor(script: URL) {
+    this.worker = new Worker(script, { type: 'module' });
+    this.worker.onerror = (e) => {
+      console.error('Worker error:', e.message, e.filename, e.lineno);
+      this.terminate();
+    };
+    this.worker.onmessageerror = (e) => {
+      console.error('Could not deserialize worker message:', e);
+    };
+  }
+
+  terminate() {
+    if (!this.terminated) {
+      this.worker.terminate();
+      this.terminated = true;
+    }
+  }
+}
+```
 
 ## Debugging Workers in 2026
 
-Modern DevTools have first-class Worker support:
+Chrome DevTools has a dedicated Workers panel. Open DevTools → Sources → Threads pane. Each worker shows as a separate thread with:
 
-- **Chrome/Edge DevTools**: Sources panel shows all Workers. Set breakpoints, inspect variables, see console output. Each Worker gets its own scope.
-- **Firefox**: `about:debugging#workers` lists all active Workers with dedicated debugger windows.
-- **Performance panel**: Worker activity appears alongside main-thread activity in flame charts.
-- **`console.log` from Workers appears in the main console** (prefixed with the worker name).
+- **Full source maps support** — TypeScript debugging works
+- **Breakpoints, watch expressions, call stack**
+- **Console scoped to the worker** — `console.log()` goes to the worker's scope
+- **Performance panel** — records worker thread activity alongside the main thread
 
-Chrome 130+ also added `console.createTask()` for associating worker async tasks with their origin in the Performance panel.
+Firefox has similar support under the Debugger panel's "Threads" dropdown.
 
-## Security Considerations
+## COOP/COEP: The Headers You Need for SharedArrayBuffer
 
-Workers run in a restricted environment by default:
+`SharedArrayBuffer` is gated behind cross-origin isolation for Spectre security:
 
-```javascript
-// Workers cannot access:
-document         // ❌ undefined
-window           // ❌ undefined
-localStorage     // ❌ undefined
-sessionStorage   // ❌ undefined
-parent           // ❌ undefined
-
-// Workers can access:
-fetch            // ✅ Network requests
-WebSocket        // ✅ Persistent connections
-IndexedDB        // ✅ Storage (shared with main thread)
-Cache API        // ✅ Caching
-navigator        // ✅ (some properties)
+```http
+Cross-Origin-Opener-Policy: same-origin
+Cross-Origin-Embedder-Policy: require-corp
 ```
 
-For even more isolation, create same-origin Workers with restricted `Content-Security-Policy` headers via the `worker-src` directive.
+For Next.js, add to `next.config.js`:
 
-## Browser Support
+```javascript
+module.exports = {
+  async headers() {
+    return [
+      {
+        source: '/(.*)',
+        headers: [
+          { key: 'Cross-Origin-Opener-Policy', value: 'same-origin' },
+          { key: 'Cross-Origin-Embedder-Policy', value: 'require-corp' },
+        ],
+      },
+    ];
+  },
+};
+```
 
-Web Workers have been baseline since **2012**. Every browser supports them:
+**Warning:** `require-corp` means all cross-origin resources (images, fonts, scripts from CDNs) need `Cross-Origin-Resource-Policy: cross-origin` headers from the server. If you load resources from third-party CDNs without CORP, they'll break. For most sites, you can skip SharedArrayBuffer and just use structured clone transfer — you get most of the performance without the header complexity.
 
-| Feature | Chrome | Firefox | Safari | Edge |
-|---------|--------|---------|--------|------|
-| Dedicated Workers | 4 | 3.5 | 4 | 12 |
-| Shared Workers | 4 | 29 | 16 | 79 |
-| Module Workers | 80 | 114 | 15.3 | 80 |
-| OffscreenCanvas | 69 | 105 | 16.4 | 79 |
-| Transferables | 21 | 15 | 7 | 12 |
-| `navigator.hardwareConcurrency` | 37 | 48 | 10.1 | 15 |
+## Service Workers Are Workers Too
 
-Module Workers hit Baseline in 2024. OffscreenCanvas hit Baseline in 2025. SharedWorkers work everywhere.
+Everything in this guide applies to Service Workers — they're a specialized Worker with additional APIs (`fetch`, `cache`, `push`, `sync`). The key difference: Service Workers are persistent, intercept network requests, and outlive the page.
+
+```typescript
+// service-worker.ts (module worker, intercepts all fetch requests)
+self.addEventListener('fetch', (event) => {
+  event.respondWith(
+    caches.match(event.request).then((cached) => {
+      return cached || fetch(event.request).then((response) => {
+        return caches.open('v1').then((cache) => {
+          cache.put(event.request, response.clone());
+          return response;
+        });
+      });
+    })
+  );
+});
+```
 
 ## The Bottom Line
 
-Web Workers are not exotic — they're fundamental. Every web application that handles data processing, image manipulation, real-time streams, or ML inference should use them. The API is simple, the tooling is mature, and the performance gains are dramatic.
+Web Workers aren't exotic anymore. Module workers work with every modern bundler. Structured clone handles complex types. Transferable objects provide zero-copy data sharing. OPFS gives synchronous file I/O. `OffscreenCanvas` keeps rendering off the main thread. Worker pools enable true parallelism.
 
-If your app has ever frozen during a heavy computation, you need a Worker. Start with a single Dedicated Worker + Comlink. Graduate to SharedWorkers when you have multi-tab coordination. Reach for OffscreenCanvas when rendering becomes a bottleneck.
+The main thread is for user interaction. Everything else belongs in a worker.
 
-Your users will thank you, and your INP scores will too.
+Try it interactively on the [Web Workers Playground](/tools/web-workers-playground) — experiment with worker pools, message passing, and OffscreenCanvas, all client-side.
 
-<div class="highlight-box highlight-positive">
-  <strong>Start today:</strong> Move your heaviest computation into a Worker. Even migrating one slow function will immediately improve your Core Web Vitals. Use the <a href="/tools/web-workers-playground/" class="inline-link">Web Workers Playground</a> on DevBench to experiment with the API before adding it to production code.
-</div>
+<hr />
+
+<p>
+  <em>Explore more DevBench tools: <a href="/tools/json-formatter">JSON Formatter</a>, <a href="/tools/hash-generator">Hash Generator</a>, <a href="/tools/image-compressor">Image Compressor</a>, and <a href="/tools/regex-tester">Regex Tester</a> — all free, all client-side.</em>
+</p>
