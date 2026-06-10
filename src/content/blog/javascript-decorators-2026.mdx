@@ -1,0 +1,567 @@
+---
+title: "JavaScript Decorators in 2026: The Complete Guide to TC39 Stage 3 Decorators"
+date: "2026-06-10"
+excerpt: "JavaScript decorators are Stage 3 at TC39 and shipping in TypeScript 5.x — @logged, @validate, @memoize, @deprecated. They replace boilerplate code with declarative annotations. This complete guide covers the spec-compliant decorator API, every decorator kind (class, method, field, accessor, getter/setter), parameter decorators, decorator factories, metadata with Symbol.metadata, and real production patterns."
+tags: ["JavaScript", "Decorators", "TC39", "TypeScript", "Metaprogramming", "ES2026", "Stage 3"]
+---
+
+## The 10-Year Decorator Journey Is Finally Over
+
+Decorators have been in JavaScript limbo longer than any other language feature. First proposed in 2014, implemented in TypeScript as an experimental feature in 2015, and used by millions of Angular and NestJS developers — all while the spec was rewritten three times.
+
+In 2026, the TC39 decorator proposal is **Stage 3** — the final stage before Stage 4 (shipping). TypeScript 5.x ships spec-compliant decorators behind `"experimentalDecorators": false` (the new default). Babel supports them via `@babel/plugin-proposal-decorators` with `"version": "2023-12"`.
+
+This post covers the final, spec-compliant decorator API. Not the legacy TypeScript `experimentalDecorators`. Not the 2018 proposal. The real thing.
+
+## What Decorators Actually Are
+
+A decorator is a function that can modify or replace a class, method, field, getter, setter, or accessor at definition time. They run once, when the class is defined — not at instantiation time.
+
+```javascript
+function logged(value, context) {
+  if (context.kind === 'method') {
+    const original = value;
+    return function (...args) {
+      console.log(`Calling ${String(context.name)} with`, args);
+      const result = original.apply(this, args);
+      console.log(`Returned`, result);
+      return result;
+    };
+  }
+}
+
+class Calculator {
+  @logged
+  add(a, b) {
+    return a + b;
+  }
+
+  @logged
+  multiply(a, b) {
+    return a * b;
+  }
+}
+```
+
+When you call `new Calculator().add(3, 4)`, the console shows:
+
+```
+Calling add with [3, 4]
+Returned 7
+```
+
+No Proxy. No reflection API. Just functions that receive the original value and a context object, and return the replacement.
+
+## The Decorator Context Object
+
+Every decorator receives two arguments: the decorated `value` and a `context` object. The context tells you everything about what you're decorating:
+
+```javascript
+function inspect(value, context) {
+  console.log({
+    kind: context.kind,         // 'class' | 'method' | 'field'
+                                // | 'getter' | 'setter' | 'accessor'
+    name: context.name,         // String | Symbol
+    static: context.static,     // true if static member
+    private: context.private,   // true if #private
+    access: context.access,     // { get, set } for accessor/field
+    metadata: context.metadata, // Symbol.metadata object (Stage 3)
+    addInitializer: context.addInitializer,
+  });
+  return value;
+}
+```
+
+### Context.kind: The Six Decorator Kinds
+
+| Kind | Decorates | Receives | Returns |
+|------|-----------|----------|---------|
+| `'class'` | Entire class | The class constructor | New class or undefined |
+| `'method'` | Method | The method function | Replacement function |
+| `'field'` | Class field | `undefined` (no value yet) | Initializer function |
+| `'getter'` | Getter | The getter function | Replacement getter |
+| `'setter'` | Setter | The setter function | Replacement setter |
+| `'accessor'` | Auto accessor | `{ get, set }` object | `{ get, set }` replacement |
+
+## Method Decorators: The Workhorse
+
+Method decorators are the most common. You receive the original method and return a replacement:
+
+```javascript
+function debounce(ms) {
+  return function (value, context) {
+    if (context.kind !== 'method') return value;
+    let timeout;
+    const original = value;
+    return function (...args) {
+      clearTimeout(timeout);
+      timeout = setTimeout(() => original.apply(this, args), ms);
+    };
+  };
+}
+
+class SearchInput {
+  @debounce(300)
+  handleInput(value) {
+    fetch(`/api/search?q=${value}`);
+  }
+}
+```
+
+Notice this is a **decorator factory** — a function that returns a decorator. Parentheses are required when passing arguments: `@debounce(300)`, not `@debounce`.
+
+### Preserving `this` in Method Decorators
+
+The replacement function is called with the correct `this` because it's assigned as a method on the class prototype. You don't need `.bind()` or arrow function tricks — the engine handles it:
+
+```javascript
+function measure(value, context) {
+  if (context.kind !== 'method') return value;
+  const original = value;
+  return function (...args) {
+    const start = performance.now();
+    const result = original.apply(this, args); // 'this' is correct
+    console.log(`${context.name} took ${performance.now() - start}ms`);
+    return result;
+  };
+}
+```
+
+## Field Decorators: Initializers, Not Values
+
+Field decorators are different from method decorators. You receive `undefined` as the value (the field hasn't been assigned yet) and must return an **initializer function**:
+
+```javascript
+function lazy(fetchFn) {
+  return function (_, context) {
+    if (context.kind !== 'field') return;
+    context.addInitializer(function () {
+      let cached;
+      Object.defineProperty(this, context.name, {
+        get() {
+          if (cached === undefined) {
+            cached = fetchFn.call(this);
+          }
+          return cached;
+        },
+        enumerable: true,
+        configurable: true,
+      });
+    });
+  };
+}
+
+class Dashboard {
+  @lazy(function () {
+    return fetch('/api/stats').then(r => r.json());
+  })
+  stats;
+}
+```
+
+The key insight: field decorators use `context.addInitializer()` to run code during instance construction. The initializer receives `this` (the instance) and can define properties, set up getters, or perform side effects.
+
+## Auto Accessors: The `accessor` Keyword
+
+Auto accessors (`accessor` keyword) are a companion feature to decorators. They're a shorthand for defining a getter/setter pair backed by a private slot:
+
+```javascript
+class Person {
+  accessor name = 'Alice';
+  // Roughly equivalent to:
+  // #name = 'Alice';
+  // get name() { return this.#name; }
+  // set name(v) { this.#name = v; }
+}
+```
+
+Auto accessors become powerful with decorators. An accessor decorator receives `{ get, set }` and can intercept reads and writes:
+
+```javascript
+function validate(validator) {
+  return function ({ get, set }, context) {
+    return {
+      get,
+      set(value) {
+        if (!validator(value)) {
+          throw new TypeError(
+            `Invalid value for ${String(context.name)}: ${value}`
+          );
+        }
+        set.call(this, value);
+      },
+    };
+  };
+}
+
+class Product {
+  @validate(v => v > 0)
+  accessor price = 0;
+
+  @validate(v => typeof v === 'string' && v.length > 0)
+  accessor name = '';
+}
+```
+
+### Typed Validation with Decorators
+
+Here's a complete typed validation pattern using auto accessors:
+
+```javascript
+function required({ get, set }, context) {
+  return {
+    get,
+    set(value) {
+      if (value === undefined || value === null || value === '') {
+        throw new TypeError(`${String(context.name)} is required`);
+      }
+      set.call(this, value);
+    },
+  };
+}
+
+function minLength(length) {
+  return function ({ get, set }, context) {
+    return {
+      get,
+      set(value) {
+        if (typeof value === 'string' && value.length < length) {
+          throw new TypeError(
+            `${String(context.name)} must be at least ${length} chars`
+          );
+        }
+        set.call(this, value);
+      },
+    };
+  };
+}
+
+class SignupForm {
+  @required
+  @minLength(3)
+  accessor username = '';
+
+  @required
+  accessor email = '';
+
+  @required
+  @minLength(8)
+  accessor password = '';
+}
+```
+
+Stacking decorators (`@required` then `@minLength`) executes them **bottom-up** — `minLength` wraps the accessor, then `required` wraps that. The innermost decorator runs first.
+
+## Class Decorators: Wrapping the Constructor
+
+Class decorators receive the class itself and can return a new class (or extend it inline):
+
+```javascript
+function singleton(value, context) {
+  if (context.kind !== 'class') return value;
+  let instance;
+  return class extends value {
+    constructor(...args) {
+      if (instance) return instance;
+      super(...args);
+      instance = this;
+    }
+  };
+}
+
+@singleton
+class Database {
+  constructor(connectionString) {
+    this.connectionString = connectionString;
+    console.log('Connecting...');
+  }
+}
+
+const db1 = new Database('postgres://...'); // "Connecting..."
+const db2 = new Database('postgres://...'); // No log — returns cached instance
+console.log(db1 === db2); // true
+```
+
+### Dependency Injection with Class Decorators
+
+Class decorators enable simple DI containers without heavy frameworks:
+
+```javascript
+const registry = new Map();
+
+function injectable(value, context) {
+  if (context.kind !== 'class') return value;
+  registry.set(context.name, value);
+  return value;
+}
+
+function inject(token) {
+  return function (_, context) {
+    if (context.kind !== 'field') return;
+    context.addInitializer(function () {
+      this[context.name] = new (registry.get(token))();
+    });
+  };
+}
+
+@injectable
+class Logger {
+  log(msg) { console.log(`[LOG] ${msg}`); }
+}
+
+@injectable
+class UserService {
+  @inject(Logger)
+  logger;
+
+  createUser(name) {
+    this.logger.log(`Creating user: ${name}`);
+  }
+}
+```
+
+## Metadata: The `Symbol.metadata` API
+
+Stage 3 decorators introduce `Symbol.metadata` — an object attached to the class (or method) that stores arbitrary metadata set by decorators:
+
+```javascript
+function role(name) {
+  return function (_, context) {
+    context.metadata ??= {};
+    context.metadata.role = name;
+  };
+}
+
+function deprecated(message) {
+  return function (_, context) {
+    context.metadata ??= {};
+    context.metadata.deprecated = message;
+  };
+}
+
+class UserAPI {
+  @role('admin')
+  @deprecated('Use deleteUserAsync instead')
+  deleteUser(id) {
+    // ...
+  }
+
+  @role('public')
+  getProfile(id) {
+    // ...
+  }
+}
+
+// Read metadata at runtime
+console.log(UserAPI.prototype.deleteUser[Symbol.metadata]);
+// { role: 'admin', deprecated: 'Use deleteUserAsync instead' }
+```
+
+This is the bridge between decorators and tooling. Linters can read metadata to enforce access control. Documentation generators can extract `@deprecated` annotations. ORMs can store column types without a separate schema file.
+
+## Real Production Patterns
+
+### 1. API Route Decorators (Express-style)
+
+```javascript
+function route(method, path) {
+  return function (value, context) {
+    if (context.kind !== 'method') return value;
+    context.metadata ??= {};
+    context.metadata.route = { method, path };
+    return value;
+  };
+}
+
+const Get = (path) => route('GET', path);
+const Post = (path) => route('POST', path);
+const Delete = (path) => route('DELETE', path);
+
+class UserController {
+  @Get('/users')
+  listUsers() { /* ... */ }
+
+  @Post('/users')
+  createUser() { /* ... */ }
+
+  @Delete('/users/:id')
+  deleteUser() { /* ... */ }
+}
+
+// Framework reads metadata to register routes
+function registerRoutes(controller) {
+  const proto = controller.prototype;
+  for (const key of Object.getOwnPropertyNames(proto)) {
+    const meta = proto[key][Symbol.metadata];
+    if (meta?.route) {
+      app[meta.route.method.toLowerCase()](
+        meta.route.path,
+        proto[key].bind(new controller())
+      );
+    }
+  }
+}
+```
+
+### 2. Memoization for Expensive Computations
+
+```javascript
+function memoize(value, context) {
+  if (context.kind !== 'method' && context.kind !== 'getter') return value;
+  const original = value;
+  const cache = new Map();
+  return function (...args) {
+    const key = JSON.stringify(args);
+    if (cache.has(key)) return cache.get(key);
+    const result = original.apply(this, args);
+    cache.set(key, result);
+    return result;
+  };
+}
+
+class AnalyticsEngine {
+  @memoize
+  computeRetention(startDate, endDate, cohort) {
+    // Expensive database query + statistical computation
+    return heavyComputation(startDate, endDate, cohort);
+  }
+}
+```
+
+### 3. Performance Monitoring with Histograms
+
+```javascript
+function timed(value, context) {
+  if (context.kind !== 'method') return value;
+  const original = value;
+  const times = [];
+  return function (...args) {
+    const start = performance.now();
+    try {
+      return original.apply(this, args);
+    } finally {
+      const duration = performance.now() - start;
+      times.push(duration);
+      if (times.length >= 100) {
+        const avg = times.reduce((a, b) => a + b) / times.length;
+        const p99 = times.sort((a, b) => a - b)[Math.floor(times.length * 0.99)];
+        console.log(`${context.name}: avg=${avg.toFixed(2)}ms, p99=${p99.toFixed(2)}ms`);
+        times.length = 0;
+      }
+    }
+  };
+}
+```
+
+### 4. Rate Limiting
+
+```javascript
+function rateLimit(maxPerSecond) {
+  return function (value, context) {
+    if (context.kind !== 'method') return value;
+    const original = value;
+    let tokens = maxPerSecond;
+    let lastRefill = Date.now();
+    return function (...args) {
+      const now = Date.now();
+      const elapsed = (now - lastRefill) / 1000;
+      tokens = Math.min(maxPerSecond, tokens + elapsed * maxPerSecond);
+      lastRefill = now;
+      if (tokens < 1) {
+        throw new Error(`Rate limit exceeded for ${String(context.name)}`);
+      }
+      tokens--;
+      return original.apply(this, args);
+    };
+  };
+}
+```
+
+## The Decorator Execution Order
+
+When you stack decorators, the order matters. Here are the complete rules:
+
+1. **Instance member decorators run before static member decorators**
+2. **Field decorators run before accessor decorators, which run before method decorators**
+3. **For the same kind, decorators execute bottom-up** (the one closest to the member runs first)
+4. **For fields, initializers added via `addInitializer` run in order — field initializers first, then class constructor initializers**
+5. **The class decorator runs last**, after all members are decorated
+
+```javascript
+function first(_, ctx) {
+  console.log(`first: ${String(ctx.name)}`);
+  return _;
+}
+function second(_, ctx) {
+  console.log(`second: ${String(ctx.name)}`);
+  return _;
+}
+
+@first
+class Example {
+  @second
+  @first
+  method() {}
+}
+// Logs:
+// first: method    (bottom-up for same member)
+// second: method
+// first: class     (class decorator runs last)
+```
+
+## TypeScript Configuration
+
+To use spec-compliant decorators in TypeScript 5.x:
+
+```json
+{
+  "compilerOptions": {
+    "target": "ES2023",
+    "experimentalDecorators": false,
+    "useDefineForClassFields": true
+  }
+}
+```
+
+That's it. Setting `experimentalDecorators` to `false` enables the Stage 3 spec behavior. No more `__decorate` helpers. No more `Reflect.metadata`. Clean output that maps directly to your source.
+
+## Browser and Runtime Support
+
+| Platform | Status |
+|----------|--------|
+| TypeScript 5.0+ | ✅ Spec-compliant (`experimentalDecorators: false`) |
+| Babel 7.23+ | ✅ `@babel/plugin-proposal-decorators` v2023-12 |
+| Chrome / Edge | 🚧 Behind flag (`--js-decorators`) |
+| Firefox | 🚧 Behind flag |
+| Safari | 🚧 Behind flag |
+| Node.js 24+ | 🚧 Behind `--experimental-decorators` |
+| Deno 2 | 🚧 Behind flag |
+| Bun 1.3+ | 🚧 Behind flag |
+
+In production, you'll use a transpiler (TypeScript or Babel) that compiles decorators to plain ES2023. When browsers ship native support, the transpiled output gets faster still.
+
+## What's NOT in Stage 3
+
+The Stage 3 proposal deliberately omits some features from the TypeScript `experimentalDecorators` era:
+
+- **No parameter decorators.** Decorating individual function parameters is not part of the proposal. The committee is evaluating a separate proposal for parameter decorators.
+- **No `Reflect.metadata`.** The legacy `reflect-metadata` polyfill does not work with Stage 3 decorators. Use `Symbol.metadata` instead.
+- **No decorators on functions.** Only classes and class members can be decorated. Decorating standalone functions or object literals is not supported.
+
+## Summary: Why Decorators Change Everything
+
+Decorators solve a fundamental problem in JavaScript: **cross-cutting concerns.** Logging, validation, caching, rate limiting, dependency injection, performance monitoring — these concerns cut across your entire codebase but shouldn't be mixed into your business logic.
+
+Before decorators, you had three bad options:
+
+1. **Mix concerns into every method** — copy-paste logging/validation/caching code everywhere
+2. **Higher-order functions** — `logged(validate(cached(myMethod)))` — unreadable at scale
+3. **Framework magic** — Angular/NestJS decorators that work only within their ecosystem
+
+Stage 3 decorators give you a **standard, framework-agnostic** way to separate concerns. The same `@logged` decorator works in vanilla JS, React classes, Node.js services, and edge functions. Write it once, use it everywhere.
+
+The 10-year journey is nearly over. Decorators are coming to JavaScript — and they're better than anyone expected.
+
+---
+
+*Explore more DevBench tools: [JSON Formatter](/tools/json-formatter), [TypeScript Playground](/tools/javascript-playground), [Regex Tester](/tools/regex-tester), and [Code Minifier](/tools/code-minifier) — all free, all client-side.*
