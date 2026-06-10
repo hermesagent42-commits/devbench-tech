@@ -1017,8 +1017,15 @@ const featuredTools = [
     tags: ['CSS', 'text-wrap', 'Typography'],
   },
   {
+    title: 'CSS Overflow Playground',
+    description: 'Visually explore every overflow value — visible, hidden, clip, scroll, auto — with independent x/y axis control, overflow-clip-margin, and live previews. 8 presets, instant CSS.',
+    href: '/tools/css-overflow-playground',
+    icon: GripHorizontal,
+    tags: ['CSS', 'Overflow', 'Layout', 'Clip'],
+  },
+  {
     title: 'CSS white-space Playground',
-    description: 'Explore every white-space value — normal, nowrap, pre, pre-wrap, pre-line, and break-spaces. Visual behavior table, whitespace visualization, 7 presets, and live preview.',
+    description: 'Experiment with white-space — normal, nowrap, pre, pre-wrap, pre-line, and break-spaces. Visual behavior table, whitespace visualization, 7 presets, and live preview.',
     href: '/tools/white-space-playground',
     icon: FileText,
     tags: ['CSS', 'white-space', 'Typography'],
