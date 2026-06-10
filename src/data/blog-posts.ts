@@ -9586,4 +9586,238 @@ nav a {
   </p>
 </div>`,
   },
+  {
+    slug: 'css-round-mod-rem-stepped-value-functions-2026',
+    title: 'CSS Stepped Value Functions: round(), mod(), rem() — The Complete Guide',
+    description:
+      "CSS now has round(), mod(), and rem() — native stepped value functions for snapping to multiples, cyclic positioning, and zebra-striping without JavaScript. All three went Baseline in 2024 and work in every browser. Here's how to replace dozens of calc() hacks with three clean functions.",
+    date: '2026-06-10',
+    author: 'DevBench',
+    tags: ['CSS', 'round()', 'mod()', 'rem()', 'Math', 'Baseline 2024', 'Web Platform', '2026', 'Layout', 'Animation'],
+    readingTime: '11 min read',
+    content: `<div class="blog-content">
+
+<p class="post-p">CSS Stepped Value Functions — <code>round()</code>, <code>mod()</code>, and <code>rem()</code> — went Baseline in 2024. They're the final piece of the CSS math puzzle, joining trig functions, <code>pow()</code>/<code>sqrt()</code>, and the comparison functions (<code>min()</code>, <code>max()</code>, <code>clamp()</code>). If you're still doing stepped arithmetic in JavaScript and passing it to CSS via inline styles or custom properties computed at runtime, it's time to stop.</p>
+
+<h2 class="post-h2">What We Got</h2>
+
+<table>
+<thead><tr><th>Function</th><th>Signature</th><th>What It Does</th></tr></thead>
+<tbody>
+<tr><td><code>round(strategy, A, B)</code></td><td><code>round(&lt;strategy&gt;, &lt;number&gt;, &lt;number&gt;)</code></td><td>Rounds A to the nearest integer multiple of B</td></tr>
+<tr><td><code>mod(A, B)</code></td><td><code>mod(&lt;number&gt;, &lt;number&gt;)</code></td><td>Returns the remainder of A ÷ B, with the <strong>sign of B</strong></td></tr>
+<tr><td><code>rem(A, B)</code></td><td><code>rem(&lt;number&gt;, &lt;number&gt;)</code></td><td>Returns the remainder of A ÷ B, with the <strong>sign of A</strong></td></tr>
+</tbody>
+</table>
+
+<p class="post-p">All three accept <code>&lt;number&gt;</code> or <code>&lt;dimension&gt;</code> arguments (as long as units match) and return the same type. They work in <code>calc()</code>, custom properties, and anywhere a numeric value is accepted.</p>
+
+<h2 class="post-h2"><code>round()</code>: Snap to Multiples</h2>
+
+<p class="post-p"><code>round()</code> rounds a value to the nearest multiple of a step size. Think of it as a CSS-native grid snap.</p>
+
+<h3>Syntax</h3>
+
+<pre><code>round(&lt;strategy&gt;, A, B)</code></pre>
+
+<ul>
+<li><strong>A</strong>: The value to round</li>
+<li><strong>B</strong>: The step size (rounding interval)</li>
+<li><strong>strategy</strong>: One of <code>nearest</code>, <code>up</code>, <code>down</code>, <code>to-zero</code></li>
+</ul>
+
+<h3>Strategies</h3>
+
+<table>
+<thead><tr><th>Strategy</th><th>Behavior</th><th>Example: <code>round(strategy, 7, 4)</code></th></tr></thead>
+<tbody>
+<tr><td><code>nearest</code></td><td>Round to nearest multiple</td><td><code>round(nearest, 7, 4)</code> → 8</td></tr>
+<tr><td><code>up</code></td><td>Always round up (ceiling)</td><td><code>round(up, 7, 4)</code> → 8</td></tr>
+<tr><td><code>down</code></td><td>Always round down (floor)</td><td><code>round(down, 7, 4)</code> → 4</td></tr>
+<tr><td><code>to-zero</code></td><td>Round toward zero</td><td><code>round(to-zero, 7, 4)</code> → 4</td></tr>
+</tbody>
+</table>
+
+<pre><code>/* Round font size to the nearest 4px grid step */
+.element {
+  font-size: round(nearest, 1.25em, 4px);
+}
+
+/* Always round element heights up to multiples of 8px */
+.element {
+  min-height: round(up, calc(100% + 16px), 8px);
+}</code></pre>
+
+<h3>Real Pattern: Pixel-Grid Alignment</h3>
+
+<p class="post-p">Ever had elements that don't quite align because of fractional pixel values? <code>round()</code> fixes it:</p>
+
+<pre><code>.grid-item {
+  /* Force every item's width to a multiple of 8px */
+  width: round(nearest, calc(100% / var(--columns)), 8px);
+}</code></pre>
+
+<p class="post-p">This is especially powerful in layout engines where sub-pixel rendering creates 0.5px gaps between elements. By snapping every computed dimension to a grid step, you guarantee perfect alignment.</p>
+
+<h3>Real Pattern: Fluid Typography Grid</h3>
+
+<pre><code>/* Type scale that snaps to 2px increments */
+:root {
+  --base: 16px;
+  --ratio: 1.25;
+  --step: 2px;
+
+  --h1: round(nearest, calc(var(--base) * var(--ratio)
+       * var(--ratio) * var(--ratio)), var(--step));
+  --h2: round(nearest, calc(var(--base) * var(--ratio)
+       * var(--ratio)), var(--step));
+  --h3: round(nearest, calc(var(--base) * var(--ratio)), var(--step));
+  --body: round(nearest, var(--base), var(--step));
+}</code></pre>
+
+<p class="post-p">Every type scale value is a clean multiple of 2px. No more <code>16.25px</code> font sizes that render blurry on some screens.</p>
+
+<h2 class="post-h2"><code>mod()</code>: Cyclic / Wrapping Values</h2>
+
+<p class="post-p"><code>mod(A, B)</code> returns the remainder after dividing A by B, matching the <strong>sign of B</strong>. This makes it perfect for cyclic values — wrapping indices, rotating through colors, infinite carousels.</p>
+
+<pre><code>mod(A, B) = A - B * floor(A / B)</code></pre>
+
+<p class="post-p">The result always has the same sign as B, which means it wraps cleanly even with negative inputs:</p>
+
+<pre><code>mod(10, 3)  → 1   /* 10 = 3x3 + 1 */
+mod(-10, 3) → 2   /* -10 = 3x(-4) + 2 */
+mod(10, -3) → -2  /* 10 = (-3)x(-4) + (-2) */
+mod(-10, -3) → -1 /* -10 = (-3)x3 + (-1) */</code></pre>
+
+<h3>Real Pattern: Rotating Color Palette</h3>
+
+<pre><code>.cards:nth-child(n) {
+  /* Rotate through 5 theme colors, wrapping around */
+  --hue: calc(mod(var(--index) - 1, 5) * 72);
+  background: hsl(var(--hue), 70%, 60%);
+}</code></pre>
+
+<p class="post-p">As the card index grows (3, 7, 12, 50...), <code>mod()</code> keeps the hue cycling through 0°, 72°, 144°, 216°, 288°.</p>
+
+<h3>Real Pattern: Zebra-Striped Grid Rows</h3>
+
+<pre><code>.table-row:nth-child(n) {
+  /* 3-row repeating pattern: white, light gray, medium gray */
+  --stripe: mod(var(--row-index), 3);
+  background: hsl(0, 0%, calc(100% - var(--stripe) * 3%));
+}</code></pre>
+
+<p class="post-p">Without <code>mod()</code>, you'd write three separate <code>:nth-child(3n+1)</code>, <code>:nth-child(3n+2)</code>, <code>:nth-child(3n+3)</code> rules. With <code>mod()</code>, it's a single property.</p>
+
+<h3>Real Pattern: Infinite Wrap-Around Positioning</h3>
+
+<pre><code>.carousel-item {
+  /* Position items in a ring — wraps endlessly */
+  --angle: calc(mod(var(--index), var(--total))
+            * (360deg / var(--total)));
+  transform: rotate(var(--angle)) translateX(200px);
+}</code></pre>
+
+<p class="post-p">As <code>--index</code> increases beyond <code>--total</code>, the angle wraps back to 0° seamlessly. This is the foundation of pure-CSS carousels, orbital menus, and circular layouts.</p>
+
+<h2 class="post-h2"><code>rem()</code>: Classic Remainder</h2>
+
+<p class="post-p"><code>rem(A, B)</code> returns the remainder using the <strong>sign of A</strong>:</p>
+
+<pre><code>rem(A, B) = A - B * trunc(A / B)
+
+rem(10, 3)  → 1   /* 10 = 3x3 + 1 */
+rem(-10, 3) → -1  /* -10 = 3x(-3) + (-1) */
+rem(10, -3) → 1   /* 10 = (-3)x(-3) + 1 */
+rem(-10, -3) → -1 /* -10 = (-3)x3 + (-1) */</code></pre>
+
+<h3><code>mod()</code> vs <code>rem()</code>: When to Use Each</h3>
+
+<table>
+<thead><tr><th>Scenario</th><th>Use</th><th>Why</th></tr></thead>
+<tbody>
+<tr><td>Wrapping cyclic values (indices, angles)</td><td><code>mod()</code></td><td>Always returns non-negative when B > 0</td></tr>
+<tr><td>JS-compatible math (matches <code>%</code> operator)</td><td><code>rem()</code></td><td>Same behavior as JavaScript <code>%</code></td></tr>
+<tr><td>Layout calculations where direction matters</td><td><code>rem()</code></td><td>Carries source sign for directional logic</td></tr>
+<tr><td>Color wheel rotation, carousel positions</td><td><code>mod()</code></td><td>You want 0-360°, not negative angles</td></tr>
+</tbody>
+</table>
+
+<pre><code>/* mod() — always gives a useful angle (0-360) */
+transform: rotate(mod(var(--scroll), 360deg));
+
+/* rem() — matches JS behavior, useful when porting logic */
+--offset: rem(var(--total-scroll), var(--section-height));</code></pre>
+
+<p class="post-p">The critical practical difference: for cyclic wrapping (the most common use case), always reach for <code>mod()</code>.</p>
+
+<h2 class="post-h2">The Full Stepped-Value Toolkit</h2>
+
+<p class="post-p">Combined with trig and comparison functions, these create a declarative layout math engine in CSS:</p>
+
+<pre><code>:root {
+  /* Snap to grid */
+  --snap: round(nearest, var(--value), 8px);
+
+  /* Cyclic animation state */
+  --cycle: mod(calc(var(--frame) + var(--offset)), var(--length));
+
+  /* JS-compatible remainder */
+  --remainder: rem(var(--total), var(--chunk));
+
+  /* All together: animated grid-snapped cyclic pattern */
+  --pos: round(nearest,
+    calc(
+      sin(mod(var(--frame), 360) * 1deg) * 100px + 200px
+    ),
+    8px
+  );
+}</code></pre>
+
+<h2 class="post-h2">Performance Note</h2>
+
+<p class="post-p">CSS math functions are evaluated at <strong>computed-value time</strong> by the browser's layout engine. They don't trigger JavaScript execution, they don't cause recalc loops, and they're hardware-accelerated the same way as static values. A <code>round(nearest, ...)</code> is as fast as a hardcoded pixel value — the browser computes it once during layout.</p>
+
+<p class="post-p">Compare this to computing stepped values in JavaScript and injecting them via inline styles: you pay the cost of JS execution, style invalidation, and potentially a forced synchronous layout. CSS stepped value functions eliminate that entire class of performance pitfalls.</p>
+
+<h2 class="post-h2">Browser Support</h2>
+
+<p class="post-p">All three functions are Baseline since June 2024:</p>
+
+<ul>
+<li>Chrome 125+ (May 2024)</li>
+<li>Firefox 118+ (Sep 2023)</li>
+<li>Safari 17.4+ (Mar 2024)</li>
+<li>Edge 125+ (May 2024)</li>
+</ul>
+
+<p class="post-p">No prefixes, no polyfills, no feature queries needed. You can use <code>round()</code>, <code>mod()</code>, and <code>rem()</code> today in production CSS that ships to every user.</p>
+
+<h2 class="post-h2">Quick Reference Card</h2>
+
+<pre><code>/* Snap to grid */
+width: round(nearest, calc(100% - 2rem), 8px);
+
+/* Always round up (never truncate) */
+padding: round(up, var(--fluid-space), 4px);
+
+/* Always round down */
+inset: round(down, var(--size), 16px);
+
+/* Cyclic index (0, 1, 2, 3, 4, 0, 1, 2...) */
+--i: mod(var(--n), 5);
+
+/* Even/odd parity */
+--parity: mod(var(--n), 2); /* 0 = even, 1 = odd */
+
+/* JS-compatible modulo */
+--offset: rem(var(--scroll-y), var(--section));</code></pre>
+
+<hr/>
+
+<p class="post-p"><em>Further reading: Check out the <a href="/blog/css-trigonometric-functions-complete-guide-2026" class="inline-link">CSS Trigonometric Functions guide</a> for <code>sin()</code>, <code>cos()</code>, <code>tan()</code>, and <code>atan2()</code>, the <a href="/blog/oklch-css-complete-guide-2026" class="inline-link">OKLCH Complete Guide</a> for <code>color-mix()</code> and perceptual color math, and the <a href="/tools/clamp-generator" class="inline-link">CSS clamp() Generator</a> to build fluid responsive values interactively.</em></p>
+
+</div>`,
+  },
 ];
