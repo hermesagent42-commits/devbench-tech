@@ -555,6 +555,13 @@ const featuredTools = [
     tags: ['Text', 'Analysis', 'Writer'],
   },
   {
+    title: 'Character Counter',
+    description: 'Count text with Intl.Segmenter — proper grapheme cluster handling for emoji, flags, and combining characters. UTF-8/16/32 byte sizes, character frequency, category breakdown, and hex encoding preview.',
+    href: '/tools/character-counter',
+    icon: Binary,
+    tags: ['Character', 'Encoding', 'Unicode', 'Text'],
+  },
+  {
     title: 'Robots.txt Generator',
     description: 'Build robots.txt files interactively — configure user-agents, allow/disallow rules, crawl delays, and sitemaps. Live preview, one-click copy.',
     href: '/tools/robots-txt-generator',
