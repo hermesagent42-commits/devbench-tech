@@ -10644,4 +10644,418 @@ As of June 2026, @starting-style is <strong>Baseline Widely Available</strong> a
 
 </div>`,
   },
+  {
+    slug: 'css-scope-complete-guide-2026',
+    title: 'CSS @scope: The End of Specificity Wars and BEM Naming',
+    description:
+      'CSS @scope lets you define a "donut" of style reach — styles apply only within a scope root and stop at a scope boundary. No more !important arms races, no more .card__title__icon__badge naming, no more specificity hacks. This complete guide covers @scope syntax, proximity (the most underrated CSS feature of 2026), donut scoping, real-world component patterns, and why @scope replaces CSS Modules for many use cases.',
+    date: '2026-06-10',
+    author: 'DevBench',
+    tags: ['CSS', '@scope', 'Cascade', 'Scoping', 'Specificity', 'Components', 'Baseline 2026', 'Architecture'],
+    readingTime: '12 min read',
+    content: `<div class="blog-content">
+<h2 class="post-h2">The Problem: CSS Is Global by Default</h2>
+
+<p class="post-p">
+Every CSS rule you write applies <strong>everywhere in the document</strong> — unless you explicitly scope it with a descendant combinator, a class chain, or a naming convention. This is why we have BEM (<code>.block__element--modifier</code>), CSS Modules (<code>styles.card_title_hash</code>), and the entire shadow DOM pattern.
+</p>
+
+<p class="post-p">
+The cascade was designed for documents, not component trees. In a world of React, Vue, and Svelte components — where a <code>.title</code> in a sidebar card should never bleed into a <code>.title</code> in a modal — the global cascade is a liability.
+</p>
+
+<p class="post-p">
+<code>@scope</code> fixes this at the CSS level. Not a preprocessor. Not a build tool. Not JavaScript. Just CSS.
+</p>
+
+<h2 class="post-h2">@scope Basics: A Container for Style Reach</h2>
+
+<p class="post-p">
+<code>@scope</code> wraps a block of CSS and restricts where those styles apply. Everything inside the <code>@scope</code> block only matches elements <strong>within</strong> the scope root.
+</p>
+
+<pre><code>/* Without @scope — .title matches EVERYWHERE */
+.title { color: red; }
+
+/* With @scope — .title only matches inside .card */
+@scope (.card) {
+  .title { color: red; }
+}</code></pre>
+
+<p class="post-p">
+Under the hood, the browser rewrites <code>.title</code> to <code>.card .title</code> — but with proper scoping semantics. The selector's specificity doesn't change. The scoping root adds zero specificity weight. This is the first massive win: <strong>@scope does not inflate specificity</strong>.
+</p>
+
+<p class="post-p">
+Contrast this with the manual approach — <code>.card .title</code> has specificity (0,2,0) while <code>.title</code> has (0,1,0). With <code>@scope</code>, your styles stay at their original specificity level. The scoping is structural, not specificitational.
+</p>
+
+<h2 class="post-h2">Donut Scoping: The Feature That Changes Everything</h2>
+
+<p class="post-p">
+The <code>@scope</code> syntax accepts an optional <strong>upper boundary</strong>. This creates a "donut" of style reach: styles apply within the scope root, but <strong>stop</strong> at the boundary. They do not apply to nested instances.
+</p>
+
+<pre><code>/* Donut scoping: styles apply within .card */
+/* but STOP at any nested .card (or .no-style) */
+@scope (.card) to (.card, .no-style) {
+  .title { font-size: 1.5rem; }
+  .body  { line-height: 1.6; }
+}</code></pre>
+
+<p class="post-p">
+What this means: a <code>.card</code> nested inside another <code>.card</code> does <em>not</em> receive the outer card's styles. This solves the deepest nesting problem in CSS — where deeply nested components inherit styles from all their ancestors.
+</p>
+
+<p class="post-p">
+Think of comments: a top-level comment and a reply comment are both <code>.comment</code> components. With <code>@scope</code>, you can style the top-level component without worrying that nested replies will doubly apply those styles:
+</p>
+
+<pre><code>@scope (.comment) to (.comment) {
+  .comment-body { padding: 16px; }
+  .comment-author { font-weight: 600; }
+  .reply-thread { margin-left: 32px; }
+}</code></pre>
+
+<p class="post-p">
+This also means: no more <code>.comment:not(.comment .comment)</code> hacks. No more <code>&gt;</code> (child combinator) overuse. Scoping just works.
+</p>
+
+<h2 class="post-h2">Proximity: The Most Underrated CSS Feature of 2026</h2>
+
+<p class="post-p">
+Here's where <code>@scope</code> goes from "useful" to "revolutionary." When multiple <code>@scope</code> blocks in a component tree match the same element, the browser compares their <strong>proximity</strong> to the element — and the <strong>closer scope root wins</strong>.
+</p>
+
+<p class="post-p">
+This is a new cascade layer. After origin and specificity and order, the browser now checks <strong>scope proximity</strong>. The innermost matching scope overrides the outer scope, regardless of specificity. Let that sink in.
+</p>
+
+<pre><code>/* Light theme scope */
+@scope (.theme-light) {
+  .button {
+    background: white;
+    color: black;
+    border: 1px solid #ddd;
+  }
+}
+
+/* Dark theme scope — nested inside light */
+@scope (.theme-dark) {
+  .button {
+    background: #1a1a2e;
+    color: #e0e0e0;
+    border: 1px solid #333;
+  }
+}</code></pre>
+
+<pre><code>&lt;!-- HTML -->
+&lt;div class="theme-light">
+  &lt;button class="button">Light button&lt;/button>
+
+  &lt;div class="theme-dark">
+    &lt;button class="button">
+      Dark button &lt;!-- PROXIMITY WINS: .theme-dark is closer -->
+    &lt;/button>
+  &lt;/div>
+&lt;/div></code></pre>
+
+<p class="post-p">
+The dark button gets the dark styles — even though both scopes match — because <code>.theme-dark</code> is closer to the button in the DOM tree. <strong>No specificity tricks, no !important, no CSS-in-JS theme provider.</strong>
+</p>
+
+<p class="post-p">
+This is the feature that makes <code>@scope</code> a legitimate replacement for React Context-based theming, CSS-in-JS scoping, and the cascade management gymnastics that frameworks force us into.
+</p>
+
+<h2 class="post-h2">Proximity vs Specificity: The New Cascade Layer</h2>
+
+<p class="post-p">
+The full cascade order, with <code>@scope</code>, is now:
+</p>
+
+<ol>
+<li><strong>Origin &amp; Importance</strong> — user-agent, user, author, author !important, user !important, user-agent !important</li>
+<li><strong>Context</strong> — shadow DOM encapsulation</li>
+<li><strong>Style attribute</strong> — inline styles</li>
+<li><strong>Layers</strong> — @layer (first declared wins for normal, last declared wins for !important)</li>
+<li><strong>Specificity</strong> — (id, class, type)</li>
+<li><strong>Scope proximity</strong> — ✨ NEW — closer scope root wins</li>
+<li><strong>Order of appearance</strong> — last declared wins</li>
+</ol>
+
+<p class="post-p">
+Scope proximity sits <strong>between specificity and order</strong>. This is the sweet spot: it's stronger than specificity (so nested themes always win) but weaker than cascade layers (so you can still use <code>@layer</code> for architectural control).
+</p>
+
+<table>
+<thead><tr><th>Feature</th><th>Where It Sits</th><th>Use Case</th></tr></thead>
+<tbody>
+<tr><td><code>@layer</code></td><td>Before specificity</td><td>Architectural organization: base → components → utilities → overrides</td></tr>
+<tr><td><strong><code>@scope</code> proximity</strong></td><td><strong>After specificity, before order</strong></td><td><strong>Component nesting: theme overrides, nested widget isolation</strong></td></tr>
+<tr><td>Specificity</td><td>After layers, before proximity</td><td>Targeted overrides within the same scope</td></tr>
+<tr><td>Order</td><td>After everything</td><td>Last-resort tiebreaker</td></tr>
+</tbody>
+</table>
+
+<h2 class="post-h2">Real-World Pattern 1: Component Library Without BEM</h2>
+
+<p class="post-p">
+A design system with <code>@scope</code> — no BEM, no hashed class names, no <code>:where()</code> hacks:
+</p>
+
+<pre><code>/* card.css */
+@scope (.card) {
+  .header { padding: 16px; border-bottom: 1px solid #eee; }
+  .title  { font-size: 1.25rem; font-weight: 700; }
+  .body   { padding: 16px; line-height: 1.6; }
+  .footer { padding: 12px 16px; background: #f9f9f9; }
+
+  /* Compact variant */
+  .card--compact .body { padding: 8px; }
+  .card--compact .title { font-size: 1rem; }
+}
+
+/* tabs.css */
+@scope (.tabs) {
+  .tab { padding: 8px 16px; cursor: pointer; }
+  .tab--active { border-bottom: 2px solid blue; }
+  .panel { padding: 16px; }
+}</code></pre>
+
+<p class="post-p">
+Notice: <code>.header</code>, <code>.title</code>, <code>.body</code> — generic class names that would be a collision nightmare without scoping. With <code>@scope</code>, they're perfectly safe. You can drop <code>.card__header</code>, <code>.card__title</code>, <code>.card__body</code> from your vocabulary.
+</p>
+
+<p class="post-p">
+Also notice how <code>.card--compact .body</code> still works! You can have class variants on the scope root and use descendant selectors normally — they still stay within the scope.
+</p>
+
+<h2 class="post-h2">Real-World Pattern 2: Nested Components That Don't Leak</h2>
+
+<p class="post-p">
+A comment thread with replies — the classic "nested same-component" problem:
+</p>
+
+<pre><code>@scope (.comment) to (.comment) {
+  .comment-body {
+    padding: 12px;
+    border-left: 3px solid #e0e0e0;
+    margin-bottom: 8px;
+  }
+  .comment-author { font-weight: 600; font-size: 0.9rem; }
+  .comment-time   { color: #888; font-size: 0.8rem; }
+  .replies {
+    margin-left: 32px;
+    padding-left: 0; /* Resets are scoped too */
+  }
+}</code></pre>
+
+<pre><code>&lt;!-- Each .comment gets its styles exactly once -->
+&lt;div class="comment">
+  &lt;div class="comment-body">Top-level comment&lt;/div>
+  &lt;div class="replies">
+    &lt;div class="comment">
+      &lt;div class="comment-body">Reply — gets its OWN styles&lt;/div>
+      &lt;div class="replies">
+        &lt;div class="comment">
+          &lt;div class="comment-body">Nested reply — still gets its own&lt;/div>
+        &lt;/div>
+      &lt;/div>
+    &lt;/div>
+  &lt;/div>
+&lt;/div></code></pre>
+
+<p class="post-p">
+Without <code>@scope</code>, the nested <code>.comment-body</code> would match <code>.comment .comment .comment-body</code> from the outer scope — getting styles applied 2-3 times with compounding effects (double padding, double borders). With <code>@scope to (.comment)</code>, each comment instance only sees its own immediate scope.
+</p>
+
+<h2 class="post-h2">Real-World Pattern 3: Theme Zones</h2>
+
+<p class="post-p">
+A page with multiple theme zones — light, dark, high-contrast — using only CSS:
+</p>
+
+<pre><code>/* Default (light) */
+@scope (.theme-light) to (.theme-dark, .theme-contrast) {
+  body, .card, .modal { background: white; color: #1a1a1a; }
+  .link { color: #0066cc; }
+  .button { background: #0066cc; color: white; }
+  .input { background: white; border: 1px solid #ccc; }
+}
+
+@scope (.theme-dark) to (.theme-light, .theme-contrast) {
+  body, .card, .modal { background: #1a1a2e; color: #e0e0e0; }
+  .link { color: #66b3ff; }
+  .button { background: #4a4aff; color: #e0e0e0; }
+  .input { background: #16213e; border: 1px solid #333; }
+}
+
+@scope (.theme-contrast) to (.theme-light, .theme-dark) {
+  body, .card, .modal { background: black; color: white; }
+  .link { color: yellow; }
+  .button { background: yellow; color: black; }
+  .input { background: black; border: 2px solid white; }
+}</code></pre>
+
+<p class="post-p">
+No JavaScript theme context needed. No CSS custom properties cascade to manage. No specificity wars when themes nest. The donut boundaries (<code>to (...)</code>) ensure a <code>.theme-dark</code> inside a <code>.theme-light</code> completely takes over — and proximity ensures the innermost theme wins.
+</p>
+
+<h2 class="post-h2">Performance: @scope Is Free</h2>
+
+<p class="post-p">
+<code>@scope</code> doesn't incur a runtime cost. During style resolution, the browser already walks up the ancestor tree to compute specificity and inheritance. Checking for a scope root on that same walk is essentially zero-cost.
+</p>
+
+<p class="post-p">
+Compare this to CSS-in-JS runtime solutions: generating unique class names, injecting <code>&lt;style&gt;</code> tags, hashing, runtime insertion. <code>@scope</code> in a static stylesheet is orders of magnitude faster than any JS-based scoping strategy.
+</p>
+
+<table>
+<thead><tr><th>Approach</th><th>Build Cost</th><th>Runtime Cost</th><th>Scoping Granularity</th></tr></thead>
+<tbody>
+<tr><td>BEM naming</td><td>None (manual)</td><td>None</td><td>Convention only (leaks)</td></tr>
+<tr><td>CSS Modules</td><td>Hash + source map</td><td>None</td><td>Per-file</td></tr>
+<tr><td>CSS-in-JS (runtime)</td><td>None</td><td>Hash + inject + parse</td><td>Per-component</td></tr>
+<tr><td>Shadow DOM</td><td>None</td><td>Style encapsulation</td><td>Per-shadow-root</td></tr>
+<tr><td><strong>@scope</strong></td><td><strong>None</strong></td><td><strong>~Zero</strong></td><td><strong>Per-scope-root</strong></td></tr>
+</tbody>
+</table>
+
+<h2 class="post-h2">@scope + @layer: The Ultimate CSS Architecture</h2>
+
+<p class="post-p">
+<code>@scope</code> and <code>@layer</code> solve different problems and compose beautifully:
+</p>
+
+<ul>
+<li><strong>@layer</strong> controls the <em>order</em> of styles across your entire codebase. Use it for architectural boundaries: reset → base → components → utilities.</li>
+<li><strong>@scope</strong> controls the <em>reach</em> of styles within components. Use it for isolation: this component's styles only apply here, with proximity-based overrides.</li>
+</ul>
+
+<pre><code>@layer components {
+  @scope (.card) to (.card) {
+    .header { padding: 16px; }
+    .title  { font-size: 1.25rem; }
+    .body   { padding: 16px; }
+  }
+
+  @scope (.modal) to (.modal) {
+    .header { padding: 20px; }
+    .title  { font-size: 1.5rem; }
+    .body   { padding: 20px; }
+  }
+}</code></pre>
+
+<p class="post-p">
+The <code>.header</code> in a card and the <code>.header</code> in a modal are completely isolated. They can have completely different styles with zero interference. And both are in the <code>components</code> layer, so they both beat utilities but lose to overrides.
+</p>
+
+<h2 class="post-h2">Browser Support (June 2026)</h2>
+
+<table>
+<thead><tr><th>Browser</th><th>Supported Since</th></tr></thead>
+<tbody>
+<tr><td>Chrome</td><td>118 (October 2023)</td></tr>
+<tr><td>Edge</td><td>118 (October 2023)</td></tr>
+<tr><td>Safari</td><td>17.4 (March 2024)</td></tr>
+<tr><td>Firefox</td><td>128 (July 2024)</td></tr>
+</tbody>
+</table>
+
+<p class="post-p">
+<strong>Baseline since September 2024.</strong> Global coverage: ~95%. <code>@scope</code> is production-ready everywhere. The <code>to</code> (upper boundary) syntax is also fully supported in all major browsers.
+</p>
+
+<h2 class="post-h2">Progressive Enhancement</h2>
+
+<p class="post-p">
+For older browsers, the fallback is the default CSS behavior — styles apply everywhere. This is usually fine: scoping is a "nice to have" for correctness, not a hard requirement for functionality.
+</p>
+
+<pre><code>/* Modern: scoped */
+@scope (.card) to (.card) {
+  .title { font-size: 1.25rem; }
+}
+
+/* Fallback for browsers without @scope support */
+@supports not (scope(.card)) {
+  .card .title { font-size: 1.25rem; }
+  .card .card .title { font-size: inherit; } /* Undo nesting */
+}</code></pre>
+
+<p class="post-p">
+In practice, with 95% global support, most projects can use <code>@scope</code> directly with no fallback. The <code>@supports</code> fallback is only necessary for enterprise products targeting IE-mode or very old environments.
+</p>
+
+<h2 class="post-h2">When NOT to Use @scope</h2>
+
+<ul>
+<li><strong>Single-scope pages:</strong> If your entire app has one theme and no nested same-component patterns, <code>@scope</code> adds no value.</li>
+<li><strong>Shadow DOM components:</strong> Shadow DOM already provides style encapsulation. <code>@scope</code> is for light DOM scoping.</li>
+<li><strong>Framework-managed scoping:</strong> If you're deeply invested in CSS Modules or a CSS-in-JS library that already solves scoping, migrating to <code>@scope</code> is a nice-to-have, not a must-have.</li>
+<li><strong>Global utilities:</strong> A <code>.sr-only</code> or <code>.visually-hidden</code> utility should <em>not</em> be scoped. Use <code>@layer utilities</code> for those instead.</li>
+</ul>
+
+<h2 class="post-h2">:scope Pseudo-Class — The Implicit Selector</h2>
+
+<p class="post-p">
+Within an <code>@scope</code> block, <code>:scope</code> refers to the scope root. This is useful for self-referencing selectors:
+</p>
+
+<pre><code>@scope (.card) {
+  /* Style the .card itself when it's being hovered */
+  :scope:hover {
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  }
+
+  /* Style .card when it contains an image */
+  :scope:has(img) {
+    padding: 0;
+  }
+
+  /* The title, but only inside a hovered card */
+  :scope:hover .title {
+    color: blue;
+  }
+}</code></pre>
+
+<p class="post-p">
+<code>:scope</code> is particularly powerful with <code>:has()</code> — you can style the card differently depending on its content, all within the scoped block.
+</p>
+
+<h2 class="post-h2">The Bottom Line</h2>
+
+<p class="post-p">
+CSS has spent 25 years fighting global scope creep. BEM. SMACSS. OOCSS. CSS Modules. Scoped styles in Vue. CSS-in-JS. Shadow DOM. Every solution was either a naming convention (easy to break), a build tool (fragile), or a JavaScript runtime (heavy).
+</p>
+
+<p class="post-p">
+<code>@scope</code> is the platform-level solution. It gives you:
+</p>
+
+<ul>
+<li><strong>Donut scoping:</strong> Styles apply here, stop there. No leakage.</li>
+<li><strong>Proximity:</strong> Innermost scope wins. No specificity wars.</li>
+<li><strong>Zero runtime cost:</strong> Browser-native. No JS. No build step.</li>
+<li><strong>Clean class names:</strong> <code>.title</code> not <code>.card__title__icon--large</code>.</li>
+</ul>
+
+<p class="post-p">
+If you're starting a new project in 2026, <code>@scope</code> should be your default scoping strategy. Combined with <code>@layer</code> for architectural boundaries and <code>:has()</code> for parent-aware selectors, it forms the foundation of a modern CSS architecture that's simpler, faster, and more maintainable than anything that came before.
+</p>
+
+<p class="post-p">
+The specificity wars are over. <code>@scope</code> won.
+</p>
+
+<hr/>
+
+<p class="post-p"><strong>Try it live:</strong> <a href="/tools/css-scope-playground" class="inline-link">CSS Scope Playground</a> — experiment with <code>@scope</code> scoping roots, donut boundaries, and proximity-based overrides with live preview.</p>
+
+<p class="post-p"><em>Further reading: Check out the <a href="/blog/css-nesting-complete-guide-2026" class="inline-link">CSS Nesting Complete Guide</a> for native nesting syntax, the <a href="/blog/css-cascade-layers" class="inline-link">CSS Cascade Layers guide</a> for architectural layering, and the <a href="/blog/css-container-queries-complete-guide-2026" class="inline-link">Container Queries guide</a> for component-level responsive design.</em></p>
+
+</div>`,
+  },
 ];
