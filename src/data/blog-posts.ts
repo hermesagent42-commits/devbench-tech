@@ -244,6 +244,423 @@ authCtx.log('Token validation passed');
 </div>`,
   },
   {
+    slug: 'javascript-performance-api-2026',
+    title: 'The JavaScript Performance API — Measure Everything Your Users Experience',
+    description:
+      'Every browser ships with a complete performance measurement toolkit that most developers never use. Navigation Timing breaks down page load into 20+ timestamps, Resource Timing profiles every asset, User Timing lets you measure any code path, and PerformanceObserver watches it all in real time. This is the API behind Core Web Vitals — learn to use it directly.',
+    date: '2026-06-10',
+    author: 'DevBench',
+    tags: ['JavaScript', 'Performance', 'Performance API', 'Core Web Vitals', 'Navigation Timing', 'Resource Timing', 'User Timing', 'PerformanceObserver', 'Web Platform', 'Browser APIs'],
+    readingTime: '12 min read',
+    content: `<div class="prose-content">
+  <p class="lead">
+    <strong>The Performance API</strong> is the most important browser API most developers have never used directly. It powers every performance monitoring tool — Lighthouse, Web Vitals, New Relic, Datadog, Sentry — but the raw API is available in every browser, costs zero bytes, and gives you <em>more</em> detail than any third-party wrapper.
+  </p>
+
+  <p>If you've ever wondered exactly how long your page takes to load, which resource is the bottleneck, where users experience jank, or how close you are to passing Core Web Vitals — the Performance API answers all of it. This guide covers every part worth knowing, with copy-paste-ready code you can deploy today.</p>
+
+  <h2>Why the Performance API Matters</h2>
+
+  <p>Before the Performance API, measuring web performance meant hacks: <code>Date.now()</code> at the top and bottom of your page, guessing at network latency, and hoping your measurements were accurate. The problems with that approach:</p>
+
+  <ul>
+    <li><strong>Clock precision:</strong> <code>Date.now()</code> is rounded to 1ms and can be skewed by system clock adjustments</li>
+    <li><strong>Missing phases:</strong> You can't measure DNS, TCP, TLS, or redirect time from JavaScript</li>
+    <li><strong>No resource-level data:</strong> You can't see how long each image or script took to load</li>
+    <li><strong>No paint timing:</strong> You can't know when the first pixel appeared on screen</li>
+    <li><strong>Pollution risk:</strong> Your measurement code affects what you're measuring</li>
+  </ul>
+
+  <p>The Performance API solves all of this. It's been <strong>Baseline since 2016</strong> — every browser, including Safari and mobile browsers, ships it. Let's start with the foundation.</p>
+
+  <h2>1. performance.now() — High-Precision Timing</h2>
+
+  <p>The most fundamental building block. <code>performance.now()</code> returns a DOMHighResTimeStamp — a timestamp with <strong>microsecond precision</strong> (5 µs in Chrome, 0.5 µs in Firefox), measured from a fixed origin (navigation start or worker creation). Unlike <code>Date.now()</code>, it's <strong>monotonic</strong> — it never goes backward, even if the user adjusts their system clock.</p>
+
+  <pre><code>// ❌ Old way — 1ms precision, affected by clock skew
+const start = Date.now();
+expensiveOperation();
+const end = Date.now();
+console.log('Took:', end - start, 'ms');
+
+// ✅ Performance API — microsecond precision, monotonic
+const start = performance.now();
+expensiveOperation();
+const end = performance.now();
+console.log('Took:', end - start, 'ms');</code></pre>
+
+  <p>The difference matters when measuring fast operations. A function that takes 0.3ms reports as either 0ms or 1ms with <code>Date.now()</code>. With <code>performance.now()</code>, you get the real number.</p>
+
+  <div class="highlight-box">
+    <strong>Key insight:</strong> <code>performance.now()</code> is <em>relative</em> to navigation start, not the Unix epoch. To convert to an absolute timestamp: <code>new Date(Date.now() + performance.timeOrigin)</code>. But for measuring duration, always use the raw values — subtraction preserves microsecond precision.
+  </div>
+
+  <h2>2. PerformanceObserver — The Modern Observation Pattern</h2>
+
+  <p>Before we dive into specific timing APIs, you need to understand <code>PerformanceObserver</code>. It's the modern way to consume performance data — it fires callbacks <em>when entries are recorded</em>, instead of you polling a buffer.</p>
+
+  <pre><code>// Create an observer for a specific entry type
+const observer = new PerformanceObserver((list) => {
+  const entries = list.getEntries();
+  entries.forEach((entry) => {
+    console.log(entry.name, entry.startTime, entry.duration);
+  });
+});
+
+// Start observing
+observer.observe({ type: 'measure', buffered: true });
+
+// The 'buffered: true' option gives you entries that happened
+// BEFORE the observer was created — essential for capturing
+// navigation and resource entries that complete early.</code></pre>
+
+  <p>Why use PerformanceObserver instead of <code>performance.getEntriesByType()</code>? Because the buffer is circular and has a size limit (usually 150 entries). If you poll, you might miss entries that were evicted. The observer pattern guarantees you see every entry as it happens.</p>
+
+  <div class="highlight-box">
+    <strong>Best practice:</strong> Always register PerformanceObservers with <code>{ buffered: true, type: '...' }</code> as early as possible — ideally in the <code>&lt;head&gt;</code> — to catch paint, navigation, and resource entries that fire before your main JavaScript loads.
+  </div>
+
+  <h2>3. Navigation Timing — Page Load Deconstructed</h2>
+
+  <p>The PerformanceNavigationTiming API gives you a complete timeline of your page load, broken into specific phases. Every timestamp is relative to <code>startTime</code> (when navigation started).</p>
+
+  <pre><code>// Get navigation timing
+const [nav] = performance.getEntriesByType('navigation');
+// or: new PerformanceObserver(...).observe({type:'navigation',buffered:true})
+
+console.log('DNS lookup:', nav.domainLookupEnd - nav.domainLookupStart, 'ms');
+console.log('TCP connection:', nav.connectEnd - nav.connectStart, 'ms');
+console.log('TLS handshake:', nav.connectEnd - nav.secureConnectionStart, 'ms');
+console.log('Request to first byte (TTFB):', nav.responseStart - nav.requestStart, 'ms');
+console.log('Content download:', nav.responseEnd - nav.responseStart, 'ms');
+console.log('DOM processing:', nav.domComplete - nav.domContentLoadedEventEnd, 'ms');
+console.log('Total page load:', nav.loadEventEnd - nav.startTime, 'ms');
+
+// All timestamps in one object
+console.table({
+  dns: nav.domainLookupEnd - nav.domainLookupStart,
+  tcp: nav.connectEnd - nav.connectStart,
+  tls: nav.secureConnectionStart ? nav.connectEnd - nav.secureConnectionStart : 0,
+  ttfb: nav.responseStart - nav.requestStart,
+  download: nav.responseEnd - nav.responseStart,
+  domInteractive: nav.domInteractive - nav.startTime,
+  domComplete: nav.domComplete - nav.startTime,
+  loadEvent: nav.loadEventEnd - nav.startTime,
+  total: nav.loadEventEnd - nav.startTime,
+});</code></pre>
+
+  <p>The complete timeline (available via <code>performance.getEntriesByType('navigation')[0]</code> on supporting browsers, or via PerformanceObserver):</p>
+
+  <table>
+    <thead>
+      <tr><th>Phase</th><th>From</th><th>To</th><th>What It Measures</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Redirect</td><td><code>redirectStart</code></td><td><code>redirectEnd</code></td><td>HTTP redirect time (0 if none)</td></tr>
+      <tr><td>Service Worker</td><td><code>workerStart</code></td><td><code>fetchStart</code></td><td>SW intercept + startup time</td></tr>
+      <tr><td>DNS Lookup</td><td><code>domainLookupStart</code></td><td><code>domainLookupEnd</code></td><td>DNS resolution</td></tr>
+      <tr><td>TCP Connection</td><td><code>connectStart</code></td><td><code>connectEnd</code></td><td>TCP handshake + TLS</td></tr>
+      <tr><td>Request</td><td><code>requestStart</code></td><td><code>responseStart</code></td><td>Sending request to first byte</td></tr>
+      <tr><td>Response</td><td><code>responseStart</code></td><td><code>responseEnd</code></td><td>Receiving the response body</td></tr>
+      <tr><td>DOM Processing</td><td><code>domInteractive</code></td><td><code>domComplete</code></td><td>Parsing HTML, executing scripts</td></tr>
+      <tr><td>Load Event</td><td><code>loadEventStart</code></td><td><code>loadEventEnd</code></td><td>The <code>load</code> event handler</td></tr>
+    </tbody>
+  </table>
+
+  <div class="highlight-box">
+    <strong>Real-world numbers:</strong> A <em>fast</em> page should have DNS + TCP + TLS under 150ms combined, TTFB under 800ms, and total load under 3 seconds. If DNS alone is taking 200ms, your DNS provider is the bottleneck — not your app code.
+  </div>
+
+  <h2>4. Resource Timing — Every Asset, Inspected</h2>
+
+  <p>Navigation Timing is for the HTML document itself. <strong>Resource Timing</strong> gives you the same detailed breakdown for <em>every single asset</em> — scripts, stylesheets, images, fonts, fetch requests, and more.</p>
+
+  <pre><code>// Get timing for every resource
+const resources = performance.getEntriesByType('resource');
+
+resources.forEach((r) => {
+  console.log(r.name, ':', {
+    duration: r.duration,
+    size: r.transferSize,           // Bytes over the wire
+    encodedBodySize: r.encodedBodySize, // Compressed size
+    decodedBodySize: r.decodedBodySize, // Uncompressed size
+    dns: r.domainLookupEnd - r.domainLookupStart,
+    ttfb: r.responseStart - r.requestStart,
+    download: r.responseEnd - r.responseStart,
+  });
+});
+
+// Find the slowest resource
+const slowest = resources.reduce((a, b) =>
+  a.duration > b.duration ? a : b
+);
+console.log('Slowest:', slowest.name, slowest.duration, 'ms');</code></pre>
+
+  <p>The <code>transferSize</code> property is especially useful — it gives you the actual bytes transferred, <em>after</em> compression. <code>encodedBodySize</code> shows whether compression is working (should be much smaller than <code>decodedBodySize</code>). If they're equal, your server isn't compressing that resource.</p>
+
+  <table>
+    <thead>
+      <tr><th>Property</th><th>Meaning</th><th>Use It To</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><code>transferSize</code></td><td>Bytes over the network</td><td>Calculate bandwidth usage</td></tr>
+      <tr><td><code>encodedBodySize</code></td><td>Compressed body size</td><td>Check if compression works</td></tr>
+      <tr><td><code>decodedBodySize</code></td><td>Uncompressed body size</td><td>Check resource bloat</td></tr>
+      <tr><td><code>initiatorType</code></td><td>What triggered the load</td><td>Group by script/img/css/fetch</td></tr>
+      <tr><td><code>duration</code></td><td>Total load time</td><td>Find bottlenecks</td></tr>
+    </tbody>
+  </table>
+
+  <h2>5. Paint Timing — When Pixels Appear</h2>
+
+  <p>Paint Timing tells you exactly when the browser first rendered something to screen — the moment your user stops staring at a blank white page.</p>
+
+  <pre><code>// Observe paint events
+const paintObserver = new PerformanceObserver((list) => {
+  list.getEntries().forEach((entry) => {
+    console.log(entry.name, 'happened at', entry.startTime, 'ms');
+    // First Paint: any pixel appears
+    // First Contentful Paint: text, image, or non-white canvas appears
+  });
+});
+paintObserver.observe({ type: 'paint', buffered: true });</code></pre>
+
+  <p><strong>First Paint</strong> (FP) and <strong>First Contentful Paint</strong> (FCP) are the two main metrics. FCP is what matters for Core Web Vitals — it's the moment the user sees meaningful content.</p>
+
+  <div class="highlight-box">
+    <strong>Target:</strong> FCP under 1.8 seconds for "good" (Google's threshold). Under 1.0 second is excellent. If FCP is high, look at render-blocking resources, server response time, and above-the-fold CSS size.
+  </div>
+
+  <h2>6. User Timing — Custom Measurement Marks</h2>
+
+  <p>Navigation, Resource, and Paint Timing are built into the browser. <strong>User Timing</strong> lets you define your <em>own</em> measurement points and measure between them — the difference between "page loaded" and "hero image visible" or "search results rendered."</p>
+
+  <pre><code>// Place marks at key moments
+performance.mark('search-start');
+await fetchSearchResults(q);
+performance.mark('search-results-received');
+renderResults(data);
+performance.mark('search-results-rendered');
+
+// Measure the gaps
+performance.measure('search-api-time', 'search-start', 'search-results-received');
+performance.measure('search-render-time', 'search-results-received', 'search-results-rendered');
+performance.measure('search-total-time', 'search-start', 'search-results-rendered');
+
+// Read measurements
+performance.getEntriesByType('measure').forEach((m) => {
+  console.log(m.name, ':', m.duration, 'ms');
+});</code></pre>
+
+  <p>User Timing measurements also appear in Chrome DevTools under the <strong>Performance</strong> tab — you'll see vertical markers at your mark positions and horizontal bars for your measures. This is invaluable for debugging SPA navigations, data loading, and rendering pipelines.</p>
+
+  <h2>7. Long Tasks API — Finding Jank</h2>
+
+  <p>A "long task" is any JavaScript execution that blocks the main thread for more than 50ms — long enough to drop a frame and cause visible jank. The Long Tasks API surfaces these automatically.</p>
+
+  <pre><code>const longTaskObserver = new PerformanceObserver((list) => {
+  list.getEntries().forEach((entry) => {
+    console.warn('Long task detected:', {
+      duration: entry.duration,
+      startTime: entry.startTime,
+      attribution: entry.attribution, // What caused it (Chrome only)
+    });
+  });
+});
+longTaskObserver.observe({ type: 'longtask', buffered: true });</code></pre>
+
+  <div class="highlight-box">
+    <strong>Note:</strong> Long Tasks API is currently Chrome-only (Chromium 58+). It's part of the spec but not yet implemented in Firefox or Safari. For cross-browser monitoring, pair it with User Timing marks around known expensive operations.
+  </div>
+
+  <h2>8. Element Timing — Measure Specific Elements</h2>
+
+  <p>Want to know exactly when your hero image rendered? The Element Timing API lets you tag specific DOM elements and get precise render timing.</p>
+
+  <pre><code>// HTML: add the 'elementtiming' attribute
+// &lt;img src="hero.jpg" elementtiming="hero-image" /&gt;
+// &lt;h1 elementtiming="main-heading"&gt;Title&lt;/h1&gt;
+
+// JS: observe element timing
+const elObserver = new PerformanceObserver((list) => {
+  list.getEntries().forEach((entry) => {
+    console.log(entry.identifier, 'rendered at', entry.startTime, 'ms');
+    // entry.identifier === 'hero-image'
+    // entry.element gives you the actual DOM node
+  });
+});
+elObserver.observe({ type: 'element', buffered: true });</code></pre>
+
+  <p>This is the API that Lighthouse uses to measure <strong>Largest Contentful Paint (LCP)</strong> — it watches all elements tagged with <code>elementtiming</code> and finds the largest above-the-fold one.</p>
+
+  <h2>9. Layout Instability — Cumulative Layout Shift (CLS)</h2>
+
+  <p>Layout shifts happen when content moves after it's first rendered — think "I was about to click that button and then an ad loaded and pushed it away." The Layout Instability API measures this.</p>
+
+  <pre><code>let clsValue = 0;
+
+const clsObserver = new PerformanceObserver((list) => {
+  list.getEntries().forEach((entry) => {
+    // Only count shifts without recent user input
+    if (!entry.hadRecentInput) {
+      clsValue += entry.value;
+      console.log('Layout shift:', entry.value, 'total CLS:', clsValue);
+    }
+  });
+});
+clsObserver.observe({ type: 'layout-shift', buffered: true });</code></pre>
+
+  <div class="highlight-box">
+    <strong>Target:</strong> CLS under 0.1 for "good," under 0.25 for "needs improvement." Common causes: images without explicit dimensions, dynamically injected ads, web fonts causing FOIT/FOUT, and animations using top/left instead of transform.
+  </div>
+
+  <h2>10. Largest Contentful Paint (LCP)</h2>
+
+  <p>LCP measures when the largest content element in the viewport becomes visible — usually a hero image, heading, or large text block. It's Google's primary perceived-performance metric.</p>
+
+  <pre><code>let lcpValue = 0;
+
+const lcpObserver = new PerformanceObserver((list) => {
+  const entries = list.getEntries();
+  const lastEntry = entries[entries.length - 1];
+  lcpValue = lastEntry.startTime;
+  console.log('LCP updated to:', lcpValue, 'ms (element:', lastEntry.element, ')');
+});
+lcpObserver.observe({ type: 'largest-contentful-paint', buffered: true });
+
+// LCP fires multiple times — the last one before user interaction
+// is the final value. Don't report LCP until the page is fully loaded
+// or until the user interacts (scroll, click, keypress).</code></pre>
+
+  <div class="highlight-box">
+    <strong>Target:</strong> LCP under 2.5 seconds for "good." If your LCP is high, check: slow server response, render-blocking JS/CSS, slow image loading, or client-side rendering that delays content.
+  </div>
+
+  <h2>11. The Complete Core Web Vitals Monitor</h2>
+
+  <p>Here's a production-ready snippet that measures all three Core Web Vitals — LCP, CLS, and INP (Interaction to Next Paint) — and logs them when they finalize:</p>
+
+  <pre><code>// Core Web Vitals in ~50 lines
+function reportWebVitals() {
+  let lcp = 0, cls = 0, inp = 0;
+  let inpInteractions = 0;
+
+  // LCP
+  new PerformanceObserver((list) => {
+    const entries = list.getEntries();
+    lcp = entries[entries.length - 1].startTime;
+  }).observe({ type: 'largest-contentful-paint', buffered: true });
+
+  // CLS
+  new PerformanceObserver((list) => {
+    list.getEntries().forEach((e) => {
+      if (!e.hadRecentInput) cls += e.value;
+    });
+  }).observe({ type: 'layout-shift', buffered: true });
+
+  // INP (Interaction to Next Paint)
+  new PerformanceObserver((list) => {
+    list.getEntries().forEach((entry) => {
+      inpInteractions++;
+      inp = Math.max(inp, entry.duration);
+    });
+  }).observe({ type: 'event', buffered: true, durationThreshold: 16 });
+
+  // Report when page hides (before tab close / navigation)
+  addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'hidden') {
+      const report = {
+        lcp: Math.round(lcp),
+        cls: Math.round(cls * 1000) / 1000,
+        inp: Math.round(inp),
+        url: location.href,
+      };
+
+      // Send to your analytics
+      navigator.sendBeacon('/api/vitals', JSON.stringify(report));
+    }
+  });
+}
+
+reportWebVitals();</code></pre>
+
+  <h2>12. The Performance Buffer — Managing Entries</h2>
+
+  <p>All Performance API entries go into a circular buffer. Understanding how to manage it prevents data loss:</p>
+
+  <pre><code>// Clear all entries (useful after reporting)
+performance.clearResourceTimings();
+performance.clearMarks();
+performance.clearMeasures();
+
+// Get entries with filters
+performance.getEntries({ name: 'search-api-time', entryType: 'measure' });
+
+// Get entries that happened after a specific timestamp
+const since = performance.now() - 30000; // Last 30 seconds
+const recent = performance.getEntriesByType('resource')
+  .filter(e => e.startTime > since);
+
+// Buffer size limits (browser-dependent, ~150 entries per type)
+// PerformanceObserver with buffered:true prevents missing entries</code></pre>
+
+  <h2>13. Server Timing — Backend Meets Frontend</h2>
+
+  <p>The Server-Timing header lets your backend inject custom timing data that the Performance API surfaces:</p>
+
+  <pre><code>// Backend sends:
+// Server-Timing: db;dur=45.2, cache;dur=0.1, template;dur=12.3
+
+// Frontend reads:
+const [nav] = performance.getEntriesByType('navigation');
+nav.serverTiming.forEach((timing) => {
+  console.log(timing.name, ':', timing.duration, 'ms');
+  // db: 45.2ms, cache: 0.1ms, template: 12.3ms
+});</code></pre>
+
+  <p>This is how you get end-to-end visibility — frontend knows <em>why</em> the response was slow, not just that it was slow.</p>
+
+  <h2>14. Browser Support and When to Use Each API</h2>
+
+  <table>
+    <thead>
+      <tr><th>API</th><th>Entry Type</th><th>Chrome</th><th>Firefox</th><th>Safari</th><th>Status</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>performance.now()</td><td>—</td><td>24+</td><td>15+</td><td>8+</td><td>Baseline</td></tr>
+      <tr><td>Navigation Timing</td><td><code>navigation</code></td><td>57+</td><td>58+</td><td>13+</td><td>Baseline</td></tr>
+      <tr><td>Resource Timing</td><td><code>resource</code></td><td>43+</td><td>38+</td><td>14.1+</td><td>Baseline</td></tr>
+      <tr><td>Paint Timing</td><td><code>paint</code></td><td>60+</td><td>84+</td><td>14.1+</td><td>Baseline</td></tr>
+      <tr><td>User Timing</td><td><code>mark</code>/<code>measure</code></td><td>25+</td><td>38+</td><td>11+</td><td>Baseline</td></tr>
+      <tr><td>PerformanceObserver</td><td>—</td><td>52+</td><td>57+</td><td>11+</td><td>Baseline</td></tr>
+      <tr><td>Long Tasks</td><td><code>longtask</code></td><td>58+</td><td>—</td><td>—</td><td>Chrome-only</td></tr>
+      <tr><td>Element Timing</td><td><code>element</code></td><td>77+</td><td>—</td><td>—</td><td>Chrome-only</td></tr>
+      <tr><td>LCP</td><td><code>largest-contentful-paint</code></td><td>77+</td><td>—</td><td>—</td><td>Chrome-only</td></tr>
+      <tr><td>Layout Shift</td><td><code>layout-shift</code></td><td>77+</td><td>—</td><td>—</td><td>Chrome-only</td></tr>
+      <tr><td>Event Timing (INP)</td><td><code>event</code></td><td>96+</td><td>—</td><td>—</td><td>Chrome-only</td></tr>
+    </tbody>
+  </table>
+
+  <p>The core APIs — <code>performance.now()</code>, Navigation Timing, Resource Timing, Paint Timing, User Timing, and PerformanceObserver — are Baseline and work everywhere. The Core Web Vitals metrics (LCP, CLS, INP) are Chrome-only at the API level but the <code>web-vitals</code> library provides a cross-browser wrapper.</p>
+
+  <div class="highlight-box">
+    <strong>Pro tip:</strong> For production use, install the official <code>web-vitals</code> library (1.5 KB gzipped). It wraps all the Chrome-only APIs with best-practice reporting and proper finalization logic. But understanding the raw APIs means you'll know exactly what it's doing — and you can debug issues without guessing.
+  </div>
+
+  <h2>The Performance Mindset</h2>
+
+  <p>Performance isn't something you optimize once before launch — it's something you <em>measure continuously</em>. The Performance API gives you the instrumentation. Now you need the culture: measure before you deploy, set budgets, and never ship a change that regresses your metrics.</p>
+
+  <p>Start with one thing: add <code>performance.mark()</code> and <code>performance.measure()</code> around your critical rendering paths. Open DevTools, look at the Performance tab, and see your marks appear. Once you can see your app's performance, you can improve it.</p>
+
+  <hr />
+
+  <p>
+    <em>Want to explore more browser APIs hands-on? Try the <a href="/tools/console-api-playground" class="inline-link">Console API Playground</a>, <a href="/tools/api-latency-tester" class="inline-link">API Latency Tester</a>, and <a href="/tools/debounce-throttle-playground" class="inline-link">Debounce & Throttle Playground</a> on DevBench — all free, all client-side.</em>
+  </p>
+</div>`,
+  },
+  {
     slug: 'css-grid-complete-guide-2026',
     title: 'CSS Grid Layout: The Complete Guide for 2026 — From Basics to Production Patterns',
     description:
