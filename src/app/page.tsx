@@ -1704,6 +1704,13 @@ const featuredTools = [
     tags: ['License', 'Open Source', 'Legal', 'GitHub'],
   },
   {
+    title: 'CSS Image Filters Playground',
+    description: 'Visually explore every CSS filter — blur, brightness, contrast, grayscale, hue-rotate, invert, opacity, saturate, sepia, and drop-shadow. Upload any image, apply 10 artistic presets, instant CSS copy.',
+    href: '/tools/css-image-filters-playground',
+    icon: Camera,
+    tags: ['CSS', 'Filters', 'Image', 'Design', 'Photography'],
+  },
+  {
     title: 'Web Vitals Visualizer',
     description: 'Interactive demos for Core Web Vitals — LCP (Largest Contentful Paint), CLS (Cumulative Layout Shift), and INP (Interaction to Next Paint). Simulate page loads, layout shifts, and input delays to understand Google ranking metrics.',
     href: '/tools/web-vitals-visualizer',
