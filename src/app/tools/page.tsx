@@ -845,6 +845,13 @@ const allTools = [
     tags: ['JSON', 'Tree', 'Explorer', 'Visualizer'],
   },
   {
+    title: 'JavaScript Benchmark',
+    description: 'Compare JavaScript code performance — measure array iteration, object creation, string ops, and more. Web Worker-powered with 6 preset categories, visual bar charts, and one-click copy — jsPerf-style, 100% client-side.',
+    href: '/tools/js-benchmark',
+    icon: Zap,
+    tags: ['JavaScript', 'Benchmark', 'Performance', 'jsPerf', 'Web Worker'],
+  },
+  {
     title: 'JavaScript Playground',
     description: 'Write and run JavaScript snippets instantly in your browser with live console output and TypeScript support. 7 presets, error handling, timing, and one-click copy — like a browser REPL.',
     href: '/tools/javascript-playground',

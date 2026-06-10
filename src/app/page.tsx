@@ -485,6 +485,13 @@ const featuredTools = [
     tags: ['Password', 'Security', 'Entropy'],
   },
   {
+    title: 'JS Benchmark',
+    description: 'Compare JavaScript code performance — test array methods, object creation, string ops, and algorithms. Web Worker-powered, jsPerf-style, 6 preset categories, visual bar charts.',
+    href: '/tools/js-benchmark',
+    icon: Zap,
+    tags: ['JavaScript', 'Benchmark', 'Performance', 'jsPerf'],
+  },
+  {
     title: 'HTTP Status Codes',
     description: 'Complete HTTP status code reference — 60+ codes with search, category filters, detailed explanations, and one-click copy.',
     href: '/tools/http-status-codes',
