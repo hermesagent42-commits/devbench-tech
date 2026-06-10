@@ -1510,6 +1510,20 @@ const allTools = [
     icon: Gauge,
     tags: ['Web Vitals', 'LCP', 'CLS', 'INP', 'Performance', 'Google'],
   },
+  {
+    title: 'CSS Gap Decorations Playground',
+    description: 'Style grid and flex gaps with column-rule and row-rule — new in Chrome 149 (June 2026)! Draw lines, dashes, and dots between items without extra DOM elements.',
+    href: '/tools/css-gap-decorations-playground',
+    icon: Grid3X3,
+    tags: ['CSS', 'Gap', 'Grid', 'Flexbox', 'column-rule', 'row-rule', 'Chrome 149'],
+  },
+  {
+    title: 'CSS Reading Flow Playground',
+    description: 'Control tab and screen reader navigation order in flex and grid layouts with reading-flow (CSS Display Level 4). Align accessibility with visual order without changing HTML.',
+    href: '/tools/css-reading-flow-playground',
+    icon: Eye,
+    tags: ['CSS', 'reading-flow', 'Accessibility', 'Tab Order', 'Screen Reader', 'Grid', 'Flexbox'],
+  },
 ];
 
 export default function ToolsPage() {

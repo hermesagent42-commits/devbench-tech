@@ -8344,4 +8344,233 @@ animation-range: contain 20% contain 80%;</code></pre>
   </p>
 </div>`,
   },
+  {
+    slug: 'css-gap-decorations-2026',
+    title: 'CSS Gap Decorations: Styling the Space Between',
+    description: 'Chrome 149 shipped column-rule and row-rule for grid and flexbox gaps. No more extra DOM elements or pseudo-element hacks to draw lines between items.',
+    date: '2026-06-10',
+    author: 'DevBench Team',
+    tags: ['CSS', 'Gap Decorations', 'Grid', 'Flexbox', 'column-rule', 'row-rule', 'Chrome 149'],
+    readingTime: '8 min',
+    content: `<div class="blog-content">
+
+  <p>On June 2, 2026, Chrome 149 shipped with a feature that frontend developers have been requesting for over a decade: <strong>CSS Gap Decorations</strong>. The idea is simple but powerful — you can now style the gaps between items in grid and flexbox layouts with <code>column-rule</code> and <code>row-rule</code>, exactly like you style column gaps in multi-column layout.</p>
+
+  <p>This eliminates one of the most common CSS workarounds: adding empty divs, using ::before/::after pseudo-elements, or painting backgrounds to simulate dividers between layout items. Let's dive into what makes this feature so important and how to use it.</p>
+
+  <h2>The Problem: Gap Styling Before June 2026</h2>
+
+  <p>CSS Grid and Flexbox introduced the <code>gap</code> property — the ability to create space between items without margin hacks. This was a massive improvement for layout code. But there was a catch: you couldn't style the gap. You couldn't draw a line, a dash, or any visual decoration in that space.</p>
+
+  <p>Developers relied on several workarounds, each with significant downsides:</p>
+
+  <table>
+    <thead>
+      <tr><th>Workaround</th><th>Downside</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Empty divs between items</td><td>Pollutes DOM, breaks semantic HTML, complicates responsive layout</td></tr>
+      <tr><td>::before/::after pseudo-elements</td><td>Limited to two pseudo-elements per element, positioning is fragile</td></tr>
+      <tr><td>Background on container + gaps show through</td><td>Only works for simple solid backgrounds, not patterns or borders</td></tr>
+      <tr><td>Border on items (half-border trick)</td><td>Creates doubled borders at edges, requires :first-child/:last-child overrides</td></tr>
+      <tr><td>Outline + negative margin</td><td>Outline doesn't follow border-radius, looks wrong with rounded corners</td></tr>
+    </tbody>
+  </table>
+
+  <p>Every single one of these approaches is a hack. They all add complexity, hurt maintainability, and break in edge cases. Gap decorations solve this at the platform level.</p>
+
+  <h2>The Solution: column-rule and row-rule</h2>
+
+  <p>CSS Gap Decorations introduce two new properties that work alongside <code>gap</code>:</p>
+
+  <ul>
+    <li><strong>column-rule</strong> — Styles the vertical gaps between columns in a grid or flex layout</li>
+    <li><strong>row-rule</strong> — Styles the horizontal gaps between rows in a grid or flex layout</li>
+  </ul>
+
+  <p>The syntax mirrors the familiar <code>column-rule</code> from multi-column layout (which has existed since CSS3). It's a shorthand for <code>column-rule-width</code>, <code>column-rule-style</code>, and <code>column-rule-color</code>:</p>
+
+  <pre><code>/* Grid with styled gaps */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+  column-rule: 2px solid #6366f1;
+  row-rule: 1px dashed #94a3b8;
+}
+
+/* Flexbox with vertical dividers */
+.flex-row {
+  display: flex;
+  gap: 16px;
+  column-rule: 1px dotted #cbd5e1;
+}</code></pre>
+
+  <h2>Browser Support</h2>
+
+  <p>As of June 2026, support is rolling out:</p>
+
+  <table>
+    <thead>
+      <tr><th>Browser</th><th>column-rule</th><th>row-rule</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Chrome 149+</td><td>Supported</td><td>Supported</td></tr>
+      <tr><td>Edge 149+</td><td>Supported</td><td>Supported</td></tr>
+      <tr><td>Firefox</td><td>Behind flag</td><td>Behind flag</td></tr>
+      <tr><td>Safari</td><td>In development</td><td>In development</td></tr>
+    </tbody>
+  </table>
+
+  <p>Firefox and Safari are actively working on support through the Interop 2026 program. For production use, combine with <code>@supports</code> for graceful fallbacks:</p>
+
+  <pre><code>@supports (column-rule: 1px solid red) {
+  .grid {
+    column-rule: 2px solid var(--border-color);
+  }
+}
+
+@supports not (column-rule: 1px solid red) {
+  /* Fallback: use border on items with :not(:last-child) */
+  .grid > *:not(:last-child) {
+    border-right: 1px solid var(--border-color);
+  }
+}</code></pre>
+
+  <h2>Real-World Use Cases</h2>
+
+  <h3>1. Dashboard Cards with Divider Lines</h3>
+
+  <p>Before gap decorations, adding vertical dividers between dashboard cards required either extra divs or careful border management:</p>
+
+  <pre><code>.dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+  column-rule: 1px solid #e2e8f0;
+}</code></pre>
+
+  <p>Clean. One line. No DOM pollution.</p>
+
+  <h3>2. Photo Gallery Grid</h3>
+
+  <p>Photo galleries often want subtle separators between images. Border on images creates problems — the border becomes part of the image box, throwing off aspect ratios and requiring box-sizing adjustments:</p>
+
+  <pre><code>.gallery {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 4px;
+  column-rule: 2px solid #0f172a;
+  row-rule: 2px solid #0f172a;
+  background: #0f172a; /* Gaps show the background */
+}</code></pre>
+
+  <h3>3. Flexbox Navigation with Separators</h3>
+
+  <p>Horizontal nav bars with pipe separators between items have always been awkward. Now:</p>
+
+  <pre><code>nav {
+  display: flex;
+  gap: 0;
+  column-rule: 1px solid #64748b;
+}
+
+nav a {
+  padding: 8px 16px;
+}</code></pre>
+
+  <h3>4. Form Layout Grid</h3>
+
+  <p>Two-column forms with a visual divider between label and input columns:</p>
+
+  <pre><code>.form-grid {
+  display: grid;
+  grid-template-columns: 200px 1fr;
+  gap: 16px;
+  column-rule: 1px solid #e2e8f0;
+}</code></pre>
+
+  <h2>Comparison: Before and After</h2>
+
+  <p>Let's look at a concrete example. Here's a 3-column feature grid with styled dividers — the old way and the new way:</p>
+
+  <pre><code>/* OLD WAY: Border hacks */
+.features {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0; /* Can't use gap — need borders to touch */
+}
+.features > * {
+  padding: 32px;
+  border-right: 1px solid #e2e8f0;
+  border-bottom: 1px solid #e2e8f0;
+}
+.features > *:nth-child(3n) {
+  border-right: none; /* Remove right border on last column */
+}
+.features > *:nth-child(n+4) {
+  border-bottom: none; /* Remove bottom border on last row */
+}
+
+/* NEW WAY: Gap decorations */
+.features {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0;
+  column-rule: 1px solid #e2e8f0;
+  row-rule: 1px solid #e2e8f0;
+}
+.features > * {
+  padding: 32px;
+}</code></pre>
+
+  <p>The new approach is 60% less CSS and doesn't require child selectors that break when items wrap or reorder. It also works correctly regardless of how many items are in the grid — unlike nth-child hacks that need updating when the column count changes.</p>
+
+  <h2>Performance Considerations</h2>
+
+  <p>Gap decorations are rendered by the layout engine, not the paint engine. This means:</p>
+
+  <ul>
+    <li>No additional paint layers or composite layers</li>
+    <li>No impact on layout thrashing</li>
+    <li>Hardware-accelerated where the browser supports it</li>
+    <li>Zero JavaScript overhead — no ResizeObserver, no scrollHeight calculations</li>
+  </ul>
+
+  <p>Compared to the pseudo-element approach (which creates additional boxes in the layout tree), gap decorations are significantly more performant.</p>
+
+  <h2>Limitations and Gotchas</h2>
+
+  <ul>
+    <li><strong>No gap decorations for single items.</strong> If a grid or flex container has only one item, there's no gap to decorate — rules won't render.</li>
+    <li><strong>Gap must be non-zero.</strong> With <code>gap: 0</code>, rules render in zero-width space (invisible). Use <code>gap: 1px</code> or larger.</li>
+    <li><strong>No border-radius on rules.</strong> Rules are straight lines. For curved dividers, you still need other approaches.</li>
+    <li><strong>Rules span the full row/column extent.</strong> You can't make a rule shorter than the gap it occupies.</li>
+    <li><strong>Flexbox wrap interaction.</strong> In a wrapped flex container, <code>column-rule</code> only applies within each row. There's no cross-row column rule.</li>
+  </ul>
+
+  <h2>Try It Yourself</h2>
+
+  <p>The best way to understand gap decorations is to experiment. DevBench has a new <a href="/tools/css-gap-decorations-playground" class="inline-link">CSS Gap Decorations Playground</a> where you can:</p>
+
+  <ul>
+    <li>Toggle between grid and flexbox layouts</li>
+    <li>Adjust gap size, rule style (solid, dashed, dotted, double, groove, ridge), width, and color</li>
+    <li>See live preview and copy the generated CSS</li>
+    <li>Explore 6 presets covering common use cases</li>
+  </ul>
+
+  <h2>The Bigger Picture: CSS in 2026</h2>
+
+  <p>Gap decorations are part of a broader wave of CSS improvements landing in 2026. Alongside <a href="/blog/css-mixins">CSS Mixins</a>, <a href="/blog/css-reading-flow">reading-flow</a>, cross-document view transitions, and scroll-state container queries, the platform is filling gaps (pun intended) that previously required JavaScript or complex CSS hacks.</p>
+
+  <p>The trend is clear: <strong>if developers have been hacking around a missing feature for years, the CSS Working Group is working on a native solution.</strong> The days of border tricks, pseudo-element positioning, and empty divs are numbered.</p>
+
+  <hr />
+
+  <p>
+    <em>Explore more CSS tools on DevBench: <a href="/tools/css-gap-decorations-playground" class="inline-link">CSS Gap Decorations Playground</a>, <a href="/tools/css-grid-generator" class="inline-link">CSS Grid Generator</a>, <a href="/tools/css-flexbox-playground" class="inline-link">Flexbox Playground</a>, and <a href="/tools/css-keyframes-builder" class="inline-link">CSS Keyframes Builder</a> — all free, all client-side.</em>
+  </p>
+</div>`,
+  },
 ];
