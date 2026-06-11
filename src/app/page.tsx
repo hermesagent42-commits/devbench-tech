@@ -1759,6 +1759,13 @@ const featuredTools = [
     icon: Gauge,
     tags: ['Web Vitals', 'LCP', 'CLS', 'INP', 'Performance'],
   },
+  {
+    title: 'CSS Hyphenation Playground',
+    description: 'Explore CSS hyphenation — 8 presets across English, German, French, Spanish and more. Tune hyphenate-limit-chars, adjust container width, toggle between none/manual/auto, and see hyphenation live. Instant CSS + HTML output.',
+    href: '/tools/css-hyphenation-playground',
+    icon: Languages,
+    tags: ['CSS', 'Hyphens', 'Typography', 'Baseline 2025'],
+  },
 ];
 
 const sampleBlogPosts = [
