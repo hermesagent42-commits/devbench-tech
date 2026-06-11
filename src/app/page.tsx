@@ -1409,6 +1409,13 @@ const featuredTools = [
     tags: ['CSS', 'field-sizing', 'Forms', 'Baseline 2026'],
   },
   {
+    title: 'CSS Caret Playground',
+    description: 'Design custom text input cursors — caret-color, caret-shape (bar, block, underscore), and the caret shorthand. Live preview, 8 presets, instant CSS + Tailwind output.',
+    href: '/tools/css-caret-playground',
+    icon: Type,
+    tags: ['CSS', 'caret', 'Forms', 'Input', 'Design'],
+  },
+  {
     title: 'Password Generator',
     description: 'Generate strong, cryptographically random passwords with full control — length, character sets, strength meter, and batch generation. 100% client-side.',
     href: '/tools/password-generator',
