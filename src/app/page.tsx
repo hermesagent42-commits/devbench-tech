@@ -485,6 +485,13 @@ const featuredTools = [
     tags: ['Password', 'Security', 'Entropy'],
   },
   {
+    title: 'Browser Fingerprint Analyzer',
+    description: 'See what makes your browser uniquely trackable — canvas, WebGL, audio, fonts, screen, and navigator signals. Privacy score, entropy breakdown, and anti-fingerprinting tips.',
+    href: '/tools/browser-fingerprint',
+    icon: Fingerprint,
+    tags: ['Privacy', 'Fingerprint', 'Security', 'Browser'],
+  },
+  {
     title: 'JS Benchmark',
     description: 'Compare JavaScript code performance — test array methods, object creation, string ops, and algorithms. Web Worker-powered, jsPerf-style, 6 preset categories, visual bar charts.',
     href: '/tools/js-benchmark',

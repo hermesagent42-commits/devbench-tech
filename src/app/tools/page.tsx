@@ -1580,6 +1580,13 @@ const allTools = [
     icon: Eye,
     tags: ['CSS', 'reading-flow', 'Accessibility', 'Tab Order', 'Screen Reader', 'Grid', 'Flexbox'],
   },
+  {
+    title: 'Browser Fingerprint Analyzer',
+    description: 'See exactly what makes your browser uniquely trackable — canvas, WebGL, audio, fonts, screen, timezone, and navigator signals. Privacy score, entropy breakdown, and anti-fingerprinting tips. 100% client-side.',
+    href: '/tools/browser-fingerprint',
+    icon: Fingerprint,
+    tags: ['Privacy', 'Fingerprint', 'Security', 'Canvas', 'WebGL'],
+  },
 ];
 
 export default function ToolsPage() {
