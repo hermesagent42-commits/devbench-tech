@@ -737,6 +737,13 @@ const featuredTools = [
     tags: ['CSS', 'Container Queries', 'Responsive', '2026'],
   },
   {
+    title: 'Container Style Queries',
+    description: 'Build @container style() queries — style children based on custom property values. Theme switching, layout variants, component states — all without class toggling. 6 presets, live preview, instant CSS.',
+    href: '/tools/css-container-style-queries',
+    icon: Variable,
+    tags: ['CSS', 'Container Style Queries', 'Custom Properties', 'Baseline 2025'],
+  },
+  {
     title: 'Box Model Visualizer',
     description: 'Interactively build and visualize the CSS box model — margin, border, padding, and content. Real-time rendering, presets, CSS output.',
     href: '/tools/box-model-visualizer',
