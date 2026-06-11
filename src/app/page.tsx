@@ -1725,6 +1725,13 @@ const featuredTools = [
     tags: ['License', 'Open Source', 'Legal', 'GitHub'],
   },
   {
+    title: 'Prettier Config Generator',
+    description: 'Visually build your .prettierrc — every option explained, 8 style presets (Airbnb, Google, React, etc.), live JSON/YAML/CLI output. Zero dependencies, copy or download your config in seconds.',
+    href: '/tools/prettier-config-generator',
+    icon: SlidersHorizontal,
+    tags: ['Prettier', 'Formatting', 'Config', 'Linter'],
+  },
+  {
     title: 'CSS Image Filters Playground',
     description: 'Visually explore every CSS filter — blur, brightness, contrast, grayscale, hue-rotate, invert, opacity, saturate, sepia, and drop-shadow. Upload any image, apply 10 artistic presets, instant CSS copy.',
     href: '/tools/css-image-filters-playground',
