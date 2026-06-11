@@ -1,0 +1,263 @@
+2:I[72972,["2972","static/chunks/2972-4aaa15d119eeb022.js","308","static/chunks/app/blog/%5Bslug%5D/page-a411190e7012c687.js"],""]
+4:I[4707,[],""]
+6:I[36423,[],""]
+7:I[39295,["9762","static/chunks/44530001-4ecf7a22b5b24163.js","2972","static/chunks/2972-4aaa15d119eeb022.js","8375","static/chunks/8375-c77b8de36f6696fb.js","6829","static/chunks/6829-f51803445ddf1872.js","3185","static/chunks/app/layout-488e5c40aa6ffa72.js"],"Header"]
+8:I[66506,["9762","static/chunks/44530001-4ecf7a22b5b24163.js","2972","static/chunks/2972-4aaa15d119eeb022.js","8375","static/chunks/8375-c77b8de36f6696fb.js","6829","static/chunks/6829-f51803445ddf1872.js","3185","static/chunks/app/layout-488e5c40aa6ffa72.js"],"Analytics"]
+9:I[69064,["9762","static/chunks/44530001-4ecf7a22b5b24163.js","2972","static/chunks/2972-4aaa15d119eeb022.js","8375","static/chunks/8375-c77b8de36f6696fb.js","6829","static/chunks/6829-f51803445ddf1872.js","3185","static/chunks/app/layout-488e5c40aa6ffa72.js"],"Toaster"]
+3:T3481,<div class="blog-content">
+<h2 class="post-h2">Why CSS Filters Matter Now</h2>
+
+<p class="post-p">
+CSS filters landed as <strong>Baseline in 2015</strong> and every browser has supported them for nearly a decade. Yet most developers barely scratch the surface — a little <code>blur()</code> for glassmorphism, maybe <code>grayscale()</code> on hover. The full filter pipeline can replace image editing tools for common tasks, animate smoothly at 60fps, and create effects that used to require Canvas or WebGL.
+</p>
+
+<p class="post-p">
+Here's what you need to know: <strong>CSS filters operate on the rendered output</strong> of an element and all its descendants. They're applied after layout and painting, composited by the GPU, and — when used correctly — they don't trigger repaints or reflows.
+</p>
+
+<p class="post-p">
+There are <strong>eleven filter functions</strong> plus one escape hatch (<code>url()</code> for SVG filters). This guide covers all of them with visual examples, performance data, and practical patterns.
+</p>
+
+<h2 class="post-h2">The Complete Filter Pipeline</h2>
+
+<p class="post-p">
+Every filter function accepts a value and returns a modified pixel output. The GPU runs the filter in a single pass, applying each function in order. Chain them with spaces:
+</p>
+
+<pre><code>filter: blur(2px) grayscale(0.5) drop-shadow(4px 4px 0 crimson);</code></pre>
+
+<p class="post-p">
+The order matters — <code>blur()</code> then <code>grayscale()</code> produces different results than <code>grayscale()</code> then <code>blur()</code>.
+</p>
+
+<h2 class="post-h2">1. blur() — The Glassmorphism Workhorse</h2>
+
+<pre><code>filter: blur(5px);        /* Radius in pixels, 0+ */
+filter: blur(1.5rem);     /* Any CSS length — px, rem, em, vw */</code></pre>
+
+<p class="post-p">
+<strong>What it does:</strong> Gaussian blur with the specified standard deviation. The browser computes a convolution kernel — larger values mean wider, softer blur.
+</p>
+
+<pre><code>.card-backdrop {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(12px);   /* Blurs content BEHIND */
+}
+
+.skeleton-loader {
+  filter: blur(4px);              /* Blurs the element ITSELF */
+  animation: pulse 1.5s ease-in-out infinite;
+}</code></pre>
+
+<p class="post-p">
+<strong>Key distinction:</strong> <code>backdrop-filter: blur()</code> blurs what's behind the element (requires transparency on the element). <code>filter: blur()</code> blurs the element and its children. Never mix them up.
+</p>
+
+<p class="post-p">
+<strong>Performance:</strong> The most expensive filter. Blur radius scales the convolution kernel quadratically — <code>blur(10px)</code> is ~4× slower than <code>blur(5px)</code>. Keep radii under 20px for 60fps. On mobile, cap at 12px. Use <code>will-change: filter</code> if animating.
+</p>
+
+<h2 class="post-h2">2. brightness() — Lighten or Darken Without Opacity</h2>
+
+<pre><code>filter: brightness(0.5);    /* 50% darker */
+filter: brightness(1);      /* Normal (default) */
+filter: brightness(2);      /* 2× brighter */
+filter: brightness(0%);     /* Completely black */</code></pre>
+
+<p class="post-p">
+<strong>What it does:</strong> Linear multiplier on each color channel. At 0%, the element becomes pure black. At 100% (1.0), it's unchanged. Above 100%, it brightens linearly — values above 3.0 wash out into white.
+</p>
+
+<p class="post-p">
+<strong>Performance:</strong> Essentially free. It's a per-channel multiply — the GPU can do this at zero cost alongside compositing.
+</p>
+
+<h2 class="post-h2">3. contrast() — Control Dynamic Range</h2>
+
+<pre><code>filter: contrast(0.5);     /* Washed out, flat */
+filter: contrast(1);       /* Normal */
+filter: contrast(2);       /* Punchy, high contrast */
+filter: contrast(0%);      /* Uniform gray */</code></pre>
+
+<p class="post-p">
+<strong>What it does:</strong> Adjusts the difference between the lightest and darkest parts. At 0%, the entire element becomes a uniform mid-gray. Below 100%, the image flattens. Above 100%, darks get darker and lights get lighter.
+</p>
+
+<p class="post-p">
+<strong>The classic gooey metaball trick:</strong> <code>filter: blur(10px) contrast(20)</code> — blur merges shapes, contrast re-sharpens the merged boundary. This is a pure CSS alternative to SVG goo filters.
+</p>
+
+<h2 class="post-h2">4. drop-shadow() — The Smarter Box-Shadow</h2>
+
+<pre><code>filter: drop-shadow(4px 4px 8px rgba(0,0,0,0.5));
+/*                  offset-x offset-y blur-radius color */</code></pre>
+
+<p class="post-p">
+<strong>What it does:</strong> Takes the alpha mask of the element and draws a shadow behind them. Unlike <code>box-shadow</code>, this follows the actual shape — perfect for PNG images, clip-path shapes, and transparent SVGs.
+</p>
+
+<p class="post-p">
+<strong>Critical difference:</strong> <code>box-shadow</code> follows the CSS box model (border-radius included), while <code>drop-shadow()</code> follows the alpha channel — honoring clip-path, PNG transparency, and irregular shapes. <code>box-shadow</code> supports inset and spread; <code>drop-shadow()</code> does not.
+</p>
+
+<h2 class="post-h2">5. grayscale() — Desaturate With Precision</h2>
+
+<pre><code>filter: grayscale(0.3);     /* 30% desaturated */
+filter: grayscale(1);       /* Fully grayscale */</code></pre>
+
+<p class="post-p">
+<strong>The "fade to color" pattern:</strong> <code>grayscale(1)</code> on default state, animate to <code>grayscale(0)</code> on hover. This is one of the most reliable CSS hover effects — works on every browser, no layout shift, smooth animation.
+</p>
+
+<h2 class="post-h2">6. hue-rotate() — Shift the Color Wheel</h2>
+
+<pre><code>filter: hue-rotate(90deg);     /* Rotate 90° around the color wheel */
+filter: hue-rotate(180deg);    /* Complementary colors */</code></pre>
+
+<p class="post-p">
+<strong>The single-SVG color palette trick:</strong> Ship one blue SVG icon, then use <code>hue-rotate()</code> plus <code>brightness()</code> and <code>saturate()</code> for infinite color variants. This eliminates the need for multiple colored icon assets.
+</p>
+
+<h2 class="post-h2">7. invert() — Color Negative</h2>
+
+<pre><code>filter: invert(0.5);       /* 50% inverted (mid-gray) */
+filter: invert(1);         /* Full color negative */</code></pre>
+
+<p class="post-p">
+<strong>The dark-mode image trick:</strong> <code>invert(1) hue-rotate(180deg)</code> inverts colors but corrects the hue. This works surprisingly well for diagrams, screenshots, and logos.
+</p>
+
+<h2 class="post-h2">8. opacity() — The Filter-Based Alternative</h2>
+
+<p class="post-p">
+Functionally identical to the CSS <code>opacity</code> property, but applied as part of the filter chain. This avoids the stacking context and compositing cost that <code>opacity</code> triggers separately.
+</p>
+
+<h2 class="post-h2">9. saturate() — Boost or Mute Color Intensity</h2>
+
+<pre><code>filter: saturate(0.5);     /* Muted, pastel */
+filter: saturate(2);       /* Vibrant, oversaturated */</code></pre>
+
+<h2 class="post-h2">10. sepia() — Vintage Photography</h2>
+
+<pre><code>filter: sepia(0.5);        /* 50% sepia-toned */
+filter: sepia(1);          /* Full sepia */</code></pre>
+
+<h2 class="post-h2">11. url() — The SVG Filter Escape Hatch</h2>
+
+<pre><code>filter: url(#my-custom-filter);
+filter: url(filters.svg#displacement);
+filter: blur(2px) url(#glow) contrast(1.2);</code></pre>
+
+<p class="post-p">
+Applies an SVG <code>&lt;filter&gt;</code> element as part of the CSS filter chain. This unlocks effects CSS filters can't do: displacement maps, lighting, morphology, turbulence, component transfer, and custom convolution matrices.
+</p>
+
+<h2 class="post-h2">Chaining Filters: Order Matters</h2>
+
+<p class="post-p">
+Filters are applied <strong>left to right</strong>. <code>blur(5px) brightness(0.5)</code> produces a soft dark glow, while <code>brightness(0.5) blur(5px)</code> produces sharp edges with a dark blur — different visual outcomes.
+</p>
+
+<p class="post-p">
+<strong>Rule of thumb:</strong> For glow effects → blur first. For shadow effects → brightness first. For color effects → grayscale/sepia first. For dark mode images → invert first.
+</p>
+
+<h2 class="post-h2">Performance Deep Dive</h2>
+
+<p class="post-p">
+All CSS filter functions run on the GPU compositor thread — they don't trigger layout or paint. But <code>backdrop-filter</code> is significantly more expensive because the browser must composite everything behind the element first.
+</p>
+
+<p class="post-p">
+<strong>Cost hierarchy (cheapest → most expensive):</strong> brightness/contrast/grayscale/invert/opacity/saturate/sepia/hue-rotate are essentially free. drop-shadow and small blur are cheap. blur above 15px and complex SVG url() pipelines are expensive.
+</p>
+
+<h2 class="post-h2">Animating Filters</h2>
+
+<pre><code>@keyframes glowing {
+  0%, 100% {
+    filter: drop-shadow(0 0 8px rgba(99, 102, 241, 0.6));
+  }
+  50% {
+    filter: drop-shadow(0 0 20px rgba(99, 102, 241, 1))
+            drop-shadow(0 0 40px rgba(99, 102, 241, 0.4));
+  }
+}</code></pre>
+
+<h2 class="post-h2">Real-World Recipes</h2>
+
+<h3>Glassmorphism Card</h3>
+<pre><code>.glass-card {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  backdrop-filter: blur(16px) saturate(1.2);
+}</code></pre>
+
+<h3>Image Color Matrix (Theming)</h3>
+<pre><code>.icon-brand-primary   { filter: none; }
+.icon-brand-secondary { filter: hue-rotate(45deg) saturate(1.3) brightness(0.9); }
+.icon-brand-accent    { filter: hue-rotate(320deg) saturate(1.5) brightness(1.1); }</code></pre>
+
+<h3>Text Glow (No text-shadow Needed)</h3>
+<pre><code>.glow-text {
+  filter: drop-shadow(0 0 6px currentColor) drop-shadow(0 0 12px currentColor);
+}</code></pre>
+
+<h2 class="post-h2">Browser Support & Fallbacks</h2>
+
+<p class="post-p">
+All 11 CSS filter functions have been supported since Chrome 53 (2016), Firefox 35 (2015), Safari 9.1 (2016), and Edge 13 (2015). For <code>backdrop-filter</code>, always provide a solid-color fallback:
+</p>
+
+<pre><code>.modal {
+  background: rgba(15, 23, 42, 0.92);
+  @supports (backdrop-filter: blur(12px)) {
+    background: rgba(15, 23, 42, 0.7);
+    backdrop-filter: blur(12px) saturate(1.5);
+  }
+}</code></pre>
+
+<h2 class="post-h2">Quick Reference: All 11 Functions</h2>
+
+<table class="post-table">
+<thead><tr><th>Function</th><th>Accepts</th><th>At 0%/0</th><th>At 100%/1</th><th>Use Case</th></tr></thead>
+<tbody>
+<tr><td>blur()</td><td>Length</td><td>No blur</td><td>—</td><td>Glassmorphism, focus</td></tr>
+<tr><td>brightness()</td><td>Number/%</td><td>Pure black</td><td>Normal</td><td>Hover states, darkening</td></tr>
+<tr><td>contrast()</td><td>Number/%</td><td>Flat gray</td><td>Normal</td><td>Punchy images, goo effect</td></tr>
+<tr><td>drop-shadow()</td><td>x y blur color</td><td>—</td><td>—</td><td>PNG/icon shadows</td></tr>
+<tr><td>grayscale()</td><td>Number/%</td><td>Full color</td><td>B&W</td><td>Hover reveals</td></tr>
+<tr><td>hue-rotate()</td><td>Angle</td><td>No shift</td><td>—</td><td>Icon coloring, themes</td></tr>
+<tr><td>invert()</td><td>Number/%</td><td>Normal</td><td>Negative</td><td>Dark mode images</td></tr>
+<tr><td>opacity()</td><td>Number/%</td><td>Invisible</td><td>Normal</td><td>Chained filter ops</td></tr>
+<tr><td>saturate()</td><td>Number/%</td><td>Grayscale</td><td>Normal</td><td>Vibrant hero images</td></tr>
+<tr><td>sepia()</td><td>Number/%</td><td>Normal</td><td>Full sepia</td><td>Vintage effects</td></tr>
+<tr><td>url()</td><td>SVG ref</td><td>—</td><td>—</td><td>Custom SVG pipelines</td></tr>
+</tbody>
+</table>
+
+<h2 class="post-h2">Key Takeaways</h2>
+
+<ul class="post-ul">
+<li><strong>Filters are GPU-composited</strong> — they don't trigger layout or paint. Use them freely for visual effects.</li>
+<li><strong>drop-shadow() is not box-shadow</strong> — it follows alpha, not the box model. Use it for PNGs and irregular shapes.</li>
+<li><strong>Order matters</strong> — blur() then brightness() ≠ brightness() then blur().</li>
+<li><strong>backdrop-filter is expensive</strong> — provide solid-color fallbacks for mobile.</li>
+<li><strong>Use will-change: filter</strong> before animating to avoid first-frame jank.</li>
+<li><strong>SVG url() filters</strong> unlock displacement maps, lighting, turbulence, and convolution.</li>
+<li><strong>Chain filters for infinite color variants</strong> — one SVG icon + brightness/saturate/hue-rotate = any color.</li>
+</ul>
+
+<hr/>
+
+<p class="post-p"><strong>Try it live:</strong> <a href="/tools/css-filter-playground" class="inline-link">CSS Filter Playground</a> — experiment with all 11 filter functions in real-time. <a href="/tools/css-backdrop-filter" class="inline-link">CSS Backdrop Filter Playground</a> — explore glassmorphism and background blur effects. <a href="/tools/glassmorphism-generator" class="inline-link">Glassmorphism Generator</a> — generate CSS glass effects with pre-built presets.</p>
+
+<p class="post-p"><em>Further reading: <a href="/blog/css-color-mix-complete-guide" class="inline-link">CSS color-mix() Complete Guide</a> for dynamic color manipulation, <a href="/tools/css-blend-mode-playground" class="inline-link">CSS Blend Modes Playground</a> for mix-blend-mode and background-blend-mode, and <a href="/blog/oklch-css-complete-guide-2026" class="inline-link">OKLCH CSS Complete Guide</a> for perceptually uniform color spaces.</em></p>
+
+</div>5:["slug","css-filters-complete-guide-2026","d"]
+0:["Dyet8hExXh9zFMTej1l6Q",[[["",{"children":["blog",{"children":[["slug","css-filters-complete-guide-2026","d"],{"children":["__PAGE__?{\"slug\":\"css-filters-complete-guide-2026\"}",{}]}]}]},"$undefined","$undefined",true],["",{"children":["blog",{"children":[["slug","css-filters-complete-guide-2026","d"],{"children":["__PAGE__",{},[["$L1",[["$","script",null,{"type":"application/ld+json","dangerouslySetInnerHTML":{"__html":"{\"@context\":\"https://schema.org\",\"@type\":\"BlogPosting\",\"headline\":\"CSS filter(): The Complete Visual Guide to All 11 Filter Functions\",\"description\":\"Every CSS filter function explained with visual examples — blur, brightness, contrast, drop-shadow, grayscale, hue-rotate, invert, opacity, saturate, sepia, and the SVG url() filter. Learn how to chain them, animate them, and avoid performance pitfalls in 2026.\",\"datePublished\":\"2026-06-11\",\"author\":{\"@type\":\"Person\",\"name\":\"DevBench\"},\"url\":\"https://devbench-roan.vercel.app/blog/css-filters-complete-guide-2026/\"}"}}],["$","article",null,{"className":"max-w-3xl mx-auto px-4 py-12 sm:px-6 lg:px-8","children":[["$","$L2",null,{"href":"/blog/","className":"inline-flex items-center gap-1.5 text-sm text-slate-500 hover:text-brand-400 transition-colors mb-8","children":[["$","svg",null,{"xmlns":"http://www.w3.org/2000/svg","width":24,"height":24,"viewBox":"0 0 24 24","fill":"none","stroke":"currentColor","strokeWidth":2,"strokeLinecap":"round","strokeLinejoin":"round","className":"lucide lucide-arrow-left w-4 h-4","children":[["$","path","1l729n",{"d":"m12 19-7-7 7-7"}],["$","path","x3x0zl",{"d":"M19 12H5"}],"$undefined"]}],"Back to blog"]}],["$","header",null,{"className":"mb-10","children":[["$","h1",null,{"className":"text-3xl sm:text-4xl font-bold text-white mb-4 tracking-tight leading-tight","children":"CSS filter(): The Complete Visual Guide to All 11 Filter Functions"}],["$","p",null,{"className":"text-lg text-slate-400 mb-6","children":"Every CSS filter function explained with visual examples — blur, brightness, contrast, drop-shadow, grayscale, hue-rotate, invert, opacity, saturate, sepia, and the SVG url() filter. Learn how to chain them, animate them, and avoid performance pitfalls in 2026."}],["$","div",null,{"className":"flex flex-wrap items-center gap-4 text-sm text-slate-500","children":[["$","span",null,{"className":"flex items-center gap-1.5","children":[["$","svg",null,{"xmlns":"http://www.w3.org/2000/svg","width":24,"height":24,"viewBox":"0 0 24 24","fill":"none","stroke":"currentColor","strokeWidth":2,"strokeLinecap":"round","strokeLinejoin":"round","className":"lucide lucide-calendar w-4 h-4","children":[["$","rect","eu3xkr",{"width":"18","height":"18","x":"3","y":"4","rx":"2","ry":"2"}],["$","line","m3sa8f",{"x1":"16","x2":"16","y1":"2","y2":"6"}],["$","line","18kwsl",{"x1":"8","x2":"8","y1":"2","y2":"6"}],["$","line","xt86sb",{"x1":"3","x2":"21","y1":"10","y2":"10"}],"$undefined"]}],"June 11, 2026"]}],["$","span",null,{"className":"flex items-center gap-1.5","children":[["$","svg",null,{"xmlns":"http://www.w3.org/2000/svg","width":24,"height":24,"viewBox":"0 0 24 24","fill":"none","stroke":"currentColor","strokeWidth":2,"strokeLinecap":"round","strokeLinejoin":"round","className":"lucide lucide-clock w-4 h-4","children":[["$","circle","1mglay",{"cx":"12","cy":"12","r":"10"}],["$","polyline","68esgv",{"points":"12 6 12 12 16 14"}],"$undefined"]}],"16 min read"]}],["$","span",null,{"className":"text-slate-600","children":["by ","DevBench"]}]]}],["$","div",null,{"className":"flex flex-wrap gap-2 mt-4","children":[["$","span","CSS",{"className":"px-2 py-0.5 rounded-md bg-brand-500/10 text-brand-400 text-xs font-medium border border-brand-500/20","children":"CSS"}],["$","span","filters",{"className":"px-2 py-0.5 rounded-md bg-brand-500/10 text-brand-400 text-xs font-medium border border-brand-500/20","children":"filters"}],["$","span","visual effects",{"className":"px-2 py-0.5 rounded-md bg-brand-500/10 text-brand-400 text-xs font-medium border border-brand-500/20","children":"visual effects"}],["$","span","svg",{"className":"px-2 py-0.5 rounded-md bg-brand-500/10 text-brand-400 text-xs font-medium border border-brand-500/20","children":"svg"}],["$","span","performance",{"className":"px-2 py-0.5 rounded-md bg-brand-500/10 text-brand-400 text-xs font-medium border border-brand-500/20","children":"performance"}],["$","span","2026",{"className":"px-2 py-0.5 rounded-md bg-brand-500/10 text-brand-400 text-xs font-medium border border-brand-500/20","children":"2026"}],["$","span","guide",{"className":"px-2 py-0.5 rounded-md bg-brand-500/10 text-brand-400 text-xs font-medium border border-brand-500/20","children":"guide"}]]}]]}],["$","div",null,{"className":"blog-body","dangerouslySetInnerHTML":{"__html":"$3"}}],["$","hr",null,{"className":"border-slate-800 my-12"}],["$","div",null,{"className":"text-center","children":["$","$L2",null,{"href":"/blog/","className":"inline-flex items-center gap-1.5 text-brand-400 hover:text-brand-300 transition-colors font-medium","children":[["$","svg",null,{"xmlns":"http://www.w3.org/2000/svg","width":24,"height":24,"viewBox":"0 0 24 24","fill":"none","stroke":"currentColor","strokeWidth":2,"strokeLinecap":"round","strokeLinejoin":"round","className":"lucide lucide-arrow-left w-4 h-4","children":[["$","path","1l729n",{"d":"m12 19-7-7 7-7"}],["$","path","x3x0zl",{"d":"M19 12H5"}],"$undefined"]}],"More articles"]}]}]]}]],null],null],null]},[null,["$","$L4",null,{"parallelRouterKey":"children","segmentPath":["children","blog","children","$5","children"],"error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L6",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":"$undefined","notFoundStyles":"$undefined"}]],null]},[null,["$","$L4",null,{"parallelRouterKey":"children","segmentPath":["children","blog","children"],"error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L6",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":"$undefined","notFoundStyles":"$undefined"}]],null]},[[[["$","link","0",{"rel":"stylesheet","href":"/devbench-tech/_next/static/css/8b9213b1d18e4368.css","precedence":"next","crossOrigin":"$undefined"}]],["$","html",null,{"lang":"en","className":"dark","children":["$","body",null,{"className":"flex flex-col min-h-screen","children":[["$","script",null,{"type":"application/ld+json","dangerouslySetInnerHTML":{"__html":"{\"@context\":\"https://schema.org\",\"@type\":\"WebSite\",\"name\":\"DevBench\",\"url\":\"https://devbench-roan.vercel.app\",\"description\":\"Free developer tools for everyday use: JSON formatter, Base64 encoder/decoder, UUID generator, regex tester, benchmarks, and more.\",\"potentialAction\":{\"@type\":\"SearchAction\",\"target\":\"https://devbench-roan.vercel.app/tools?q={search_term_string}\",\"query-input\":\"required name=search_term_string\"}}"}}],["$","$L7",null,{}],["$","main",null,{"className":"flex-1","children":["$","$L4",null,{"parallelRouterKey":"children","segmentPath":["children"],"error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L6",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":[["$","title",null,{"children":"404: This page could not be found."}],["$","div",null,{"style":{"fontFamily":"system-ui,\"Segoe UI\",Roboto,Helvetica,Arial,sans-serif,\"Apple Color Emoji\",\"Segoe UI Emoji\"","height":"100vh","textAlign":"center","display":"flex","flexDirection":"column","alignItems":"center","justifyContent":"center"},"children":["$","div",null,{"children":[["$","style",null,{"dangerouslySetInnerHTML":{"__html":"body{color:#000;background:#fff;margin:0}.next-error-h1{border-right:1px solid rgba(0,0,0,.3)}@media (prefers-color-scheme:dark){body{color:#fff;background:#000}.next-error-h1{border-right:1px solid rgba(255,255,255,.3)}}"}}],["$","h1",null,{"className":"next-error-h1","style":{"display":"inline-block","margin":"0 20px 0 0","padding":"0 23px 0 0","fontSize":24,"fontWeight":500,"verticalAlign":"top","lineHeight":"49px"},"children":"404"}],["$","div",null,{"style":{"display":"inline-block"},"children":["$","h2",null,{"style":{"fontSize":14,"fontWeight":400,"lineHeight":"49px","margin":0},"children":"This page could not be found."}]}]]}]}]],"notFoundStyles":[]}]}],["$","footer",null,{"className":"bg-surface-light border-t border-slate-700/50 mt-auto","children":["$","div",null,{"className":"max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12","children":[["$","div",null,{"className":"grid grid-cols-1 md:grid-cols-3 gap-8","children":[["$","div",null,{"children":[["$","$L2",null,{"href":"/","className":"flex items-center gap-2.5 mb-3","children":[["$","div",null,{"className":"w-7 h-7 bg-brand-500 rounded-lg flex items-center justify-center","children":["$","svg",null,{"xmlns":"http://www.w3.org/2000/svg","width":24,"height":24,"viewBox":"0 0 24 24","fill":"none","stroke":"currentColor","strokeWidth":2,"strokeLinecap":"round","strokeLinejoin":"round","className":"lucide lucide-terminal w-3.5 h-3.5 text-white","children":[["$","polyline","akl6gq",{"points":"4 17 10 11 4 5"}],["$","line","q2wloq",{"x1":"12","x2":"20","y1":"19","y2":"19"}],"$undefined"]}]}],["$","span",null,{"className":"text-lg font-bold text-white","children":["Dev",["$","span",null,{"className":"gradient-text","children":"Bench"}]]}]]}],["$","p",null,{"className":"text-slate-400 text-sm leading-relaxed","children":"Free developer tools, benchmarks, and calculators. Built for developers, by developers."}]]}],["$","div",null,{"children":[["$","h3",null,{"className":"text-sm font-semibold text-slate-300 uppercase tracking-wider mb-4","children":"Tools"}],["$","ul",null,{"className":"space-y-2","children":[["$","li","/tools/json-formatter",{"children":["$","$L2",null,{"href":"/tools/json-formatter","className":"text-slate-400 hover:text-brand-400 text-sm transition-colors","children":"JSON Formatter"}]}],["$","li","/tools/base64",{"children":["$","$L2",null,{"href":"/tools/base64","className":"text-slate-400 hover:text-brand-400 text-sm transition-colors","children":"Base64 Encoder/Decoder"}]}],["$","li","/tools/uuid-generator",{"children":["$","$L2",null,{"href":"/tools/uuid-generator","className":"text-slate-400 hover:text-brand-400 text-sm transition-colors","children":"UUID Generator"}]}],["$","li","/tools/regex-tester",{"children":["$","$L2",null,{"href":"/tools/regex-tester","className":"text-slate-400 hover:text-brand-400 text-sm transition-colors","children":"Regex Tester"}]}]]}]]}],["$","div",null,{"children":[["$","h3",null,{"className":"text-sm font-semibold text-slate-300 uppercase tracking-wider mb-4","children":"Resources"}],["$","ul",null,{"className":"space-y-2","children":[["$","li","/blog",{"children":["$","$L2",null,{"href":"/blog","className":"text-slate-400 hover:text-brand-400 text-sm transition-colors","children":"Blog"}]}],["$","li","/benchmarks",{"children":["$","$L2",null,{"href":"/benchmarks","className":"text-slate-400 hover:text-brand-400 text-sm transition-colors","children":"Benchmarks"}]}],["$","li","/about",{"children":["$","$L2",null,{"href":"/about","className":"text-slate-400 hover:text-brand-400 text-sm transition-colors","children":"About"}]}]]}]]}]]}],["$","div",null,{"className":"mt-10 pt-6 border-t border-slate-700/50 flex flex-col sm:flex-row items-center justify-between gap-4","children":[["$","p",null,{"className":"text-slate-500 text-sm flex items-center gap-1","children":["Made with ",["$","svg",null,{"xmlns":"http://www.w3.org/2000/svg","width":24,"height":24,"viewBox":"0 0 24 24","fill":"none","stroke":"currentColor","strokeWidth":2,"strokeLinecap":"round","strokeLinejoin":"round","className":"lucide lucide-heart w-3.5 h-3.5 text-red-500 fill-red-500","children":[["$","path","c3ymky",{"d":"M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"}],"$undefined"]}]," by the DevBench team © ",2026]}],["$","a",null,{"href":"https://github.com","target":"_blank","rel":"noopener noreferrer","className":"text-slate-500 hover:text-slate-300 transition-colors","aria-label":"GitHub","children":["$","svg",null,{"xmlns":"http://www.w3.org/2000/svg","width":24,"height":24,"viewBox":"0 0 24 24","fill":"none","stroke":"currentColor","strokeWidth":2,"strokeLinecap":"round","strokeLinejoin":"round","className":"lucide lucide-github w-5 h-5","children":[["$","path","tonef",{"d":"M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"}],["$","path","9comsn",{"d":"M9 18c-4.51 2-5-2-7-2"}],"$undefined"]}]}]]}]]}]}],["$","$L8",null,{}],["$","$L9",null,{"position":"bottom-right","toastOptions":{"style":{"background":"#1e293b","color":"#e2e8f0","border":"1px solid #334155","fontSize":"14px"}}}]]}]}]],null],null],["$La",null]]]]
+a:[["$","meta","0",{"name":"viewport","content":"width=device-width, initial-scale=1"}],["$","meta","1",{"charSet":"utf-8"}],["$","title","2",{"children":"CSS filter(): The Complete Visual Guide to All 11 Filter Functions | DevBench"}],["$","meta","3",{"name":"description","content":"Every CSS filter function explained with visual examples — blur, brightness, contrast, drop-shadow, grayscale, hue-rotate, invert, opacity, saturate, sepia, and the SVG url() filter. Learn how to chain them, animate them, and avoid performance pitfalls in 2026."}],["$","meta","4",{"name":"author","content":"DevBench"}],["$","meta","5",{"name":"keywords","content":"developer tools,JSON formatter,Base64,UUID generator,regex tester,benchmarks,dev tools"}],["$","meta","6",{"property":"og:title","content":"CSS filter(): The Complete Visual Guide to All 11 Filter Functions"}],["$","meta","7",{"property":"og:description","content":"Every CSS filter function explained with visual examples — blur, brightness, contrast, drop-shadow, grayscale, hue-rotate, invert, opacity, saturate, sepia, and the SVG url() filter. Learn how to chain them, animate them, and avoid performance pitfalls in 2026."}],["$","meta","8",{"property":"og:type","content":"article"}],["$","meta","9",{"property":"article:published_time","content":"2026-06-11"}],["$","meta","10",{"property":"article:author","content":"DevBench"}],["$","meta","11",{"property":"article:tag","content":"CSS"}],["$","meta","12",{"property":"article:tag","content":"filters"}],["$","meta","13",{"property":"article:tag","content":"visual effects"}],["$","meta","14",{"property":"article:tag","content":"svg"}],["$","meta","15",{"property":"article:tag","content":"performance"}],["$","meta","16",{"property":"article:tag","content":"2026"}],["$","meta","17",{"property":"article:tag","content":"guide"}],["$","meta","18",{"name":"twitter:card","content":"summary"}],["$","meta","19",{"name":"twitter:title","content":"CSS filter(): The Complete Visual Guide to All 11 Filter Functions"}],["$","meta","20",{"name":"twitter:description","content":"Every CSS filter function explained with visual examples — blur, brightness, contrast, drop-shadow, grayscale, hue-rotate, invert, opacity, saturate, sepia, and the SVG url() filter. Learn how to chain them, animate them, and avoid performance pitfalls in 2026."}],["$","link","21",{"rel":"icon","href":"/favicon.svg"}]]
+1:null

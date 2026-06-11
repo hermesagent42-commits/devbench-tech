@@ -1,0 +1,288 @@
+2:I[72972,["2972","static/chunks/2972-4aaa15d119eeb022.js","308","static/chunks/app/blog/%5Bslug%5D/page-a411190e7012c687.js"],""]
+4:I[4707,[],""]
+6:I[36423,[],""]
+7:I[39295,["9762","static/chunks/44530001-4ecf7a22b5b24163.js","2972","static/chunks/2972-4aaa15d119eeb022.js","8375","static/chunks/8375-c77b8de36f6696fb.js","6829","static/chunks/6829-f51803445ddf1872.js","3185","static/chunks/app/layout-488e5c40aa6ffa72.js"],"Header"]
+8:I[66506,["9762","static/chunks/44530001-4ecf7a22b5b24163.js","2972","static/chunks/2972-4aaa15d119eeb022.js","8375","static/chunks/8375-c77b8de36f6696fb.js","6829","static/chunks/6829-f51803445ddf1872.js","3185","static/chunks/app/layout-488e5c40aa6ffa72.js"],"Analytics"]
+9:I[69064,["9762","static/chunks/44530001-4ecf7a22b5b24163.js","2972","static/chunks/2972-4aaa15d119eeb022.js","8375","static/chunks/8375-c77b8de36f6696fb.js","6829","static/chunks/6829-f51803445ddf1872.js","3185","static/chunks/app/layout-488e5c40aa6ffa72.js"],"Toaster"]
+3:T30a9,<div class="prose-content">
+  <p class="lead">
+    For over a decade, writing modern JavaScript meant a build step. You&rsquo;d write <code>import { map } from &apos;lodash&apos;</code> and let Webpack, Vite, or esbuild resolve that bare specifier to an actual file in <code>node_modules</code>. In the browser, that import fails — the runtime has no idea where &apos;lodash&apos; lives. <strong>Import Maps</strong> — Baseline across all browsers since March 2024 — change this. You can now use bare specifiers natively in the browser, pulling modules from CDNs, local files, or any URL, without a bundler.
+  </p>
+
+  <h2>The Problem Import Maps Solve</h2>
+
+  <p>
+    Native ES modules work in every modern browser. But they require full URLs or relative paths:
+  </p>
+
+  <pre><code>// ❌ Bare specifier — browsers don&apos;t know where this is
+import { map } from &apos;lodash&apos;;
+
+// ✅ Full URL — works but is fragile and verbose
+import { map } from &apos;https://unpkg.com/lodash-es@4.17.21/lodash.js&apos;;
+
+// ✅ Relative path — works but ties you to a file structure
+import { map } from &apos;../node_modules/lodash-es/map.js&apos;;</code></pre>
+
+  <p>
+    This is the <strong>bare-specifier problem</strong>. Every bundler solves it, but that requires a build step. Import Maps solve it natively in the browser.
+  </p>
+
+  <h2>Import Maps 101</h2>
+
+  <p>An Import Map is a JSON object in a <code>&lt;script type=&quot;importmap&quot;&gt;</code> tag. It maps bare specifiers to URLs:</p>
+
+  <pre><code>&lt;script type=&quot;importmap&quot;&gt;
+{
+  &quot;imports&quot;: {
+    &quot;lodash&quot;: &quot;https://unpkg.com/lodash-es@4.17.21/lodash.js&quot;,
+    &quot;lodash/&quot;: &quot;https://unpkg.com/lodash-es@4.17.21/&quot;,
+    &quot;react&quot;: &quot;https://esm.sh/react@19.0.0&quot;,
+    &quot;react-dom/&quot;: &quot;https://esm.sh/react-dom@19.0.0/&quot;,
+    &quot;utils/&quot;: &quot;/js/utils/&quot;
+  }
+}
+&lt;/script&gt;
+
+&lt;script type=&quot;module&quot;&gt;
+// Now these all work in the browser — no build step
+import { map, debounce } from &apos;lodash&apos;;
+import { useState } from &apos;react&apos;;
+import { render } from &apos;react-dom/client&apos;;
+import { formatDate } from &apos;utils/dates.js&apos;; // resolves to /js/utils/dates.js
+&lt;/script&gt;</code></pre>
+
+  <p><strong>Key rules:</strong></p>
+  <ul>
+    <li>Must be the <strong>first</strong> <code>&lt;script&gt;</code> element on the page (after <code>&lt;base&gt;</code> elements) — the browser processes it before any <code>&lt;script type=&quot;module&quot;&gt;</code></li>
+    <li>Must appear <strong>before</strong> any module scripts that use the mappings</li>
+    <li>Only one Import Map per document (multiple are ignored; only the first is used)</li>
+    <li>Must be inline — external import maps (<code>&lt;script type=&quot;importmap&quot; src=&quot;...&quot;&gt;</code>) are not yet supported</li>
+  </ul>
+
+  <h2>Package Trailing Slashes: The <code>&quot;lodash/&quot;</code> Pattern</h2>
+
+  <p>
+    The <code>/</code> suffix is critical. <code>&quot;lodash&quot;</code> maps the bare specifier itself. <code>&quot;lodash/&quot;</code> maps any specifier <em>starting with</em> <code>lodash/</code>:
+  </p>
+
+  <pre><code>&lt;script type=&quot;importmap&quot;&gt;
+{
+  &quot;imports&quot;: {
+    &quot;lodash&quot;: &quot;https://unpkg.com/lodash-es@4.17.21/lodash.js&quot;,
+    &quot;lodash/&quot;: &quot;https://unpkg.com/lodash-es@4.17.21/&quot;
+  }
+}
+&lt;/script&gt;
+
+&lt;script type=&quot;module&quot;&gt;
+// &quot;lodash&quot; → the mapped URL as-is
+import _ from &apos;lodash&apos;;
+
+// &quot;lodash/map.js&quot; → resolves to https://unpkg.com/lodash-es@4.17.21/map.js
+import map from &apos;lodash/map.js&apos;;
+
+// &quot;lodash/fp.js&quot; → resolves to https://unpkg.com/lodash-es@4.17.21/fp.js
+import fp from &apos;lodash/fp.js&apos;;
+&lt;/script&gt;</code></pre>
+
+  <p>
+    <strong>Without the trailing-slash entry</strong>, <code>import map from &apos;lodash/map.js&apos;</code> would fail — the browser looks for a key matching the full string, finds nothing, and throws.
+  </p>
+
+  <h2>Scopes: Environment-Specific Mappings</h2>
+
+  <p>
+    The <code>&quot;scopes&quot;</code> field lets you override mappings for specific paths. This is how you handle environment-specific modules:
+  </p>
+
+  <pre><code>&lt;script type=&quot;importmap&quot;&gt;
+{
+  &quot;imports&quot;: {
+    &quot;api-client&quot;: &quot;/modules/api-client-browser.js&quot;
+  },
+  &quot;scopes&quot;: {
+    &quot;/admin/&quot;: {
+      &quot;api-client&quot;: &quot;/modules/api-client-admin.js&quot;
+    },
+    &quot;/preview/&quot;: {
+      &quot;api-client&quot;: &quot;/modules/api-client-preview.js&quot;,
+      &quot;lodash&quot;: &quot;https://cdn.example.com/lodash-patched.js&quot;
+    }
+  }
+}
+&lt;/script&gt;</code></pre>
+
+  <p>
+    <strong>Scopes are URL-prefix-based.</strong> If a module being imported is from a path that <em>starts with</em> a scope prefix, the scope&rsquo;s mappings override the top-level <code>&quot;imports&quot;</code>. Scopes are evaluated most-specific-first — <code>&quot;/admin/super/&quot;</code> wins over <code>&quot;/admin/&quot;</code>.
+  </p>
+
+  <h2>Integrity Hashes</h2>
+
+  <p>Import Map entries can include <code>integrity</code> attributes for subresource integrity:</p>
+
+  <pre><code>&lt;script type=&quot;importmap&quot;&gt;
+{
+  &quot;imports&quot;: {
+    &quot;lodash&quot;: &quot;https://cdn.example.com/lodash-es@4.17.21/lodash.js&quot;,
+    &quot;lodash/&quot;: &quot;https://cdn.example.com/lodash-es@4.17.21/&quot;
+  },
+  &quot;integrity&quot;: {
+    &quot;https://cdn.example.com/lodash-es@4.17.21/lodash.js&quot;: &quot;sha384-abc123...&quot;,
+    &quot;https://cdn.example.com/lodash-es@4.17.21/map.js&quot;: &quot;sha384-def456...&quot;
+  }
+}
+&lt;/script&gt;</code></pre>
+
+  <p>
+    The browser verifies the hash before executing the module. If the hash doesn&rsquo;t match (tampered CDN, cache corruption, version mismatch), the module fails to load.
+  </p>
+
+  <h2>Real-World Patterns</h2>
+
+  <h3>Pattern 1: CDN-Based Development (No npm Required)</h3>
+
+  <pre><code>&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+  &lt;script type=&quot;importmap&quot;&gt;
+  {
+    &quot;imports&quot;: {
+      &quot;react&quot;: &quot;https://esm.sh/react@19.0.0&quot;,
+      &quot;react-dom/&quot;: &quot;https://esm.sh/react-dom@19.0.0/&quot;,
+      &quot;htm&quot;: &quot;https://esm.sh/htm@3.1.1&quot;
+    }
+  }
+  &lt;/script&gt;
+&lt;/head&gt;
+&lt;body&gt;
+  &lt;div id=&quot;root&quot;&gt;&lt;/div&gt;
+  &lt;script type=&quot;module&quot;&gt;
+    import { createRoot } from &apos;react-dom/client&apos;;
+    const root = createRoot(document.getElementById(&apos;root&apos;));
+    root.render(/* ... */);
+  &lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;</code></pre>
+
+  <p>This is a fully functional React app — <strong>no package.json, no node_modules, no npm install</strong>. Just an HTML file and a CDN.</p>
+
+  <h3>Pattern 2: Dev vs. Prod with Dynamic Import Maps</h3>
+
+  <pre><code>&lt;script&gt;
+const isDev = location.hostname === &apos;localhost&apos;;
+const importMap = {
+  imports: isDev
+    ? {
+        &apos;my-lib/&apos;: &apos;/src/lib/&apos;,
+        &apos;my-lib&apos;: &apos;/src/lib/index.js&apos;
+      }
+    : {
+        &apos;my-lib/&apos;: &apos;https://cdn.example.com/my-lib@1.0.0/&apos;,
+        &apos;my-lib&apos;: &apos;https://cdn.example.com/my-lib@1.0.0/index.js&apos;
+      }
+};
+
+const script = document.createElement(&apos;script&apos;);
+script.type = &apos;importmap&apos;;
+script.textContent = JSON.stringify(importMap);
+document.head.appendChild(script);
+&lt;/script&gt;</code></pre>
+
+  <p>
+    During development, <code>import { foo } from &apos;my-lib/foo.js&apos;</code> resolves to local source files. In production, it hits the CDN. <strong>Important:</strong> Dynamically injected import maps must be added before any module scripts execute.
+  </p>
+
+  <h3>Pattern 3: Testing Libraries Without Installing</h3>
+
+  <pre><code>&lt;script type=&quot;importmap&quot;&gt;
+{
+  &quot;imports&quot;: {
+    &quot;chai&quot;: &quot;https://esm.sh/chai@5.1.0&quot;
+  }
+}
+&lt;/script&gt;
+
+&lt;script type=&quot;module&quot;&gt;
+import { expect } from &apos;chai&apos;;
+// Test a library in seconds without npm install
+expect(2 + 2).to.equal(4);
+&lt;/script&gt;</code></pre>
+
+  <h2>Dynamic Import Maps: <code>import.meta.resolve()</code></h2>
+
+  <p>With Import Maps, you can resolve specifiers programmatically:</p>
+
+  <pre><code>// Resolve a bare specifier using the current import map
+const url = import.meta.resolve(&apos;lodash/map.js&apos;);
+// → &apos;https://unpkg.com/lodash-es@4.17.21/map.js&apos;
+
+// Useful for dynamic imports
+const modulePath = import.meta.resolve(&#96;components/${name}.js&#96;);
+const component = await import(modulePath);</code></pre>
+
+  <h2>Migration: From Bundler to Import Maps</h2>
+
+  <p>
+    <strong>Step 1:</strong> Identify bare specifiers in your imports.<br/>
+    <strong>Step 2:</strong> Find CDN equivalents on esm.sh or unpkg.<br/>
+    <strong>Step 3:</strong> Build the import map JSON.<br/>
+    <strong>Step 4:</strong> Remove the bundler. You still need TypeScript compilation, but not module resolution.
+  </p>
+
+  <h2>Browser Support</h2>
+
+  <div class="table-wrapper">
+    <table>
+      <thead>
+        <tr><th>Browser</th><th>Version</th><th>Release Date</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Chrome</td><td>89+</td><td>March 2021</td></tr>
+        <tr><td>Edge</td><td>89+</td><td>March 2021</td></tr>
+        <tr><td>Firefox</td><td>108+</td><td>December 2022</td></tr>
+        <tr><td>Safari</td><td>16.4+</td><td>March 2023</td></tr>
+        <tr><td>iOS Safari</td><td>16.4+</td><td>March 2023</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p>Import Maps became <strong>Baseline Widely Available</strong> in March 2024, covering 96%+ of global users.</p>
+
+  <h2>When NOT to Use Import Maps</h2>
+
+  <p>Import Maps aren&rsquo;t a universal bundler replacement. They don&rsquo;t:</p>
+  <ul>
+    <li><strong>Bundle code</strong> — each module is a separate HTTP request</li>
+    <li><strong>Transpile</strong> — no TypeScript, JSX, or CSS-in-JS transformation</li>
+    <li><strong>Tree-shake</strong> — unused exports are still fetched</li>
+    <li><strong>Minify</strong> — you get whatever the CDN serves</li>
+  </ul>
+
+  <p>
+    The sweet spot: <strong>prototypes, documentation sites, internal tools, learning environments, and apps with &lt; 50 module dependencies</strong>.
+  </p>
+
+  <h2>Summary</h2>
+
+  <div class="highlight-box">
+    <strong>Key takeaways:</strong>
+    <ul>
+      <li><strong>Import Maps</strong> let browsers resolve bare specifiers like <code>&apos;react&apos;</code> to actual URLs without a bundler. Baseline across all browsers since March 2024.</li>
+      <li><strong><code>&lt;script type=&quot;importmap&quot;&gt;</code></strong> must appear before any module scripts. Only one per document.</li>
+      <li><strong>Trailing <code>/</code> entries</strong> map sub-path imports: <code>&quot;lodash/&quot;</code> covers <code>lodash/map.js</code>, <code>lodash/fp.js</code>, etc.</li>
+      <li><strong>Scopes</strong> override mappings for specific URL prefixes — ideal for environment-specific modules.</li>
+      <li><strong>Integrity hashes</strong> provide SRI for import-mapped modules.</li>
+      <li><strong><code>import.meta.resolve()</code></strong> resolves specifiers programmatically for dynamic imports.</li>
+      <li><strong>Best for:</strong> prototypes, documentation, learning, internal tools. Not a full replacement for production bundling.</li>
+      <li><strong>Pair with:</strong> Service Workers for caching, <code>modulepreload</code> for performance, and CDNs like esm.sh.</li>
+    </ul>
+  </div>
+
+  <div class="highlight-box highlight-positive">
+    <strong>Start today:</strong> Add an import map to any HTML page and try loading a library from esm.sh. No npm, no build step, no configuration. Just a <code>&lt;script type=&quot;importmap&quot;&gt;</code> block and native ES module <code>&lt;script type=&quot;module&quot;&gt;</code> tags. For a practical start, try loading Preact + HTM (JSX alternative without a transpiler) — you can build a reactive SPA in a single HTML file. Check out the <a href=&quot;/tools/html-playground/&quot;>HTML Playground</a> to experiment with import maps live.
+  </div>
+</div>5:["slug","es-import-maps-complete-guide-2026","d"]
+0:["Dyet8hExXh9zFMTej1l6Q",[[["",{"children":["blog",{"children":[["slug","es-import-maps-complete-guide-2026","d"],{"children":["__PAGE__?{\"slug\":\"es-import-maps-complete-guide-2026\"}",{}]}]}]},"$undefined","$undefined",true],["",{"children":["blog",{"children":[["slug","es-import-maps-complete-guide-2026","d"],{"children":["__PAGE__",{},[["$L1",[["$","script",null,{"type":"application/ld+json","dangerouslySetInnerHTML":{"__html":"{\"@context\":\"https://schema.org\",\"@type\":\"BlogPosting\",\"headline\":\"ES Import Maps: Bare-Specifier Imports Without a Bundler\",\"description\":\"Import Maps let you use bare specifiers like <code>import { map } from 'lodash'</code> in the browser — no build step, no node_modules, no bundler. Now universally Baseline, they&rsquo;re a fundamental shift in how we ship JavaScript. Complete guide: &lt;script type=&quot;importmap&quot;&gt;, scopes, integrity hashes, depcache, and real-world migration patterns.\",\"datePublished\":\"2026-06-08\",\"author\":{\"@type\":\"Person\",\"name\":\"DevBench\"},\"url\":\"https://devbench-roan.vercel.app/blog/es-import-maps-complete-guide-2026/\"}"}}],["$","article",null,{"className":"max-w-3xl mx-auto px-4 py-12 sm:px-6 lg:px-8","children":[["$","$L2",null,{"href":"/blog/","className":"inline-flex items-center gap-1.5 text-sm text-slate-500 hover:text-brand-400 transition-colors mb-8","children":[["$","svg",null,{"xmlns":"http://www.w3.org/2000/svg","width":24,"height":24,"viewBox":"0 0 24 24","fill":"none","stroke":"currentColor","strokeWidth":2,"strokeLinecap":"round","strokeLinejoin":"round","className":"lucide lucide-arrow-left w-4 h-4","children":[["$","path","1l729n",{"d":"m12 19-7-7 7-7"}],["$","path","x3x0zl",{"d":"M19 12H5"}],"$undefined"]}],"Back to blog"]}],["$","header",null,{"className":"mb-10","children":[["$","h1",null,{"className":"text-3xl sm:text-4xl font-bold text-white mb-4 tracking-tight leading-tight","children":"ES Import Maps: Bare-Specifier Imports Without a Bundler"}],["$","p",null,{"className":"text-lg text-slate-400 mb-6","children":"Import Maps let you use bare specifiers like <code>import { map } from 'lodash'</code> in the browser — no build step, no node_modules, no bundler. Now universally Baseline, they&rsquo;re a fundamental shift in how we ship JavaScript. Complete guide: &lt;script type=&quot;importmap&quot;&gt;, scopes, integrity hashes, depcache, and real-world migration patterns."}],["$","div",null,{"className":"flex flex-wrap items-center gap-4 text-sm text-slate-500","children":[["$","span",null,{"className":"flex items-center gap-1.5","children":[["$","svg",null,{"xmlns":"http://www.w3.org/2000/svg","width":24,"height":24,"viewBox":"0 0 24 24","fill":"none","stroke":"currentColor","strokeWidth":2,"strokeLinecap":"round","strokeLinejoin":"round","className":"lucide lucide-calendar w-4 h-4","children":[["$","rect","eu3xkr",{"width":"18","height":"18","x":"3","y":"4","rx":"2","ry":"2"}],["$","line","m3sa8f",{"x1":"16","x2":"16","y1":"2","y2":"6"}],["$","line","18kwsl",{"x1":"8","x2":"8","y1":"2","y2":"6"}],["$","line","xt86sb",{"x1":"3","x2":"21","y1":"10","y2":"10"}],"$undefined"]}],"June 8, 2026"]}],["$","span",null,{"className":"flex items-center gap-1.5","children":[["$","svg",null,{"xmlns":"http://www.w3.org/2000/svg","width":24,"height":24,"viewBox":"0 0 24 24","fill":"none","stroke":"currentColor","strokeWidth":2,"strokeLinecap":"round","strokeLinejoin":"round","className":"lucide lucide-clock w-4 h-4","children":[["$","circle","1mglay",{"cx":"12","cy":"12","r":"10"}],["$","polyline","68esgv",{"points":"12 6 12 12 16 14"}],"$undefined"]}],"9 min read"]}],["$","span",null,{"className":"text-slate-600","children":["by ","DevBench"]}]]}],["$","div",null,{"className":"flex flex-wrap gap-2 mt-4","children":[["$","span","JavaScript",{"className":"px-2 py-0.5 rounded-md bg-brand-500/10 text-brand-400 text-xs font-medium border border-brand-500/20","children":"JavaScript"}],["$","span","Import Maps",{"className":"px-2 py-0.5 rounded-md bg-brand-500/10 text-brand-400 text-xs font-medium border border-brand-500/20","children":"Import Maps"}],["$","span","ES Modules",{"className":"px-2 py-0.5 rounded-md bg-brand-500/10 text-brand-400 text-xs font-medium border border-brand-500/20","children":"ES Modules"}],["$","span","Baseline 2024",{"className":"px-2 py-0.5 rounded-md bg-brand-500/10 text-brand-400 text-xs font-medium border border-brand-500/20","children":"Baseline 2024"}],["$","span","Bundler-Free",{"className":"px-2 py-0.5 rounded-md bg-brand-500/10 text-brand-400 text-xs font-medium border border-brand-500/20","children":"Bundler-Free"}],["$","span","Web Platform",{"className":"px-2 py-0.5 rounded-md bg-brand-500/10 text-brand-400 text-xs font-medium border border-brand-500/20","children":"Web Platform"}],["$","span","importmap",{"className":"px-2 py-0.5 rounded-md bg-brand-500/10 text-brand-400 text-xs font-medium border border-brand-500/20","children":"importmap"}],["$","span","2026",{"className":"px-2 py-0.5 rounded-md bg-brand-500/10 text-brand-400 text-xs font-medium border border-brand-500/20","children":"2026"}]]}]]}],["$","div",null,{"className":"blog-body","dangerouslySetInnerHTML":{"__html":"$3"}}],["$","hr",null,{"className":"border-slate-800 my-12"}],["$","div",null,{"className":"text-center","children":["$","$L2",null,{"href":"/blog/","className":"inline-flex items-center gap-1.5 text-brand-400 hover:text-brand-300 transition-colors font-medium","children":[["$","svg",null,{"xmlns":"http://www.w3.org/2000/svg","width":24,"height":24,"viewBox":"0 0 24 24","fill":"none","stroke":"currentColor","strokeWidth":2,"strokeLinecap":"round","strokeLinejoin":"round","className":"lucide lucide-arrow-left w-4 h-4","children":[["$","path","1l729n",{"d":"m12 19-7-7 7-7"}],["$","path","x3x0zl",{"d":"M19 12H5"}],"$undefined"]}],"More articles"]}]}]]}]],null],null],null]},[null,["$","$L4",null,{"parallelRouterKey":"children","segmentPath":["children","blog","children","$5","children"],"error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L6",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":"$undefined","notFoundStyles":"$undefined"}]],null]},[null,["$","$L4",null,{"parallelRouterKey":"children","segmentPath":["children","blog","children"],"error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L6",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":"$undefined","notFoundStyles":"$undefined"}]],null]},[[[["$","link","0",{"rel":"stylesheet","href":"/devbench-tech/_next/static/css/8b9213b1d18e4368.css","precedence":"next","crossOrigin":"$undefined"}]],["$","html",null,{"lang":"en","className":"dark","children":["$","body",null,{"className":"flex flex-col min-h-screen","children":[["$","script",null,{"type":"application/ld+json","dangerouslySetInnerHTML":{"__html":"{\"@context\":\"https://schema.org\",\"@type\":\"WebSite\",\"name\":\"DevBench\",\"url\":\"https://devbench-roan.vercel.app\",\"description\":\"Free developer tools for everyday use: JSON formatter, Base64 encoder/decoder, UUID generator, regex tester, benchmarks, and more.\",\"potentialAction\":{\"@type\":\"SearchAction\",\"target\":\"https://devbench-roan.vercel.app/tools?q={search_term_string}\",\"query-input\":\"required name=search_term_string\"}}"}}],["$","$L7",null,{}],["$","main",null,{"className":"flex-1","children":["$","$L4",null,{"parallelRouterKey":"children","segmentPath":["children"],"error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L6",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":[["$","title",null,{"children":"404: This page could not be found."}],["$","div",null,{"style":{"fontFamily":"system-ui,\"Segoe UI\",Roboto,Helvetica,Arial,sans-serif,\"Apple Color Emoji\",\"Segoe UI Emoji\"","height":"100vh","textAlign":"center","display":"flex","flexDirection":"column","alignItems":"center","justifyContent":"center"},"children":["$","div",null,{"children":[["$","style",null,{"dangerouslySetInnerHTML":{"__html":"body{color:#000;background:#fff;margin:0}.next-error-h1{border-right:1px solid rgba(0,0,0,.3)}@media (prefers-color-scheme:dark){body{color:#fff;background:#000}.next-error-h1{border-right:1px solid rgba(255,255,255,.3)}}"}}],["$","h1",null,{"className":"next-error-h1","style":{"display":"inline-block","margin":"0 20px 0 0","padding":"0 23px 0 0","fontSize":24,"fontWeight":500,"verticalAlign":"top","lineHeight":"49px"},"children":"404"}],["$","div",null,{"style":{"display":"inline-block"},"children":["$","h2",null,{"style":{"fontSize":14,"fontWeight":400,"lineHeight":"49px","margin":0},"children":"This page could not be found."}]}]]}]}]],"notFoundStyles":[]}]}],["$","footer",null,{"className":"bg-surface-light border-t border-slate-700/50 mt-auto","children":["$","div",null,{"className":"max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12","children":[["$","div",null,{"className":"grid grid-cols-1 md:grid-cols-3 gap-8","children":[["$","div",null,{"children":[["$","$L2",null,{"href":"/","className":"flex items-center gap-2.5 mb-3","children":[["$","div",null,{"className":"w-7 h-7 bg-brand-500 rounded-lg flex items-center justify-center","children":["$","svg",null,{"xmlns":"http://www.w3.org/2000/svg","width":24,"height":24,"viewBox":"0 0 24 24","fill":"none","stroke":"currentColor","strokeWidth":2,"strokeLinecap":"round","strokeLinejoin":"round","className":"lucide lucide-terminal w-3.5 h-3.5 text-white","children":[["$","polyline","akl6gq",{"points":"4 17 10 11 4 5"}],["$","line","q2wloq",{"x1":"12","x2":"20","y1":"19","y2":"19"}],"$undefined"]}]}],["$","span",null,{"className":"text-lg font-bold text-white","children":["Dev",["$","span",null,{"className":"gradient-text","children":"Bench"}]]}]]}],["$","p",null,{"className":"text-slate-400 text-sm leading-relaxed","children":"Free developer tools, benchmarks, and calculators. Built for developers, by developers."}]]}],["$","div",null,{"children":[["$","h3",null,{"className":"text-sm font-semibold text-slate-300 uppercase tracking-wider mb-4","children":"Tools"}],["$","ul",null,{"className":"space-y-2","children":[["$","li","/tools/json-formatter",{"children":["$","$L2",null,{"href":"/tools/json-formatter","className":"text-slate-400 hover:text-brand-400 text-sm transition-colors","children":"JSON Formatter"}]}],["$","li","/tools/base64",{"children":["$","$L2",null,{"href":"/tools/base64","className":"text-slate-400 hover:text-brand-400 text-sm transition-colors","children":"Base64 Encoder/Decoder"}]}],["$","li","/tools/uuid-generator",{"children":["$","$L2",null,{"href":"/tools/uuid-generator","className":"text-slate-400 hover:text-brand-400 text-sm transition-colors","children":"UUID Generator"}]}],["$","li","/tools/regex-tester",{"children":["$","$L2",null,{"href":"/tools/regex-tester","className":"text-slate-400 hover:text-brand-400 text-sm transition-colors","children":"Regex Tester"}]}]]}]]}],["$","div",null,{"children":[["$","h3",null,{"className":"text-sm font-semibold text-slate-300 uppercase tracking-wider mb-4","children":"Resources"}],["$","ul",null,{"className":"space-y-2","children":[["$","li","/blog",{"children":["$","$L2",null,{"href":"/blog","className":"text-slate-400 hover:text-brand-400 text-sm transition-colors","children":"Blog"}]}],["$","li","/benchmarks",{"children":["$","$L2",null,{"href":"/benchmarks","className":"text-slate-400 hover:text-brand-400 text-sm transition-colors","children":"Benchmarks"}]}],["$","li","/about",{"children":["$","$L2",null,{"href":"/about","className":"text-slate-400 hover:text-brand-400 text-sm transition-colors","children":"About"}]}]]}]]}]]}],["$","div",null,{"className":"mt-10 pt-6 border-t border-slate-700/50 flex flex-col sm:flex-row items-center justify-between gap-4","children":[["$","p",null,{"className":"text-slate-500 text-sm flex items-center gap-1","children":["Made with ",["$","svg",null,{"xmlns":"http://www.w3.org/2000/svg","width":24,"height":24,"viewBox":"0 0 24 24","fill":"none","stroke":"currentColor","strokeWidth":2,"strokeLinecap":"round","strokeLinejoin":"round","className":"lucide lucide-heart w-3.5 h-3.5 text-red-500 fill-red-500","children":[["$","path","c3ymky",{"d":"M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"}],"$undefined"]}]," by the DevBench team © ",2026]}],["$","a",null,{"href":"https://github.com","target":"_blank","rel":"noopener noreferrer","className":"text-slate-500 hover:text-slate-300 transition-colors","aria-label":"GitHub","children":["$","svg",null,{"xmlns":"http://www.w3.org/2000/svg","width":24,"height":24,"viewBox":"0 0 24 24","fill":"none","stroke":"currentColor","strokeWidth":2,"strokeLinecap":"round","strokeLinejoin":"round","className":"lucide lucide-github w-5 h-5","children":[["$","path","tonef",{"d":"M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"}],["$","path","9comsn",{"d":"M9 18c-4.51 2-5-2-7-2"}],"$undefined"]}]}]]}]]}]}],["$","$L8",null,{}],["$","$L9",null,{"position":"bottom-right","toastOptions":{"style":{"background":"#1e293b","color":"#e2e8f0","border":"1px solid #334155","fontSize":"14px"}}}]]}]}]],null],null],["$La",null]]]]
+a:[["$","meta","0",{"name":"viewport","content":"width=device-width, initial-scale=1"}],["$","meta","1",{"charSet":"utf-8"}],["$","title","2",{"children":"ES Import Maps: Bare-Specifier Imports Without a Bundler | DevBench"}],["$","meta","3",{"name":"description","content":"Import Maps let you use bare specifiers like <code>import { map } from 'lodash'</code> in the browser — no build step, no node_modules, no bundler. Now universally Baseline, they&rsquo;re a fundamental shift in how we ship JavaScript. Complete guide: &lt;script type=&quot;importmap&quot;&gt;, scopes, integrity hashes, depcache, and real-world migration patterns."}],["$","meta","4",{"name":"author","content":"DevBench"}],["$","meta","5",{"name":"keywords","content":"developer tools,JSON formatter,Base64,UUID generator,regex tester,benchmarks,dev tools"}],["$","meta","6",{"property":"og:title","content":"ES Import Maps: Bare-Specifier Imports Without a Bundler"}],["$","meta","7",{"property":"og:description","content":"Import Maps let you use bare specifiers like <code>import { map } from 'lodash'</code> in the browser — no build step, no node_modules, no bundler. Now universally Baseline, they&rsquo;re a fundamental shift in how we ship JavaScript. Complete guide: &lt;script type=&quot;importmap&quot;&gt;, scopes, integrity hashes, depcache, and real-world migration patterns."}],["$","meta","8",{"property":"og:type","content":"article"}],["$","meta","9",{"property":"article:published_time","content":"2026-06-08"}],["$","meta","10",{"property":"article:author","content":"DevBench"}],["$","meta","11",{"property":"article:tag","content":"JavaScript"}],["$","meta","12",{"property":"article:tag","content":"Import Maps"}],["$","meta","13",{"property":"article:tag","content":"ES Modules"}],["$","meta","14",{"property":"article:tag","content":"Baseline 2024"}],["$","meta","15",{"property":"article:tag","content":"Bundler-Free"}],["$","meta","16",{"property":"article:tag","content":"Web Platform"}],["$","meta","17",{"property":"article:tag","content":"importmap"}],["$","meta","18",{"property":"article:tag","content":"2026"}],["$","meta","19",{"name":"twitter:card","content":"summary"}],["$","meta","20",{"name":"twitter:title","content":"ES Import Maps: Bare-Specifier Imports Without a Bundler"}],["$","meta","21",{"name":"twitter:description","content":"Import Maps let you use bare specifiers like <code>import { map } from 'lodash'</code> in the browser — no build step, no node_modules, no bundler. Now universally Baseline, they&rsquo;re a fundamental shift in how we ship JavaScript. Complete guide: &lt;script type=&quot;importmap&quot;&gt;, scopes, integrity hashes, depcache, and real-world migration patterns."}],["$","link","22",{"rel":"icon","href":"/favicon.svg"}]]
+1:null

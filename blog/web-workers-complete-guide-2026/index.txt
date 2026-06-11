@@ -1,0 +1,422 @@
+2:I[72972,["2972","static/chunks/2972-4aaa15d119eeb022.js","308","static/chunks/app/blog/%5Bslug%5D/page-a411190e7012c687.js"],""]
+4:I[4707,[],""]
+6:I[36423,[],""]
+7:I[39295,["9762","static/chunks/44530001-4ecf7a22b5b24163.js","2972","static/chunks/2972-4aaa15d119eeb022.js","8375","static/chunks/8375-c77b8de36f6696fb.js","6829","static/chunks/6829-f51803445ddf1872.js","3185","static/chunks/app/layout-488e5c40aa6ffa72.js"],"Header"]
+8:I[66506,["9762","static/chunks/44530001-4ecf7a22b5b24163.js","2972","static/chunks/2972-4aaa15d119eeb022.js","8375","static/chunks/8375-c77b8de36f6696fb.js","6829","static/chunks/6829-f51803445ddf1872.js","3185","static/chunks/app/layout-488e5c40aa6ffa72.js"],"Analytics"]
+9:I[69064,["9762","static/chunks/44530001-4ecf7a22b5b24163.js","2972","static/chunks/2972-4aaa15d119eeb022.js","8375","static/chunks/8375-c77b8de36f6696fb.js","6829","static/chunks/6829-f51803445ddf1872.js","3185","static/chunks/app/layout-488e5c40aa6ffa72.js"],"Toaster"]
+3:T41fe,<div class="blog-content">
+<h2 class="post-h2">The 14-Year-Old API That Nobody Uses (But Everybody Should)</h2>
+
+<p class="post-p">
+Web Workers shipped in 2010. That's the same year as the iPad, Instagram, and the first season of Game of Thrones. For context: React didn't exist yet. Neither did Webpack, TypeScript, or ES modules.
+</p>
+
+<p class="post-p">
+And yet, 14 years later, the vast majority of production JavaScript applications still run <strong>everything</strong> on the main thread — parsing, filtering, sorting, image manipulation, cryptographic operations, state management. The same thread that handles user input, paints frames, and runs animations.
+</p>
+
+<p class="post-p">
+The result? Jank. Dropped frames. Unresponsive UIs. The dreaded "Page Unresponsive" dialog.
+</p>
+
+<p class="post-p">
+The excuses have always been the same: "Workers are too hard to set up," "Bundler support is inconsistent," "Debugging is a nightmare," "You can't share state easily."
+</p>
+
+<p class="post-p">
+All of those excuses expired in 2026.
+</p>
+
+<h2 class="post-h2">Why 2026 Is the Year of Workers</h2>
+
+<p class="post-p">
+Several browser features have matured to the point where Workers are practical for everyday development:
+</p>
+
+<table>
+<thead><tr><th>Old Problem</th><th>2026 Solution</th></tr></thead>
+<tbody>
+<tr><td>No ES modules in workers</td><td><code>new Worker(new URL('./worker.ts', import.meta.url), { type: 'module' })</code> works in every bundler</td></tr>
+<tr><td>Can't share complex objects</td><td>Structured Clone Algorithm handles <code>Map</code>, <code>Set</code>, <code>BigInt</code>, <code>Error</code>, <code>RegExp</code>, <code>ArrayBuffer</code>, <code>Blob</code>, <code>File</code></td></tr>
+<tr><td>Synchronous file I/O impossible</td><td>OPFS <code>createSyncAccessHandle()</code> in workers</td></tr>
+<tr><td>Can't transfer ownership</td><td>Transferable objects: <code>ArrayBuffer</code>, <code>MessagePort</code>, <code>ImageBitmap</code>, <code>OffscreenCanvas</code></td></tr>
+<tr><td>Debugging pain</td><td>Chrome DevTools has a dedicated Workers panel with breakpoints, console, and source maps</td></tr>
+<tr><td>Shared memory is unsafe</td><td><code>SharedArrayBuffer</code> + <code>Atomics</code> with COOP/COEP headers</td></tr>
+<tr><td>Bundler chaos</td><td>Vite, Webpack 5, esbuild, and Turbopack all support <code>new URL()</code> worker syntax</td></tr>
+</tbody>
+</table>
+
+<h2 class="post-h2">Module Workers: The Syntax That Changed Everything</h2>
+
+<p class="post-p">
+The single biggest barrier to Worker adoption was how you had to load them. The classic API required a separate file served from the network:
+</p>
+
+<pre><code>// Classic worker (still works but don't use it)
+const worker = new Worker('/workers/heavy-parser.js');</code></pre>
+
+<p class="post-p">
+This meant you had to configure your bundler to emit a separate chunk, manage paths, deal with CORS, and handle deployment — all before writing a single line of worker logic. Most developers gave up at step one.
+</p>
+
+<p class="post-p">
+In 2026, <strong>module workers</strong> with <code>new URL()</code> are Baseline across every browser:
+</p>
+
+<pre><code>// Module worker: works with Vite, Webpack 5+, esbuild, Turbopack
+const worker = new Worker(
+  new URL('./parser.worker.ts', import.meta.url),
+  { type: 'module' }
+);</code></pre>
+
+<p class="post-p">
+This tells the bundler "this is a worker entry point" and it handles chunking, hashing, code-splitting, and path resolution automatically. Your worker can <code>import</code> dependencies, use TypeScript, and get tree-shaken just like any other module.
+</p>
+
+<pre><code>// parser.worker.ts
+import { parse } from 'csv-parse/sync'; // Import works fine!
+import { validateRow } from './validators';
+
+self.onmessage = (e) => {
+  const text = e.data.text();
+  const records = parse(text, { columns: true });
+  const cleaned = records.filter(validateRow);
+  self.postMessage(cleaned);
+};</code></pre>
+
+<h2 class="post-h2">The Structured Clone Algorithm: What You Can Actually Send</h2>
+
+<p class="post-p">
+Workers don't share memory by default. Everything you send via <code>postMessage()</code> is <strong>copied</strong> using the Structured Clone Algorithm. For years, this was frustratingly limited — you could send basic objects, arrays, strings, and numbers. Maps? No. Sets? No. BigInts? Definitely not.
+</p>
+
+<p class="post-p">
+In 2026, structured clone handles virtually everything:
+</p>
+
+<pre><code>// Send complex data without serialization
+worker.postMessage({
+  users: new Map([[1, { name: 'Alice' }], [2, { name: 'Bob' }]]),
+  tags: new Set(['admin', 'editor', 'viewer']),
+  bigId: 9007199254740993n,
+  buffer: new ArrayBuffer(1024),
+  file: event.target.files[0],     // File objects clone
+  blob: new Blob(['data']),
+  error: new Error('something'),
+  date: new Date(),
+  regex: /pattern/gi,
+});</code></pre>
+
+<p class="post-p">
+<strong>The one catch:</strong> <code>Function</code>, <code>DOM</code> nodes, <code>Symbol</code>, and prototype chains are <strong>not</strong> cloned. You get plain objects, not instances of your classes. For class instances, send the data and reconstruct on the worker side.
+</p>
+
+<h2 class="post-h2">Transferable Objects: Zero-Copy Ownership</h2>
+
+<p class="post-p">
+Copying large buffers is slow. For <code>ArrayBuffer</code>, <code>MessagePort</code>, <code>ImageBitmap</code>, and <code>OffscreenCanvas</code>, you can <strong>transfer</strong> ownership instead:
+</p>
+
+<pre><code>const buffer = new ArrayBuffer(1024 * 1024 * 100); // 100 MB
+// Transfer ownership — buffer becomes unusable on the main thread
+worker.postMessage({ buffer }, [buffer]);
+
+// After transfer, buffer.byteLength is 0 on the main thread
+console.log(buffer.byteLength); // 0</code></pre>
+
+<p class="post-p">
+Transfer is instantaneous regardless of buffer size because the browser just moves the pointer. This is essential for image/video processing, large file parsing, and crypto operations on big datasets.
+</p>
+
+<h2 class="post-h2">OffscreenCanvas: GPU Rendering From Workers</h2>
+
+<p class="post-p">
+<code>OffscreenCanvas</code> lets you use the Canvas 2D API, WebGL, and WebGPU from workers:
+</p>
+
+<pre><code>// Main thread
+const canvas = document.querySelector('canvas');
+const offscreen = canvas.transferControlToOffscreen();
+worker.postMessage({ canvas: offscreen }, [offscreen]);
+
+// Worker thread
+self.onmessage = (e) => {
+  const canvas = e.data.canvas; // OffscreenCanvas
+  const ctx = canvas.getContext('2d');
+  for (let i = 0; i < 100000; i++) {
+    ctx.fillRect(x, y, w, h);
+  }
+  ctx.commit(); // Push to the display canvas
+};</code></pre>
+
+<p class="post-p">
+This is how Figma, Google Docs, and Obsidian render their canvases — all heavy rendering happens off the main thread.
+</p>
+
+<h2 class="post-h2">Worker Pools: Parallel Processing for CPU-Bound Tasks</h2>
+
+<p class="post-p">
+For tasks like image batch processing, CSV parsing, or data transforms, a single worker isn't enough — you want parallelism:
+</p>
+
+<pre><code>class WorkerPool {
+  private workers: Worker[] = [];
+  private queue: (() => Promise<void>)[] = [];
+  private busy: Set<number> = new Set();
+
+  constructor(url: string, size = navigator.hardwareConcurrency || 4) {
+    for (let i = 0; i < size; i++) {
+      this.workers.push(new Worker(new URL(url, import.meta.url), { type: 'module' }));
+    }
+  }
+
+  async run<T>(data: any): Promise<T> {
+    return new Promise((resolve) => {
+      this.queue.push(() => {
+        const index = this.workers.findIndex((_, i) => !this.busy.has(i));
+        this.busy.add(index);
+        const worker = this.workers[index];
+        worker.onmessage = (e) => {
+          this.busy.delete(index);
+          resolve(e.data);
+          this.flush();
+        };
+        worker.postMessage(data);
+      });
+      this.flush();
+    });
+  }
+
+  private flush() {
+    while (this.queue.length > 0 && this.busy.size < this.workers.length) {
+      this.queue.shift()!();
+    }
+  }
+}</code></pre>
+
+<pre><code>const pool = new WorkerPool(
+  new URL('./image-processor.worker.ts', import.meta.url),
+  8
+);
+
+// Process 100 images in parallel (8 at a time)
+const images = Array.from({ length: 100 }, (_, i) => '/img/photo-' + i + '.jpg');
+const results = await Promise.all(images.map(img => pool.run({ url: img, width: 800 })));</code></pre>
+
+<h2 class="post-h2">SharedArrayBuffer + Atomics: True Shared Memory</h2>
+
+<pre><code>// Main thread
+const sab = new SharedArrayBuffer(1024);
+const view = new Int32Array(sab);
+
+// Pass to multiple workers
+worker1.postMessage({ buffer: sab });
+worker2.postMessage({ buffer: sab });
+
+// Worker 1
+const view = new Int32Array(e.data.buffer);
+Atomics.add(view, 0, 1);  // Atomic increment — no race conditions
+Atomics.notify(view, 0);   // Wake up waiters
+
+// Worker 2
+Atomics.wait(view, 0, 1, 1000); // Wait until value changes (with timeout)</code></pre>
+
+<p class="post-p">
+<strong>Security requirement:</strong> Your site needs <code>Cross-Origin-Opener-Policy: same-origin</code> and <code>Cross-Origin-Embedder-Policy: require-corp</code> headers. This isolates your context for Spectre mitigation — required for SharedArrayBuffer.
+</p>
+
+<h2 class="post-h2">OPFS: Synchronous File I/O in Workers</h2>
+
+<p class="post-p">
+The Origin Private File System (OPFS) is a sandboxed filesystem per-origin. In workers, you get <code>createSyncAccessHandle()</code> — synchronous read/write without callbacks:
+</p>
+
+<pre><code>// worker.ts — synchronous file operations
+const root = await navigator.storage.getDirectory();
+const file = await root.getFileHandle('database.sqlite', { create: true });
+const accessHandle = await file.createSyncAccessHandle();
+
+// Synchronous writes — no await, no callbacks
+const encoder = new TextEncoder();
+const data = encoder.encode('INSERT INTO users ...');
+accessHandle.write(data, { at: 0 });
+
+// Synchronous reads
+const buffer = new Uint8Array(1024);
+accessHandle.read(buffer, { at: 0 });
+accessHandle.flush();
+accessHandle.close();</code></pre>
+
+<p class="post-p">
+This is a game-changer for SQLite in the browser. Projects like <code>sqlite3-wasm</code> and <code>wa-sqlite</code> use OPFS to run full SQL engines in workers with synchronous I/O — matching native performance.
+</p>
+
+<h2 class="post-h2">Real-World Patterns</h2>
+
+<h3>Pattern 1: Off-Main-Thread CSV Parser</h3>
+
+<p class="post-p"><strong>Problem:</strong> Parsing a 50 MB CSV file freezes the UI for 3-5 seconds.</p>
+
+<pre><code>// Main thread: file picker
+input.addEventListener('change', (e) => {
+  const file = e.target.files?.[0];
+  const worker = new Worker(
+    new URL('./csv.worker.ts', import.meta.url),
+    { type: 'module' }
+  );
+  worker.postMessage(file);
+  worker.onmessage = (e) => {
+    renderTable(e.data.rows); // Parsed data arrives without blocking
+  };
+});
+
+// csv.worker.ts
+import { parse } from 'papaparse';
+
+self.onmessage = async (e) => {
+  const file = e.data;
+  const text = await file.text();
+  const result = parse(text, { header: true, dynamicTyping: true });
+  self.postMessage({ rows: result.data, errors: result.errors });
+};</code></pre>
+
+<h3>Pattern 2: Image Resizer Pool</h3>
+
+<p class="post-p"><strong>Problem:</strong> Resizing 50 uploaded photos to thumbnail size takes 10+ seconds.</p>
+
+<pre><code>// image-resize.worker.ts
+self.onmessage = async (e) => {
+  const { blob, width } = e.data;
+  const bitmap = await createImageBitmap(blob);
+  const canvas = new OffscreenCanvas(width, (bitmap.height / bitmap.width) * width);
+  const ctx = canvas.getContext('2d');
+  ctx.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
+  const resized = await canvas.convertToBlob({ type: 'image/jpeg', quality: 0.85 });
+  self.postMessage(resized);
+};</code></pre>
+
+<h3>Pattern 3: Crypto Operations Off Thread</h3>
+
+<pre><code>// hash.worker.ts
+self.onmessage = async (e) => {
+  const { file, algorithm } = e.data;
+  const stream = file.stream();
+  const hash = await crypto.subtle.digest(algorithm, stream);
+  const hex = Array.from(new Uint8Array(hash))
+    .map(b => b.toString(16).padStart(2, '0'))
+    .join('');
+  self.postMessage({ hex, name: file.name, size: file.size });
+};</code></pre>
+
+<h2 class="post-h2">When NOT to Use Workers</h2>
+
+<p class="post-p">
+Workers aren't free. Each worker has a memory overhead (~1-5 MB), and <code>postMessage</code> has serialization cost. Don't use them for:
+</p>
+
+<ul>
+<li><strong>Trivial operations</strong> (&lt; 10ms) — the serialization overhead exceeds the benefit</li>
+<li><strong>DOM manipulation</strong> — workers can't access the DOM (use OffscreenCanvas for canvas)</li>
+<li><strong>Frequent small updates</strong> — batching reduces message overhead</li>
+<li><strong>When you need synchronous results</strong> — <code>postMessage</code> is always async</li>
+<li><strong>Tiny data</strong> — structured clone of <code>{x: 1}</code> is cheaper than spawning a worker</li>
+</ul>
+
+<h2 class="post-h2">The Worker Lifecycle: Error Handling and Cleanup</h2>
+
+<p class="post-p">
+Workers don't clean up automatically. If you create workers and lose references, they keep running — consuming memory and CPU:
+</p>
+
+<pre><code>class ManagedWorker {
+  private worker: Worker;
+  private terminated = false;
+
+  constructor(script: URL) {
+    this.worker = new Worker(script, { type: 'module' });
+    this.worker.onerror = (e) => {
+      console.error('Worker error:', e.message, e.filename, e.lineno);
+      this.terminate();
+    };
+    this.worker.onmessageerror = (e) => {
+      console.error('Could not deserialize worker message:', e);
+    };
+  }
+
+  terminate() {
+    if (!this.terminated) {
+      this.worker.terminate();
+      this.terminated = true;
+    }
+  }
+}</code></pre>
+
+<h2 class="post-h2">Debugging Workers in 2026</h2>
+
+<p class="post-p">
+Chrome DevTools has a dedicated Workers panel. Open DevTools → Sources → Threads pane. Each worker shows as a separate thread with:
+</p>
+
+<ul>
+<li><strong>Full source maps support</strong> — TypeScript debugging works</li>
+<li><strong>Breakpoints, watch expressions, call stack</strong></li>
+<li><strong>Console scoped to the worker</strong> — <code>console.log()</code> goes to the worker's scope</li>
+<li><strong>Performance panel</strong> — records worker thread activity alongside the main thread</li>
+</ul>
+
+<p class="post-p">
+Firefox has similar support under the Debugger panel's "Threads" dropdown.
+</p>
+
+<h2 class="post-h2">COOP/COEP: The Headers You Need for SharedArrayBuffer</h2>
+
+<pre><code>Cross-Origin-Opener-Policy: same-origin
+Cross-Origin-Embedder-Policy: require-corp</code></pre>
+
+<p class="post-p">
+<strong>Warning:</strong> <code>require-corp</code> means all cross-origin resources (images, fonts, scripts from CDNs) need <code>Cross-Origin-Resource-Policy: cross-origin</code> headers from the server. For most sites, skip SharedArrayBuffer and use structured clone transfer — you get most of the performance without the header complexity.
+</p>
+
+<h2 class="post-h2">Service Workers Are Workers Too</h2>
+
+<p class="post-p">
+Everything in this guide applies to Service Workers — they're a specialized Worker with additional APIs (<code>fetch</code>, <code>cache</code>, <code>push</code>, <code>sync</code>). The key difference: Service Workers are persistent, intercept network requests, and outlive the page.
+</p>
+
+<pre><code>// service-worker.ts (module worker, intercepts all fetch requests)
+self.addEventListener('fetch', (event) => {
+  event.respondWith(
+    caches.match(event.request).then((cached) => {
+      return cached || fetch(event.request).then((response) => {
+        return caches.open('v1').then((cache) => {
+          cache.put(event.request, response.clone());
+          return response;
+        });
+      });
+    })
+  );
+});</code></pre>
+
+<h2 class="post-h2">The Bottom Line</h2>
+
+<p class="post-p">
+Web Workers aren't exotic anymore. Module workers work with every modern bundler. Structured clone handles complex types. Transferable objects provide zero-copy data sharing. OPFS gives synchronous file I/O. <code>OffscreenCanvas</code> keeps rendering off the main thread. Worker pools enable true parallelism.
+</p>
+
+<p class="post-p">
+The main thread is for user interaction. Everything else belongs in a worker.
+</p>
+
+<p class="post-p">
+Try it interactively on the <a href="/tools/web-workers-playground" class="inline-link">Web Workers Playground</a> — experiment with worker pools, message passing, and OffscreenCanvas, all client-side.
+</p>
+
+<hr />
+
+<p>
+  <em>Explore more DevBench tools: <a href="/tools/json-formatter" class="inline-link">JSON Formatter</a>, <a href="/tools/hash-generator" class="inline-link">Hash Generator</a>, <a href="/tools/image-compressor" class="inline-link">Image Compressor</a>, and <a href="/tools/regex-tester" class="inline-link">Regex Tester</a> — all free, all client-side.</em>
+</p>
+</div>5:["slug","web-workers-complete-guide-2026","d"]
+0:["Dyet8hExXh9zFMTej1l6Q",[[["",{"children":["blog",{"children":[["slug","web-workers-complete-guide-2026","d"],{"children":["__PAGE__?{\"slug\":\"web-workers-complete-guide-2026\"}",{}]}]}]},"$undefined","$undefined",true],["",{"children":["blog",{"children":[["slug","web-workers-complete-guide-2026","d"],{"children":["__PAGE__",{},[["$L1",[["$","script",null,{"type":"application/ld+json","dangerouslySetInnerHTML":{"__html":"{\"@context\":\"https://schema.org\",\"@type\":\"BlogPosting\",\"headline\":\"Web Workers in 2026: Off-Main-Thread JavaScript That Actually Works\",\"description\":\"Web Workers have been available since 2010, but most developers avoid them because the API is awkward, debugging is painful, and bundler support is inconsistent. In 2026, module workers, import maps, structured clone upgrades, synchronous OPFS handles, and `new URL('./worker.ts', import.meta.url)` make workers practical for the first time. A complete guide with production-ready patterns for parsing, image processing, crypto, state machines, and more.\",\"datePublished\":\"2026-06-10\",\"author\":{\"@type\":\"Person\",\"name\":\"DevBench\"},\"url\":\"https://devbench-roan.vercel.app/blog/web-workers-complete-guide-2026/\"}"}}],["$","article",null,{"className":"max-w-3xl mx-auto px-4 py-12 sm:px-6 lg:px-8","children":[["$","$L2",null,{"href":"/blog/","className":"inline-flex items-center gap-1.5 text-sm text-slate-500 hover:text-brand-400 transition-colors mb-8","children":[["$","svg",null,{"xmlns":"http://www.w3.org/2000/svg","width":24,"height":24,"viewBox":"0 0 24 24","fill":"none","stroke":"currentColor","strokeWidth":2,"strokeLinecap":"round","strokeLinejoin":"round","className":"lucide lucide-arrow-left w-4 h-4","children":[["$","path","1l729n",{"d":"m12 19-7-7 7-7"}],["$","path","x3x0zl",{"d":"M19 12H5"}],"$undefined"]}],"Back to blog"]}],["$","header",null,{"className":"mb-10","children":[["$","h1",null,{"className":"text-3xl sm:text-4xl font-bold text-white mb-4 tracking-tight leading-tight","children":"Web Workers in 2026: Off-Main-Thread JavaScript That Actually Works"}],["$","p",null,{"className":"text-lg text-slate-400 mb-6","children":"Web Workers have been available since 2010, but most developers avoid them because the API is awkward, debugging is painful, and bundler support is inconsistent. In 2026, module workers, import maps, structured clone upgrades, synchronous OPFS handles, and `new URL('./worker.ts', import.meta.url)` make workers practical for the first time. A complete guide with production-ready patterns for parsing, image processing, crypto, state machines, and more."}],["$","div",null,{"className":"flex flex-wrap items-center gap-4 text-sm text-slate-500","children":[["$","span",null,{"className":"flex items-center gap-1.5","children":[["$","svg",null,{"xmlns":"http://www.w3.org/2000/svg","width":24,"height":24,"viewBox":"0 0 24 24","fill":"none","stroke":"currentColor","strokeWidth":2,"strokeLinecap":"round","strokeLinejoin":"round","className":"lucide lucide-calendar w-4 h-4","children":[["$","rect","eu3xkr",{"width":"18","height":"18","x":"3","y":"4","rx":"2","ry":"2"}],["$","line","m3sa8f",{"x1":"16","x2":"16","y1":"2","y2":"6"}],["$","line","18kwsl",{"x1":"8","x2":"8","y1":"2","y2":"6"}],["$","line","xt86sb",{"x1":"3","x2":"21","y1":"10","y2":"10"}],"$undefined"]}],"June 10, 2026"]}],["$","span",null,{"className":"flex items-center gap-1.5","children":[["$","svg",null,{"xmlns":"http://www.w3.org/2000/svg","width":24,"height":24,"viewBox":"0 0 24 24","fill":"none","stroke":"currentColor","strokeWidth":2,"strokeLinecap":"round","strokeLinejoin":"round","className":"lucide lucide-clock w-4 h-4","children":[["$","circle","1mglay",{"cx":"12","cy":"12","r":"10"}],["$","polyline","68esgv",{"points":"12 6 12 12 16 14"}],"$undefined"]}],"14 min read"]}],["$","span",null,{"className":"text-slate-600","children":["by ","DevBench"]}]]}],["$","div",null,{"className":"flex flex-wrap gap-2 mt-4","children":[["$","span","JavaScript",{"className":"px-2 py-0.5 rounded-md bg-brand-500/10 text-brand-400 text-xs font-medium border border-brand-500/20","children":"JavaScript"}],["$","span","Web Workers",{"className":"px-2 py-0.5 rounded-md bg-brand-500/10 text-brand-400 text-xs font-medium border border-brand-500/20","children":"Web Workers"}],["$","span","Performance",{"className":"px-2 py-0.5 rounded-md bg-brand-500/10 text-brand-400 text-xs font-medium border border-brand-500/20","children":"Performance"}],["$","span","Concurrency",{"className":"px-2 py-0.5 rounded-md bg-brand-500/10 text-brand-400 text-xs font-medium border border-brand-500/20","children":"Concurrency"}],["$","span","Service Workers",{"className":"px-2 py-0.5 rounded-md bg-brand-500/10 text-brand-400 text-xs font-medium border border-brand-500/20","children":"Service Workers"}],["$","span","OPFS",{"className":"px-2 py-0.5 rounded-md bg-brand-500/10 text-brand-400 text-xs font-medium border border-brand-500/20","children":"OPFS"}],["$","span","Structured Clone",{"className":"px-2 py-0.5 rounded-md bg-brand-500/10 text-brand-400 text-xs font-medium border border-brand-500/20","children":"Structured Clone"}],["$","span","Transferable Objects",{"className":"px-2 py-0.5 rounded-md bg-brand-500/10 text-brand-400 text-xs font-medium border border-brand-500/20","children":"Transferable Objects"}],["$","span","SharedArrayBuffer",{"className":"px-2 py-0.5 rounded-md bg-brand-500/10 text-brand-400 text-xs font-medium border border-brand-500/20","children":"SharedArrayBuffer"}],["$","span","Atomics",{"className":"px-2 py-0.5 rounded-md bg-brand-500/10 text-brand-400 text-xs font-medium border border-brand-500/20","children":"Atomics"}],["$","span","Browser APIs",{"className":"px-2 py-0.5 rounded-md bg-brand-500/10 text-brand-400 text-xs font-medium border border-brand-500/20","children":"Browser APIs"}],["$","span","2026",{"className":"px-2 py-0.5 rounded-md bg-brand-500/10 text-brand-400 text-xs font-medium border border-brand-500/20","children":"2026"}]]}]]}],["$","div",null,{"className":"blog-body","dangerouslySetInnerHTML":{"__html":"$3"}}],["$","hr",null,{"className":"border-slate-800 my-12"}],["$","div",null,{"className":"text-center","children":["$","$L2",null,{"href":"/blog/","className":"inline-flex items-center gap-1.5 text-brand-400 hover:text-brand-300 transition-colors font-medium","children":[["$","svg",null,{"xmlns":"http://www.w3.org/2000/svg","width":24,"height":24,"viewBox":"0 0 24 24","fill":"none","stroke":"currentColor","strokeWidth":2,"strokeLinecap":"round","strokeLinejoin":"round","className":"lucide lucide-arrow-left w-4 h-4","children":[["$","path","1l729n",{"d":"m12 19-7-7 7-7"}],["$","path","x3x0zl",{"d":"M19 12H5"}],"$undefined"]}],"More articles"]}]}]]}]],null],null],null]},[null,["$","$L4",null,{"parallelRouterKey":"children","segmentPath":["children","blog","children","$5","children"],"error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L6",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":"$undefined","notFoundStyles":"$undefined"}]],null]},[null,["$","$L4",null,{"parallelRouterKey":"children","segmentPath":["children","blog","children"],"error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L6",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":"$undefined","notFoundStyles":"$undefined"}]],null]},[[[["$","link","0",{"rel":"stylesheet","href":"/devbench-tech/_next/static/css/8b9213b1d18e4368.css","precedence":"next","crossOrigin":"$undefined"}]],["$","html",null,{"lang":"en","className":"dark","children":["$","body",null,{"className":"flex flex-col min-h-screen","children":[["$","script",null,{"type":"application/ld+json","dangerouslySetInnerHTML":{"__html":"{\"@context\":\"https://schema.org\",\"@type\":\"WebSite\",\"name\":\"DevBench\",\"url\":\"https://devbench-roan.vercel.app\",\"description\":\"Free developer tools for everyday use: JSON formatter, Base64 encoder/decoder, UUID generator, regex tester, benchmarks, and more.\",\"potentialAction\":{\"@type\":\"SearchAction\",\"target\":\"https://devbench-roan.vercel.app/tools?q={search_term_string}\",\"query-input\":\"required name=search_term_string\"}}"}}],["$","$L7",null,{}],["$","main",null,{"className":"flex-1","children":["$","$L4",null,{"parallelRouterKey":"children","segmentPath":["children"],"error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L6",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":[["$","title",null,{"children":"404: This page could not be found."}],["$","div",null,{"style":{"fontFamily":"system-ui,\"Segoe UI\",Roboto,Helvetica,Arial,sans-serif,\"Apple Color Emoji\",\"Segoe UI Emoji\"","height":"100vh","textAlign":"center","display":"flex","flexDirection":"column","alignItems":"center","justifyContent":"center"},"children":["$","div",null,{"children":[["$","style",null,{"dangerouslySetInnerHTML":{"__html":"body{color:#000;background:#fff;margin:0}.next-error-h1{border-right:1px solid rgba(0,0,0,.3)}@media (prefers-color-scheme:dark){body{color:#fff;background:#000}.next-error-h1{border-right:1px solid rgba(255,255,255,.3)}}"}}],["$","h1",null,{"className":"next-error-h1","style":{"display":"inline-block","margin":"0 20px 0 0","padding":"0 23px 0 0","fontSize":24,"fontWeight":500,"verticalAlign":"top","lineHeight":"49px"},"children":"404"}],["$","div",null,{"style":{"display":"inline-block"},"children":["$","h2",null,{"style":{"fontSize":14,"fontWeight":400,"lineHeight":"49px","margin":0},"children":"This page could not be found."}]}]]}]}]],"notFoundStyles":[]}]}],["$","footer",null,{"className":"bg-surface-light border-t border-slate-700/50 mt-auto","children":["$","div",null,{"className":"max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12","children":[["$","div",null,{"className":"grid grid-cols-1 md:grid-cols-3 gap-8","children":[["$","div",null,{"children":[["$","$L2",null,{"href":"/","className":"flex items-center gap-2.5 mb-3","children":[["$","div",null,{"className":"w-7 h-7 bg-brand-500 rounded-lg flex items-center justify-center","children":["$","svg",null,{"xmlns":"http://www.w3.org/2000/svg","width":24,"height":24,"viewBox":"0 0 24 24","fill":"none","stroke":"currentColor","strokeWidth":2,"strokeLinecap":"round","strokeLinejoin":"round","className":"lucide lucide-terminal w-3.5 h-3.5 text-white","children":[["$","polyline","akl6gq",{"points":"4 17 10 11 4 5"}],["$","line","q2wloq",{"x1":"12","x2":"20","y1":"19","y2":"19"}],"$undefined"]}]}],["$","span",null,{"className":"text-lg font-bold text-white","children":["Dev",["$","span",null,{"className":"gradient-text","children":"Bench"}]]}]]}],["$","p",null,{"className":"text-slate-400 text-sm leading-relaxed","children":"Free developer tools, benchmarks, and calculators. Built for developers, by developers."}]]}],["$","div",null,{"children":[["$","h3",null,{"className":"text-sm font-semibold text-slate-300 uppercase tracking-wider mb-4","children":"Tools"}],["$","ul",null,{"className":"space-y-2","children":[["$","li","/tools/json-formatter",{"children":["$","$L2",null,{"href":"/tools/json-formatter","className":"text-slate-400 hover:text-brand-400 text-sm transition-colors","children":"JSON Formatter"}]}],["$","li","/tools/base64",{"children":["$","$L2",null,{"href":"/tools/base64","className":"text-slate-400 hover:text-brand-400 text-sm transition-colors","children":"Base64 Encoder/Decoder"}]}],["$","li","/tools/uuid-generator",{"children":["$","$L2",null,{"href":"/tools/uuid-generator","className":"text-slate-400 hover:text-brand-400 text-sm transition-colors","children":"UUID Generator"}]}],["$","li","/tools/regex-tester",{"children":["$","$L2",null,{"href":"/tools/regex-tester","className":"text-slate-400 hover:text-brand-400 text-sm transition-colors","children":"Regex Tester"}]}]]}]]}],["$","div",null,{"children":[["$","h3",null,{"className":"text-sm font-semibold text-slate-300 uppercase tracking-wider mb-4","children":"Resources"}],["$","ul",null,{"className":"space-y-2","children":[["$","li","/blog",{"children":["$","$L2",null,{"href":"/blog","className":"text-slate-400 hover:text-brand-400 text-sm transition-colors","children":"Blog"}]}],["$","li","/benchmarks",{"children":["$","$L2",null,{"href":"/benchmarks","className":"text-slate-400 hover:text-brand-400 text-sm transition-colors","children":"Benchmarks"}]}],["$","li","/about",{"children":["$","$L2",null,{"href":"/about","className":"text-slate-400 hover:text-brand-400 text-sm transition-colors","children":"About"}]}]]}]]}]]}],["$","div",null,{"className":"mt-10 pt-6 border-t border-slate-700/50 flex flex-col sm:flex-row items-center justify-between gap-4","children":[["$","p",null,{"className":"text-slate-500 text-sm flex items-center gap-1","children":["Made with ",["$","svg",null,{"xmlns":"http://www.w3.org/2000/svg","width":24,"height":24,"viewBox":"0 0 24 24","fill":"none","stroke":"currentColor","strokeWidth":2,"strokeLinecap":"round","strokeLinejoin":"round","className":"lucide lucide-heart w-3.5 h-3.5 text-red-500 fill-red-500","children":[["$","path","c3ymky",{"d":"M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"}],"$undefined"]}]," by the DevBench team © ",2026]}],["$","a",null,{"href":"https://github.com","target":"_blank","rel":"noopener noreferrer","className":"text-slate-500 hover:text-slate-300 transition-colors","aria-label":"GitHub","children":["$","svg",null,{"xmlns":"http://www.w3.org/2000/svg","width":24,"height":24,"viewBox":"0 0 24 24","fill":"none","stroke":"currentColor","strokeWidth":2,"strokeLinecap":"round","strokeLinejoin":"round","className":"lucide lucide-github w-5 h-5","children":[["$","path","tonef",{"d":"M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"}],["$","path","9comsn",{"d":"M9 18c-4.51 2-5-2-7-2"}],"$undefined"]}]}]]}]]}]}],["$","$L8",null,{}],["$","$L9",null,{"position":"bottom-right","toastOptions":{"style":{"background":"#1e293b","color":"#e2e8f0","border":"1px solid #334155","fontSize":"14px"}}}]]}]}]],null],null],["$La",null]]]]
+a:[["$","meta","0",{"name":"viewport","content":"width=device-width, initial-scale=1"}],["$","meta","1",{"charSet":"utf-8"}],["$","title","2",{"children":"Web Workers in 2026: Off-Main-Thread JavaScript That Actually Works | DevBench"}],["$","meta","3",{"name":"description","content":"Web Workers have been available since 2010, but most developers avoid them because the API is awkward, debugging is painful, and bundler support is inconsistent. In 2026, module workers, import maps, structured clone upgrades, synchronous OPFS handles, and `new URL('./worker.ts', import.meta.url)` make workers practical for the first time. A complete guide with production-ready patterns for parsing, image processing, crypto, state machines, and more."}],["$","meta","4",{"name":"author","content":"DevBench"}],["$","meta","5",{"name":"keywords","content":"developer tools,JSON formatter,Base64,UUID generator,regex tester,benchmarks,dev tools"}],["$","meta","6",{"property":"og:title","content":"Web Workers in 2026: Off-Main-Thread JavaScript That Actually Works"}],["$","meta","7",{"property":"og:description","content":"Web Workers have been available since 2010, but most developers avoid them because the API is awkward, debugging is painful, and bundler support is inconsistent. In 2026, module workers, import maps, structured clone upgrades, synchronous OPFS handles, and `new URL('./worker.ts', import.meta.url)` make workers practical for the first time. A complete guide with production-ready patterns for parsing, image processing, crypto, state machines, and more."}],["$","meta","8",{"property":"og:type","content":"article"}],["$","meta","9",{"property":"article:published_time","content":"2026-06-10"}],["$","meta","10",{"property":"article:author","content":"DevBench"}],["$","meta","11",{"property":"article:tag","content":"JavaScript"}],["$","meta","12",{"property":"article:tag","content":"Web Workers"}],["$","meta","13",{"property":"article:tag","content":"Performance"}],["$","meta","14",{"property":"article:tag","content":"Concurrency"}],["$","meta","15",{"property":"article:tag","content":"Service Workers"}],["$","meta","16",{"property":"article:tag","content":"OPFS"}],["$","meta","17",{"property":"article:tag","content":"Structured Clone"}],["$","meta","18",{"property":"article:tag","content":"Transferable Objects"}],["$","meta","19",{"property":"article:tag","content":"SharedArrayBuffer"}],["$","meta","20",{"property":"article:tag","content":"Atomics"}],["$","meta","21",{"property":"article:tag","content":"Browser APIs"}],["$","meta","22",{"property":"article:tag","content":"2026"}],["$","meta","23",{"name":"twitter:card","content":"summary"}],["$","meta","24",{"name":"twitter:title","content":"Web Workers in 2026: Off-Main-Thread JavaScript That Actually Works"}],["$","meta","25",{"name":"twitter:description","content":"Web Workers have been available since 2010, but most developers avoid them because the API is awkward, debugging is painful, and bundler support is inconsistent. In 2026, module workers, import maps, structured clone upgrades, synchronous OPFS handles, and `new URL('./worker.ts', import.meta.url)` make workers practical for the first time. A complete guide with production-ready patterns for parsing, image processing, crypto, state machines, and more."}],["$","link","26",{"rel":"icon","href":"/favicon.svg"}]]
+1:null

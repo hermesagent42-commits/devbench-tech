@@ -1,0 +1,338 @@
+<!DOCTYPE html><html lang="en" class="dark"><head><meta charSet="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/><link rel="stylesheet" href="/devbench-tech/_next/static/css/8b9213b1d18e4368.css" data-precedence="next"/><link rel="preload" as="script" fetchPriority="low" href="/devbench-tech/_next/static/chunks/webpack-b521a83317325026.js"/><script src="/devbench-tech/_next/static/chunks/fd9d1056-04e0aa683dc3c41f.js" async=""></script><script src="/devbench-tech/_next/static/chunks/2117-8374a93ea77a2be4.js" async=""></script><script src="/devbench-tech/_next/static/chunks/main-app-aaec773b36366bc0.js" async=""></script><script src="/devbench-tech/_next/static/chunks/2972-4aaa15d119eeb022.js" async=""></script><script src="/devbench-tech/_next/static/chunks/app/blog/%5Bslug%5D/page-a411190e7012c687.js" async=""></script><script src="/devbench-tech/_next/static/chunks/44530001-4ecf7a22b5b24163.js" async=""></script><script src="/devbench-tech/_next/static/chunks/8375-c77b8de36f6696fb.js" async=""></script><script src="/devbench-tech/_next/static/chunks/6829-f51803445ddf1872.js" async=""></script><script src="/devbench-tech/_next/static/chunks/app/layout-488e5c40aa6ffa72.js" async=""></script><title>Speculation Rules API: Instant Page Loads Are Finally Here — No JavaScript Framework Required | DevBench</title><meta name="description" content="The Speculation Rules API lets the browser prefetch and prerender entire pages before users click — delivering genuine zero-millisecond navigations. Define rules in a JSON script tag, and the browser handles the rest. Complete guide to prefetch vs prerender, eagerness strategies, scoring, and production deployment."/><meta name="author" content="DevBench"/><meta name="keywords" content="developer tools,JSON formatter,Base64,UUID generator,regex tester,benchmarks,dev tools"/><meta property="og:title" content="Speculation Rules API: Instant Page Loads Are Finally Here — No JavaScript Framework Required"/><meta property="og:description" content="The Speculation Rules API lets the browser prefetch and prerender entire pages before users click — delivering genuine zero-millisecond navigations. Define rules in a JSON script tag, and the browser handles the rest. Complete guide to prefetch vs prerender, eagerness strategies, scoring, and production deployment."/><meta property="og:type" content="article"/><meta property="article:published_time" content="2026-06-05"/><meta property="article:author" content="DevBench"/><meta property="article:tag" content="Speculation Rules"/><meta property="article:tag" content="Performance"/><meta property="article:tag" content="Web Platform"/><meta property="article:tag" content="Prerender"/><meta property="article:tag" content="Prefetch"/><meta property="article:tag" content="MPA"/><meta property="article:tag" content="Chrome"/><meta property="article:tag" content="2026"/><meta name="twitter:card" content="summary"/><meta name="twitter:title" content="Speculation Rules API: Instant Page Loads Are Finally Here — No JavaScript Framework Required"/><meta name="twitter:description" content="The Speculation Rules API lets the browser prefetch and prerender entire pages before users click — delivering genuine zero-millisecond navigations. Define rules in a JSON script tag, and the browser handles the rest. Complete guide to prefetch vs prerender, eagerness strategies, scoring, and production deployment."/><link rel="icon" href="/favicon.svg"/><script src="/devbench-tech/_next/static/chunks/polyfills-42372ed130431b0a.js" noModule=""></script></head><body class="flex flex-col min-h-screen"><script type="application/ld+json">{"@context":"https://schema.org","@type":"WebSite","name":"DevBench","url":"https://devbench-roan.vercel.app","description":"Free developer tools for everyday use: JSON formatter, Base64 encoder/decoder, UUID generator, regex tester, benchmarks, and more.","potentialAction":{"@type":"SearchAction","target":"https://devbench-roan.vercel.app/tools?q={search_term_string}","query-input":"required name=search_term_string"}}</script><header class="sticky top-0 z-50 transition-all duration-300 bg-surface border-b border-transparent"><div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8"><div class="flex items-center justify-between h-16"><a class="flex items-center gap-2.5 group" href="/devbench-tech/"><div class="w-8 h-8 bg-brand-500 rounded-lg flex items-center justify-center group-hover:bg-brand-400 transition-colors"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-terminal w-4 h-4 text-white"><polyline points="4 17 10 11 4 5"></polyline><line x1="12" x2="20" y1="19" y2="19"></line></svg></div><span class="text-xl font-bold text-white tracking-tight">Dev<span class="gradient-text">Bench</span></span></a><nav class="hidden md:flex items-center gap-1"><a class="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 text-slate-400 hover:text-slate-200 hover:bg-surface-lighter" href="/devbench-tech/tools/"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-wrench w-4 h-4"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path></svg>Tools</a><a class="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 text-slate-400 hover:text-slate-200 hover:bg-surface-lighter" href="/devbench-tech/benchmarks/"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-bar-chart3 w-4 h-4"><path d="M3 3v18h18"></path><path d="M18 17V9"></path><path d="M13 17V5"></path><path d="M8 17v-3"></path></svg>Benchmarks</a><a class="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 bg-brand-500/10 text-brand-400" href="/devbench-tech/blog/"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-book-open w-4 h-4"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg>Blog</a><a class="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 text-slate-400 hover:text-slate-200 hover:bg-surface-lighter" href="/devbench-tech/about/"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-info w-4 h-4"><circle cx="12" cy="12" r="10"></circle><path d="M12 16v-4"></path><path d="M12 8h.01"></path></svg>About</a></nav><button class="md:hidden p-2 rounded-lg text-slate-400 hover:text-white hover:bg-surface-lighter transition-colors" aria-label="Toggle menu"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-menu w-5 h-5"><line x1="4" x2="20" y1="12" y2="12"></line><line x1="4" x2="20" y1="6" y2="6"></line><line x1="4" x2="20" y1="18" y2="18"></line></svg></button></div></div></header><main class="flex-1"><script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","headline":"Speculation Rules API: Instant Page Loads Are Finally Here — No JavaScript Framework Required","description":"The Speculation Rules API lets the browser prefetch and prerender entire pages before users click — delivering genuine zero-millisecond navigations. Define rules in a JSON script tag, and the browser handles the rest. Complete guide to prefetch vs prerender, eagerness strategies, scoring, and production deployment.","datePublished":"2026-06-05","author":{"@type":"Person","name":"DevBench"},"url":"https://devbench-roan.vercel.app/blog/speculation-rules-api-instant-page-loads/"}</script><article class="max-w-3xl mx-auto px-4 py-12 sm:px-6 lg:px-8"><a class="inline-flex items-center gap-1.5 text-sm text-slate-500 hover:text-brand-400 transition-colors mb-8" href="/devbench-tech/blog/"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-arrow-left w-4 h-4"><path d="m12 19-7-7 7-7"></path><path d="M19 12H5"></path></svg>Back to blog</a><header class="mb-10"><h1 class="text-3xl sm:text-4xl font-bold text-white mb-4 tracking-tight leading-tight">Speculation Rules API: Instant Page Loads Are Finally Here — No JavaScript Framework Required</h1><p class="text-lg text-slate-400 mb-6">The Speculation Rules API lets the browser prefetch and prerender entire pages before users click — delivering genuine zero-millisecond navigations. Define rules in a JSON script tag, and the browser handles the rest. Complete guide to prefetch vs prerender, eagerness strategies, scoring, and production deployment.</p><div class="flex flex-wrap items-center gap-4 text-sm text-slate-500"><span class="flex items-center gap-1.5"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-calendar w-4 h-4"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"></rect><line x1="16" x2="16" y1="2" y2="6"></line><line x1="8" x2="8" y1="2" y2="6"></line><line x1="3" x2="21" y1="10" y2="10"></line></svg>June 5, 2026</span><span class="flex items-center gap-1.5"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-clock w-4 h-4"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>11 min read</span><span class="text-slate-600">by <!-- -->DevBench</span></div><div class="flex flex-wrap gap-2 mt-4"><span class="px-2 py-0.5 rounded-md bg-brand-500/10 text-brand-400 text-xs font-medium border border-brand-500/20">Speculation Rules</span><span class="px-2 py-0.5 rounded-md bg-brand-500/10 text-brand-400 text-xs font-medium border border-brand-500/20">Performance</span><span class="px-2 py-0.5 rounded-md bg-brand-500/10 text-brand-400 text-xs font-medium border border-brand-500/20">Web Platform</span><span class="px-2 py-0.5 rounded-md bg-brand-500/10 text-brand-400 text-xs font-medium border border-brand-500/20">Prerender</span><span class="px-2 py-0.5 rounded-md bg-brand-500/10 text-brand-400 text-xs font-medium border border-brand-500/20">Prefetch</span><span class="px-2 py-0.5 rounded-md bg-brand-500/10 text-brand-400 text-xs font-medium border border-brand-500/20">MPA</span><span class="px-2 py-0.5 rounded-md bg-brand-500/10 text-brand-400 text-xs font-medium border border-brand-500/20">Chrome</span><span class="px-2 py-0.5 rounded-md bg-brand-500/10 text-brand-400 text-xs font-medium border border-brand-500/20">2026</span></div></header><div class="blog-body">
+<div class="prose-content">
+  <p class="lead">
+    Imagine a user hovers over a link and the page loads <strong>instantly</strong> — no spinner, no white flash, no layout shift. Not "fast." <strong>Instant.</strong> The Speculation Rules API makes this real by letting the browser <em>prerender</em> entire pages before the user clicks, rendering them offscreen with JavaScript, CSS, and images fully executed. It is the single biggest navigation performance improvement since HTTP/2, and it works with <strong>any website</strong> — no framework, no service worker, no JavaScript library.
+  </p>
+
+  <h2>What Is the Speculation Rules API?</h2>
+
+  <p>
+    Speculation Rules is a JSON-based configuration that tells the browser: "Here are pages a user is likely to visit next. Please prefetch or prerender them." You ship a <code>&lt;script type="speculationrules"&gt;</code> tag, and the browser does the rest. No JavaScript SDK, no build step, no framework lock-in.
+  </p>
+
+  <p>There are two modes:</p>
+
+  <div class="table-wrapper">
+    <table>
+      <thead>
+        <tr><th>Mode</th><th>What It Does</th><th>When It Fires</th><th>Cost</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>prefetch</strong></td>
+          <td>Fetches the page HTML and subresources (CSS, JS, images) into the HTTP cache</td>
+          <td>Immediately on page load or on hover/click (configurable)</td>
+          <td>Low — just bandwidth, no rendering</td>
+        </tr>
+        <tr>
+          <td><strong>prerender</strong></td>
+          <td>Fetches, parses, and fully renders the page in a hidden background tab — JavaScript executes, images decode, fonts load</td>
+          <td>On hover/mousedown (eager) or immediately (moderate/conservative)</td>
+          <td>High — uses memory, CPU, and bandwidth</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h2>The Simplest Possible Example</h2>
+
+  <p>
+    Drop this into your <code>&lt;head&gt;</code> and every same-origin link on the page gets prefetched when the user hovers over it:
+  </p>
+
+  <pre><code>&lt;script type="speculationrules"&gt;
+{
+  "prefetch": [
+    {
+      "source": "document",
+      "where": {
+        "href_matches": "/*"
+      },
+      "eagerness": "moderate"
+    }
+  ]
+}
+&lt;/script&gt;</code></pre>
+
+  <p>
+    That is it. Hover any link, and by the time the user clicks, the response is already in the cache. Navigation is instantaneous.
+  </p>
+
+  <h2>Eagerness: When Should the Browser Speculate?</h2>
+
+  <p>
+    The <code>eagerness</code> field controls when speculation triggers. There are four levels, and choosing the right one is the difference between "invisible magic" and "wasted bandwidth":
+  </p>
+
+  <div class="table-wrapper">
+    <table>
+      <thead>
+        <tr><th>Eagerness</th><th>Trigger</th><th>Best For</th><th>Risk</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>immediate</code></td><td>As soon as the rule is parsed</td><td>Single-page apps, landing pages with one obvious next step</td><td>High — speculates on pages user may never visit</td></tr>
+        <tr><td><code>eager</code></td><td>Slight hover or pointer near the link</td><td>Navigation menus, "next article" links</td><td>Medium — fires early but still user-initiated</td></tr>
+        <tr><td><code>moderate</code></td><td>200ms hover (intentional hover)</td><td>Content sites, blogs, documentation</td><td>Low — fires only when user shows intent</td></tr>
+        <tr><td><code>conservative</code></td><td>Mousedown/touchstart (imminent click)</td><td>E-commerce, forms, any page where mis-prefetch costs money</td><td>Very low — fires right before navigation</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <pre><code>// Immediate — prefetch the homepage from every page
+{ "prefetch": [{ "source": "list", "urls": ["/"], "eagerness": "immediate" }] }
+
+// Moderate — prefetch links on hover (200ms delay)
+{ "prefetch": [{ "source": "document", "where": { "href_matches": "/blog/*" }, "eagerness": "moderate" }] }
+
+// Conservative — prerender on mousedown for near-guaranteed clicks
+{ "prerender": [{ "source": "document", "where": { "href_matches": "/checkout" }, "eagerness": "conservative" }] }</code></pre>
+
+  <h2>Prerender: The Holy Grail of Instant Navigation</h2>
+
+  <p>
+    Prerendering goes far beyond prefetch. The browser loads the entire page in a hidden, unconnected renderer — JavaScript executes, CSS paints, images decode, WebSocket connections open. When the user clicks, the browser <strong>activates</strong> the prerendered page instantly, replacing the current page with zero visible transition.
+  </p>
+
+  <pre><code>&lt;script type="speculationrules"&gt;
+{
+  "prerender": [
+    {
+      "source": "document",
+      "where": {
+        "selector_matches": ".prerender-links a"
+      },
+      "eagerness": "moderate"
+    }
+  ]
+}
+&lt;/script&gt;</code></pre>
+
+  <div class="callout-box">
+    <strong>⚠️ Prerender constraints (2026):</strong>
+    <ul>
+      <li>Limited to same-origin URLs (cross-origin prerender is experimental)</li>
+      <li>Only one prerender can be active at a time per page (new prerender cancels the old one)</li>
+      <li>Uses memory (~50-100MB per prerendered page) — do not prerender everything</li>
+      <li>The prerendered page cannot use <code>window.opener</code> or <code>BroadcastChannel</code> while hidden</li>
+      <li>APIs like <code>Permission.query()</code> and <code>MediaDevices.getUserMedia()</code> are deferred until activation</li>
+    </ul>
+  </div>
+
+  <h2>Document Rules vs List Rules</h2>
+
+  <p>Speculation Rules support two <code>source</code> types:</p>
+
+  <h3>Document Rules (<code>source: "document"</code>)</h3>
+  <p>
+    The browser finds matching links on the current page. Use <code>href_matches</code> for URL patterns and <code>selector_matches</code> for CSS selectors:
+  </p>
+
+  <pre><code>{
+  "prefetch": [{
+    "source": "document",
+    "where": {
+      "and": [
+        { "href_matches": "/products/*" },
+        { "selector_matches": ".featured-product a" }
+      ]
+    },
+    "eagerness": "moderate"
+  }]
+}</code></pre>
+
+  <h3>List Rules (<code>source: "list"</code>)</h3>
+  <p>
+    You specify exact URLs. Best for pages where the next step is predictable (e.g., a login page that always leads to /dashboard):
+  </p>
+
+  <pre><code>{
+  "prerender": [{
+    "source": "list",
+    "urls": ["/dashboard", "/settings"],
+    "eagerness": "immediate"
+  }]
+}</code></pre>
+
+  <h2>Scoring: Making Smart Speculation Decisions</h2>
+
+  <p>
+    When multiple links match, the browser needs to decide which one to speculate on. You can attach scores to influence this decision:
+  </p>
+
+  <pre><code>{
+  "prefetch": [{
+    "source": "document",
+    "where": {
+      "or": [
+        { "href_matches": "/checkout", "score": 0.9 },
+        { "href_matches": "/cart", "score": 0.7 },
+        { "href_matches": "/products/*", "score": 0.3 }
+      ]
+    },
+    "eagerness": "eager"
+  }]
+}</code></pre>
+
+  <p>
+    Scores are relative within a ruleset — 0.9 beats 0.7, but there is no absolute scale. The browser also factors in its own heuristics: has the user visited this page before? Is the pointer moving toward this link? Is there available memory?
+  </p>
+
+  <h2>Prefetch + Prerender Together: The Perfect Combo</h2>
+
+  <p>
+    The most effective strategy layers both modes. Prefetch broadly — all links in a blog index. Prerender narrowly — the product page when someone hovers over a "Buy Now" button:
+  </p>
+
+  <pre><code>&lt;script type="speculationrules"&gt;
+{
+  "prefetch": [
+    {
+      "source": "document",
+      "where": { "href_matches": "/blog/*" },
+      "eagerness": "moderate"
+    }
+  ],
+  "prerender": [
+    {
+      "source": "document",
+      "where": {
+        "and": [
+          { "href_matches": "/products/*" },
+          { "selector_matches": ".cta-button" }
+        ]
+      },
+      "eagerness": "moderate"
+    }
+  ]
+}
+&lt;/script&gt;</code></pre>
+
+  <p>On a content site with this setup:</p>
+  <ul>
+    <li>Every blog post link prefetches on hover → instant load from cache</li>
+    <li>Product pages with CTA buttons prerender on hover → zero-millisecond activation</li>
+    <li>Non-matching links behave normally — no wasted resources</li>
+  </ul>
+
+  <h2>Detecting Prerender Activation in JavaScript</h2>
+
+  <p>
+    Sometimes your page JavaScript needs to know it is being prerendered (e.g., to defer analytics, skip API calls, or pause animations):
+  </p>
+
+  <pre><code>// Check if prerendered
+if (document.prerendering) {
+  // Defer non-critical work
+  document.addEventListener('prerenderingchange', () => {
+    // Page was just activated — safe to fire analytics, start animations
+    gtag('event', 'page_view');
+    startAnimations();
+  });
+}
+
+// Or use the newer activationStart
+const activationStart = performance.getEntriesByType('navigation')[0]?.activationStart;
+if (activationStart > 0) {
+  console.log(`Page was prerendered. Activation took ${activationStart}ms`);
+}</code></pre>
+
+  <h2>Monitoring: Did It Work?</h2>
+
+  <p>
+    Chrome DevTools has first-class speculation debugging. Open the <strong>Application</strong> panel → <strong>Speculative Loads</strong> to see all active prerenders, their status, and why they succeeded or failed. You can also use the Performance panel to measure activation time — look for the <strong>Activation</strong> marker in the timeline.
+  </p>
+
+  <p>For production monitoring, use the Performance API:</p>
+
+  <pre><code>// Check if the current navigation was prerendered
+const navEntry = performance.getEntriesByType('navigation')[0];
+
+if (navEntry.activationStart > 0) {
+  // This was a prerender activation
+  const activationTime = navEntry.activationStart;
+  const totalLoadTime = navEntry.loadEventEnd;
+
+  console.log(`Prerender activation: ${activationTime}ms`);
+  console.log(`Total load (including prerender): ${totalLoadTime}ms`);
+
+  // Send to analytics
+  gtag('event', 'prerender_activation', {
+    activation_time: activationTime,
+    total_time: totalLoadTime
+  });
+}</code></pre>
+
+  <h2>Production Deployment: A Real-World Setup</h2>
+
+  <p>For DevBench itself, here is the speculation rules configuration:</p>
+
+  <pre><code>&lt;script type="speculationrules"&gt;
+{
+  "prefetch": [
+    {
+      "source": "document",
+      "where": { "href_matches": "/tools/*" },
+      "eagerness": "moderate"
+    },
+    {
+      "source": "document",
+      "where": { "href_matches": "/blog/*" },
+      "eagerness": "moderate"
+    },
+    {
+      "source": "list",
+      "urls": ["/", "/tools/", "/blog/"],
+      "eagerness": "immediate"
+    }
+  ],
+  "prerender": [
+    {
+      "source": "document",
+      "where": {
+        "and": [
+          { "href_matches": "/tools/*" },
+          { "not": { "href_matches": "/tools/json-formatter" } }
+        ]
+      },
+      "eagerness": "eager"
+    }
+  ]
+}
+&lt;/script&gt;</code></pre>
+
+  <p>This configuration:</p>
+  <ul>
+    <li>Prefetches all tool and blog pages on hover</li>
+    <li>Immediately prefetches the homepage, tools index, and blog index from every page</li>
+    <li>Prerenders tool pages on eager hover (excluding JSON formatter, which is client-heavy)</li>
+  </ul>
+
+  <h2>Browser Support and the Road Ahead</h2>
+
+  <p>
+    As of June 2026, the Speculation Rules API is supported in <strong>Chrome 121+</strong> and <strong>Edge 121+</strong>. Firefox and Safari have not yet shipped it, but the API is designed to be safely ignored: unsupported browsers simply skip the <code>&lt;script type="speculationrules"&gt;</code> tag with zero side effects. There is no polyfill needed, no feature detection, no fallback — it just works where supported and degrades gracefully everywhere else.
+  </p>
+
+  <p>
+    The Chrome team is exploring <strong>cross-origin prerendering</strong> (with explicit opt-in from the target origin via <code>Supports-Loading-Mode: credentialed-prerender</code>), <strong>multiple simultaneous prerenders</strong> (memory permitting), and deeper integration with the <strong>Navigation API</strong> for single-page apps. The future of navigation is zero milliseconds.
+  </p>
+
+  <h2>When Not to Use Speculation Rules</h2>
+
+  <p>
+    Speculation Rules are not free. Every prerendered page consumes significant memory, and every prefetch consumes bandwidth. Avoid speculation when:
+  </p>
+
+  <ul>
+    <li>Your users are on metered connections (use <code>navigator.connection.saveData</code> to check)</li>
+    <li>Your pages have side effects on load (analytics, WebSocket connections, API calls)</li>
+    <li>Your target pages are personalized or frequently invalidated</li>
+    <li>You are already serving from a CDN with sub-100ms TTFB (the gain is marginal)</li>
+  </ul>
+
+  <p>For most content sites, documentation, blogs, and e-commerce, the trade-off is overwhelmingly positive. A moderate-eagerness prefetch rule costs kilobytes of bandwidth and delivers navigation that feels like a local app.</p>
+
+  <p class="callout">
+    The Speculation Rules API is the closest the web platform has come to eliminating navigation latency entirely. Drop a JSON script tag, and your users get instant page loads — no framework rewrite, no SPA migration, no JavaScript library. It is the simplest, highest-impact performance optimization you can deploy in 2026.
+  </p>
+</div></div><hr class="border-slate-800 my-12"/><div class="text-center"><a class="inline-flex items-center gap-1.5 text-brand-400 hover:text-brand-300 transition-colors font-medium" href="/devbench-tech/blog/"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-arrow-left w-4 h-4"><path d="m12 19-7-7 7-7"></path><path d="M19 12H5"></path></svg>More articles</a></div></article></main><footer class="bg-surface-light border-t border-slate-700/50 mt-auto"><div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12"><div class="grid grid-cols-1 md:grid-cols-3 gap-8"><div><a class="flex items-center gap-2.5 mb-3" href="/devbench-tech/"><div class="w-7 h-7 bg-brand-500 rounded-lg flex items-center justify-center"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-terminal w-3.5 h-3.5 text-white"><polyline points="4 17 10 11 4 5"></polyline><line x1="12" x2="20" y1="19" y2="19"></line></svg></div><span class="text-lg font-bold text-white">Dev<span class="gradient-text">Bench</span></span></a><p class="text-slate-400 text-sm leading-relaxed">Free developer tools, benchmarks, and calculators. Built for developers, by developers.</p></div><div><h3 class="text-sm font-semibold text-slate-300 uppercase tracking-wider mb-4">Tools</h3><ul class="space-y-2"><li><a class="text-slate-400 hover:text-brand-400 text-sm transition-colors" href="/devbench-tech/tools/json-formatter/">JSON Formatter</a></li><li><a class="text-slate-400 hover:text-brand-400 text-sm transition-colors" href="/devbench-tech/tools/base64/">Base64 Encoder/Decoder</a></li><li><a class="text-slate-400 hover:text-brand-400 text-sm transition-colors" href="/devbench-tech/tools/uuid-generator/">UUID Generator</a></li><li><a class="text-slate-400 hover:text-brand-400 text-sm transition-colors" href="/devbench-tech/tools/regex-tester/">Regex Tester</a></li></ul></div><div><h3 class="text-sm font-semibold text-slate-300 uppercase tracking-wider mb-4">Resources</h3><ul class="space-y-2"><li><a class="text-slate-400 hover:text-brand-400 text-sm transition-colors" href="/devbench-tech/blog/">Blog</a></li><li><a class="text-slate-400 hover:text-brand-400 text-sm transition-colors" href="/devbench-tech/benchmarks/">Benchmarks</a></li><li><a class="text-slate-400 hover:text-brand-400 text-sm transition-colors" href="/devbench-tech/about/">About</a></li></ul></div></div><div class="mt-10 pt-6 border-t border-slate-700/50 flex flex-col sm:flex-row items-center justify-between gap-4"><p class="text-slate-500 text-sm flex items-center gap-1">Made with <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-heart w-3.5 h-3.5 text-red-500 fill-red-500"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"></path></svg> by the DevBench team © <!-- -->2026</p><a href="https://github.com" target="_blank" rel="noopener noreferrer" class="text-slate-500 hover:text-slate-300 transition-colors" aria-label="GitHub"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-github w-5 h-5"><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"></path><path d="M9 18c-4.51 2-5-2-7-2"></path></svg></a></div></div></footer><div data-rht-toaster="" style="position:fixed;z-index:9999;top:16px;left:16px;right:16px;bottom:16px;pointer-events:none"></div><script src="/devbench-tech/_next/static/chunks/webpack-b521a83317325026.js" async=""></script><script>(self.__next_f=self.__next_f||[]).push([0]);self.__next_f.push([2,null])</script><script>self.__next_f.push([1,"1:HL[\"/devbench-tech/_next/static/css/8b9213b1d18e4368.css\",\"style\"]\n"])</script><script>self.__next_f.push([1,"2:I[12846,[],\"\"]\n4:I[72972,[\"2972\",\"static/chunks/2972-4aaa15d119eeb022.js\",\"308\",\"static/chunks/app/blog/%5Bslug%5D/page-a411190e7012c687.js\"],\"\"]\n6:I[4707,[],\"\"]\n8:I[36423,[],\"\"]\n9:I[39295,[\"9762\",\"static/chunks/44530001-4ecf7a22b5b24163.js\",\"2972\",\"static/chunks/2972-4aaa15d119eeb022.js\",\"8375\",\"static/chunks/8375-c77b8de36f6696fb.js\",\"6829\",\"static/chunks/6829-f51803445ddf1872.js\",\"3185\",\"static/chunks/app/layout-488e5c40aa6ffa72.js\"],\"Header\"]\na:I[66506,[\"9762\",\"static/chunks/44530001-4ecf7a22b5b24163.js\",\"2972\",\"static/chunks/2972-4aaa15d119eeb022.js\",\"8375\",\"static/chunks/8375-c77b8de36f6696fb.js\",\"6829\",\"static/chunks/6829-f51803445ddf1872.js\",\"3185\",\"static/chunks/app/layout-488e5c40aa6ffa72.js\"],\"Analytics\"]\nb:I[69064,[\"9762\",\"static/chunks/44530001-4ecf7a22b5b24163.js\",\"2972\",\"static/chunks/2972-4aaa15d119eeb022.js\",\"8375\",\"static/chunks/8375-c77b8de36f6696fb.js\",\"6829\",\"static/chunks/6829-f51803445ddf1872.js\",\"3185\",\"static/chunks/app/layout-488e5c40aa6ffa72.js\"],\"Toaster\"]\nd:I[61060,[],\"\"]\n5:T3414,"])</script><script>self.__next_f.push([1,"\n\u003cdiv class=\"prose-content\"\u003e\n  \u003cp class=\"lead\"\u003e\n    Imagine a user hovers over a link and the page loads \u003cstrong\u003einstantly\u003c/strong\u003e — no spinner, no white flash, no layout shift. Not \"fast.\" \u003cstrong\u003eInstant.\u003c/strong\u003e The Speculation Rules API makes this real by letting the browser \u003cem\u003eprerender\u003c/em\u003e entire pages before the user clicks, rendering them offscreen with JavaScript, CSS, and images fully executed. It is the single biggest navigation performance improvement since HTTP/2, and it works with \u003cstrong\u003eany website\u003c/strong\u003e — no framework, no service worker, no JavaScript library.\n  \u003c/p\u003e\n\n  \u003ch2\u003eWhat Is the Speculation Rules API?\u003c/h2\u003e\n\n  \u003cp\u003e\n    Speculation Rules is a JSON-based configuration that tells the browser: \"Here are pages a user is likely to visit next. Please prefetch or prerender them.\" You ship a \u003ccode\u003e\u0026lt;script type=\"speculationrules\"\u0026gt;\u003c/code\u003e tag, and the browser does the rest. No JavaScript SDK, no build step, no framework lock-in.\n  \u003c/p\u003e\n\n  \u003cp\u003eThere are two modes:\u003c/p\u003e\n\n  \u003cdiv class=\"table-wrapper\"\u003e\n    \u003ctable\u003e\n      \u003cthead\u003e\n        \u003ctr\u003e\u003cth\u003eMode\u003c/th\u003e\u003cth\u003eWhat It Does\u003c/th\u003e\u003cth\u003eWhen It Fires\u003c/th\u003e\u003cth\u003eCost\u003c/th\u003e\u003c/tr\u003e\n      \u003c/thead\u003e\n      \u003ctbody\u003e\n        \u003ctr\u003e\n          \u003ctd\u003e\u003cstrong\u003eprefetch\u003c/strong\u003e\u003c/td\u003e\n          \u003ctd\u003eFetches the page HTML and subresources (CSS, JS, images) into the HTTP cache\u003c/td\u003e\n          \u003ctd\u003eImmediately on page load or on hover/click (configurable)\u003c/td\u003e\n          \u003ctd\u003eLow — just bandwidth, no rendering\u003c/td\u003e\n        \u003c/tr\u003e\n        \u003ctr\u003e\n          \u003ctd\u003e\u003cstrong\u003eprerender\u003c/strong\u003e\u003c/td\u003e\n          \u003ctd\u003eFetches, parses, and fully renders the page in a hidden background tab — JavaScript executes, images decode, fonts load\u003c/td\u003e\n          \u003ctd\u003eOn hover/mousedown (eager) or immediately (moderate/conservative)\u003c/td\u003e\n          \u003ctd\u003eHigh — uses memory, CPU, and bandwidth\u003c/td\u003e\n        \u003c/tr\u003e\n      \u003c/tbody\u003e\n    \u003c/table\u003e\n  \u003c/div\u003e\n\n  \u003ch2\u003eThe Simplest Possible Example\u003c/h2\u003e\n\n  \u003cp\u003e\n    Drop this into your \u003ccode\u003e\u0026lt;head\u0026gt;\u003c/code\u003e and every same-origin link on the page gets prefetched when the user hovers over it:\n  \u003c/p\u003e\n\n  \u003cpre\u003e\u003ccode\u003e\u0026lt;script type=\"speculationrules\"\u0026gt;\n{\n  \"prefetch\": [\n    {\n      \"source\": \"document\",\n      \"where\": {\n        \"href_matches\": \"/*\"\n      },\n      \"eagerness\": \"moderate\"\n    }\n  ]\n}\n\u0026lt;/script\u0026gt;\u003c/code\u003e\u003c/pre\u003e\n\n  \u003cp\u003e\n    That is it. Hover any link, and by the time the user clicks, the response is already in the cache. Navigation is instantaneous.\n  \u003c/p\u003e\n\n  \u003ch2\u003eEagerness: When Should the Browser Speculate?\u003c/h2\u003e\n\n  \u003cp\u003e\n    The \u003ccode\u003eeagerness\u003c/code\u003e field controls when speculation triggers. There are four levels, and choosing the right one is the difference between \"invisible magic\" and \"wasted bandwidth\":\n  \u003c/p\u003e\n\n  \u003cdiv class=\"table-wrapper\"\u003e\n    \u003ctable\u003e\n      \u003cthead\u003e\n        \u003ctr\u003e\u003cth\u003eEagerness\u003c/th\u003e\u003cth\u003eTrigger\u003c/th\u003e\u003cth\u003eBest For\u003c/th\u003e\u003cth\u003eRisk\u003c/th\u003e\u003c/tr\u003e\n      \u003c/thead\u003e\n      \u003ctbody\u003e\n        \u003ctr\u003e\u003ctd\u003e\u003ccode\u003eimmediate\u003c/code\u003e\u003c/td\u003e\u003ctd\u003eAs soon as the rule is parsed\u003c/td\u003e\u003ctd\u003eSingle-page apps, landing pages with one obvious next step\u003c/td\u003e\u003ctd\u003eHigh — speculates on pages user may never visit\u003c/td\u003e\u003c/tr\u003e\n        \u003ctr\u003e\u003ctd\u003e\u003ccode\u003eeager\u003c/code\u003e\u003c/td\u003e\u003ctd\u003eSlight hover or pointer near the link\u003c/td\u003e\u003ctd\u003eNavigation menus, \"next article\" links\u003c/td\u003e\u003ctd\u003eMedium — fires early but still user-initiated\u003c/td\u003e\u003c/tr\u003e\n        \u003ctr\u003e\u003ctd\u003e\u003ccode\u003emoderate\u003c/code\u003e\u003c/td\u003e\u003ctd\u003e200ms hover (intentional hover)\u003c/td\u003e\u003ctd\u003eContent sites, blogs, documentation\u003c/td\u003e\u003ctd\u003eLow — fires only when user shows intent\u003c/td\u003e\u003c/tr\u003e\n        \u003ctr\u003e\u003ctd\u003e\u003ccode\u003econservative\u003c/code\u003e\u003c/td\u003e\u003ctd\u003eMousedown/touchstart (imminent click)\u003c/td\u003e\u003ctd\u003eE-commerce, forms, any page where mis-prefetch costs money\u003c/td\u003e\u003ctd\u003eVery low — fires right before navigation\u003c/td\u003e\u003c/tr\u003e\n      \u003c/tbody\u003e\n    \u003c/table\u003e\n  \u003c/div\u003e\n\n  \u003cpre\u003e\u003ccode\u003e// Immediate — prefetch the homepage from every page\n{ \"prefetch\": [{ \"source\": \"list\", \"urls\": [\"/\"], \"eagerness\": \"immediate\" }] }\n\n// Moderate — prefetch links on hover (200ms delay)\n{ \"prefetch\": [{ \"source\": \"document\", \"where\": { \"href_matches\": \"/blog/*\" }, \"eagerness\": \"moderate\" }] }\n\n// Conservative — prerender on mousedown for near-guaranteed clicks\n{ \"prerender\": [{ \"source\": \"document\", \"where\": { \"href_matches\": \"/checkout\" }, \"eagerness\": \"conservative\" }] }\u003c/code\u003e\u003c/pre\u003e\n\n  \u003ch2\u003ePrerender: The Holy Grail of Instant Navigation\u003c/h2\u003e\n\n  \u003cp\u003e\n    Prerendering goes far beyond prefetch. The browser loads the entire page in a hidden, unconnected renderer — JavaScript executes, CSS paints, images decode, WebSocket connections open. When the user clicks, the browser \u003cstrong\u003eactivates\u003c/strong\u003e the prerendered page instantly, replacing the current page with zero visible transition.\n  \u003c/p\u003e\n\n  \u003cpre\u003e\u003ccode\u003e\u0026lt;script type=\"speculationrules\"\u0026gt;\n{\n  \"prerender\": [\n    {\n      \"source\": \"document\",\n      \"where\": {\n        \"selector_matches\": \".prerender-links a\"\n      },\n      \"eagerness\": \"moderate\"\n    }\n  ]\n}\n\u0026lt;/script\u0026gt;\u003c/code\u003e\u003c/pre\u003e\n\n  \u003cdiv class=\"callout-box\"\u003e\n    \u003cstrong\u003e⚠️ Prerender constraints (2026):\u003c/strong\u003e\n    \u003cul\u003e\n      \u003cli\u003eLimited to same-origin URLs (cross-origin prerender is experimental)\u003c/li\u003e\n      \u003cli\u003eOnly one prerender can be active at a time per page (new prerender cancels the old one)\u003c/li\u003e\n      \u003cli\u003eUses memory (~50-100MB per prerendered page) — do not prerender everything\u003c/li\u003e\n      \u003cli\u003eThe prerendered page cannot use \u003ccode\u003ewindow.opener\u003c/code\u003e or \u003ccode\u003eBroadcastChannel\u003c/code\u003e while hidden\u003c/li\u003e\n      \u003cli\u003eAPIs like \u003ccode\u003ePermission.query()\u003c/code\u003e and \u003ccode\u003eMediaDevices.getUserMedia()\u003c/code\u003e are deferred until activation\u003c/li\u003e\n    \u003c/ul\u003e\n  \u003c/div\u003e\n\n  \u003ch2\u003eDocument Rules vs List Rules\u003c/h2\u003e\n\n  \u003cp\u003eSpeculation Rules support two \u003ccode\u003esource\u003c/code\u003e types:\u003c/p\u003e\n\n  \u003ch3\u003eDocument Rules (\u003ccode\u003esource: \"document\"\u003c/code\u003e)\u003c/h3\u003e\n  \u003cp\u003e\n    The browser finds matching links on the current page. Use \u003ccode\u003ehref_matches\u003c/code\u003e for URL patterns and \u003ccode\u003eselector_matches\u003c/code\u003e for CSS selectors:\n  \u003c/p\u003e\n\n  \u003cpre\u003e\u003ccode\u003e{\n  \"prefetch\": [{\n    \"source\": \"document\",\n    \"where\": {\n      \"and\": [\n        { \"href_matches\": \"/products/*\" },\n        { \"selector_matches\": \".featured-product a\" }\n      ]\n    },\n    \"eagerness\": \"moderate\"\n  }]\n}\u003c/code\u003e\u003c/pre\u003e\n\n  \u003ch3\u003eList Rules (\u003ccode\u003esource: \"list\"\u003c/code\u003e)\u003c/h3\u003e\n  \u003cp\u003e\n    You specify exact URLs. Best for pages where the next step is predictable (e.g., a login page that always leads to /dashboard):\n  \u003c/p\u003e\n\n  \u003cpre\u003e\u003ccode\u003e{\n  \"prerender\": [{\n    \"source\": \"list\",\n    \"urls\": [\"/dashboard\", \"/settings\"],\n    \"eagerness\": \"immediate\"\n  }]\n}\u003c/code\u003e\u003c/pre\u003e\n\n  \u003ch2\u003eScoring: Making Smart Speculation Decisions\u003c/h2\u003e\n\n  \u003cp\u003e\n    When multiple links match, the browser needs to decide which one to speculate on. You can attach scores to influence this decision:\n  \u003c/p\u003e\n\n  \u003cpre\u003e\u003ccode\u003e{\n  \"prefetch\": [{\n    \"source\": \"document\",\n    \"where\": {\n      \"or\": [\n        { \"href_matches\": \"/checkout\", \"score\": 0.9 },\n        { \"href_matches\": \"/cart\", \"score\": 0.7 },\n        { \"href_matches\": \"/products/*\", \"score\": 0.3 }\n      ]\n    },\n    \"eagerness\": \"eager\"\n  }]\n}\u003c/code\u003e\u003c/pre\u003e\n\n  \u003cp\u003e\n    Scores are relative within a ruleset — 0.9 beats 0.7, but there is no absolute scale. The browser also factors in its own heuristics: has the user visited this page before? Is the pointer moving toward this link? Is there available memory?\n  \u003c/p\u003e\n\n  \u003ch2\u003ePrefetch + Prerender Together: The Perfect Combo\u003c/h2\u003e\n\n  \u003cp\u003e\n    The most effective strategy layers both modes. Prefetch broadly — all links in a blog index. Prerender narrowly — the product page when someone hovers over a \"Buy Now\" button:\n  \u003c/p\u003e\n\n  \u003cpre\u003e\u003ccode\u003e\u0026lt;script type=\"speculationrules\"\u0026gt;\n{\n  \"prefetch\": [\n    {\n      \"source\": \"document\",\n      \"where\": { \"href_matches\": \"/blog/*\" },\n      \"eagerness\": \"moderate\"\n    }\n  ],\n  \"prerender\": [\n    {\n      \"source\": \"document\",\n      \"where\": {\n        \"and\": [\n          { \"href_matches\": \"/products/*\" },\n          { \"selector_matches\": \".cta-button\" }\n        ]\n      },\n      \"eagerness\": \"moderate\"\n    }\n  ]\n}\n\u0026lt;/script\u0026gt;\u003c/code\u003e\u003c/pre\u003e\n\n  \u003cp\u003eOn a content site with this setup:\u003c/p\u003e\n  \u003cul\u003e\n    \u003cli\u003eEvery blog post link prefetches on hover → instant load from cache\u003c/li\u003e\n    \u003cli\u003eProduct pages with CTA buttons prerender on hover → zero-millisecond activation\u003c/li\u003e\n    \u003cli\u003eNon-matching links behave normally — no wasted resources\u003c/li\u003e\n  \u003c/ul\u003e\n\n  \u003ch2\u003eDetecting Prerender Activation in JavaScript\u003c/h2\u003e\n\n  \u003cp\u003e\n    Sometimes your page JavaScript needs to know it is being prerendered (e.g., to defer analytics, skip API calls, or pause animations):\n  \u003c/p\u003e\n\n  \u003cpre\u003e\u003ccode\u003e// Check if prerendered\nif (document.prerendering) {\n  // Defer non-critical work\n  document.addEventListener('prerenderingchange', () =\u003e {\n    // Page was just activated — safe to fire analytics, start animations\n    gtag('event', 'page_view');\n    startAnimations();\n  });\n}\n\n// Or use the newer activationStart\nconst activationStart = performance.getEntriesByType('navigation')[0]?.activationStart;\nif (activationStart \u003e 0) {\n  console.log(`Page was prerendered. Activation took ${activationStart}ms`);\n}\u003c/code\u003e\u003c/pre\u003e\n\n  \u003ch2\u003eMonitoring: Did It Work?\u003c/h2\u003e\n\n  \u003cp\u003e\n    Chrome DevTools has first-class speculation debugging. Open the \u003cstrong\u003eApplication\u003c/strong\u003e panel → \u003cstrong\u003eSpeculative Loads\u003c/strong\u003e to see all active prerenders, their status, and why they succeeded or failed. You can also use the Performance panel to measure activation time — look for the \u003cstrong\u003eActivation\u003c/strong\u003e marker in the timeline.\n  \u003c/p\u003e\n\n  \u003cp\u003eFor production monitoring, use the Performance API:\u003c/p\u003e\n\n  \u003cpre\u003e\u003ccode\u003e// Check if the current navigation was prerendered\nconst navEntry = performance.getEntriesByType('navigation')[0];\n\nif (navEntry.activationStart \u003e 0) {\n  // This was a prerender activation\n  const activationTime = navEntry.activationStart;\n  const totalLoadTime = navEntry.loadEventEnd;\n\n  console.log(`Prerender activation: ${activationTime}ms`);\n  console.log(`Total load (including prerender): ${totalLoadTime}ms`);\n\n  // Send to analytics\n  gtag('event', 'prerender_activation', {\n    activation_time: activationTime,\n    total_time: totalLoadTime\n  });\n}\u003c/code\u003e\u003c/pre\u003e\n\n  \u003ch2\u003eProduction Deployment: A Real-World Setup\u003c/h2\u003e\n\n  \u003cp\u003eFor DevBench itself, here is the speculation rules configuration:\u003c/p\u003e\n\n  \u003cpre\u003e\u003ccode\u003e\u0026lt;script type=\"speculationrules\"\u0026gt;\n{\n  \"prefetch\": [\n    {\n      \"source\": \"document\",\n      \"where\": { \"href_matches\": \"/tools/*\" },\n      \"eagerness\": \"moderate\"\n    },\n    {\n      \"source\": \"document\",\n      \"where\": { \"href_matches\": \"/blog/*\" },\n      \"eagerness\": \"moderate\"\n    },\n    {\n      \"source\": \"list\",\n      \"urls\": [\"/\", \"/tools/\", \"/blog/\"],\n      \"eagerness\": \"immediate\"\n    }\n  ],\n  \"prerender\": [\n    {\n      \"source\": \"document\",\n      \"where\": {\n        \"and\": [\n          { \"href_matches\": \"/tools/*\" },\n          { \"not\": { \"href_matches\": \"/tools/json-formatter\" } }\n        ]\n      },\n      \"eagerness\": \"eager\"\n    }\n  ]\n}\n\u0026lt;/script\u0026gt;\u003c/code\u003e\u003c/pre\u003e\n\n  \u003cp\u003eThis configuration:\u003c/p\u003e\n  \u003cul\u003e\n    \u003cli\u003ePrefetches all tool and blog pages on hover\u003c/li\u003e\n    \u003cli\u003eImmediately prefetches the homepage, tools index, and blog index from every page\u003c/li\u003e\n    \u003cli\u003ePrerenders tool pages on eager hover (excluding JSON formatter, which is client-heavy)\u003c/li\u003e\n  \u003c/ul\u003e\n\n  \u003ch2\u003eBrowser Support and the Road Ahead\u003c/h2\u003e\n\n  \u003cp\u003e\n    As of June 2026, the Speculation Rules API is supported in \u003cstrong\u003eChrome 121+\u003c/strong\u003e and \u003cstrong\u003eEdge 121+\u003c/strong\u003e. Firefox and Safari have not yet shipped it, but the API is designed to be safely ignored: unsupported browsers simply skip the \u003ccode\u003e\u0026lt;script type=\"speculationrules\"\u0026gt;\u003c/code\u003e tag with zero side effects. There is no polyfill needed, no feature detection, no fallback — it just works where supported and degrades gracefully everywhere else.\n  \u003c/p\u003e\n\n  \u003cp\u003e\n    The Chrome team is exploring \u003cstrong\u003ecross-origin prerendering\u003c/strong\u003e (with explicit opt-in from the target origin via \u003ccode\u003eSupports-Loading-Mode: credentialed-prerender\u003c/code\u003e), \u003cstrong\u003emultiple simultaneous prerenders\u003c/strong\u003e (memory permitting), and deeper integration with the \u003cstrong\u003eNavigation API\u003c/strong\u003e for single-page apps. The future of navigation is zero milliseconds.\n  \u003c/p\u003e\n\n  \u003ch2\u003eWhen Not to Use Speculation Rules\u003c/h2\u003e\n\n  \u003cp\u003e\n    Speculation Rules are not free. Every prerendered page consumes significant memory, and every prefetch consumes bandwidth. Avoid speculation when:\n  \u003c/p\u003e\n\n  \u003cul\u003e\n    \u003cli\u003eYour users are on metered connections (use \u003ccode\u003enavigator.connection.saveData\u003c/code\u003e to check)\u003c/li\u003e\n    \u003cli\u003eYour pages have side effects on load (analytics, WebSocket connections, API calls)\u003c/li\u003e\n    \u003cli\u003eYour target pages are personalized or frequently invalidated\u003c/li\u003e\n    \u003cli\u003eYou are already serving from a CDN with sub-100ms TTFB (the gain is marginal)\u003c/li\u003e\n  \u003c/ul\u003e\n\n  \u003cp\u003eFor most content sites, documentation, blogs, and e-commerce, the trade-off is overwhelmingly positive. A moderate-eagerness prefetch rule costs kilobytes of bandwidth and delivers navigation that feels like a local app.\u003c/p\u003e\n\n  \u003cp class=\"callout\"\u003e\n    The Speculation Rules API is the closest the web platform has come to eliminating navigation latency entirely. Drop a JSON script tag, and your users get instant page loads — no framework rewrite, no SPA migration, no JavaScript library. It is the simplest, highest-impact performance optimization you can deploy in 2026.\n  \u003c/p\u003e\n\u003c/div\u003e"])</script><script>self.__next_f.push([1,"7:[\"slug\",\"speculation-rules-api-instant-page-loads\",\"d\"]\ne:[]\n"])</script><script>self.__next_f.push([1,"0:[\"$\",\"$L2\",null,{\"buildId\":\"Dyet8hExXh9zFMTej1l6Q\",\"assetPrefix\":\"/devbench-tech\",\"urlParts\":[\"\",\"blog\",\"speculation-rules-api-instant-page-loads\",\"\"],\"initialTree\":[\"\",{\"children\":[\"blog\",{\"children\":[[\"slug\",\"speculation-rules-api-instant-page-loads\",\"d\"],{\"children\":[\"__PAGE__?{\\\"slug\\\":\\\"speculation-rules-api-instant-page-loads\\\"}\",{}]}]}]},\"$undefined\",\"$undefined\",true],\"initialSeedData\":[\"\",{\"children\":[\"blog\",{\"children\":[[\"slug\",\"speculation-rules-api-instant-page-loads\",\"d\"],{\"children\":[\"__PAGE__\",{},[[\"$L3\",[[\"$\",\"script\",null,{\"type\":\"application/ld+json\",\"dangerouslySetInnerHTML\":{\"__html\":\"{\\\"@context\\\":\\\"https://schema.org\\\",\\\"@type\\\":\\\"BlogPosting\\\",\\\"headline\\\":\\\"Speculation Rules API: Instant Page Loads Are Finally Here — No JavaScript Framework Required\\\",\\\"description\\\":\\\"The Speculation Rules API lets the browser prefetch and prerender entire pages before users click — delivering genuine zero-millisecond navigations. Define rules in a JSON script tag, and the browser handles the rest. Complete guide to prefetch vs prerender, eagerness strategies, scoring, and production deployment.\\\",\\\"datePublished\\\":\\\"2026-06-05\\\",\\\"author\\\":{\\\"@type\\\":\\\"Person\\\",\\\"name\\\":\\\"DevBench\\\"},\\\"url\\\":\\\"https://devbench-roan.vercel.app/blog/speculation-rules-api-instant-page-loads/\\\"}\"}}],[\"$\",\"article\",null,{\"className\":\"max-w-3xl mx-auto px-4 py-12 sm:px-6 lg:px-8\",\"children\":[[\"$\",\"$L4\",null,{\"href\":\"/blog/\",\"className\":\"inline-flex items-center gap-1.5 text-sm text-slate-500 hover:text-brand-400 transition-colors mb-8\",\"children\":[[\"$\",\"svg\",null,{\"xmlns\":\"http://www.w3.org/2000/svg\",\"width\":24,\"height\":24,\"viewBox\":\"0 0 24 24\",\"fill\":\"none\",\"stroke\":\"currentColor\",\"strokeWidth\":2,\"strokeLinecap\":\"round\",\"strokeLinejoin\":\"round\",\"className\":\"lucide lucide-arrow-left w-4 h-4\",\"children\":[[\"$\",\"path\",\"1l729n\",{\"d\":\"m12 19-7-7 7-7\"}],[\"$\",\"path\",\"x3x0zl\",{\"d\":\"M19 12H5\"}],\"$undefined\"]}],\"Back to blog\"]}],[\"$\",\"header\",null,{\"className\":\"mb-10\",\"children\":[[\"$\",\"h1\",null,{\"className\":\"text-3xl sm:text-4xl font-bold text-white mb-4 tracking-tight leading-tight\",\"children\":\"Speculation Rules API: Instant Page Loads Are Finally Here — No JavaScript Framework Required\"}],[\"$\",\"p\",null,{\"className\":\"text-lg text-slate-400 mb-6\",\"children\":\"The Speculation Rules API lets the browser prefetch and prerender entire pages before users click — delivering genuine zero-millisecond navigations. Define rules in a JSON script tag, and the browser handles the rest. Complete guide to prefetch vs prerender, eagerness strategies, scoring, and production deployment.\"}],[\"$\",\"div\",null,{\"className\":\"flex flex-wrap items-center gap-4 text-sm text-slate-500\",\"children\":[[\"$\",\"span\",null,{\"className\":\"flex items-center gap-1.5\",\"children\":[[\"$\",\"svg\",null,{\"xmlns\":\"http://www.w3.org/2000/svg\",\"width\":24,\"height\":24,\"viewBox\":\"0 0 24 24\",\"fill\":\"none\",\"stroke\":\"currentColor\",\"strokeWidth\":2,\"strokeLinecap\":\"round\",\"strokeLinejoin\":\"round\",\"className\":\"lucide lucide-calendar w-4 h-4\",\"children\":[[\"$\",\"rect\",\"eu3xkr\",{\"width\":\"18\",\"height\":\"18\",\"x\":\"3\",\"y\":\"4\",\"rx\":\"2\",\"ry\":\"2\"}],[\"$\",\"line\",\"m3sa8f\",{\"x1\":\"16\",\"x2\":\"16\",\"y1\":\"2\",\"y2\":\"6\"}],[\"$\",\"line\",\"18kwsl\",{\"x1\":\"8\",\"x2\":\"8\",\"y1\":\"2\",\"y2\":\"6\"}],[\"$\",\"line\",\"xt86sb\",{\"x1\":\"3\",\"x2\":\"21\",\"y1\":\"10\",\"y2\":\"10\"}],\"$undefined\"]}],\"June 5, 2026\"]}],[\"$\",\"span\",null,{\"className\":\"flex items-center gap-1.5\",\"children\":[[\"$\",\"svg\",null,{\"xmlns\":\"http://www.w3.org/2000/svg\",\"width\":24,\"height\":24,\"viewBox\":\"0 0 24 24\",\"fill\":\"none\",\"stroke\":\"currentColor\",\"strokeWidth\":2,\"strokeLinecap\":\"round\",\"strokeLinejoin\":\"round\",\"className\":\"lucide lucide-clock w-4 h-4\",\"children\":[[\"$\",\"circle\",\"1mglay\",{\"cx\":\"12\",\"cy\":\"12\",\"r\":\"10\"}],[\"$\",\"polyline\",\"68esgv\",{\"points\":\"12 6 12 12 16 14\"}],\"$undefined\"]}],\"11 min read\"]}],[\"$\",\"span\",null,{\"className\":\"text-slate-600\",\"children\":[\"by \",\"DevBench\"]}]]}],[\"$\",\"div\",null,{\"className\":\"flex flex-wrap gap-2 mt-4\",\"children\":[[\"$\",\"span\",\"Speculation Rules\",{\"className\":\"px-2 py-0.5 rounded-md bg-brand-500/10 text-brand-400 text-xs font-medium border border-brand-500/20\",\"children\":\"Speculation Rules\"}],[\"$\",\"span\",\"Performance\",{\"className\":\"px-2 py-0.5 rounded-md bg-brand-500/10 text-brand-400 text-xs font-medium border border-brand-500/20\",\"children\":\"Performance\"}],[\"$\",\"span\",\"Web Platform\",{\"className\":\"px-2 py-0.5 rounded-md bg-brand-500/10 text-brand-400 text-xs font-medium border border-brand-500/20\",\"children\":\"Web Platform\"}],[\"$\",\"span\",\"Prerender\",{\"className\":\"px-2 py-0.5 rounded-md bg-brand-500/10 text-brand-400 text-xs font-medium border border-brand-500/20\",\"children\":\"Prerender\"}],[\"$\",\"span\",\"Prefetch\",{\"className\":\"px-2 py-0.5 rounded-md bg-brand-500/10 text-brand-400 text-xs font-medium border border-brand-500/20\",\"children\":\"Prefetch\"}],[\"$\",\"span\",\"MPA\",{\"className\":\"px-2 py-0.5 rounded-md bg-brand-500/10 text-brand-400 text-xs font-medium border border-brand-500/20\",\"children\":\"MPA\"}],[\"$\",\"span\",\"Chrome\",{\"className\":\"px-2 py-0.5 rounded-md bg-brand-500/10 text-brand-400 text-xs font-medium border border-brand-500/20\",\"children\":\"Chrome\"}],[\"$\",\"span\",\"2026\",{\"className\":\"px-2 py-0.5 rounded-md bg-brand-500/10 text-brand-400 text-xs font-medium border border-brand-500/20\",\"children\":\"2026\"}]]}]]}],[\"$\",\"div\",null,{\"className\":\"blog-body\",\"dangerouslySetInnerHTML\":{\"__html\":\"$5\"}}],[\"$\",\"hr\",null,{\"className\":\"border-slate-800 my-12\"}],[\"$\",\"div\",null,{\"className\":\"text-center\",\"children\":[\"$\",\"$L4\",null,{\"href\":\"/blog/\",\"className\":\"inline-flex items-center gap-1.5 text-brand-400 hover:text-brand-300 transition-colors font-medium\",\"children\":[[\"$\",\"svg\",null,{\"xmlns\":\"http://www.w3.org/2000/svg\",\"width\":24,\"height\":24,\"viewBox\":\"0 0 24 24\",\"fill\":\"none\",\"stroke\":\"currentColor\",\"strokeWidth\":2,\"strokeLinecap\":\"round\",\"strokeLinejoin\":\"round\",\"className\":\"lucide lucide-arrow-left w-4 h-4\",\"children\":[[\"$\",\"path\",\"1l729n\",{\"d\":\"m12 19-7-7 7-7\"}],[\"$\",\"path\",\"x3x0zl\",{\"d\":\"M19 12H5\"}],\"$undefined\"]}],\"More articles\"]}]}]]}]],null],null],null]},[null,[\"$\",\"$L6\",null,{\"parallelRouterKey\":\"children\",\"segmentPath\":[\"children\",\"blog\",\"children\",\"$7\",\"children\"],\"error\":\"$undefined\",\"errorStyles\":\"$undefined\",\"errorScripts\":\"$undefined\",\"template\":[\"$\",\"$L8\",null,{}],\"templateStyles\":\"$undefined\",\"templateScripts\":\"$undefined\",\"notFound\":\"$undefined\",\"notFoundStyles\":\"$undefined\"}]],null]},[null,[\"$\",\"$L6\",null,{\"parallelRouterKey\":\"children\",\"segmentPath\":[\"children\",\"blog\",\"children\"],\"error\":\"$undefined\",\"errorStyles\":\"$undefined\",\"errorScripts\":\"$undefined\",\"template\":[\"$\",\"$L8\",null,{}],\"templateStyles\":\"$undefined\",\"templateScripts\":\"$undefined\",\"notFound\":\"$undefined\",\"notFoundStyles\":\"$undefined\"}]],null]},[[[[\"$\",\"link\",\"0\",{\"rel\":\"stylesheet\",\"href\":\"/devbench-tech/_next/static/css/8b9213b1d18e4368.css\",\"precedence\":\"next\",\"crossOrigin\":\"$undefined\"}]],[\"$\",\"html\",null,{\"lang\":\"en\",\"className\":\"dark\",\"children\":[\"$\",\"body\",null,{\"className\":\"flex flex-col min-h-screen\",\"children\":[[\"$\",\"script\",null,{\"type\":\"application/ld+json\",\"dangerouslySetInnerHTML\":{\"__html\":\"{\\\"@context\\\":\\\"https://schema.org\\\",\\\"@type\\\":\\\"WebSite\\\",\\\"name\\\":\\\"DevBench\\\",\\\"url\\\":\\\"https://devbench-roan.vercel.app\\\",\\\"description\\\":\\\"Free developer tools for everyday use: JSON formatter, Base64 encoder/decoder, UUID generator, regex tester, benchmarks, and more.\\\",\\\"potentialAction\\\":{\\\"@type\\\":\\\"SearchAction\\\",\\\"target\\\":\\\"https://devbench-roan.vercel.app/tools?q={search_term_string}\\\",\\\"query-input\\\":\\\"required name=search_term_string\\\"}}\"}}],[\"$\",\"$L9\",null,{}],[\"$\",\"main\",null,{\"className\":\"flex-1\",\"children\":[\"$\",\"$L6\",null,{\"parallelRouterKey\":\"children\",\"segmentPath\":[\"children\"],\"error\":\"$undefined\",\"errorStyles\":\"$undefined\",\"errorScripts\":\"$undefined\",\"template\":[\"$\",\"$L8\",null,{}],\"templateStyles\":\"$undefined\",\"templateScripts\":\"$undefined\",\"notFound\":[[\"$\",\"title\",null,{\"children\":\"404: This page could not be found.\"}],[\"$\",\"div\",null,{\"style\":{\"fontFamily\":\"system-ui,\\\"Segoe UI\\\",Roboto,Helvetica,Arial,sans-serif,\\\"Apple Color Emoji\\\",\\\"Segoe UI Emoji\\\"\",\"height\":\"100vh\",\"textAlign\":\"center\",\"display\":\"flex\",\"flexDirection\":\"column\",\"alignItems\":\"center\",\"justifyContent\":\"center\"},\"children\":[\"$\",\"div\",null,{\"children\":[[\"$\",\"style\",null,{\"dangerouslySetInnerHTML\":{\"__html\":\"body{color:#000;background:#fff;margin:0}.next-error-h1{border-right:1px solid rgba(0,0,0,.3)}@media (prefers-color-scheme:dark){body{color:#fff;background:#000}.next-error-h1{border-right:1px solid rgba(255,255,255,.3)}}\"}}],[\"$\",\"h1\",null,{\"className\":\"next-error-h1\",\"style\":{\"display\":\"inline-block\",\"margin\":\"0 20px 0 0\",\"padding\":\"0 23px 0 0\",\"fontSize\":24,\"fontWeight\":500,\"verticalAlign\":\"top\",\"lineHeight\":\"49px\"},\"children\":\"404\"}],[\"$\",\"div\",null,{\"style\":{\"display\":\"inline-block\"},\"children\":[\"$\",\"h2\",null,{\"style\":{\"fontSize\":14,\"fontWeight\":400,\"lineHeight\":\"49px\",\"margin\":0},\"children\":\"This page could not be found.\"}]}]]}]}]],\"notFoundStyles\":[]}]}],[\"$\",\"footer\",null,{\"className\":\"bg-surface-light border-t border-slate-700/50 mt-auto\",\"children\":[\"$\",\"div\",null,{\"className\":\"max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12\",\"children\":[[\"$\",\"div\",null,{\"className\":\"grid grid-cols-1 md:grid-cols-3 gap-8\",\"children\":[[\"$\",\"div\",null,{\"children\":[[\"$\",\"$L4\",null,{\"href\":\"/\",\"className\":\"flex items-center gap-2.5 mb-3\",\"children\":[[\"$\",\"div\",null,{\"className\":\"w-7 h-7 bg-brand-500 rounded-lg flex items-center justify-center\",\"children\":[\"$\",\"svg\",null,{\"xmlns\":\"http://www.w3.org/2000/svg\",\"width\":24,\"height\":24,\"viewBox\":\"0 0 24 24\",\"fill\":\"none\",\"stroke\":\"currentColor\",\"strokeWidth\":2,\"strokeLinecap\":\"round\",\"strokeLinejoin\":\"round\",\"className\":\"lucide lucide-terminal w-3.5 h-3.5 text-white\",\"children\":[[\"$\",\"polyline\",\"akl6gq\",{\"points\":\"4 17 10 11 4 5\"}],[\"$\",\"line\",\"q2wloq\",{\"x1\":\"12\",\"x2\":\"20\",\"y1\":\"19\",\"y2\":\"19\"}],\"$undefined\"]}]}],[\"$\",\"span\",null,{\"className\":\"text-lg font-bold text-white\",\"children\":[\"Dev\",[\"$\",\"span\",null,{\"className\":\"gradient-text\",\"children\":\"Bench\"}]]}]]}],[\"$\",\"p\",null,{\"className\":\"text-slate-400 text-sm leading-relaxed\",\"children\":\"Free developer tools, benchmarks, and calculators. Built for developers, by developers.\"}]]}],[\"$\",\"div\",null,{\"children\":[[\"$\",\"h3\",null,{\"className\":\"text-sm font-semibold text-slate-300 uppercase tracking-wider mb-4\",\"children\":\"Tools\"}],[\"$\",\"ul\",null,{\"className\":\"space-y-2\",\"children\":[[\"$\",\"li\",\"/tools/json-formatter\",{\"children\":[\"$\",\"$L4\",null,{\"href\":\"/tools/json-formatter\",\"className\":\"text-slate-400 hover:text-brand-400 text-sm transition-colors\",\"children\":\"JSON Formatter\"}]}],[\"$\",\"li\",\"/tools/base64\",{\"children\":[\"$\",\"$L4\",null,{\"href\":\"/tools/base64\",\"className\":\"text-slate-400 hover:text-brand-400 text-sm transition-colors\",\"children\":\"Base64 Encoder/Decoder\"}]}],[\"$\",\"li\",\"/tools/uuid-generator\",{\"children\":[\"$\",\"$L4\",null,{\"href\":\"/tools/uuid-generator\",\"className\":\"text-slate-400 hover:text-brand-400 text-sm transition-colors\",\"children\":\"UUID Generator\"}]}],[\"$\",\"li\",\"/tools/regex-tester\",{\"children\":[\"$\",\"$L4\",null,{\"href\":\"/tools/regex-tester\",\"className\":\"text-slate-400 hover:text-brand-400 text-sm transition-colors\",\"children\":\"Regex Tester\"}]}]]}]]}],[\"$\",\"div\",null,{\"children\":[[\"$\",\"h3\",null,{\"className\":\"text-sm font-semibold text-slate-300 uppercase tracking-wider mb-4\",\"children\":\"Resources\"}],[\"$\",\"ul\",null,{\"className\":\"space-y-2\",\"children\":[[\"$\",\"li\",\"/blog\",{\"children\":[\"$\",\"$L4\",null,{\"href\":\"/blog\",\"className\":\"text-slate-400 hover:text-brand-400 text-sm transition-colors\",\"children\":\"Blog\"}]}],[\"$\",\"li\",\"/benchmarks\",{\"children\":[\"$\",\"$L4\",null,{\"href\":\"/benchmarks\",\"className\":\"text-slate-400 hover:text-brand-400 text-sm transition-colors\",\"children\":\"Benchmarks\"}]}],[\"$\",\"li\",\"/about\",{\"children\":[\"$\",\"$L4\",null,{\"href\":\"/about\",\"className\":\"text-slate-400 hover:text-brand-400 text-sm transition-colors\",\"children\":\"About\"}]}]]}]]}]]}],[\"$\",\"div\",null,{\"className\":\"mt-10 pt-6 border-t border-slate-700/50 flex flex-col sm:flex-row items-center justify-between gap-4\",\"children\":[[\"$\",\"p\",null,{\"className\":\"text-slate-500 text-sm flex items-center gap-1\",\"children\":[\"Made with \",[\"$\",\"svg\",null,{\"xmlns\":\"http://www.w3.org/2000/svg\",\"width\":24,\"height\":24,\"viewBox\":\"0 0 24 24\",\"fill\":\"none\",\"stroke\":\"currentColor\",\"strokeWidth\":2,\"strokeLinecap\":\"round\",\"strokeLinejoin\":\"round\",\"className\":\"lucide lucide-heart w-3.5 h-3.5 text-red-500 fill-red-500\",\"children\":[[\"$\",\"path\",\"c3ymky\",{\"d\":\"M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z\"}],\"$undefined\"]}],\" by the DevBench team © \",2026]}],[\"$\",\"a\",null,{\"href\":\"https://github.com\",\"target\":\"_blank\",\"rel\":\"noopener noreferrer\",\"className\":\"text-slate-500 hover:text-slate-300 transition-colors\",\"aria-label\":\"GitHub\",\"children\":[\"$\",\"svg\",null,{\"xmlns\":\"http://www.w3.org/2000/svg\",\"width\":24,\"height\":24,\"viewBox\":\"0 0 24 24\",\"fill\":\"none\",\"stroke\":\"currentColor\",\"strokeWidth\":2,\"strokeLinecap\":\"round\",\"strokeLinejoin\":\"round\",\"className\":\"lucide lucide-github w-5 h-5\",\"children\":[[\"$\",\"path\",\"tonef\",{\"d\":\"M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4\"}],[\"$\",\"path\",\"9comsn\",{\"d\":\"M9 18c-4.51 2-5-2-7-2\"}],\"$undefined\"]}]}]]}]]}]}],[\"$\",\"$La\",null,{}],[\"$\",\"$Lb\",null,{\"position\":\"bottom-right\",\"toastOptions\":{\"style\":{\"background\":\"#1e293b\",\"color\":\"#e2e8f0\",\"border\":\"1px solid #334155\",\"fontSize\":\"14px\"}}}]]}]}]],null],null],\"couldBeIntercepted\":false,\"initialHead\":[null,\"$Lc\"],\"globalErrorComponent\":\"$d\",\"missingSlots\":\"$We\"}]\n"])</script><script>self.__next_f.push([1,"c:[[\"$\",\"meta\",\"0\",{\"name\":\"viewport\",\"content\":\"width=device-width, initial-scale=1\"}],[\"$\",\"meta\",\"1\",{\"charSet\":\"utf-8\"}],[\"$\",\"title\",\"2\",{\"children\":\"Speculation Rules API: Instant Page Loads Are Finally Here — No JavaScript Framework Required | DevBench\"}],[\"$\",\"meta\",\"3\",{\"name\":\"description\",\"content\":\"The Speculation Rules API lets the browser prefetch and prerender entire pages before users click — delivering genuine zero-millisecond navigations. Define rules in a JSON script tag, and the browser handles the rest. Complete guide to prefetch vs prerender, eagerness strategies, scoring, and production deployment.\"}],[\"$\",\"meta\",\"4\",{\"name\":\"author\",\"content\":\"DevBench\"}],[\"$\",\"meta\",\"5\",{\"name\":\"keywords\",\"content\":\"developer tools,JSON formatter,Base64,UUID generator,regex tester,benchmarks,dev tools\"}],[\"$\",\"meta\",\"6\",{\"property\":\"og:title\",\"content\":\"Speculation Rules API: Instant Page Loads Are Finally Here — No JavaScript Framework Required\"}],[\"$\",\"meta\",\"7\",{\"property\":\"og:description\",\"content\":\"The Speculation Rules API lets the browser prefetch and prerender entire pages before users click — delivering genuine zero-millisecond navigations. Define rules in a JSON script tag, and the browser handles the rest. Complete guide to prefetch vs prerender, eagerness strategies, scoring, and production deployment.\"}],[\"$\",\"meta\",\"8\",{\"property\":\"og:type\",\"content\":\"article\"}],[\"$\",\"meta\",\"9\",{\"property\":\"article:published_time\",\"content\":\"2026-06-05\"}],[\"$\",\"meta\",\"10\",{\"property\":\"article:author\",\"content\":\"DevBench\"}],[\"$\",\"meta\",\"11\",{\"property\":\"article:tag\",\"content\":\"Speculation Rules\"}],[\"$\",\"meta\",\"12\",{\"property\":\"article:tag\",\"content\":\"Performance\"}],[\"$\",\"meta\",\"13\",{\"property\":\"article:tag\",\"content\":\"Web Platform\"}],[\"$\",\"meta\",\"14\",{\"property\":\"article:tag\",\"content\":\"Prerender\"}],[\"$\",\"meta\",\"15\",{\"property\":\"article:tag\",\"content\":\"Prefetch\"}],[\"$\",\"meta\",\"16\",{\"property\":\"article:tag\",\"content\":\"MPA\"}],[\"$\",\"meta\",\"17\",{\"property\":\"article:tag\",\"content\":\"Chrome\"}],[\"$\",\"meta\",\"18\",{\"property\":\"article:tag\",\"content\":\"2026\"}],[\"$\",\"meta\",\"19\",{\"name\":\"twitter:card\",\"content\":\"summary\"}],[\"$\",\"meta\",\"20\",{\"name\":\"twitter:title\",\"content\":\"Speculation Rules API: Instant Page Loads Are Finally Here — No JavaScript Framework Required\"}],[\"$\",\"meta\",\"21\",{\"name\":\"twitter:description\",\"content\":\"The Speculation Rules API lets the browser prefetch and prerender entire pages before users click — delivering genuine zero-millisecond navigations. Define rules in a JSON script tag, and the browser handles the rest. Complete guide to prefetch vs prerender, eagerness strategies, scoring, and production deployment.\"}],[\"$\",\"link\",\"22\",{\"rel\":\"icon\",\"href\":\"/favicon.svg\"}]]\n"])</script><script>self.__next_f.push([1,"3:null\n"])</script></body></html>

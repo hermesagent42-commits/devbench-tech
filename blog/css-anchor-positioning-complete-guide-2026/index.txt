@@ -1,0 +1,410 @@
+2:I[72972,["2972","static/chunks/2972-4aaa15d119eeb022.js","308","static/chunks/app/blog/%5Bslug%5D/page-a411190e7012c687.js"],""]
+4:I[4707,[],""]
+6:I[36423,[],""]
+7:I[39295,["9762","static/chunks/44530001-4ecf7a22b5b24163.js","2972","static/chunks/2972-4aaa15d119eeb022.js","8375","static/chunks/8375-c77b8de36f6696fb.js","6829","static/chunks/6829-f51803445ddf1872.js","3185","static/chunks/app/layout-488e5c40aa6ffa72.js"],"Header"]
+8:I[66506,["9762","static/chunks/44530001-4ecf7a22b5b24163.js","2972","static/chunks/2972-4aaa15d119eeb022.js","8375","static/chunks/8375-c77b8de36f6696fb.js","6829","static/chunks/6829-f51803445ddf1872.js","3185","static/chunks/app/layout-488e5c40aa6ffa72.js"],"Analytics"]
+9:I[69064,["9762","static/chunks/44530001-4ecf7a22b5b24163.js","2972","static/chunks/2972-4aaa15d119eeb022.js","8375","static/chunks/8375-c77b8de36f6696fb.js","6829","static/chunks/6829-f51803445ddf1872.js","3185","static/chunks/app/layout-488e5c40aa6ffa72.js"],"Toaster"]
+3:T4a6a,<div class="prose-content">
+  <p class="lead">
+    For the entire history of CSS, you could only position an element relative to its nearest positioned ancestor. Want a tooltip to appear above a button? You needed JavaScript to measure the button, calculate coordinates, and update on scroll/resize. Want a dropdown that never overflows the viewport? More JavaScript. <strong>CSS Anchor Positioning</strong> — Baseline since May 2026 across Chrome, Edge, Firefox, and Safari — finally lets you <em>tether</em> any element to any other element purely in CSS. No measuring, no event listeners, no Popper.js or Floating UI. Just CSS.
+  </p>
+
+  <h2>The Core Concept: anchor-name and position-anchor</h2>
+
+  <p>Anchor Positioning has two parts: (1) declare an <strong>anchor</strong> — any element on the page, and (2) <strong>position</strong> a target element relative to that anchor:</p>
+
+  <pre><code>/* Step 1: Give the button a name so other elements can reference it */
+.trigger-button {
+  anchor-name: --my-tooltip-anchor;
+}
+
+/* Step 2: Tether the tooltip to that named anchor */
+.tooltip {
+  position: absolute;
+  position-anchor: --my-tooltip-anchor;
+
+  /* Position the tooltip above the anchor */
+  bottom: anchor(top);
+  left: anchor(center);
+  translate: -50% -8px;
+}</code></pre>
+
+  <p>That's it. The <code>.tooltip</code> element will now appear centered above <code>.trigger-button</code> — and it <em>follows</em> the button. Scroll the page. Resize the viewport. Open a virtual keyboard on mobile. The tooltip stays perfectly tethered. Zero JavaScript.</p>
+
+  <h2>The anchor() Function: Reference Any Edge or Center</h2>
+
+  <p>The <code>anchor()</code> function is the workhorse of Anchor Positioning. It resolves to a length — the position of one of the anchor's edges (or center). You can use it anywhere you'd use a length value:</p>
+
+  <div class="table-wrapper">
+    <table>
+      <thead>
+        <tr><th>Value</th><th>References</th><th>Example Use</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>anchor(top)</code></td><td>Top edge of the anchor</td><td>Position element at anchor's top</td></tr>
+        <tr><td><code>anchor(bottom)</code></td><td>Bottom edge of the anchor</td><td>Stack element below anchor</td></tr>
+        <tr><td><code>anchor(left)</code></td><td>Left edge of the anchor</td><td>Align to anchor's left side</td></tr>
+        <tr><td><code>anchor(right)</code></td><td>Right edge of the anchor</td><td>Align to anchor's right side</td></tr>
+        <tr><td><code>anchor(center)</code></td><td>Horizontal center of the anchor</td><td>Center-align tooltips</td></tr>
+        <tr><td><code>anchor(50%)</code></td><td>50% along the anchor's width</td><td>Custom alignment point</td></tr>
+        <tr><td><code>anchor(start)</code></td><td>Start edge (writing-mode aware)</td><td>RTL-friendly positioning</td></tr>
+        <tr><td><code>anchor(end)</code></td><td>End edge (writing-mode aware)</td><td>RTL-friendly positioning</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p>The real power comes from <em>combining</em> anchor values — you can position each edge of the target independently:</p>
+
+  <pre><code>/* Position the dropdown so it stretches across the button width */
+.dropdown {
+  position: absolute;
+  position-anchor: --menu-trigger;
+  top: anchor(bottom);
+  left: anchor(left);
+  right: anchor(right);
+  /* Dropdown is now exactly as wide as the button, positioned below it */
+}</code></pre>
+
+  <h2>position-area: The Simple Alternative for Common Placements</h2>
+
+  <p>Manually setting <code>top</code>, <code>bottom</code>, <code>left</code>, and <code>right</code> with <code>anchor()</code> for every placement gets tedious. <code>position-area</code> (previously called <code>inset-area</code>) handles common placements in a single property:</p>
+
+  <pre><code>/* Instead of: */
+.tooltip {
+  top: auto;
+  bottom: anchor(top);
+  left: anchor(center);
+  translate: -50%;
+  margin-bottom: 8px;
+}
+
+/* Just write: */
+.tooltip {
+  position-area: top center;
+  margin-bottom: 8px; /* gap between target and anchor */
+}</code></pre>
+
+  <p><code>position-area</code> accepts two values: a <strong>block-axis</strong> keyword and an <strong>inline-axis</strong> keyword:</p>
+
+  <div class="table-wrapper">
+    <table>
+      <thead>
+        <tr><th>Block-axis</th><th>Inline-axis</th><th>Result</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>top</code></td><td><code>start</code></td><td>Above anchor, left-aligned (LTR)</td></tr>
+        <tr><td><code>top</code></td><td><code>center</code></td><td>Above anchor, centered</td></tr>
+        <tr><td><code>top</code></td><td><code>end</code></td><td>Above anchor, right-aligned</td></tr>
+        <tr><td><code>bottom</code></td><td><code>start</code></td><td>Below anchor, left-aligned</td></tr>
+        <tr><td><code>bottom</code></td><td><code>center</code></td><td>Below anchor, centered</td></tr>
+        <tr><td><code>bottom</code></td><td><code>end</code></td><td>Below anchor, right-aligned</td></tr>
+        <tr><td><code>left</code></td><td><code>center</code></td><td>Left of anchor, vertically centered</td></tr>
+        <tr><td><code>right</code></td><td><code>center</code></td><td>Right of anchor, vertically centered</td></tr>
+        <tr><td><code>span-all</code></td><td><code>center</code></td><td>Full width of anchor, centered</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h2>anchor-center: Automatic Dead-Center Alignment</h2>
+
+  <p>The <code>anchor-center</code> value aligns the target element's center with the anchor's center — without needing <code>translate: -50%</code> hacks:</p>
+
+  <pre><code>/* Old way: manual centering */
+.tooltip {
+  left: anchor(center);
+  translate: -50%;
+}
+
+/* New way: automatic */
+.tooltip {
+  justify-self: anchor-center;
+  /* or */
+  align-self: anchor-center;
+}</code></pre>
+
+  <h2>Fallbacks with @try: Graceful Overflow Handling</h2>
+
+  <p>The killer feature that makes Anchor Positioning truly production-ready is <code>@position-try</code>. It lets you define fallback positions when the preferred position would cause overflow:</p>
+
+  <pre><code>/* Define fallback positions */
+@position-try --flip-to-bottom {
+  position-area: bottom center;
+}
+
+@position-try --flip-to-left {
+  position-area: left center;
+}
+
+@position-try --flip-to-right {
+  position-area: right center;
+}
+
+/* Chain them — CSS tries each until one fits */
+.tooltip {
+  position-area: top center;
+  position-try-fallbacks: --flip-to-bottom, --flip-to-left, --flip-to-right;
+}</code></pre>
+
+  <p>This is the holy grail of tooltip/dropdown positioning. CSS automatically tests each fallback in order and picks the first one that doesn't overflow the containing block. No JavaScript, no ResizeObserver, no intersection calculations. The browser just handles it.</p>
+
+  <div class="highlight-box">
+    <strong>How @position-try works:</strong> When the positioned element overflows its containing block (usually the viewport), CSS tries the next fallback. It keeps trying until it either finds one that fits or runs out of options. The last fallback is used even if it still overflows. This gives you perfect overflow-aware positioning with a few lines of CSS.
+  </div>
+
+  <h2>anchor-size(): Make a Target Match an Anchor's Size</h2>
+
+  <p>Sometimes you don't just want to position relative to an anchor — you want to <em>size</em> relative to it. That's what <code>anchor-size()</code> does:</p>
+
+  <pre><code>/* Dropdown always matches the button's width */
+.dropdown {
+  width: anchor-size(width);
+}
+
+/* Make a custom dropdown at least as wide as the trigger */
+.dropdown {
+  min-width: anchor-size(width);
+  max-width: calc(anchor-size(width) * 2);
+}
+
+/* Match only the height */
+.side-panel {
+  height: anchor-size(height);
+}</code></pre>
+
+  <p><code>anchor-size()</code> accepts: <code>width</code>, <code>height</code>, <code>block</code> (block-axis size), <code>inline</code> (inline-axis size), and <code>self-block</code>/<code>self-inline</code>.</p>
+
+  <h2>Real-World Pattern #1: Tooltip System</h2>
+
+  <pre><code>/* Button declares itself as an anchor */
+[data-tooltip-trigger] {
+  anchor-name: --tooltip;
+}
+
+/* Tooltip gets positioned above, centered, with fallback */
+[data-tooltip] {
+  position: absolute;
+  position-anchor: --tooltip;
+  position-area: top center;
+  margin-bottom: 6px;
+  position-try-fallbacks: --bottom, --left, --right;
+
+  /* Visual styles */
+  background: #1e293b;
+  color: #f8fafc;
+  padding: 6px 10px;
+  border-radius: 6px;
+  font-size: 13px;
+  pointer-events: none;
+  white-space: nowrap;
+}
+
+@position-try --bottom { position-area: bottom center; }
+@position-try --left   { position-area: left center; }
+@position-try --right  { position-area: right center; }</code></pre>
+
+  <h2>Real-World Pattern #2: Context Menu</h2>
+
+  <p>Context menus are traditionally a JavaScript nightmare — they need to appear at the click position but also avoid flowing off-screen. Anchor Positioning solves this cleanly:</p>
+
+  <pre><code>/* Create an invisible anchor at the click position */
+document.addEventListener('contextmenu', (e) => {
+  const anchor = document.getElementById('context-anchor');
+  anchor.style.position = 'fixed';
+  anchor.style.left = e.clientX + 'px';
+  anchor.style.top = e.clientY + 'px';
+  anchor.style.anchorName = '--context-menu';
+  
+  const menu = document.getElementById('context-menu');
+  menu.style.display = 'block';
+  // CSS handles positioning automatically
+});
+
+/* CSS handles all the positioning logic */
+#context-menu {
+  display: none;
+  position: absolute;
+  position-anchor: --context-menu;
+  position-area: bottom start;
+  position-try-fallbacks: 
+    --ctx-bottom-end, --ctx-top-start, --ctx-top-end;
+}
+
+@position-try --ctx-bottom-end { position-area: bottom end; }
+@position-try --ctx-top-start  { position-area: top start; }
+@position-try --ctx-top-end    { position-area: top end; }</code></pre>
+
+  <h2>Real-World Pattern #3: Popover + Anchor Positioning Combo</h2>
+
+  <p>The Popover API (Baseline 2024) and Anchor Positioning (Baseline 2026) are designed to work together. Popover handles the <em>rendering</em> (top layer, light dismiss, focus), and Anchor Positioning handles the <em>tethered positioning</em>:</p>
+
+  <pre><code>&lt;!-- HTML: Popover with anchor positioning --&gt;
+&lt;button id="menu-btn" popovertarget="menu" style="anchor-name: --menu-trigger;"&gt;
+  Open Menu
+&lt;/button&gt;
+
+&lt;div id="menu" popover style="
+  position-anchor: --menu-trigger;
+  position-area: bottom start;
+  position-try-fallbacks: --bottom-end, --top-start, --top-end;
+  width: anchor-size(width);
+"&gt;
+  &lt;ul&gt;
+    &lt;li&gt;&lt;a href="#"&gt;Edit&lt;/a&gt;&lt;/li&gt;
+    &lt;li&gt;&lt;a href="#"&gt;Share&lt;/a&gt;&lt;/li&gt;
+    &lt;li&gt;&lt;a href="#"&gt;Delete&lt;/a&gt;&lt;/li&gt;
+  &lt;/ul&gt;
+&lt;/div&gt;</code></pre>
+
+  <p>This combination eliminates <em>entire</em> JavaScript libraries. Popover handles open/close state, top-layer rendering, and accessibility. Anchor Positioning handles tethered placement with overflow fallbacks. No Popper.js. No Floating UI. No headless UI components. Just HTML and CSS.</p>
+
+  <h2>Browser Support (May 2026)</h2>
+
+  <div class="table-wrapper">
+    <table>
+      <thead>
+        <tr><th>Browser</th><th>Version</th><th>Status</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Chrome</td><td>125+</td><td>✅ Full support</td></tr>
+        <tr><td>Edge</td><td>125+</td><td>✅ Full support</td></tr>
+        <tr><td>Firefox</td><td>136+</td><td>✅ Full support (March 2026)</td></tr>
+        <tr><td>Safari</td><td>18.4+</td><td>✅ Full support (March 2026)</td></tr>
+        <tr><td>Safari iOS</td><td>18.4+</td><td>✅ Full support</td></tr>
+        <tr><td>Samsung Internet</td><td>27+</td><td>✅ Full support</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p>With Firefox 136 (March 2026) and Safari 18.4 (March 2026) shipping support, CSS Anchor Positioning achieved <strong>Baseline 2026</strong> status in May 2026. It is now safe to use in production without a polyfill across all major browsers.</p>
+
+  <h2>Performance: Why Anchor Positioning Beats JavaScript Solutions</h2>
+
+  <p>Traditional JavaScript-based positioning (Popper.js, Floating UI, custom code) has a fundamental problem: it runs on the main thread, after layout. The sequence is:</p>
+
+  <ol>
+    <li>Browser performs layout</li>
+    <li>JavaScript reads element positions</li>
+    <li>JavaScript calculates new coordinates</li>
+    <li>JavaScript updates element styles</li>
+    <li>Browser re-layouts the positioned element</li>
+  </ol>
+
+  <p>This means positioning is <em>always</em> one frame behind. On scroll, the positioned element visibly lags. With Anchor Positioning, positioning is part of the browser's layout engine — it's calculated during layout, not after. The positioned element moves <em>in sync</em> with the anchor. Zero frame lag. Zero JavaScript.</p>
+
+  <pre><code>/* CSS Anchor Positioning: layout-time positioning, zero JS */
+.tooltip {
+  position-anchor: --my-anchor;
+  position-area: top center;
+}
+
+/* JavaScript: post-layout positioning, one frame lag */
+window.addEventListener('scroll', () => {
+  const { top, left, width } = button.getBoundingClientRect();
+  tooltip.style.left = left + width / 2 + 'px';
+  tooltip.style.top = top - 8 + 'px';
+  tooltip.style.translate = '-50% -100%';
+}, { passive: true });
+</code></pre>
+
+  <h2>Multiple Anchors: One Element, Multiple Reference Points</h2>
+
+  <p>Advanced use case: a single positioned element can reference <em>multiple</em> anchors simultaneously:</p>
+
+  <pre><code>/* Each edge of the target references a different anchor */
+.tether-line {
+  position: absolute;
+
+  /* Top-left corner tethered to #start-node */
+  top: anchor(--start bottom);
+  left: anchor(--start center);
+
+  /* Bottom-right corner tethered to #end-node */
+  bottom: anchor(--end top);
+  right: anchor(--end center);
+}</code></pre>
+
+  <p>This opens up entirely new layout patterns — connecting lines between elements, range indicators, selection rectangles, all pure CSS.</p>
+
+  <h2>Pitfalls & Gotchas</h2>
+
+  <div class="highlight-box">
+    <strong>Common issues to watch for:</strong>
+    <ul>
+      <li><strong>Anchors must be in the same containing block.</strong> Anchor names are scoped to their containing block. An element in a fixed-position sidebar can't anchor to an element in the main content (unless both are in the root containing block).</li>
+      <li><strong>Hidden anchors still work.</strong> An anchor with <code>display: none</code> can still be referenced — positioned elements will tether to its <em>would-be</em> position before it was hidden.</li>
+      <li><strong>anchor-name must be a dashed ident.</strong> All custom anchor names must start with <code>--</code> (like custom properties). <code>anchor-name: my-tooltip</code> is invalid; use <code>anchor-name: --my-tooltip</code>.</li>
+      <li><strong>@position-try requires position-area inside.</strong> Fallback blocks should use <code>position-area</code>, not explicit <code>top</code>/<code>left</code>/etc. Using explicit properties prevents CSS from calculating which fallback fits.</li>
+      <li><strong>Popover + anchor: set anchor-name on the trigger, not the popover.</strong> The popover is the <em>target</em> element — it positions relative to the trigger anchor. A common mistake is setting anchor-name on the popover itself.</li>
+    </ul>
+  </div>
+
+  <h2>Migration Guide: From Popper.js / Floating UI to CSS Anchor Positioning</h2>
+
+  <div class="table-wrapper">
+    <table>
+      <thead>
+        <tr><th>Popper.js / Floating UI</th><th>CSS Anchor Positioning Equivalent</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>placement: 'top'</code></td><td><code>position-area: top center</code></td></tr>
+        <tr><td><code>placement: 'bottom-start'</code></td><td><code>position-area: bottom start</code></td></tr>
+        <tr><td><code>flip()</code> middleware</td><td><code>position-try-fallbacks</code></td></tr>
+        <tr><td><code>offset()</code> middleware</td><td><code>margin</code> on positioned element</td></tr>
+        <tr><td><code>size()</code> middleware</td><td><code>width: anchor-size(width)</code></td></tr>
+        <tr><td><code>arrow()</code> middleware</td><td>Custom element with <code>anchor()</code></td></tr>
+        <tr><td><code>shift()</code> middleware</td><td><code>position-try-fallbacks</code> (automatic)</td></tr>
+        <tr><td><code>autoPlacement()</code></td><td><code>position-try-fallbacks</code> with multiple entries</td></tr>
+        <tr><td>JavaScript bundle (12 KB gzipped)</td><td>0 KB (browser native)</td></tr>
+        <tr><td>Main-thread calculation</td><td>Layout-engine calculation</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h2>Progressive Enhancement Strategy</h2>
+
+  <p>While Anchor Positioning is now Baseline 2026, you may still support older browsers with a graceful fallback:</p>
+
+  <pre><code>/* Default: fixed positioning (works everywhere) */
+.tooltip {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  translate: -50% -50%;
+}
+
+/* Enhanced: Anchor Positioning (Baseline 2026) */
+@supports (position-anchor: --my-anchor) {
+  .tooltip {
+    position: absolute;
+    position-anchor: --tooltip-trigger;
+    position-area: top center;
+    translate: none;
+  }
+}</code></pre>
+
+  <p>Or detect at runtime to conditionally load your JS positioning library:</p>
+
+  <pre><code>if (!CSS.supports('position-anchor: --test')) {
+  // Fall back to Floating UI / Popper.js
+  await import('./legacy-positioning.js');
+}</code></pre>
+
+  <h2>Summary</h2>
+
+  <p>CSS Anchor Positioning is one of the most transformative CSS features to ship since Grid and Flexbox. It replaces an entire category of JavaScript libraries — Popper.js, Floating UI, and every custom positioning solution — with declarative, layout-time, zero-lag CSS. Combined with the Popover API, it lets you build tooltips, dropdowns, context menus, and any tethered UI completely in HTML and CSS. After decades of JavaScript-based workarounds, the platform finally has a native answer to the question "how do I put this thing next to that thing?"</p>
+
+  <div class="highlight-box">
+    <strong>Key takeaways:</strong>
+    <ul>
+      <li><strong>Baseline 2026 — use today without polyfills.</strong> All five major engines ship full support.</li>
+      <li><strong>Zero JavaScript positioning.</strong> Tethered elements follow their anchor at layout time.</li>
+      <li><strong>Built-in overflow handling.</strong> <code>@position-try</code> eliminates scroll-aware positioning code.</li>
+      <li><strong>Works with Popover API.</strong> Native tooltips, dropdowns, and menus with zero dependencies.</li>
+      <li><strong>Better performance.</strong> Layout-time calculation, no main-thread JavaScript, no frame lag.</li>
+      <li><strong>anchor-size() makes elements match their anchor.</strong> Dropdowns that auto-match button width.</li>
+    </ul>
+  </div>
+</div>5:["slug","css-anchor-positioning-complete-guide-2026","d"]
+0:["Dyet8hExXh9zFMTej1l6Q",[[["",{"children":["blog",{"children":[["slug","css-anchor-positioning-complete-guide-2026","d"],{"children":["__PAGE__?{\"slug\":\"css-anchor-positioning-complete-guide-2026\"}",{}]}]}]},"$undefined","$undefined",true],["",{"children":["blog",{"children":[["slug","css-anchor-positioning-complete-guide-2026","d"],{"children":["__PAGE__",{},[["$L1",[["$","script",null,{"type":"application/ld+json","dangerouslySetInnerHTML":{"__html":"{\"@context\":\"https://schema.org\",\"@type\":\"BlogPosting\",\"headline\":\"CSS Anchor Positioning: Tether Any Element to Any Other — No JavaScript Required\",\"description\":\"CSS Anchor Positioning — Baseline since May 2026 — lets you position elements relative to any other element on the page. Tooltips that never overflow, dropdowns that reflow to stay visible, context menus that follow their trigger, all without a single line of JavaScript. Complete guide: anchor-name, position-anchor, anchor() function, position-area, anchor-center, anchor-size(), and tether-based layout patterns.\",\"datePublished\":\"2026-06-07\",\"author\":{\"@type\":\"Person\",\"name\":\"DevBench\"},\"url\":\"https://devbench-roan.vercel.app/blog/css-anchor-positioning-complete-guide-2026/\"}"}}],["$","article",null,{"className":"max-w-3xl mx-auto px-4 py-12 sm:px-6 lg:px-8","children":[["$","$L2",null,{"href":"/blog/","className":"inline-flex items-center gap-1.5 text-sm text-slate-500 hover:text-brand-400 transition-colors mb-8","children":[["$","svg",null,{"xmlns":"http://www.w3.org/2000/svg","width":24,"height":24,"viewBox":"0 0 24 24","fill":"none","stroke":"currentColor","strokeWidth":2,"strokeLinecap":"round","strokeLinejoin":"round","className":"lucide lucide-arrow-left w-4 h-4","children":[["$","path","1l729n",{"d":"m12 19-7-7 7-7"}],["$","path","x3x0zl",{"d":"M19 12H5"}],"$undefined"]}],"Back to blog"]}],["$","header",null,{"className":"mb-10","children":[["$","h1",null,{"className":"text-3xl sm:text-4xl font-bold text-white mb-4 tracking-tight leading-tight","children":"CSS Anchor Positioning: Tether Any Element to Any Other — No JavaScript Required"}],["$","p",null,{"className":"text-lg text-slate-400 mb-6","children":"CSS Anchor Positioning — Baseline since May 2026 — lets you position elements relative to any other element on the page. Tooltips that never overflow, dropdowns that reflow to stay visible, context menus that follow their trigger, all without a single line of JavaScript. Complete guide: anchor-name, position-anchor, anchor() function, position-area, anchor-center, anchor-size(), and tether-based layout patterns."}],["$","div",null,{"className":"flex flex-wrap items-center gap-4 text-sm text-slate-500","children":[["$","span",null,{"className":"flex items-center gap-1.5","children":[["$","svg",null,{"xmlns":"http://www.w3.org/2000/svg","width":24,"height":24,"viewBox":"0 0 24 24","fill":"none","stroke":"currentColor","strokeWidth":2,"strokeLinecap":"round","strokeLinejoin":"round","className":"lucide lucide-calendar w-4 h-4","children":[["$","rect","eu3xkr",{"width":"18","height":"18","x":"3","y":"4","rx":"2","ry":"2"}],["$","line","m3sa8f",{"x1":"16","x2":"16","y1":"2","y2":"6"}],["$","line","18kwsl",{"x1":"8","x2":"8","y1":"2","y2":"6"}],["$","line","xt86sb",{"x1":"3","x2":"21","y1":"10","y2":"10"}],"$undefined"]}],"June 7, 2026"]}],["$","span",null,{"className":"flex items-center gap-1.5","children":[["$","svg",null,{"xmlns":"http://www.w3.org/2000/svg","width":24,"height":24,"viewBox":"0 0 24 24","fill":"none","stroke":"currentColor","strokeWidth":2,"strokeLinecap":"round","strokeLinejoin":"round","className":"lucide lucide-clock w-4 h-4","children":[["$","circle","1mglay",{"cx":"12","cy":"12","r":"10"}],["$","polyline","68esgv",{"points":"12 6 12 12 16 14"}],"$undefined"]}],"13 min read"]}],["$","span",null,{"className":"text-slate-600","children":["by ","DevBench"]}]]}],["$","div",null,{"className":"flex flex-wrap gap-2 mt-4","children":[["$","span","CSS",{"className":"px-2 py-0.5 rounded-md bg-brand-500/10 text-brand-400 text-xs font-medium border border-brand-500/20","children":"CSS"}],["$","span","Anchor Positioning",{"className":"px-2 py-0.5 rounded-md bg-brand-500/10 text-brand-400 text-xs font-medium border border-brand-500/20","children":"Anchor Positioning"}],["$","span","Baseline 2026",{"className":"px-2 py-0.5 rounded-md bg-brand-500/10 text-brand-400 text-xs font-medium border border-brand-500/20","children":"Baseline 2026"}],["$","span","Layout",{"className":"px-2 py-0.5 rounded-md bg-brand-500/10 text-brand-400 text-xs font-medium border border-brand-500/20","children":"Layout"}],["$","span","Tooltip",{"className":"px-2 py-0.5 rounded-md bg-brand-500/10 text-brand-400 text-xs font-medium border border-brand-500/20","children":"Tooltip"}],["$","span","Dropdown",{"className":"px-2 py-0.5 rounded-md bg-brand-500/10 text-brand-400 text-xs font-medium border border-brand-500/20","children":"Dropdown"}],["$","span","Popover",{"className":"px-2 py-0.5 rounded-md bg-brand-500/10 text-brand-400 text-xs font-medium border border-brand-500/20","children":"Popover"}],["$","span","2026",{"className":"px-2 py-0.5 rounded-md bg-brand-500/10 text-brand-400 text-xs font-medium border border-brand-500/20","children":"2026"}]]}]]}],["$","div",null,{"className":"blog-body","dangerouslySetInnerHTML":{"__html":"$3"}}],["$","hr",null,{"className":"border-slate-800 my-12"}],["$","div",null,{"className":"text-center","children":["$","$L2",null,{"href":"/blog/","className":"inline-flex items-center gap-1.5 text-brand-400 hover:text-brand-300 transition-colors font-medium","children":[["$","svg",null,{"xmlns":"http://www.w3.org/2000/svg","width":24,"height":24,"viewBox":"0 0 24 24","fill":"none","stroke":"currentColor","strokeWidth":2,"strokeLinecap":"round","strokeLinejoin":"round","className":"lucide lucide-arrow-left w-4 h-4","children":[["$","path","1l729n",{"d":"m12 19-7-7 7-7"}],["$","path","x3x0zl",{"d":"M19 12H5"}],"$undefined"]}],"More articles"]}]}]]}]],null],null],null]},[null,["$","$L4",null,{"parallelRouterKey":"children","segmentPath":["children","blog","children","$5","children"],"error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L6",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":"$undefined","notFoundStyles":"$undefined"}]],null]},[null,["$","$L4",null,{"parallelRouterKey":"children","segmentPath":["children","blog","children"],"error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L6",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":"$undefined","notFoundStyles":"$undefined"}]],null]},[[[["$","link","0",{"rel":"stylesheet","href":"/devbench-tech/_next/static/css/8b9213b1d18e4368.css","precedence":"next","crossOrigin":"$undefined"}]],["$","html",null,{"lang":"en","className":"dark","children":["$","body",null,{"className":"flex flex-col min-h-screen","children":[["$","script",null,{"type":"application/ld+json","dangerouslySetInnerHTML":{"__html":"{\"@context\":\"https://schema.org\",\"@type\":\"WebSite\",\"name\":\"DevBench\",\"url\":\"https://devbench-roan.vercel.app\",\"description\":\"Free developer tools for everyday use: JSON formatter, Base64 encoder/decoder, UUID generator, regex tester, benchmarks, and more.\",\"potentialAction\":{\"@type\":\"SearchAction\",\"target\":\"https://devbench-roan.vercel.app/tools?q={search_term_string}\",\"query-input\":\"required name=search_term_string\"}}"}}],["$","$L7",null,{}],["$","main",null,{"className":"flex-1","children":["$","$L4",null,{"parallelRouterKey":"children","segmentPath":["children"],"error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L6",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":[["$","title",null,{"children":"404: This page could not be found."}],["$","div",null,{"style":{"fontFamily":"system-ui,\"Segoe UI\",Roboto,Helvetica,Arial,sans-serif,\"Apple Color Emoji\",\"Segoe UI Emoji\"","height":"100vh","textAlign":"center","display":"flex","flexDirection":"column","alignItems":"center","justifyContent":"center"},"children":["$","div",null,{"children":[["$","style",null,{"dangerouslySetInnerHTML":{"__html":"body{color:#000;background:#fff;margin:0}.next-error-h1{border-right:1px solid rgba(0,0,0,.3)}@media (prefers-color-scheme:dark){body{color:#fff;background:#000}.next-error-h1{border-right:1px solid rgba(255,255,255,.3)}}"}}],["$","h1",null,{"className":"next-error-h1","style":{"display":"inline-block","margin":"0 20px 0 0","padding":"0 23px 0 0","fontSize":24,"fontWeight":500,"verticalAlign":"top","lineHeight":"49px"},"children":"404"}],["$","div",null,{"style":{"display":"inline-block"},"children":["$","h2",null,{"style":{"fontSize":14,"fontWeight":400,"lineHeight":"49px","margin":0},"children":"This page could not be found."}]}]]}]}]],"notFoundStyles":[]}]}],["$","footer",null,{"className":"bg-surface-light border-t border-slate-700/50 mt-auto","children":["$","div",null,{"className":"max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12","children":[["$","div",null,{"className":"grid grid-cols-1 md:grid-cols-3 gap-8","children":[["$","div",null,{"children":[["$","$L2",null,{"href":"/","className":"flex items-center gap-2.5 mb-3","children":[["$","div",null,{"className":"w-7 h-7 bg-brand-500 rounded-lg flex items-center justify-center","children":["$","svg",null,{"xmlns":"http://www.w3.org/2000/svg","width":24,"height":24,"viewBox":"0 0 24 24","fill":"none","stroke":"currentColor","strokeWidth":2,"strokeLinecap":"round","strokeLinejoin":"round","className":"lucide lucide-terminal w-3.5 h-3.5 text-white","children":[["$","polyline","akl6gq",{"points":"4 17 10 11 4 5"}],["$","line","q2wloq",{"x1":"12","x2":"20","y1":"19","y2":"19"}],"$undefined"]}]}],["$","span",null,{"className":"text-lg font-bold text-white","children":["Dev",["$","span",null,{"className":"gradient-text","children":"Bench"}]]}]]}],["$","p",null,{"className":"text-slate-400 text-sm leading-relaxed","children":"Free developer tools, benchmarks, and calculators. Built for developers, by developers."}]]}],["$","div",null,{"children":[["$","h3",null,{"className":"text-sm font-semibold text-slate-300 uppercase tracking-wider mb-4","children":"Tools"}],["$","ul",null,{"className":"space-y-2","children":[["$","li","/tools/json-formatter",{"children":["$","$L2",null,{"href":"/tools/json-formatter","className":"text-slate-400 hover:text-brand-400 text-sm transition-colors","children":"JSON Formatter"}]}],["$","li","/tools/base64",{"children":["$","$L2",null,{"href":"/tools/base64","className":"text-slate-400 hover:text-brand-400 text-sm transition-colors","children":"Base64 Encoder/Decoder"}]}],["$","li","/tools/uuid-generator",{"children":["$","$L2",null,{"href":"/tools/uuid-generator","className":"text-slate-400 hover:text-brand-400 text-sm transition-colors","children":"UUID Generator"}]}],["$","li","/tools/regex-tester",{"children":["$","$L2",null,{"href":"/tools/regex-tester","className":"text-slate-400 hover:text-brand-400 text-sm transition-colors","children":"Regex Tester"}]}]]}]]}],["$","div",null,{"children":[["$","h3",null,{"className":"text-sm font-semibold text-slate-300 uppercase tracking-wider mb-4","children":"Resources"}],["$","ul",null,{"className":"space-y-2","children":[["$","li","/blog",{"children":["$","$L2",null,{"href":"/blog","className":"text-slate-400 hover:text-brand-400 text-sm transition-colors","children":"Blog"}]}],["$","li","/benchmarks",{"children":["$","$L2",null,{"href":"/benchmarks","className":"text-slate-400 hover:text-brand-400 text-sm transition-colors","children":"Benchmarks"}]}],["$","li","/about",{"children":["$","$L2",null,{"href":"/about","className":"text-slate-400 hover:text-brand-400 text-sm transition-colors","children":"About"}]}]]}]]}]]}],["$","div",null,{"className":"mt-10 pt-6 border-t border-slate-700/50 flex flex-col sm:flex-row items-center justify-between gap-4","children":[["$","p",null,{"className":"text-slate-500 text-sm flex items-center gap-1","children":["Made with ",["$","svg",null,{"xmlns":"http://www.w3.org/2000/svg","width":24,"height":24,"viewBox":"0 0 24 24","fill":"none","stroke":"currentColor","strokeWidth":2,"strokeLinecap":"round","strokeLinejoin":"round","className":"lucide lucide-heart w-3.5 h-3.5 text-red-500 fill-red-500","children":[["$","path","c3ymky",{"d":"M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"}],"$undefined"]}]," by the DevBench team © ",2026]}],["$","a",null,{"href":"https://github.com","target":"_blank","rel":"noopener noreferrer","className":"text-slate-500 hover:text-slate-300 transition-colors","aria-label":"GitHub","children":["$","svg",null,{"xmlns":"http://www.w3.org/2000/svg","width":24,"height":24,"viewBox":"0 0 24 24","fill":"none","stroke":"currentColor","strokeWidth":2,"strokeLinecap":"round","strokeLinejoin":"round","className":"lucide lucide-github w-5 h-5","children":[["$","path","tonef",{"d":"M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"}],["$","path","9comsn",{"d":"M9 18c-4.51 2-5-2-7-2"}],"$undefined"]}]}]]}]]}]}],["$","$L8",null,{}],["$","$L9",null,{"position":"bottom-right","toastOptions":{"style":{"background":"#1e293b","color":"#e2e8f0","border":"1px solid #334155","fontSize":"14px"}}}]]}]}]],null],null],["$La",null]]]]
+a:[["$","meta","0",{"name":"viewport","content":"width=device-width, initial-scale=1"}],["$","meta","1",{"charSet":"utf-8"}],["$","title","2",{"children":"CSS Anchor Positioning: Tether Any Element to Any Other — No JavaScript Required | DevBench"}],["$","meta","3",{"name":"description","content":"CSS Anchor Positioning — Baseline since May 2026 — lets you position elements relative to any other element on the page. Tooltips that never overflow, dropdowns that reflow to stay visible, context menus that follow their trigger, all without a single line of JavaScript. Complete guide: anchor-name, position-anchor, anchor() function, position-area, anchor-center, anchor-size(), and tether-based layout patterns."}],["$","meta","4",{"name":"author","content":"DevBench"}],["$","meta","5",{"name":"keywords","content":"developer tools,JSON formatter,Base64,UUID generator,regex tester,benchmarks,dev tools"}],["$","meta","6",{"property":"og:title","content":"CSS Anchor Positioning: Tether Any Element to Any Other — No JavaScript Required"}],["$","meta","7",{"property":"og:description","content":"CSS Anchor Positioning — Baseline since May 2026 — lets you position elements relative to any other element on the page. Tooltips that never overflow, dropdowns that reflow to stay visible, context menus that follow their trigger, all without a single line of JavaScript. Complete guide: anchor-name, position-anchor, anchor() function, position-area, anchor-center, anchor-size(), and tether-based layout patterns."}],["$","meta","8",{"property":"og:type","content":"article"}],["$","meta","9",{"property":"article:published_time","content":"2026-06-07"}],["$","meta","10",{"property":"article:author","content":"DevBench"}],["$","meta","11",{"property":"article:tag","content":"CSS"}],["$","meta","12",{"property":"article:tag","content":"Anchor Positioning"}],["$","meta","13",{"property":"article:tag","content":"Baseline 2026"}],["$","meta","14",{"property":"article:tag","content":"Layout"}],["$","meta","15",{"property":"article:tag","content":"Tooltip"}],["$","meta","16",{"property":"article:tag","content":"Dropdown"}],["$","meta","17",{"property":"article:tag","content":"Popover"}],["$","meta","18",{"property":"article:tag","content":"2026"}],["$","meta","19",{"name":"twitter:card","content":"summary"}],["$","meta","20",{"name":"twitter:title","content":"CSS Anchor Positioning: Tether Any Element to Any Other — No JavaScript Required"}],["$","meta","21",{"name":"twitter:description","content":"CSS Anchor Positioning — Baseline since May 2026 — lets you position elements relative to any other element on the page. Tooltips that never overflow, dropdowns that reflow to stay visible, context menus that follow their trigger, all without a single line of JavaScript. Complete guide: anchor-name, position-anchor, anchor() function, position-area, anchor-center, anchor-size(), and tether-based layout patterns."}],["$","link","22",{"rel":"icon","href":"/favicon.svg"}]]
+1:null

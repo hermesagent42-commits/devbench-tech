@@ -1,0 +1,249 @@
+2:I[72972,["2972","static/chunks/2972-4aaa15d119eeb022.js","308","static/chunks/app/blog/%5Bslug%5D/page-a411190e7012c687.js"],""]
+4:I[4707,[],""]
+6:I[36423,[],""]
+7:I[39295,["9762","static/chunks/44530001-4ecf7a22b5b24163.js","2972","static/chunks/2972-4aaa15d119eeb022.js","8375","static/chunks/8375-c77b8de36f6696fb.js","6829","static/chunks/6829-f51803445ddf1872.js","3185","static/chunks/app/layout-488e5c40aa6ffa72.js"],"Header"]
+8:I[66506,["9762","static/chunks/44530001-4ecf7a22b5b24163.js","2972","static/chunks/2972-4aaa15d119eeb022.js","8375","static/chunks/8375-c77b8de36f6696fb.js","6829","static/chunks/6829-f51803445ddf1872.js","3185","static/chunks/app/layout-488e5c40aa6ffa72.js"],"Analytics"]
+9:I[69064,["9762","static/chunks/44530001-4ecf7a22b5b24163.js","2972","static/chunks/2972-4aaa15d119eeb022.js","8375","static/chunks/8375-c77b8de36f6696fb.js","6829","static/chunks/6829-f51803445ddf1872.js","3185","static/chunks/app/layout-488e5c40aa6ffa72.js"],"Toaster"]
+3:T21ab,
+<div class="prose-content">
+  <p class="lead">
+    For years, smooth page transitions meant reaching for heavy JavaScript frameworks or
+    wrestling with FLIP animations. The <strong>View Transitions API</strong> — which
+    reached <strong>Baseline status in 2026</strong> — changes everything. You can now
+    create buttery-smooth cross-page (and cross-document) transitions with a single CSS
+    at-rule and zero JavaScript.
+  </p>
+
+  <h2>What Are View Transitions?</h2>
+
+  <p>
+    The View Transitions API gives the browser the ability to capture snapshots of the old
+    page state and the new page state, then animate between them. Think of it as the browser
+    taking "before" and "after" photos and morphing between them — all natively, using the
+    same compositor thread that drives CSS animations, so it's <em>buttery smooth</em> even
+    on low-end devices.
+  </p>
+
+  <div class="highlight-box">
+    <strong>Baseline 2026:</strong> The View Transitions API (both SPA and cross-document
+    variants) shipped in Chrome 126+, Edge 126+, Safari 18.2+, and Firefox 138+. Every
+    major browser now supports it.
+  </div>
+
+  <h2>The Magic One-Liner</h2>
+
+  <p>
+    For single-page applications, enabling view transitions is literally one line of
+    JavaScript:
+  </p>
+
+  <pre><code>// Wrap your DOM update in startViewTransition
+document.startViewTransition(() =&gt; {
+  updateTheDOMSomehow();
+});</code></pre>
+
+  <p>
+    The browser automatically:
+  </p>
+
+  <ul>
+    <li>Captures a screenshot of the current state</li>
+    <li>Runs your DOM update callback</li>
+    <li>Captures a screenshot of the new state</li>
+    <li>Animates between them using a default cross-fade</li>
+  </ul>
+
+  <h2>Cross-Document Transitions (MPA)</h2>
+
+  <p>
+    Even more exciting: you can enable transitions between <em>different pages</em> on your
+    site without any JavaScript. Just add a meta tag and a CSS at-rule:
+  </p>
+
+  <pre><code>&lt;!-- In your &lt;head&gt; --&gt;
+&lt;meta name="view-transition" content="same-origin" /&gt;</code></pre>
+
+  <pre><code>/* CSS — customize the animation */
+::view-transition-old(root) {
+  animation: 300ms ease-out both fade-out;
+}
+
+::view-transition-new(root) {
+  animation: 300ms ease-out both fade-in;
+}</code></pre>
+
+  <p>
+    With just those two snippets, every navigation between same-origin pages gets a smooth
+    cross-fade. No SPA router needed. No JavaScript. Pure native performance.
+  </p>
+
+  <h2>Named View Transitions</h2>
+
+  <p>
+    The real power comes from <strong>named view transitions</strong>. By giving elements
+    the same <code>view-transition-name</code> on both pages, the browser automatically
+    morphs them:
+  </p>
+
+  <pre><code>/* Product card on the list page */
+.product-card-42 {
+  view-transition-name: product-42;
+}
+
+/* Same product's hero image on the detail page */
+.product-hero {
+  view-transition-name: product-42;
+}</code></pre>
+
+  <p>
+    The browser automatically animates the element from its position and size on the old
+    page to its position and size on the new page — no manual calculations needed.
+  </p>
+
+  <h2>Pseudo-Element Tree</h2>
+
+  <p>
+    The API exposes a tree of pseudo-elements that you can style to control every aspect of
+    the animation:
+  </p>
+
+  <pre><code>::view-transition
+└── ::view-transition-group(root)
+    ├── ::view-transition-image-pair(root)
+    │   ├── ::view-transition-old(root)   ← outgoing snapshot
+    │   └── ::view-transition-new(root)   ← incoming snapshot
+    └── (no ::view-transition-image-pair for morphing elements)</code></pre>
+
+  <div class="table-wrapper">
+    <table>
+      <thead>
+        <tr><th>Pseudo-element</th><th>Purpose</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>::view-transition</code></td><td>Root overlay; set duration, easing here</td></tr>
+        <tr><td><code>::view-transition-group(name)</code></td><td>Container for each named element; animates position/size</td></tr>
+        <tr><td><code>::view-transition-image-pair(name)</code></td><td>Isolation container; set mix-blend-mode here</td></tr>
+        <tr><td><code>::view-transition-old(name)</code></td><td>Outgoing snapshot; animate opacity, clip, mask</td></tr>
+        <tr><td><code>::view-transition-new(name)</code></td><td>Incoming snapshot; animate opacity, clip, mask</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h2>Real-World Example: Product Gallery</h2>
+
+  <p>
+    Let's build a smooth product gallery transition. When a user clicks a product card, the
+    image morphs to a hero banner, the title slides to a header, and the price moves to a
+    sidebar — all natively animated:
+  </p>
+
+  <pre><code>/* Gallery page */
+.gallery-item:nth-child(1) .image { view-transition-name: product-image-1; }
+.gallery-item:nth-child(1) .title { view-transition-name: product-title-1; }
+.gallery-item:nth-child(1) .price { view-transition-name: product-price-1; }
+
+/* Detail page */
+.product-detail .hero-image { view-transition-name: product-image-1; }
+.product-detail .page-title   { view-transition-name: product-title-1; }
+.product-detail .price-tag    { view-transition-name: product-price-1; }
+
+/* Custom animation timing */
+::view-transition-group(product-image-1) {
+  animation-duration: 400ms;
+  animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+}</code></pre>
+
+  <h2>Common Pitfalls (and Fixes)</h2>
+
+  <h3>1. <code>view-transition-name</code> must be unique per page</h3>
+  <p>
+    If two elements on the same page share a <code>view-transition-name</code>, the
+    transition fails silently. Use unique per-instance names (e.g., append the item's ID).
+  </p>
+
+  <h3>2. Overflow clipping breaks morphing</h3>
+  <p>
+    Elements with <code>overflow: hidden</code> will clip the transition snapshot. Apply
+    <code>view-transition-name</code> to the inner element instead, or use
+    <code>overflow: clip</code> (which is compatible).
+  </p>
+
+  <h3>3. Stacking context changes cause flickers</h3>
+  <p>
+    During transitions, elements are promoted to their own stacking contexts. If your layout
+    relies on z-index relationships, you may see flickers. Use
+    <code>::view-transition-group(name) { z-index: ... }</code> to control stacking order.
+  </p>
+
+  <h2>Browser Support &amp; Progressive Enhancement</h2>
+
+  <p>
+    Since the API is now Baseline 2026, you can use it without a fallback. But for
+    peace of mind, it degrades gracefully:
+  </p>
+
+  <pre><code>if (document.startViewTransition) {
+  document.startViewTransition(() => updateDOM());
+} else {
+  updateDOM(); // Fallback: instant update
+}</code></pre>
+
+  <div class="highlight-box highlight-positive">
+    <strong>Performance note:</strong> View transitions run on the compositor thread, so
+    they stay smooth even when the main thread is busy. The browser captures snapshots
+    as GPU textures and composites them — no layout or paint during the animation.
+  </div>
+
+  <h2>When to Use View Transitions</h2>
+
+  <table>
+    <thead>
+      <tr><th>✅ Great for</th><th>❌ Not ideal for</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Page-to-page navigation</td>
+        <td>Continuous animations (use WAAPI/CSS animations)</td>
+      </tr>
+      <tr>
+        <td>List → detail morphing</td>
+        <td>Infinite scroll (transitions have a fixed duration)</td>
+      </tr>
+      <tr>
+        <td>Tab/content switching</td>
+        <td>Real-time data streaming UIs</td>
+      </tr>
+      <tr>
+        <td>Light/dark mode transitions</td>
+        <td>Complex SVG animations</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>Try It Yourself on DevBench</h2>
+
+  <p>
+    Want to experiment with view transitions right now? Head over to our
+    <a href="/tools/view-transitions-playground/" class="inline-link">View Transitions Playground</a>
+    — a live, interactive editor with 9 built-in presets where you can tweak every aspect
+    of the API and see real-time results.
+  </p>
+
+  <h2>The Bottom Line</h2>
+
+  <p>
+    The View Transitions API is one of the most impactful additions to the web platform in
+    years. It takes something that used to require hundreds of lines of JavaScript (manual
+    FLIP calculations, requestAnimationFrame loops, DOM measurement) and reduces it to a
+    single CSS at-rule. As of 2026, it's Baseline everywhere — there's no reason not to
+    use it in every new project.
+  </p>
+
+  <p class="callout">
+    Start small: add the meta tag for cross-document transitions, then gradually name your
+    key elements. Your users will notice the polish, and your bundle size will thank you.
+  </p>
+</div>5:["slug","view-transitions-api-guide","d"]
+0:["Dyet8hExXh9zFMTej1l6Q",[[["",{"children":["blog",{"children":[["slug","view-transitions-api-guide","d"],{"children":["__PAGE__?{\"slug\":\"view-transitions-api-guide\"}",{}]}]}]},"$undefined","$undefined",true],["",{"children":["blog",{"children":[["slug","view-transitions-api-guide","d"],{"children":["__PAGE__",{},[["$L1",[["$","script",null,{"type":"application/ld+json","dangerouslySetInnerHTML":{"__html":"{\"@context\":\"https://schema.org\",\"@type\":\"BlogPosting\",\"headline\":\"The View Transitions API: Smooth Page Transitions Without a Framework\",\"description\":\"A deep dive into the View Transitions API — now Baseline 2026 — and how to build native cross-page animations with just CSS. No JavaScript libraries required.\",\"datePublished\":\"2026-06-04\",\"author\":{\"@type\":\"Person\",\"name\":\"DevBench\"},\"url\":\"https://devbench-roan.vercel.app/blog/view-transitions-api-guide/\"}"}}],["$","article",null,{"className":"max-w-3xl mx-auto px-4 py-12 sm:px-6 lg:px-8","children":[["$","$L2",null,{"href":"/blog/","className":"inline-flex items-center gap-1.5 text-sm text-slate-500 hover:text-brand-400 transition-colors mb-8","children":[["$","svg",null,{"xmlns":"http://www.w3.org/2000/svg","width":24,"height":24,"viewBox":"0 0 24 24","fill":"none","stroke":"currentColor","strokeWidth":2,"strokeLinecap":"round","strokeLinejoin":"round","className":"lucide lucide-arrow-left w-4 h-4","children":[["$","path","1l729n",{"d":"m12 19-7-7 7-7"}],["$","path","x3x0zl",{"d":"M19 12H5"}],"$undefined"]}],"Back to blog"]}],["$","header",null,{"className":"mb-10","children":[["$","h1",null,{"className":"text-3xl sm:text-4xl font-bold text-white mb-4 tracking-tight leading-tight","children":"The View Transitions API: Smooth Page Transitions Without a Framework"}],["$","p",null,{"className":"text-lg text-slate-400 mb-6","children":"A deep dive into the View Transitions API — now Baseline 2026 — and how to build native cross-page animations with just CSS. No JavaScript libraries required."}],["$","div",null,{"className":"flex flex-wrap items-center gap-4 text-sm text-slate-500","children":[["$","span",null,{"className":"flex items-center gap-1.5","children":[["$","svg",null,{"xmlns":"http://www.w3.org/2000/svg","width":24,"height":24,"viewBox":"0 0 24 24","fill":"none","stroke":"currentColor","strokeWidth":2,"strokeLinecap":"round","strokeLinejoin":"round","className":"lucide lucide-calendar w-4 h-4","children":[["$","rect","eu3xkr",{"width":"18","height":"18","x":"3","y":"4","rx":"2","ry":"2"}],["$","line","m3sa8f",{"x1":"16","x2":"16","y1":"2","y2":"6"}],["$","line","18kwsl",{"x1":"8","x2":"8","y1":"2","y2":"6"}],["$","line","xt86sb",{"x1":"3","x2":"21","y1":"10","y2":"10"}],"$undefined"]}],"June 4, 2026"]}],["$","span",null,{"className":"flex items-center gap-1.5","children":[["$","svg",null,{"xmlns":"http://www.w3.org/2000/svg","width":24,"height":24,"viewBox":"0 0 24 24","fill":"none","stroke":"currentColor","strokeWidth":2,"strokeLinecap":"round","strokeLinejoin":"round","className":"lucide lucide-clock w-4 h-4","children":[["$","circle","1mglay",{"cx":"12","cy":"12","r":"10"}],["$","polyline","68esgv",{"points":"12 6 12 12 16 14"}],"$undefined"]}],"7 min read"]}],["$","span",null,{"className":"text-slate-600","children":["by ","DevBench"]}]]}],["$","div",null,{"className":"flex flex-wrap gap-2 mt-4","children":[["$","span","CSS",{"className":"px-2 py-0.5 rounded-md bg-brand-500/10 text-brand-400 text-xs font-medium border border-brand-500/20","children":"CSS"}],["$","span","View Transitions",{"className":"px-2 py-0.5 rounded-md bg-brand-500/10 text-brand-400 text-xs font-medium border border-brand-500/20","children":"View Transitions"}],["$","span","Baseline 2026",{"className":"px-2 py-0.5 rounded-md bg-brand-500/10 text-brand-400 text-xs font-medium border border-brand-500/20","children":"Baseline 2026"}],["$","span","Animation",{"className":"px-2 py-0.5 rounded-md bg-brand-500/10 text-brand-400 text-xs font-medium border border-brand-500/20","children":"Animation"}],["$","span","Browser APIs",{"className":"px-2 py-0.5 rounded-md bg-brand-500/10 text-brand-400 text-xs font-medium border border-brand-500/20","children":"Browser APIs"}]]}]]}],["$","div",null,{"className":"blog-body","dangerouslySetInnerHTML":{"__html":"$3"}}],["$","hr",null,{"className":"border-slate-800 my-12"}],["$","div",null,{"className":"text-center","children":["$","$L2",null,{"href":"/blog/","className":"inline-flex items-center gap-1.5 text-brand-400 hover:text-brand-300 transition-colors font-medium","children":[["$","svg",null,{"xmlns":"http://www.w3.org/2000/svg","width":24,"height":24,"viewBox":"0 0 24 24","fill":"none","stroke":"currentColor","strokeWidth":2,"strokeLinecap":"round","strokeLinejoin":"round","className":"lucide lucide-arrow-left w-4 h-4","children":[["$","path","1l729n",{"d":"m12 19-7-7 7-7"}],["$","path","x3x0zl",{"d":"M19 12H5"}],"$undefined"]}],"More articles"]}]}]]}]],null],null],null]},[null,["$","$L4",null,{"parallelRouterKey":"children","segmentPath":["children","blog","children","$5","children"],"error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L6",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":"$undefined","notFoundStyles":"$undefined"}]],null]},[null,["$","$L4",null,{"parallelRouterKey":"children","segmentPath":["children","blog","children"],"error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L6",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":"$undefined","notFoundStyles":"$undefined"}]],null]},[[[["$","link","0",{"rel":"stylesheet","href":"/devbench-tech/_next/static/css/8b9213b1d18e4368.css","precedence":"next","crossOrigin":"$undefined"}]],["$","html",null,{"lang":"en","className":"dark","children":["$","body",null,{"className":"flex flex-col min-h-screen","children":[["$","script",null,{"type":"application/ld+json","dangerouslySetInnerHTML":{"__html":"{\"@context\":\"https://schema.org\",\"@type\":\"WebSite\",\"name\":\"DevBench\",\"url\":\"https://devbench-roan.vercel.app\",\"description\":\"Free developer tools for everyday use: JSON formatter, Base64 encoder/decoder, UUID generator, regex tester, benchmarks, and more.\",\"potentialAction\":{\"@type\":\"SearchAction\",\"target\":\"https://devbench-roan.vercel.app/tools?q={search_term_string}\",\"query-input\":\"required name=search_term_string\"}}"}}],["$","$L7",null,{}],["$","main",null,{"className":"flex-1","children":["$","$L4",null,{"parallelRouterKey":"children","segmentPath":["children"],"error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L6",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":[["$","title",null,{"children":"404: This page could not be found."}],["$","div",null,{"style":{"fontFamily":"system-ui,\"Segoe UI\",Roboto,Helvetica,Arial,sans-serif,\"Apple Color Emoji\",\"Segoe UI Emoji\"","height":"100vh","textAlign":"center","display":"flex","flexDirection":"column","alignItems":"center","justifyContent":"center"},"children":["$","div",null,{"children":[["$","style",null,{"dangerouslySetInnerHTML":{"__html":"body{color:#000;background:#fff;margin:0}.next-error-h1{border-right:1px solid rgba(0,0,0,.3)}@media (prefers-color-scheme:dark){body{color:#fff;background:#000}.next-error-h1{border-right:1px solid rgba(255,255,255,.3)}}"}}],["$","h1",null,{"className":"next-error-h1","style":{"display":"inline-block","margin":"0 20px 0 0","padding":"0 23px 0 0","fontSize":24,"fontWeight":500,"verticalAlign":"top","lineHeight":"49px"},"children":"404"}],["$","div",null,{"style":{"display":"inline-block"},"children":["$","h2",null,{"style":{"fontSize":14,"fontWeight":400,"lineHeight":"49px","margin":0},"children":"This page could not be found."}]}]]}]}]],"notFoundStyles":[]}]}],["$","footer",null,{"className":"bg-surface-light border-t border-slate-700/50 mt-auto","children":["$","div",null,{"className":"max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12","children":[["$","div",null,{"className":"grid grid-cols-1 md:grid-cols-3 gap-8","children":[["$","div",null,{"children":[["$","$L2",null,{"href":"/","className":"flex items-center gap-2.5 mb-3","children":[["$","div",null,{"className":"w-7 h-7 bg-brand-500 rounded-lg flex items-center justify-center","children":["$","svg",null,{"xmlns":"http://www.w3.org/2000/svg","width":24,"height":24,"viewBox":"0 0 24 24","fill":"none","stroke":"currentColor","strokeWidth":2,"strokeLinecap":"round","strokeLinejoin":"round","className":"lucide lucide-terminal w-3.5 h-3.5 text-white","children":[["$","polyline","akl6gq",{"points":"4 17 10 11 4 5"}],["$","line","q2wloq",{"x1":"12","x2":"20","y1":"19","y2":"19"}],"$undefined"]}]}],["$","span",null,{"className":"text-lg font-bold text-white","children":["Dev",["$","span",null,{"className":"gradient-text","children":"Bench"}]]}]]}],["$","p",null,{"className":"text-slate-400 text-sm leading-relaxed","children":"Free developer tools, benchmarks, and calculators. Built for developers, by developers."}]]}],["$","div",null,{"children":[["$","h3",null,{"className":"text-sm font-semibold text-slate-300 uppercase tracking-wider mb-4","children":"Tools"}],["$","ul",null,{"className":"space-y-2","children":[["$","li","/tools/json-formatter",{"children":["$","$L2",null,{"href":"/tools/json-formatter","className":"text-slate-400 hover:text-brand-400 text-sm transition-colors","children":"JSON Formatter"}]}],["$","li","/tools/base64",{"children":["$","$L2",null,{"href":"/tools/base64","className":"text-slate-400 hover:text-brand-400 text-sm transition-colors","children":"Base64 Encoder/Decoder"}]}],["$","li","/tools/uuid-generator",{"children":["$","$L2",null,{"href":"/tools/uuid-generator","className":"text-slate-400 hover:text-brand-400 text-sm transition-colors","children":"UUID Generator"}]}],["$","li","/tools/regex-tester",{"children":["$","$L2",null,{"href":"/tools/regex-tester","className":"text-slate-400 hover:text-brand-400 text-sm transition-colors","children":"Regex Tester"}]}]]}]]}],["$","div",null,{"children":[["$","h3",null,{"className":"text-sm font-semibold text-slate-300 uppercase tracking-wider mb-4","children":"Resources"}],["$","ul",null,{"className":"space-y-2","children":[["$","li","/blog",{"children":["$","$L2",null,{"href":"/blog","className":"text-slate-400 hover:text-brand-400 text-sm transition-colors","children":"Blog"}]}],["$","li","/benchmarks",{"children":["$","$L2",null,{"href":"/benchmarks","className":"text-slate-400 hover:text-brand-400 text-sm transition-colors","children":"Benchmarks"}]}],["$","li","/about",{"children":["$","$L2",null,{"href":"/about","className":"text-slate-400 hover:text-brand-400 text-sm transition-colors","children":"About"}]}]]}]]}]]}],["$","div",null,{"className":"mt-10 pt-6 border-t border-slate-700/50 flex flex-col sm:flex-row items-center justify-between gap-4","children":[["$","p",null,{"className":"text-slate-500 text-sm flex items-center gap-1","children":["Made with ",["$","svg",null,{"xmlns":"http://www.w3.org/2000/svg","width":24,"height":24,"viewBox":"0 0 24 24","fill":"none","stroke":"currentColor","strokeWidth":2,"strokeLinecap":"round","strokeLinejoin":"round","className":"lucide lucide-heart w-3.5 h-3.5 text-red-500 fill-red-500","children":[["$","path","c3ymky",{"d":"M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"}],"$undefined"]}]," by the DevBench team © ",2026]}],["$","a",null,{"href":"https://github.com","target":"_blank","rel":"noopener noreferrer","className":"text-slate-500 hover:text-slate-300 transition-colors","aria-label":"GitHub","children":["$","svg",null,{"xmlns":"http://www.w3.org/2000/svg","width":24,"height":24,"viewBox":"0 0 24 24","fill":"none","stroke":"currentColor","strokeWidth":2,"strokeLinecap":"round","strokeLinejoin":"round","className":"lucide lucide-github w-5 h-5","children":[["$","path","tonef",{"d":"M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"}],["$","path","9comsn",{"d":"M9 18c-4.51 2-5-2-7-2"}],"$undefined"]}]}]]}]]}]}],["$","$L8",null,{}],["$","$L9",null,{"position":"bottom-right","toastOptions":{"style":{"background":"#1e293b","color":"#e2e8f0","border":"1px solid #334155","fontSize":"14px"}}}]]}]}]],null],null],["$La",null]]]]
+a:[["$","meta","0",{"name":"viewport","content":"width=device-width, initial-scale=1"}],["$","meta","1",{"charSet":"utf-8"}],["$","title","2",{"children":"The View Transitions API: Smooth Page Transitions Without a Framework | DevBench"}],["$","meta","3",{"name":"description","content":"A deep dive into the View Transitions API — now Baseline 2026 — and how to build native cross-page animations with just CSS. No JavaScript libraries required."}],["$","meta","4",{"name":"author","content":"DevBench"}],["$","meta","5",{"name":"keywords","content":"developer tools,JSON formatter,Base64,UUID generator,regex tester,benchmarks,dev tools"}],["$","meta","6",{"property":"og:title","content":"The View Transitions API: Smooth Page Transitions Without a Framework"}],["$","meta","7",{"property":"og:description","content":"A deep dive into the View Transitions API — now Baseline 2026 — and how to build native cross-page animations with just CSS. No JavaScript libraries required."}],["$","meta","8",{"property":"og:type","content":"article"}],["$","meta","9",{"property":"article:published_time","content":"2026-06-04"}],["$","meta","10",{"property":"article:author","content":"DevBench"}],["$","meta","11",{"property":"article:tag","content":"CSS"}],["$","meta","12",{"property":"article:tag","content":"View Transitions"}],["$","meta","13",{"property":"article:tag","content":"Baseline 2026"}],["$","meta","14",{"property":"article:tag","content":"Animation"}],["$","meta","15",{"property":"article:tag","content":"Browser APIs"}],["$","meta","16",{"name":"twitter:card","content":"summary"}],["$","meta","17",{"name":"twitter:title","content":"The View Transitions API: Smooth Page Transitions Without a Framework"}],["$","meta","18",{"name":"twitter:description","content":"A deep dive into the View Transitions API — now Baseline 2026 — and how to build native cross-page animations with just CSS. No JavaScript libraries required."}],["$","link","19",{"rel":"icon","href":"/favicon.svg"}]]
+1:null

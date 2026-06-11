@@ -1,0 +1,378 @@
+2:I[72972,["2972","static/chunks/2972-4aaa15d119eeb022.js","308","static/chunks/app/blog/%5Bslug%5D/page-a411190e7012c687.js"],""]
+4:I[4707,[],""]
+6:I[36423,[],""]
+7:I[39295,["9762","static/chunks/44530001-4ecf7a22b5b24163.js","2972","static/chunks/2972-4aaa15d119eeb022.js","8375","static/chunks/8375-c77b8de36f6696fb.js","6829","static/chunks/6829-f51803445ddf1872.js","3185","static/chunks/app/layout-488e5c40aa6ffa72.js"],"Header"]
+8:I[66506,["9762","static/chunks/44530001-4ecf7a22b5b24163.js","2972","static/chunks/2972-4aaa15d119eeb022.js","8375","static/chunks/8375-c77b8de36f6696fb.js","6829","static/chunks/6829-f51803445ddf1872.js","3185","static/chunks/app/layout-488e5c40aa6ffa72.js"],"Analytics"]
+9:I[69064,["9762","static/chunks/44530001-4ecf7a22b5b24163.js","2972","static/chunks/2972-4aaa15d119eeb022.js","8375","static/chunks/8375-c77b8de36f6696fb.js","6829","static/chunks/6829-f51803445ddf1872.js","3185","static/chunks/app/layout-488e5c40aa6ffa72.js"],"Toaster"]
+3:T35d4,
+<div class="prose-content">
+  <p class="lead">
+    For 20 years, web navigation has been a mess of <code>window.onpopstate</code> handlers,
+    manual URL manipulation, fragile scroll restoration, and the impossible task of intercepting
+    navigations before they happen. The History API, introduced in 2011, gave us
+    <code>pushState</code> and <code>replaceState</code> — but no way to <em>listen</em> for
+    navigations, no way to <em>cancel</em> them, and no way to <em>react</em> before they complete.
+  </p>
+
+  <p>
+    The <strong>Navigation API</strong> — shipping in Chrome 102+ and now Baseline — fixes all of this.
+    It replaces the History API with a modern, event-driven, promise-based model that handles
+    single-page navigation, multi-page transitions, and everything in between. If you have ever
+    wrestled with React Router, Next.js App Router, or Nuxt navigation guards, this is the
+    low-level API those frameworks <em>wish</em> existed when they were built.
+  </p>
+
+  <h2>The Core: navigation.navigate() vs history.pushState()</h2>
+
+  <p>
+    The most fundamental difference: <code>navigation.navigate()</code> is <strong>interceptable</strong>.
+    When you call <code>history.pushState()</code>, the browser fires a <code>popstate</code>
+    event — but only on <em>back/forward</em>, not on <code>pushState</code> itself.
+    That is why every SPA router has to monkey-patch <code>pushState</code> to know about
+    navigation events. The Navigation API fixes this:
+  </p>
+
+  <pre><code>// Old way: pushState + manual event dispatching
+history.pushState({ page: 1 }, '', '/page/1');
+window.dispatchEvent(new PopStateEvent('popstate')); // Manual hack
+
+// New way: Navigation API — everything goes through navigate()
+navigation.navigate('/page/1', { state: { page: 1 } });
+// Fires 'navigate' event that you can intercept, cancel, or transform</code></pre>
+
+  <p>
+    Every navigation — programmatic, back/forward button, link click — fires the <code>navigate</code>
+    event. You handle it <em>once</em> for everything:
+  </p>
+
+  <pre><code>navigation.addEventListener('navigate', (event) => {
+  // event.destination.url — where we are going
+  // event.canIntercept — can we intercept this?
+  // event.intercept() — take over and handle as SPA
+  // event.preventDefault() — cancel the navigation
+
+  console.log('Navigating from', navigation.currentEntry?.url);
+  console.log('Navigating to', event.destination.url);
+  console.log('Navigation type:', event.navigationType); // push, replace, reload, traverse
+  console.log('User gesture:', event.userInitiated);     // true if user clicked a link
+  console.log('Hash change only:', event.hashChange);    // true if only the fragment changed
+});</code></pre>
+
+  <h2>The Intercept Pattern: SPA Navigation Without a Framework</h2>
+
+  <p>
+    The killer feature is <code>event.intercept()</code>. It lets you take control of a navigation
+    and handle it as a single-page transition — fetch new content, swap DOM, update the URL —
+    without a full page reload:
+  </p>
+
+  <pre><code>navigation.addEventListener('navigate', (event) => {
+  // Only intercept same-origin navigations to specific paths
+  if (!event.canIntercept || !event.destination.url.startsWith(location.origin)) {
+    return;
+  }
+
+  event.intercept({
+    handler: async () => {
+      // The browser waits for this promise to resolve
+      const response = await fetch(event.destination.url);
+      const html = await response.text();
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(html, 'text/html');
+      const newContent = doc.querySelector('main');
+
+      // Swap content
+      document.querySelector('main')?.replaceWith(newContent);
+    },
+    // Optional: scroll behavior
+    scroll: 'after-transition',
+    // Optional: focus management
+    focusReset: 'after-transition',
+  });
+});</code></pre>
+
+  <div class="highlight-box">
+    <strong>Key insight:</strong> The <code>handler</code> runs <em>after</em> the URL is updated
+    in the address bar but <em>before</em> the transition is committed. If your handler throws or
+    rejects, the navigation is rolled back — the old URL is restored. This gives you proper
+    transactional navigation semantics, something no framework could provide before.
+  </div>
+
+  <h2>Navigation Entries: Richer State Without Serialization</h2>
+
+  <p>
+    The History API forces all state to be serializable (structured clone) because it needs to
+    survive session restore. The Navigation API drops this constraint for in-session state:
+  </p>
+
+  <pre><code>// Old way: state must be serializable
+history.pushState({ page: 1 }, ''); // OK
+history.pushState({ fn: myCallback }, ''); // DataCloneError — cannot clone function
+
+// New way: NavigationHistoryEntry.state accepts anything
+await navigation.navigate('/page/1', {
+  state: {
+    page: 1,
+    abortController: new AbortController(), // Functions, DOM nodes, anything
+    renderCache: new Map(),
+  }
+});
+
+// Access current entry
+const entry = navigation.currentEntry;
+console.log(entry.url, entry.key, entry.id, entry.index);
+console.log(entry.getState().abortController); // Your live state object!</code></pre>
+
+  <p>
+    Each entry also has a unique <code>key</code> (persistent across sessions, useful for scroll
+    restoration) and <code>id</code> (unique per entry, regenerated on reload). The
+    <code>index</code> tells you where you are in the navigation history:
+  </p>
+
+  <pre><code>// Check if there is a next/previous entry
+const canGoBack = navigation.canGoBack;   // like history.length > 1
+const canGoForward = navigation.canGoForward;
+
+// Get the full entry list
+for (const entry of navigation.entries()) {
+  console.log(entry.url, entry.index);
+}
+
+// Navigate back/forward
+await navigation.back();
+await navigation.forward();
+await navigation.traverseTo('entry-key-abc123'); // Jump to specific entry by key</code></pre>
+
+  <h2>Navigation Types: Push, Replace, Reload, Traverse</h2>
+
+  <p>
+    The Navigation API distinguishes four navigation types, each with different semantics:
+  </p>
+
+  <div class="table-wrapper">
+    <table>
+      <thead>
+        <tr><th>Type</th><th>Method</th><th>Effect</th><th>Use Case</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><strong>push</strong></td><td><code>navigate(url)</code></td><td>New entry added to history</td><td>Normal link navigation</td></tr>
+        <tr><td><strong>replace</strong></td><td><code>navigate(url, {history: "replace"})</code></td><td>Replaces current entry</td><td>Redirects, form submission responses</td></tr>
+        <tr><td><strong>reload</strong></td><td><code>reload()</code></td><td>Full page reload</td><td>User presses reload button</td></tr>
+        <tr><td><strong>traverse</strong></td><td><code>back()</code>, <code>forward()</code>, <code>traverseTo()</code></td><td>Move through existing history</td><td>Back/forward buttons</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p>
+    The <code>navigate</code> event's <code>navigationType</code> property tells you which
+    type the current transition is. This lets you optimize:
+  </p>
+
+  <pre><code>navigation.addEventListener('navigate', (event) => {
+  if (event.navigationType === 'reload') {
+    // Do not intercept — let the browser do a full reload
+    return;
+  }
+
+  if (event.navigationType === 'traverse') {
+    // Restore from cache instead of re-fetching
+    const cached = sessionStorage.getItem(event.destination.url);
+    if (cached) {
+      event.intercept({
+        handler: () => render(cached),
+        scroll: 'manual',
+      });
+    }
+    return;
+  }
+
+  // Push/replace: fetch fresh content
+  event.intercept({ handler: () => fetchAndRender(event.destination.url) });
+});</code></pre>
+
+  <h2>Navigation + View Transitions: Native Page Animations</h2>
+
+  <p>
+    Combine the Navigation API with the View Transitions API for native, 60fps page transitions
+    — no animation library required:
+  </p>
+
+  <pre><code>navigation.addEventListener('navigate', (event) => {
+  if (!event.canIntercept) return;
+
+  event.intercept({
+    handler: async () => {
+      // Start a view transition
+      const transition = document.startViewTransition(async () => {
+        const response = await fetch(event.destination.url);
+        const html = await response.text();
+        const doc = new DOMParser().parseFromString(html, 'text/html');
+
+        // Swap main content
+        document.querySelector('main')?.replaceWith(
+          doc.querySelector('main')
+        );
+      });
+
+      await transition.finished;
+    },
+  });
+});</code></pre>
+
+  <h2>The dispose Event: Cleanup at the Right Time</h2>
+
+  <p>
+    The History API never tells you when an entry is permanently removed from the session history.
+    The Navigation API fires a <code>dispose</code> event on entries that are evicted:
+  </p>
+
+  <pre><code>// When you navigate, you can store cleanup info
+await navigation.navigate('/form', {
+  state: { draftSaved: true }
+});
+
+// The current entry's dispose event fires when it is evicted
+navigation.currentEntry.addEventListener('dispose', (event) => {
+  const state = navigation.currentEntry.getState();
+  if (state?.draftSaved) {
+    // Clean up temp storage, abort pending requests
+    state.abortController?.abort();
+    localStorage.removeItem('form-draft');
+  }
+});</code></pre>
+
+  <h2>Scroll Restoration: The Browser Handles It (Finally)</h2>
+
+  <p>
+    Scroll position restoration has been the bane of every SPA router. The Navigation API
+    integrates directly with the browser's scroll restoration system:
+  </p>
+
+  <pre><code>// In the navigate event:
+event.intercept({
+  handler: fetchAndRender,
+  scroll: 'after-transition', // Browser saves/restores scroll position automatically
+});
+
+// Manual control:
+event.intercept({
+  handler: fetchAndRender,
+  scroll: 'manual', // You handle it yourself
+});</code></pre>
+
+  <div class="highlight-box">
+    <strong>The scroll restoration problem:</strong> Before the Navigation API, every SPA router
+    had to implement its own scroll saving/restoring logic using <code>history.scrollRestoration</code>
+    and manual position tracking. The result was almost always janky — a brief flash of the
+    wrong scroll position before correction. The Navigation API solves this at the engine level.
+  </div>
+
+  <h2>Practical Pattern: A Complete SPA Router in 60 Lines</h2>
+
+  <p>
+    Here is a production-ready SPA router using the Navigation API:
+  </p>
+
+  <pre><code>// router.js
+class Router {
+  #routes = new Map();
+  #abortController = null;
+
+  route(pattern, handler) {
+    this.#routes.set(pattern, handler);
+  }
+
+  start() {
+    navigation.addEventListener('navigate', (event) => {
+      if (!event.canIntercept || !event.destination.sameDocument) return;
+      if (event.hashChange) return;
+
+      const handler = this.#match(event.destination.url);
+      if (!handler) return;
+
+      this.#abortController?.abort();
+      this.#abortController = new AbortController();
+
+      event.intercept({
+        handler: async () => {
+          document.body.classList.add('navigating');
+          try {
+            await handler({
+              url: event.destination.url,
+              signal: this.#abortController.signal,
+              state: event.destination.getState(),
+            });
+          } finally {
+            document.body.classList.remove('navigating');
+          }
+        },
+        scroll: 'after-transition',
+      });
+    });
+  }
+
+  #match(url) {
+    const pathname = new URL(url).pathname;
+    for (const [pattern, handler] of this.#routes) {
+      if (pathname.match(new RegExp(pattern))) return handler;
+    }
+    return null;
+  }
+}</code></pre>
+
+  <h2>MPA to SPA Transition: Progressive Enhancement</h2>
+
+  <p>
+    One of the most powerful patterns: start with a traditional multi-page app (MPA), then
+    progressively enhance to SPA-like behavior — no framework migration required:
+  </p>
+
+  <pre><code>// Progressive enhancement: MPA to SPA with one script
+navigation.addEventListener('navigate', (event) => {
+  if (!event.canIntercept || !event.destination.sameDocument) return;
+
+  event.intercept({
+    handler: async () => {
+      const response = await fetch(event.destination.url);
+      const html = await response.text();
+      const doc = new DOMParser().parseFromString(html, 'text/html');
+
+      document.head.replaceWith(doc.head);
+      document.body.replaceWith(doc.body);
+      initComponents();
+    },
+    scroll: 'after-transition',
+  });
+});</code></pre>
+
+  <p>
+    This gives you instant SPA-like page transitions from a plain MPA. No double-rendering, no
+    hydration mismatch, no SSR/CSR split.
+  </p>
+
+  <h2>Browser Support and Polyfill Strategy</h2>
+
+  <p>
+    As of June 2026, the Navigation API is Baseline — supported in Chrome 102+, Edge 102+,
+    and Safari 26+. Firefox has an active implementation in progress. Feature-detect and fall back:
+  </p>
+
+  <pre><code>if ('navigation' in window) {
+  setupNavigationRouter();
+} else {
+  // Traditional MPA — links work natively, or use polyfill
+  import('@virtualstate/navigation').then(({ polyfill }) => polyfill());
+}</code></pre>
+
+  <p class="callout">
+    The Navigation API is not just a new way to do what History did — it is a fundamentally better
+    model. Interceptable navigations, promise-based transitions, non-serializable state, native
+    scroll restoration, and first-class View Transition integration. It replaces not just
+    <code>pushState</code> but entire router libraries. Sixty lines of JavaScript gives you
+    a production SPA router with back/forward caching, abortable navigations, and native page
+    transitions. The browser finally does what we have been hacking around for 15 years.
+  </p>
+</div>5:["slug","navigation-api-complete-guide-2026","d"]
+0:["Dyet8hExXh9zFMTej1l6Q",[[["",{"children":["blog",{"children":[["slug","navigation-api-complete-guide-2026","d"],{"children":["__PAGE__?{\"slug\":\"navigation-api-complete-guide-2026\"}",{}]}]}]},"$undefined","$undefined",true],["",{"children":["blog",{"children":[["slug","navigation-api-complete-guide-2026","d"],{"children":["__PAGE__",{},[["$L1",[["$","script",null,{"type":"application/ld+json","dangerouslySetInnerHTML":{"__html":"{\"@context\":\"https://schema.org\",\"@type\":\"BlogPosting\",\"headline\":\"The Navigation API: Finally, a Sane Way to Handle Page Navigations — No More popstate Hacks\",\"description\":\"The Navigation API replaces History with a modern, promise-based navigation model. Intercept navigations, manage state without serialization, integrate with View Transitions, and build fast SPA-like experiences with native browser APIs. A complete guide with real-world patterns.\",\"datePublished\":\"2026-06-05\",\"author\":{\"@type\":\"Person\",\"name\":\"DevBench\"},\"url\":\"https://devbench-roan.vercel.app/blog/navigation-api-complete-guide-2026/\"}"}}],["$","article",null,{"className":"max-w-3xl mx-auto px-4 py-12 sm:px-6 lg:px-8","children":[["$","$L2",null,{"href":"/blog/","className":"inline-flex items-center gap-1.5 text-sm text-slate-500 hover:text-brand-400 transition-colors mb-8","children":[["$","svg",null,{"xmlns":"http://www.w3.org/2000/svg","width":24,"height":24,"viewBox":"0 0 24 24","fill":"none","stroke":"currentColor","strokeWidth":2,"strokeLinecap":"round","strokeLinejoin":"round","className":"lucide lucide-arrow-left w-4 h-4","children":[["$","path","1l729n",{"d":"m12 19-7-7 7-7"}],["$","path","x3x0zl",{"d":"M19 12H5"}],"$undefined"]}],"Back to blog"]}],["$","header",null,{"className":"mb-10","children":[["$","h1",null,{"className":"text-3xl sm:text-4xl font-bold text-white mb-4 tracking-tight leading-tight","children":"The Navigation API: Finally, a Sane Way to Handle Page Navigations — No More popstate Hacks"}],["$","p",null,{"className":"text-lg text-slate-400 mb-6","children":"The Navigation API replaces History with a modern, promise-based navigation model. Intercept navigations, manage state without serialization, integrate with View Transitions, and build fast SPA-like experiences with native browser APIs. A complete guide with real-world patterns."}],["$","div",null,{"className":"flex flex-wrap items-center gap-4 text-sm text-slate-500","children":[["$","span",null,{"className":"flex items-center gap-1.5","children":[["$","svg",null,{"xmlns":"http://www.w3.org/2000/svg","width":24,"height":24,"viewBox":"0 0 24 24","fill":"none","stroke":"currentColor","strokeWidth":2,"strokeLinecap":"round","strokeLinejoin":"round","className":"lucide lucide-calendar w-4 h-4","children":[["$","rect","eu3xkr",{"width":"18","height":"18","x":"3","y":"4","rx":"2","ry":"2"}],["$","line","m3sa8f",{"x1":"16","x2":"16","y1":"2","y2":"6"}],["$","line","18kwsl",{"x1":"8","x2":"8","y1":"2","y2":"6"}],["$","line","xt86sb",{"x1":"3","x2":"21","y1":"10","y2":"10"}],"$undefined"]}],"June 5, 2026"]}],["$","span",null,{"className":"flex items-center gap-1.5","children":[["$","svg",null,{"xmlns":"http://www.w3.org/2000/svg","width":24,"height":24,"viewBox":"0 0 24 24","fill":"none","stroke":"currentColor","strokeWidth":2,"strokeLinecap":"round","strokeLinejoin":"round","className":"lucide lucide-clock w-4 h-4","children":[["$","circle","1mglay",{"cx":"12","cy":"12","r":"10"}],["$","polyline","68esgv",{"points":"12 6 12 12 16 14"}],"$undefined"]}],"10 min read"]}],["$","span",null,{"className":"text-slate-600","children":["by ","DevBench"]}]]}],["$","div",null,{"className":"flex flex-wrap gap-2 mt-4","children":[["$","span","JavaScript",{"className":"px-2 py-0.5 rounded-md bg-brand-500/10 text-brand-400 text-xs font-medium border border-brand-500/20","children":"JavaScript"}],["$","span","Navigation API",{"className":"px-2 py-0.5 rounded-md bg-brand-500/10 text-brand-400 text-xs font-medium border border-brand-500/20","children":"Navigation API"}],["$","span","Browser APIs",{"className":"px-2 py-0.5 rounded-md bg-brand-500/10 text-brand-400 text-xs font-medium border border-brand-500/20","children":"Browser APIs"}],["$","span","Web Platform",{"className":"px-2 py-0.5 rounded-md bg-brand-500/10 text-brand-400 text-xs font-medium border border-brand-500/20","children":"Web Platform"}],["$","span","SPA",{"className":"px-2 py-0.5 rounded-md bg-brand-500/10 text-brand-400 text-xs font-medium border border-brand-500/20","children":"SPA"}],["$","span","MPA",{"className":"px-2 py-0.5 rounded-md bg-brand-500/10 text-brand-400 text-xs font-medium border border-brand-500/20","children":"MPA"}],["$","span","View Transitions",{"className":"px-2 py-0.5 rounded-md bg-brand-500/10 text-brand-400 text-xs font-medium border border-brand-500/20","children":"View Transitions"}],["$","span","2026",{"className":"px-2 py-0.5 rounded-md bg-brand-500/10 text-brand-400 text-xs font-medium border border-brand-500/20","children":"2026"}]]}]]}],["$","div",null,{"className":"blog-body","dangerouslySetInnerHTML":{"__html":"$3"}}],["$","hr",null,{"className":"border-slate-800 my-12"}],["$","div",null,{"className":"text-center","children":["$","$L2",null,{"href":"/blog/","className":"inline-flex items-center gap-1.5 text-brand-400 hover:text-brand-300 transition-colors font-medium","children":[["$","svg",null,{"xmlns":"http://www.w3.org/2000/svg","width":24,"height":24,"viewBox":"0 0 24 24","fill":"none","stroke":"currentColor","strokeWidth":2,"strokeLinecap":"round","strokeLinejoin":"round","className":"lucide lucide-arrow-left w-4 h-4","children":[["$","path","1l729n",{"d":"m12 19-7-7 7-7"}],["$","path","x3x0zl",{"d":"M19 12H5"}],"$undefined"]}],"More articles"]}]}]]}]],null],null],null]},[null,["$","$L4",null,{"parallelRouterKey":"children","segmentPath":["children","blog","children","$5","children"],"error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L6",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":"$undefined","notFoundStyles":"$undefined"}]],null]},[null,["$","$L4",null,{"parallelRouterKey":"children","segmentPath":["children","blog","children"],"error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L6",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":"$undefined","notFoundStyles":"$undefined"}]],null]},[[[["$","link","0",{"rel":"stylesheet","href":"/devbench-tech/_next/static/css/8b9213b1d18e4368.css","precedence":"next","crossOrigin":"$undefined"}]],["$","html",null,{"lang":"en","className":"dark","children":["$","body",null,{"className":"flex flex-col min-h-screen","children":[["$","script",null,{"type":"application/ld+json","dangerouslySetInnerHTML":{"__html":"{\"@context\":\"https://schema.org\",\"@type\":\"WebSite\",\"name\":\"DevBench\",\"url\":\"https://devbench-roan.vercel.app\",\"description\":\"Free developer tools for everyday use: JSON formatter, Base64 encoder/decoder, UUID generator, regex tester, benchmarks, and more.\",\"potentialAction\":{\"@type\":\"SearchAction\",\"target\":\"https://devbench-roan.vercel.app/tools?q={search_term_string}\",\"query-input\":\"required name=search_term_string\"}}"}}],["$","$L7",null,{}],["$","main",null,{"className":"flex-1","children":["$","$L4",null,{"parallelRouterKey":"children","segmentPath":["children"],"error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L6",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":[["$","title",null,{"children":"404: This page could not be found."}],["$","div",null,{"style":{"fontFamily":"system-ui,\"Segoe UI\",Roboto,Helvetica,Arial,sans-serif,\"Apple Color Emoji\",\"Segoe UI Emoji\"","height":"100vh","textAlign":"center","display":"flex","flexDirection":"column","alignItems":"center","justifyContent":"center"},"children":["$","div",null,{"children":[["$","style",null,{"dangerouslySetInnerHTML":{"__html":"body{color:#000;background:#fff;margin:0}.next-error-h1{border-right:1px solid rgba(0,0,0,.3)}@media (prefers-color-scheme:dark){body{color:#fff;background:#000}.next-error-h1{border-right:1px solid rgba(255,255,255,.3)}}"}}],["$","h1",null,{"className":"next-error-h1","style":{"display":"inline-block","margin":"0 20px 0 0","padding":"0 23px 0 0","fontSize":24,"fontWeight":500,"verticalAlign":"top","lineHeight":"49px"},"children":"404"}],["$","div",null,{"style":{"display":"inline-block"},"children":["$","h2",null,{"style":{"fontSize":14,"fontWeight":400,"lineHeight":"49px","margin":0},"children":"This page could not be found."}]}]]}]}]],"notFoundStyles":[]}]}],["$","footer",null,{"className":"bg-surface-light border-t border-slate-700/50 mt-auto","children":["$","div",null,{"className":"max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12","children":[["$","div",null,{"className":"grid grid-cols-1 md:grid-cols-3 gap-8","children":[["$","div",null,{"children":[["$","$L2",null,{"href":"/","className":"flex items-center gap-2.5 mb-3","children":[["$","div",null,{"className":"w-7 h-7 bg-brand-500 rounded-lg flex items-center justify-center","children":["$","svg",null,{"xmlns":"http://www.w3.org/2000/svg","width":24,"height":24,"viewBox":"0 0 24 24","fill":"none","stroke":"currentColor","strokeWidth":2,"strokeLinecap":"round","strokeLinejoin":"round","className":"lucide lucide-terminal w-3.5 h-3.5 text-white","children":[["$","polyline","akl6gq",{"points":"4 17 10 11 4 5"}],["$","line","q2wloq",{"x1":"12","x2":"20","y1":"19","y2":"19"}],"$undefined"]}]}],["$","span",null,{"className":"text-lg font-bold text-white","children":["Dev",["$","span",null,{"className":"gradient-text","children":"Bench"}]]}]]}],["$","p",null,{"className":"text-slate-400 text-sm leading-relaxed","children":"Free developer tools, benchmarks, and calculators. Built for developers, by developers."}]]}],["$","div",null,{"children":[["$","h3",null,{"className":"text-sm font-semibold text-slate-300 uppercase tracking-wider mb-4","children":"Tools"}],["$","ul",null,{"className":"space-y-2","children":[["$","li","/tools/json-formatter",{"children":["$","$L2",null,{"href":"/tools/json-formatter","className":"text-slate-400 hover:text-brand-400 text-sm transition-colors","children":"JSON Formatter"}]}],["$","li","/tools/base64",{"children":["$","$L2",null,{"href":"/tools/base64","className":"text-slate-400 hover:text-brand-400 text-sm transition-colors","children":"Base64 Encoder/Decoder"}]}],["$","li","/tools/uuid-generator",{"children":["$","$L2",null,{"href":"/tools/uuid-generator","className":"text-slate-400 hover:text-brand-400 text-sm transition-colors","children":"UUID Generator"}]}],["$","li","/tools/regex-tester",{"children":["$","$L2",null,{"href":"/tools/regex-tester","className":"text-slate-400 hover:text-brand-400 text-sm transition-colors","children":"Regex Tester"}]}]]}]]}],["$","div",null,{"children":[["$","h3",null,{"className":"text-sm font-semibold text-slate-300 uppercase tracking-wider mb-4","children":"Resources"}],["$","ul",null,{"className":"space-y-2","children":[["$","li","/blog",{"children":["$","$L2",null,{"href":"/blog","className":"text-slate-400 hover:text-brand-400 text-sm transition-colors","children":"Blog"}]}],["$","li","/benchmarks",{"children":["$","$L2",null,{"href":"/benchmarks","className":"text-slate-400 hover:text-brand-400 text-sm transition-colors","children":"Benchmarks"}]}],["$","li","/about",{"children":["$","$L2",null,{"href":"/about","className":"text-slate-400 hover:text-brand-400 text-sm transition-colors","children":"About"}]}]]}]]}]]}],["$","div",null,{"className":"mt-10 pt-6 border-t border-slate-700/50 flex flex-col sm:flex-row items-center justify-between gap-4","children":[["$","p",null,{"className":"text-slate-500 text-sm flex items-center gap-1","children":["Made with ",["$","svg",null,{"xmlns":"http://www.w3.org/2000/svg","width":24,"height":24,"viewBox":"0 0 24 24","fill":"none","stroke":"currentColor","strokeWidth":2,"strokeLinecap":"round","strokeLinejoin":"round","className":"lucide lucide-heart w-3.5 h-3.5 text-red-500 fill-red-500","children":[["$","path","c3ymky",{"d":"M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"}],"$undefined"]}]," by the DevBench team © ",2026]}],["$","a",null,{"href":"https://github.com","target":"_blank","rel":"noopener noreferrer","className":"text-slate-500 hover:text-slate-300 transition-colors","aria-label":"GitHub","children":["$","svg",null,{"xmlns":"http://www.w3.org/2000/svg","width":24,"height":24,"viewBox":"0 0 24 24","fill":"none","stroke":"currentColor","strokeWidth":2,"strokeLinecap":"round","strokeLinejoin":"round","className":"lucide lucide-github w-5 h-5","children":[["$","path","tonef",{"d":"M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"}],["$","path","9comsn",{"d":"M9 18c-4.51 2-5-2-7-2"}],"$undefined"]}]}]]}]]}]}],["$","$L8",null,{}],["$","$L9",null,{"position":"bottom-right","toastOptions":{"style":{"background":"#1e293b","color":"#e2e8f0","border":"1px solid #334155","fontSize":"14px"}}}]]}]}]],null],null],["$La",null]]]]
+a:[["$","meta","0",{"name":"viewport","content":"width=device-width, initial-scale=1"}],["$","meta","1",{"charSet":"utf-8"}],["$","title","2",{"children":"The Navigation API: Finally, a Sane Way to Handle Page Navigations — No More popstate Hacks | DevBench"}],["$","meta","3",{"name":"description","content":"The Navigation API replaces History with a modern, promise-based navigation model. Intercept navigations, manage state without serialization, integrate with View Transitions, and build fast SPA-like experiences with native browser APIs. A complete guide with real-world patterns."}],["$","meta","4",{"name":"author","content":"DevBench"}],["$","meta","5",{"name":"keywords","content":"developer tools,JSON formatter,Base64,UUID generator,regex tester,benchmarks,dev tools"}],["$","meta","6",{"property":"og:title","content":"The Navigation API: Finally, a Sane Way to Handle Page Navigations — No More popstate Hacks"}],["$","meta","7",{"property":"og:description","content":"The Navigation API replaces History with a modern, promise-based navigation model. Intercept navigations, manage state without serialization, integrate with View Transitions, and build fast SPA-like experiences with native browser APIs. A complete guide with real-world patterns."}],["$","meta","8",{"property":"og:type","content":"article"}],["$","meta","9",{"property":"article:published_time","content":"2026-06-05"}],["$","meta","10",{"property":"article:author","content":"DevBench"}],["$","meta","11",{"property":"article:tag","content":"JavaScript"}],["$","meta","12",{"property":"article:tag","content":"Navigation API"}],["$","meta","13",{"property":"article:tag","content":"Browser APIs"}],["$","meta","14",{"property":"article:tag","content":"Web Platform"}],["$","meta","15",{"property":"article:tag","content":"SPA"}],["$","meta","16",{"property":"article:tag","content":"MPA"}],["$","meta","17",{"property":"article:tag","content":"View Transitions"}],["$","meta","18",{"property":"article:tag","content":"2026"}],["$","meta","19",{"name":"twitter:card","content":"summary"}],["$","meta","20",{"name":"twitter:title","content":"The Navigation API: Finally, a Sane Way to Handle Page Navigations — No More popstate Hacks"}],["$","meta","21",{"name":"twitter:description","content":"The Navigation API replaces History with a modern, promise-based navigation model. Intercept navigations, manage state without serialization, integrate with View Transitions, and build fast SPA-like experiences with native browser APIs. A complete guide with real-world patterns."}],["$","link","22",{"rel":"icon","href":"/favicon.svg"}]]
+1:null

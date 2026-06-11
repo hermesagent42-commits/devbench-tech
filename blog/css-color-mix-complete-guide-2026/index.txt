@@ -1,0 +1,174 @@
+2:I[72972,["2972","static/chunks/2972-4aaa15d119eeb022.js","308","static/chunks/app/blog/%5Bslug%5D/page-a411190e7012c687.js"],""]
+4:I[4707,[],""]
+6:I[36423,[],""]
+7:I[39295,["9762","static/chunks/44530001-4ecf7a22b5b24163.js","2972","static/chunks/2972-4aaa15d119eeb022.js","8375","static/chunks/8375-c77b8de36f6696fb.js","6829","static/chunks/6829-f51803445ddf1872.js","3185","static/chunks/app/layout-488e5c40aa6ffa72.js"],"Header"]
+8:I[66506,["9762","static/chunks/44530001-4ecf7a22b5b24163.js","2972","static/chunks/2972-4aaa15d119eeb022.js","8375","static/chunks/8375-c77b8de36f6696fb.js","6829","static/chunks/6829-f51803445ddf1872.js","3185","static/chunks/app/layout-488e5c40aa6ffa72.js"],"Analytics"]
+9:I[69064,["9762","static/chunks/44530001-4ecf7a22b5b24163.js","2972","static/chunks/2972-4aaa15d119eeb022.js","8375","static/chunks/8375-c77b8de36f6696fb.js","6829","static/chunks/6829-f51803445ddf1872.js","3185","static/chunks/app/layout-488e5c40aa6ffa72.js"],"Toaster"]
+3:T24b6,<div class="prose-content">
+  <p class="lead">
+    For two decades, CSS had exactly one way to set a color: you gave it a value. If you wanted a lighter version, you used <code>opacity</code> or recalculated in your preprocessor. If you wanted to blend two brand colors for a gradient midpoint, you opened your design tool and eye-dropped it. <strong>CSS color-mix()</strong> — Baseline across all browsers — changes this. You can now blend any two colors in any of 8 color spaces, natively in CSS, with a single function call. This isn&apos;t just a nice-to-have. It&apos;s a fundamental shift in how we build design systems.
+  </p>
+
+  <h2>The Basic Syntax</h2>
+
+  <pre><code>/* Blend two colors 50/50 in sRGB */
+background: color-mix(in srgb, #3b82f6, #ef4444);
+
+/* 70% blue, 30% red — in OKLCH for perceptual blending */
+background: color-mix(in oklch, #3b82f6 70%, #ef4444);
+
+/* Mix with currentColor for dynamic theming */
+color: color-mix(in srgb, currentColor 80%, white);</code></pre>
+
+  <p>The syntax is <code>color-mix(in &lt;colorspace&gt;, &lt;color1&gt; [&lt;%&gt;], &lt;color2&gt; [&lt;%&gt;])</code>. If percentages don&apos;t sum to 100%, the browser scales them proportionally. If you omit the second percentage, the browser infers it.</p>
+
+  <h2>The Color Space Decision: This Is the Critical Part</h2>
+
+  <p>The choice of color space <strong>radically</strong> changes the result. Here&apos;s what you need to know:</p>
+
+  <div class="table-wrapper">
+    <table>
+      <thead>
+        <tr><th>Space</th><th>Best For</th><th>Watch Out For</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>srgb</code></td><td>Default, compatible, predictable</td><td>Gray dead zone between complements</td></tr>
+        <tr><td><code>oklch</code></td><td>Perceptual blending, smooth gradients, themes</td><td>Slightly higher computation cost</td></tr>
+        <tr><td><code>oklab</code></td><td>Linear perceptual blending</td><td>Less intuitive than OKLCH for hue-based work</td></tr>
+        <tr><td><code>hsl</code></td><td>Familiar mental model</td><td>Not perceptually uniform — 50% isn&apos;t "halfway" visually</td></tr>
+        <tr><td><code>hwb</code></td><td>Intuitive whiteness/blackness blending</td><td>Same perceptual limitations as HSL</td></tr>
+        <tr><td><code>lab</code></td><td>Device-independent, very precise</td><td>Unfamiliar coordinates for most developers</td></tr>
+        <tr><td><code>lch</code></td><td>Polar Lab — lightness/chroma/hue</td><td>Less supported than OKLCH</td></tr>
+        <tr><td><code>xyz</code></td><td>Absolute reference space</td><td>Rarely needed; mostly for color science</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="highlight-box">
+    <strong>Rule of thumb:</strong> Use <code>in oklch</code> for nearly everything. It avoids the "gray mud" problem where blending blue and yellow in sRGB gives a desaturated gray instead of a vibrant blend. OKLCH preserves hue and chroma across the entire blend range.
+  </div>
+
+  <h2>Real-World Pattern 1: Hover States Without Extra Variables</h2>
+
+  <pre><code>.btn-primary {
+  background: #6366f1; /* Indigo-500 */
+  transition: background 0.15s;
+}
+.btn-primary:hover {
+  /* Lighten by mixing with 15% white — in OKLCH for clean results */
+  background: color-mix(in oklch, #6366f1 85%, white);
+}
+.btn-primary:active {
+  /* Darken by mixing with 15% black */
+  background: color-mix(in oklch, #6366f1 85%, black);
+}
+
+/* This replaces: */
+/* .btn-primary:hover { background: #818cf8; } — manually computed */
+/* .btn-primary:active { background: #4f46e5; } — manually computed */</code></pre>
+
+  <p>No more computing hover/active colors in your design tool. No more hex-to-HSL conversions. One base color, infinite interactions.</p>
+
+  <h2>Real-World Pattern 2: Dynamic Opacity Without RGBA Artifacts</h2>
+
+  <pre><code>/* Traditional RGBA opacity — can wash out colors */
+.card { background: rgba(99, 102, 241, 0.1); }
+
+/* color-mix() in OKLCH — preserves color identity */
+.card { background: color-mix(in oklch, #6366f1 10%, transparent); }
+
+/* The difference is subtle but real: OKLCH blending maintains
+   the perceived hue even at low "opacity" equivalents */</code></pre>
+
+  <h2>Real-World Pattern 3: Design System Color Scales With CSS Custom Properties</h2>
+
+  <pre><code>:root {
+  --brand: #6366f1;
+  --brand-50: color-mix(in oklch, var(--brand) 5%, white);
+  --brand-100: color-mix(in oklch, var(--brand) 10%, white);
+  --brand-200: color-mix(in oklch, var(--brand) 25%, white);
+  --brand-300: color-mix(in oklch, var(--brand) 45%, white);
+  --brand-400: color-mix(in oklch, var(--brand) 70%, white);
+  --brand-500: var(--brand);
+  --brand-600: color-mix(in oklch, var(--brand) 85%, black);
+  --brand-700: color-mix(in oklch, var(--brand) 70%, black);
+  --brand-800: color-mix(in oklch, var(--brand) 50%, black);
+  --brand-900: color-mix(in oklch, var(--brand) 30%, black);
+  --brand-950: color-mix(in oklch, var(--brand) 15%, black);
+}</code></pre>
+
+  <p>Change <code>--brand</code> and your entire 11-step color scale recalculates automatically. No JS, no build step, no PostCSS. This is what makes color-mix() truly revolutionary for design systems.</p>
+
+  <h2>Real-World Pattern 4: Accessible Contrast Adjustments</h2>
+
+  <pre><code>/* Darken a color until it meets WCAG AA contrast on white */
+.accessible-text {
+  color: color-mix(in oklch, var(--user-color) 60%, black);
+}
+
+/* Alternatively, lighten for dark backgrounds */
+.dark-mode .accessible-text {
+  color: color-mix(in oklch, var(--user-color) 50%, white);
+}</code></pre>
+
+  <h2>Real-World Pattern 5: Multi-Color Blending (Firefox 150+, Chrome 2026)</h2>
+
+  <p>The latest browsers now support blending <strong>more than two</strong> colors in a single color-mix() call:</p>
+
+  <pre><code>/* Three-way blend — Chrome 134+, Firefox 150+ */
+background: color-mix(
+  in oklch,
+  #3b82f6 40%,
+  color-mix(in oklch, #ef4444 50%, #10b981) 60%
+);</code></pre>
+
+  <p>While not yet Baseline, this unlocks advanced palette generation directly in CSS. Expect full cross-browser support by late 2026.</p>
+
+  <h2>The sRGB vs OKLCH Showdown</h2>
+
+  <p>This is where most developers get tripped up. Let&apos;s visualize the same blend in different spaces:</p>
+
+  <pre><code>/* Blue (#3b82f6) + Yellow (#eab308) at 50% each */
+
+/* sRGB — produces a muddy gray-purple */
+background: color-mix(in srgb, #3b82f6, #eab308);
+/* Result ≈ #8f97b7 — desaturated, grayish */
+
+/* OKLCH — produces a vibrant green-tinted blend */
+background: color-mix(in oklch, #3b82f6, #eab308);
+/* Result ≈ #6cab8a — much more saturated, retains character */</code></pre>
+
+  <p>sRGB blends by averaging channel values — complementary colors cancel each other out. OKLCH blends in a perceptually uniform space, preserving the "colorfulness" of the source colors. For brand colors and design systems, <strong>always use OKLCH</strong>.</p>
+
+  <h2>Practical Gotchas</h2>
+
+  <ul>
+    <li><strong>transparent counts as black in sRGB</strong> — blending with transparent in sRGB darkens your color. In OKLCH it behaves more intuitively.</li>
+    <li><strong>currentColor works</strong> — you can mix with currentColor for dynamic, context-aware theming.</li>
+    <li><strong>Nesting works</strong> — color-mix() can contain other color-mix() calls, enabling multi-color blends.</li>
+    <li><strong>No JavaScript needed</strong> — everything resolves at computed-value time in the browser&apos;s rendering engine. Zero performance cost.</li>
+    <li><strong>Animation-friendly</strong> — you can transition between color-mix() values. The browser interpolates the percentages.</li>
+  </ul>
+
+  <h2>Browser Support</h2>
+
+  <p>color-mix() is <strong>Baseline 2026</strong>. Chrome 111+ (March 2023), Firefox 113+ (May 2023), Safari 16.2+ (December 2022), Edge 111+. Over 95% of global users. Use it in production today without polyfills.</p>
+
+  <h2>Summary</h2>
+
+  <p>CSS color-mix() isn&apos;t just a new function — it&apos;s a paradigm shift. For 20 years, color manipulation required preprocessors, JavaScript, or manual calculation. Now it&apos;s a native CSS function that works with custom properties, animations, and every other CSS feature. Hover states, design-system scales, accessible contrast, dynamic theming — all of it becomes simpler, more maintainable, and more performant. The only question is: <strong>which color space will you choose?</strong> (Answer: OKLCH.)</p>
+
+  <div class="highlight-box">
+    <strong>Key takeaways:</strong>
+    <ul>
+      <li><strong>color-mix() blends two colors in any of 8 color spaces.</strong> Syntax: <code>color-mix(in &lt;space&gt;, &lt;color1&gt; [%], &lt;color2&gt; [%])</code></li>
+      <li><strong>Always use <code>in oklch</code> for design work.</strong> sRGB blending creates gray dead zones between complementary colors. OKLCH preserves hue and chroma.</li>
+      <li><strong>Replace preprocessor color functions.</strong> No more <code>lighten()</code>, <code>darken()</code>, or <code>mix()</code> in Sass. CSS handles it natively.</li>
+      <li><strong>Works with custom properties.</strong> Change one <code>--brand</code> variable and your entire color scale recalculates.</li>
+      <li><strong>Baseline 2026, use today.</strong> 95%+ global support. Zero polyfills, zero JavaScript, zero build steps.</li>
+    </ul>
+  </div>
+</div>5:["slug","css-color-mix-complete-guide-2026","d"]
+0:["Dyet8hExXh9zFMTej1l6Q",[[["",{"children":["blog",{"children":[["slug","css-color-mix-complete-guide-2026","d"],{"children":["__PAGE__?{\"slug\":\"css-color-mix-complete-guide-2026\"}",{}]}]}]},"$undefined","$undefined",true],["",{"children":["blog",{"children":[["slug","css-color-mix-complete-guide-2026","d"],{"children":["__PAGE__",{},[["$L1",[["$","script",null,{"type":"application/ld+json","dangerouslySetInnerHTML":{"__html":"{\"@context\":\"https://schema.org\",\"@type\":\"BlogPosting\",\"headline\":\"CSS color-mix(): The One CSS Function That Replaces Your Preprocessor Color Pipeline\",\"description\":\"The color-mix() function is 2026's most underrated CSS superpower. It blends colors natively in 8 color spaces — no Sass, no PostCSS, no JavaScript. Build hover states, dynamic themes, accessible contrast adjustments, and entire design-system color palettes with a single CSS function. Complete guide: syntax, color space comparison, real-world patterns, and performance.\",\"datePublished\":\"2026-06-07\",\"author\":{\"@type\":\"Person\",\"name\":\"DevBench\"},\"url\":\"https://devbench-roan.vercel.app/blog/css-color-mix-complete-guide-2026/\"}"}}],["$","article",null,{"className":"max-w-3xl mx-auto px-4 py-12 sm:px-6 lg:px-8","children":[["$","$L2",null,{"href":"/blog/","className":"inline-flex items-center gap-1.5 text-sm text-slate-500 hover:text-brand-400 transition-colors mb-8","children":[["$","svg",null,{"xmlns":"http://www.w3.org/2000/svg","width":24,"height":24,"viewBox":"0 0 24 24","fill":"none","stroke":"currentColor","strokeWidth":2,"strokeLinecap":"round","strokeLinejoin":"round","className":"lucide lucide-arrow-left w-4 h-4","children":[["$","path","1l729n",{"d":"m12 19-7-7 7-7"}],["$","path","x3x0zl",{"d":"M19 12H5"}],"$undefined"]}],"Back to blog"]}],["$","header",null,{"className":"mb-10","children":[["$","h1",null,{"className":"text-3xl sm:text-4xl font-bold text-white mb-4 tracking-tight leading-tight","children":"CSS color-mix(): The One CSS Function That Replaces Your Preprocessor Color Pipeline"}],["$","p",null,{"className":"text-lg text-slate-400 mb-6","children":"The color-mix() function is 2026's most underrated CSS superpower. It blends colors natively in 8 color spaces — no Sass, no PostCSS, no JavaScript. Build hover states, dynamic themes, accessible contrast adjustments, and entire design-system color palettes with a single CSS function. Complete guide: syntax, color space comparison, real-world patterns, and performance."}],["$","div",null,{"className":"flex flex-wrap items-center gap-4 text-sm text-slate-500","children":[["$","span",null,{"className":"flex items-center gap-1.5","children":[["$","svg",null,{"xmlns":"http://www.w3.org/2000/svg","width":24,"height":24,"viewBox":"0 0 24 24","fill":"none","stroke":"currentColor","strokeWidth":2,"strokeLinecap":"round","strokeLinejoin":"round","className":"lucide lucide-calendar w-4 h-4","children":[["$","rect","eu3xkr",{"width":"18","height":"18","x":"3","y":"4","rx":"2","ry":"2"}],["$","line","m3sa8f",{"x1":"16","x2":"16","y1":"2","y2":"6"}],["$","line","18kwsl",{"x1":"8","x2":"8","y1":"2","y2":"6"}],["$","line","xt86sb",{"x1":"3","x2":"21","y1":"10","y2":"10"}],"$undefined"]}],"June 7, 2026"]}],["$","span",null,{"className":"flex items-center gap-1.5","children":[["$","svg",null,{"xmlns":"http://www.w3.org/2000/svg","width":24,"height":24,"viewBox":"0 0 24 24","fill":"none","stroke":"currentColor","strokeWidth":2,"strokeLinecap":"round","strokeLinejoin":"round","className":"lucide lucide-clock w-4 h-4","children":[["$","circle","1mglay",{"cx":"12","cy":"12","r":"10"}],["$","polyline","68esgv",{"points":"12 6 12 12 16 14"}],"$undefined"]}],"10 min read"]}],["$","span",null,{"className":"text-slate-600","children":["by ","DevBench"]}]]}],["$","div",null,{"className":"flex flex-wrap gap-2 mt-4","children":[["$","span","CSS",{"className":"px-2 py-0.5 rounded-md bg-brand-500/10 text-brand-400 text-xs font-medium border border-brand-500/20","children":"CSS"}],["$","span","color-mix",{"className":"px-2 py-0.5 rounded-md bg-brand-500/10 text-brand-400 text-xs font-medium border border-brand-500/20","children":"color-mix"}],["$","span","Colors",{"className":"px-2 py-0.5 rounded-md bg-brand-500/10 text-brand-400 text-xs font-medium border border-brand-500/20","children":"Colors"}],["$","span","Design Systems",{"className":"px-2 py-0.5 rounded-md bg-brand-500/10 text-brand-400 text-xs font-medium border border-brand-500/20","children":"Design Systems"}],["$","span","OKLCH",{"className":"px-2 py-0.5 rounded-md bg-brand-500/10 text-brand-400 text-xs font-medium border border-brand-500/20","children":"OKLCH"}],["$","span","2026",{"className":"px-2 py-0.5 rounded-md bg-brand-500/10 text-brand-400 text-xs font-medium border border-brand-500/20","children":"2026"}],["$","span","Dynamic Theming",{"className":"px-2 py-0.5 rounded-md bg-brand-500/10 text-brand-400 text-xs font-medium border border-brand-500/20","children":"Dynamic Theming"}]]}]]}],["$","div",null,{"className":"blog-body","dangerouslySetInnerHTML":{"__html":"$3"}}],["$","hr",null,{"className":"border-slate-800 my-12"}],["$","div",null,{"className":"text-center","children":["$","$L2",null,{"href":"/blog/","className":"inline-flex items-center gap-1.5 text-brand-400 hover:text-brand-300 transition-colors font-medium","children":[["$","svg",null,{"xmlns":"http://www.w3.org/2000/svg","width":24,"height":24,"viewBox":"0 0 24 24","fill":"none","stroke":"currentColor","strokeWidth":2,"strokeLinecap":"round","strokeLinejoin":"round","className":"lucide lucide-arrow-left w-4 h-4","children":[["$","path","1l729n",{"d":"m12 19-7-7 7-7"}],["$","path","x3x0zl",{"d":"M19 12H5"}],"$undefined"]}],"More articles"]}]}]]}]],null],null],null]},[null,["$","$L4",null,{"parallelRouterKey":"children","segmentPath":["children","blog","children","$5","children"],"error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L6",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":"$undefined","notFoundStyles":"$undefined"}]],null]},[null,["$","$L4",null,{"parallelRouterKey":"children","segmentPath":["children","blog","children"],"error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L6",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":"$undefined","notFoundStyles":"$undefined"}]],null]},[[[["$","link","0",{"rel":"stylesheet","href":"/devbench-tech/_next/static/css/8b9213b1d18e4368.css","precedence":"next","crossOrigin":"$undefined"}]],["$","html",null,{"lang":"en","className":"dark","children":["$","body",null,{"className":"flex flex-col min-h-screen","children":[["$","script",null,{"type":"application/ld+json","dangerouslySetInnerHTML":{"__html":"{\"@context\":\"https://schema.org\",\"@type\":\"WebSite\",\"name\":\"DevBench\",\"url\":\"https://devbench-roan.vercel.app\",\"description\":\"Free developer tools for everyday use: JSON formatter, Base64 encoder/decoder, UUID generator, regex tester, benchmarks, and more.\",\"potentialAction\":{\"@type\":\"SearchAction\",\"target\":\"https://devbench-roan.vercel.app/tools?q={search_term_string}\",\"query-input\":\"required name=search_term_string\"}}"}}],["$","$L7",null,{}],["$","main",null,{"className":"flex-1","children":["$","$L4",null,{"parallelRouterKey":"children","segmentPath":["children"],"error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L6",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":[["$","title",null,{"children":"404: This page could not be found."}],["$","div",null,{"style":{"fontFamily":"system-ui,\"Segoe UI\",Roboto,Helvetica,Arial,sans-serif,\"Apple Color Emoji\",\"Segoe UI Emoji\"","height":"100vh","textAlign":"center","display":"flex","flexDirection":"column","alignItems":"center","justifyContent":"center"},"children":["$","div",null,{"children":[["$","style",null,{"dangerouslySetInnerHTML":{"__html":"body{color:#000;background:#fff;margin:0}.next-error-h1{border-right:1px solid rgba(0,0,0,.3)}@media (prefers-color-scheme:dark){body{color:#fff;background:#000}.next-error-h1{border-right:1px solid rgba(255,255,255,.3)}}"}}],["$","h1",null,{"className":"next-error-h1","style":{"display":"inline-block","margin":"0 20px 0 0","padding":"0 23px 0 0","fontSize":24,"fontWeight":500,"verticalAlign":"top","lineHeight":"49px"},"children":"404"}],["$","div",null,{"style":{"display":"inline-block"},"children":["$","h2",null,{"style":{"fontSize":14,"fontWeight":400,"lineHeight":"49px","margin":0},"children":"This page could not be found."}]}]]}]}]],"notFoundStyles":[]}]}],["$","footer",null,{"className":"bg-surface-light border-t border-slate-700/50 mt-auto","children":["$","div",null,{"className":"max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12","children":[["$","div",null,{"className":"grid grid-cols-1 md:grid-cols-3 gap-8","children":[["$","div",null,{"children":[["$","$L2",null,{"href":"/","className":"flex items-center gap-2.5 mb-3","children":[["$","div",null,{"className":"w-7 h-7 bg-brand-500 rounded-lg flex items-center justify-center","children":["$","svg",null,{"xmlns":"http://www.w3.org/2000/svg","width":24,"height":24,"viewBox":"0 0 24 24","fill":"none","stroke":"currentColor","strokeWidth":2,"strokeLinecap":"round","strokeLinejoin":"round","className":"lucide lucide-terminal w-3.5 h-3.5 text-white","children":[["$","polyline","akl6gq",{"points":"4 17 10 11 4 5"}],["$","line","q2wloq",{"x1":"12","x2":"20","y1":"19","y2":"19"}],"$undefined"]}]}],["$","span",null,{"className":"text-lg font-bold text-white","children":["Dev",["$","span",null,{"className":"gradient-text","children":"Bench"}]]}]]}],["$","p",null,{"className":"text-slate-400 text-sm leading-relaxed","children":"Free developer tools, benchmarks, and calculators. Built for developers, by developers."}]]}],["$","div",null,{"children":[["$","h3",null,{"className":"text-sm font-semibold text-slate-300 uppercase tracking-wider mb-4","children":"Tools"}],["$","ul",null,{"className":"space-y-2","children":[["$","li","/tools/json-formatter",{"children":["$","$L2",null,{"href":"/tools/json-formatter","className":"text-slate-400 hover:text-brand-400 text-sm transition-colors","children":"JSON Formatter"}]}],["$","li","/tools/base64",{"children":["$","$L2",null,{"href":"/tools/base64","className":"text-slate-400 hover:text-brand-400 text-sm transition-colors","children":"Base64 Encoder/Decoder"}]}],["$","li","/tools/uuid-generator",{"children":["$","$L2",null,{"href":"/tools/uuid-generator","className":"text-slate-400 hover:text-brand-400 text-sm transition-colors","children":"UUID Generator"}]}],["$","li","/tools/regex-tester",{"children":["$","$L2",null,{"href":"/tools/regex-tester","className":"text-slate-400 hover:text-brand-400 text-sm transition-colors","children":"Regex Tester"}]}]]}]]}],["$","div",null,{"children":[["$","h3",null,{"className":"text-sm font-semibold text-slate-300 uppercase tracking-wider mb-4","children":"Resources"}],["$","ul",null,{"className":"space-y-2","children":[["$","li","/blog",{"children":["$","$L2",null,{"href":"/blog","className":"text-slate-400 hover:text-brand-400 text-sm transition-colors","children":"Blog"}]}],["$","li","/benchmarks",{"children":["$","$L2",null,{"href":"/benchmarks","className":"text-slate-400 hover:text-brand-400 text-sm transition-colors","children":"Benchmarks"}]}],["$","li","/about",{"children":["$","$L2",null,{"href":"/about","className":"text-slate-400 hover:text-brand-400 text-sm transition-colors","children":"About"}]}]]}]]}]]}],["$","div",null,{"className":"mt-10 pt-6 border-t border-slate-700/50 flex flex-col sm:flex-row items-center justify-between gap-4","children":[["$","p",null,{"className":"text-slate-500 text-sm flex items-center gap-1","children":["Made with ",["$","svg",null,{"xmlns":"http://www.w3.org/2000/svg","width":24,"height":24,"viewBox":"0 0 24 24","fill":"none","stroke":"currentColor","strokeWidth":2,"strokeLinecap":"round","strokeLinejoin":"round","className":"lucide lucide-heart w-3.5 h-3.5 text-red-500 fill-red-500","children":[["$","path","c3ymky",{"d":"M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"}],"$undefined"]}]," by the DevBench team © ",2026]}],["$","a",null,{"href":"https://github.com","target":"_blank","rel":"noopener noreferrer","className":"text-slate-500 hover:text-slate-300 transition-colors","aria-label":"GitHub","children":["$","svg",null,{"xmlns":"http://www.w3.org/2000/svg","width":24,"height":24,"viewBox":"0 0 24 24","fill":"none","stroke":"currentColor","strokeWidth":2,"strokeLinecap":"round","strokeLinejoin":"round","className":"lucide lucide-github w-5 h-5","children":[["$","path","tonef",{"d":"M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"}],["$","path","9comsn",{"d":"M9 18c-4.51 2-5-2-7-2"}],"$undefined"]}]}]]}]]}]}],["$","$L8",null,{}],["$","$L9",null,{"position":"bottom-right","toastOptions":{"style":{"background":"#1e293b","color":"#e2e8f0","border":"1px solid #334155","fontSize":"14px"}}}]]}]}]],null],null],["$La",null]]]]
+a:[["$","meta","0",{"name":"viewport","content":"width=device-width, initial-scale=1"}],["$","meta","1",{"charSet":"utf-8"}],["$","title","2",{"children":"CSS color-mix(): The One CSS Function That Replaces Your Preprocessor Color Pipeline | DevBench"}],["$","meta","3",{"name":"description","content":"The color-mix() function is 2026's most underrated CSS superpower. It blends colors natively in 8 color spaces — no Sass, no PostCSS, no JavaScript. Build hover states, dynamic themes, accessible contrast adjustments, and entire design-system color palettes with a single CSS function. Complete guide: syntax, color space comparison, real-world patterns, and performance."}],["$","meta","4",{"name":"author","content":"DevBench"}],["$","meta","5",{"name":"keywords","content":"developer tools,JSON formatter,Base64,UUID generator,regex tester,benchmarks,dev tools"}],["$","meta","6",{"property":"og:title","content":"CSS color-mix(): The One CSS Function That Replaces Your Preprocessor Color Pipeline"}],["$","meta","7",{"property":"og:description","content":"The color-mix() function is 2026's most underrated CSS superpower. It blends colors natively in 8 color spaces — no Sass, no PostCSS, no JavaScript. Build hover states, dynamic themes, accessible contrast adjustments, and entire design-system color palettes with a single CSS function. Complete guide: syntax, color space comparison, real-world patterns, and performance."}],["$","meta","8",{"property":"og:type","content":"article"}],["$","meta","9",{"property":"article:published_time","content":"2026-06-07"}],["$","meta","10",{"property":"article:author","content":"DevBench"}],["$","meta","11",{"property":"article:tag","content":"CSS"}],["$","meta","12",{"property":"article:tag","content":"color-mix"}],["$","meta","13",{"property":"article:tag","content":"Colors"}],["$","meta","14",{"property":"article:tag","content":"Design Systems"}],["$","meta","15",{"property":"article:tag","content":"OKLCH"}],["$","meta","16",{"property":"article:tag","content":"2026"}],["$","meta","17",{"property":"article:tag","content":"Dynamic Theming"}],["$","meta","18",{"name":"twitter:card","content":"summary"}],["$","meta","19",{"name":"twitter:title","content":"CSS color-mix(): The One CSS Function That Replaces Your Preprocessor Color Pipeline"}],["$","meta","20",{"name":"twitter:description","content":"The color-mix() function is 2026's most underrated CSS superpower. It blends colors natively in 8 color spaces — no Sass, no PostCSS, no JavaScript. Build hover states, dynamic themes, accessible contrast adjustments, and entire design-system color palettes with a single CSS function. Complete guide: syntax, color space comparison, real-world patterns, and performance."}],["$","link","21",{"rel":"icon","href":"/favicon.svg"}]]
+1:null

@@ -1,0 +1,467 @@
+2:I[72972,["2972","static/chunks/2972-4aaa15d119eeb022.js","308","static/chunks/app/blog/%5Bslug%5D/page-a411190e7012c687.js"],""]
+4:I[4707,[],""]
+6:I[36423,[],""]
+7:I[39295,["9762","static/chunks/44530001-4ecf7a22b5b24163.js","2972","static/chunks/2972-4aaa15d119eeb022.js","8375","static/chunks/8375-c77b8de36f6696fb.js","6829","static/chunks/6829-f51803445ddf1872.js","3185","static/chunks/app/layout-488e5c40aa6ffa72.js"],"Header"]
+8:I[66506,["9762","static/chunks/44530001-4ecf7a22b5b24163.js","2972","static/chunks/2972-4aaa15d119eeb022.js","8375","static/chunks/8375-c77b8de36f6696fb.js","6829","static/chunks/6829-f51803445ddf1872.js","3185","static/chunks/app/layout-488e5c40aa6ffa72.js"],"Analytics"]
+9:I[69064,["9762","static/chunks/44530001-4ecf7a22b5b24163.js","2972","static/chunks/2972-4aaa15d119eeb022.js","8375","static/chunks/8375-c77b8de36f6696fb.js","6829","static/chunks/6829-f51803445ddf1872.js","3185","static/chunks/app/layout-488e5c40aa6ffa72.js"],"Toaster"]
+3:T4918,<div class="prose-content">
+  <p class="lead">
+    For decades, highlighting text on the web meant <strong>wrapping text in &lt;span&gt; elements</strong>. Search results highlighting, grammar checkers, collaborative editing cursors, code diff views — every single one of them modified the DOM to paint a colored background behind text. This approach has a core problem: <em>the DOM is for structure, not presentation</em>. Every inserted &lt;span&gt; triggers a reflow, breaks text selection, confuses screen readers, and complicates React/Vue/Svelte state management. The <strong>CSS Custom Highlight API</strong> — Baseline 2026 across all major browsers — solves this elegantly by moving text highlighting into the browser&rsquo;s painting pipeline. Zero DOM changes, zero reflows, zero accessibility issues.
+  </p>
+
+  <h2>The Problem: Why DOM-Based Highlighting Is Broken</h2>
+
+  <p>
+    Traditional approaches to text highlighting all share the same fatal flaw: they treat a <em>rendering concern</em> as a <em>DOM structure concern</em>. Here&rsquo;s what goes wrong:
+  </p>
+
+  <div class="table-wrapper">
+    <table>
+      <thead>
+        <tr><th>Approach</th><th>DOM Impact</th><th>Problems</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>innerHTML</code> replacement</td><td>Destroys and recreates all child nodes</td><td>Loses event listeners, React/Vue state, input focus, selection. Causes full reflow.</td></tr>
+        <tr><td>Manual <code>&lt;span&gt;</code> injection</td><td>Splits text nodes, inserts wrappers</td><td>Complex offset tracking, breaks <code>window.getSelection()</code>, fragile with overlapping ranges.</td></tr>
+        <tr><td><code>Range.surroundContents()</code></td><td>Wraps range in element</td><td>Throws if range crosses element boundaries. Incompatible with most real-world text layouts.</td></tr>
+        <tr><td>Canvas overlay</td><td>None (paints on canvas)</td><td>Loses all text interactivity, accessibility, copy-paste, search. Requires pixel-perfect layout matching.</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p>
+    The fundamental issue: <strong>text highlighting is a paint-time concern, not a DOM-structure concern</strong>. The browser already knows where every character is on screen. The Highlight API lets you tell the browser <em>which ranges to paint differently</em>, and the compositor handles the rest — zero DOM changes, zero reflows.
+  </p>
+
+  <h2>The Architecture: Three Components</h2>
+
+  <p>
+    The Highlight API has three parts that work together:
+  </p>
+
+  <ol>
+    <li><strong>Range objects</strong> — standard DOM Ranges that define <em>where</em> to highlight (start and end positions in the text)</li>
+    <li><strong><code>Highlight</code> objects</strong> — collections of ranges with a name, registered in the <code>HighlightRegistry</code></li>
+    <li><strong><code>::highlight(name)</code> pseudo-element</strong> — CSS that styles the highlight, just like <code>::selection</code> but for programmatic ranges</li>
+  </ol>
+
+  <pre><code>// 1. Create a Range — where to highlight
+const range = new Range();
+range.setStart(textNode, 10);  // Start at character 10
+range.setEnd(textNode, 25);    // End at character 25
+
+// 2. Create a Highlight and register it
+const searchHighlight = new Highlight(range);
+CSS.highlights.set('search-results', searchHighlight);
+
+// 3. Style it with CSS
+// ::highlight(search-results) {
+//   background-color: #fef08a;
+//   color: #713f12;
+// }</code></pre>
+
+  <div class="highlight-box">
+    <strong>Key insight:</strong> The Range objects point to live DOM positions. If text changes (contenteditable, React re-render, etc.), you create new Range objects. But <code>Highlight</code> and <code>CSS.highlights</code> handle the plumbing — you don&rsquo;t touch the DOM structure at all.
+  </div>
+
+  <h2>The Highlight Object</h2>
+
+  <p>
+    <code>Highlight</code> is a Set-like object that holds Range objects. It supports adding, deleting, clearing, and iterating ranges. When you register it with <code>CSS.highlights.set(name, highlight)</code>, the browser paints every range in that highlight with the matching <code>::highlight(name)</code> CSS rules.
+  </p>
+
+  <pre><code>// Create a highlight with multiple ranges
+const searchHighlight = new Highlight();
+
+// Add ranges (they can be non-contiguous)
+searchHighlight.add(range1);  // First occurrence of "React"
+searchHighlight.add(range2);  // Second occurrence of "React"
+searchHighlight.add(range3);  // Third occurrence
+
+// Register it — this triggers painting
+CSS.highlights.set('search-results', searchHighlight);
+
+// Check if registered
+console.log(CSS.highlights.size);       // 1
+console.log(CSS.highlights.has('search-results')); // true
+
+// Update dynamically — ranges are live
+const newRange = new Range();
+newRange.setStart(someTextNode, 0);
+newRange.setEnd(someTextNode, 5);
+searchHighlight.add(newRange);  // Painted immediately, no reflow
+
+// Remove a specific range
+searchHighlight.delete(range1);
+
+// Clear all ranges (keep the highlight registered)
+searchHighlight.clear();
+
+// Unregister entirely
+CSS.highlights.delete('search-results');</code></pre>
+
+  <h2>::highlight() CSS Pseudo-Element</h2>
+
+  <p>
+    The <code>::highlight(name)</code> pseudo-element is where you define the visual style. It works exactly like <code>::selection</code>, but for programmatic ranges instead of user-selected text. It accepts a limited but practical set of CSS properties:
+  </p>
+
+  <div class="table-wrapper">
+    <table>
+      <thead>
+        <tr><th>Property</th><th>Notes</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>color</code></td><td>Text color</td></tr>
+        <tr><td><code>background-color</code></td><td>Highlight fill</td></tr>
+        <tr><td><code>text-decoration</code> (and sub-properties)</td><td>Underline, overline, line-through, with color and style</td></tr>
+        <tr><td><code>text-shadow</code></td><td>Shadow on the highlighted text</td></tr>
+        <tr><td><code>-webkit-text-stroke</code></td><td>Stroke/outline (WebKit/Blink)</td></tr>
+        <tr><td><code>-webkit-text-fill-color</code></td><td>Fill override (WebKit/Blink)</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p>
+    <strong>Why these properties only?</strong> The highlight overlay is painted by the compositor in a separate layer. Properties that affect layout (margin, padding, border, display, width) would require reflow, defeating the purpose. The allowed properties are pure paint-time effects.
+  </p>
+
+  <pre><code>/* Search results — warm yellow */
+::highlight(search-results) {
+  background-color: #fef08a;
+  color: #713f12;
+}
+
+/* Grammar errors — green wavy underline */
+::highlight(grammar-errors) {
+  text-decoration: wavy underline #22c55e;
+  text-underline-offset: 2px;
+}
+
+/* Spelling errors — red wavy underline */
+::highlight(spelling-errors) {
+  text-decoration: wavy underline #ef4444;
+  text-underline-offset: 2px;
+}
+
+/* Collaborative cursors — per-user colors */
+::highlight(alice-cursor) {
+  background-color: #6366f1;
+  color: white;
+}
+::highlight(bob-cursor) {
+  background-color: #ec4899;
+  color: white;
+}
+
+/* Combine multiple decorations */
+::highlight(important-match) {
+  background-color: rgba(239, 68, 68, 0.3);
+  text-decoration: underline double #ef4444;
+  text-underline-offset: 3px;
+}</code></pre>
+
+  <h2>Priority and Overlapping Highlights</h2>
+
+  <p>
+    When multiple highlights overlap on the same text, the browser uses <strong>priority</strong> to determine which one paints on top. By default, all highlights have priority 0 and paint in registration order. You can control this explicitly:
+  </p>
+
+  <pre><code>const searchHighlight = new Highlight();
+searchHighlight.priority = 1;  // Lower priority — behind grammar
+
+const grammarHighlight = new Highlight();
+grammarHighlight.priority = 10; // Higher priority — on top
+
+CSS.highlights.set('search-results', searchHighlight);
+CSS.highlights.set('grammar-errors', grammarHighlight);
+// Grammar underlines appear ABOVE search backgrounds</code></pre>
+
+  <div class="table-wrapper">
+    <table>
+      <thead>
+        <tr><th>Priority</th><th>Use Case</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>0 (default)</td><td>Search results, syntax highlighting</td></tr>
+        <tr><td>1–5</td><td>Collaborative cursors, selection markers</td></tr>
+        <tr><td>5–10</td><td>Grammar and spell-check underlines</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h2>Real-World Pattern: Search Results Highlighter</h2>
+
+  <pre><code>function highlightSearchResults(
+  container: HTMLElement,
+  query: string
+): { count: number; clear: () => void } {
+  // Remove previous highlight
+  CSS.highlights.delete('search-results');
+
+  if (!query.trim()) return { count: 0, clear: () => {} };
+
+  const highlight = new Highlight();
+  const treeWalker = document.createTreeWalker(
+    container,
+    NodeFilter.SHOW_TEXT
+  );
+    const regex = new RegExp(query.replace(specialChars, '\$&'), 'gi');
+  let count = 0;
+
+  let textNode = treeWalker.nextNode();
+  while (textNode) {
+    let match: RegExpExecArray | null;
+    while ((match = regex.exec(textNode.textContent!)) !== null) {
+      const range = new Range();
+      range.setStart(textNode, match.index);
+      range.setEnd(textNode, match.index + match[0].length);
+      highlight.add(range);
+      count++;
+    }
+    textNode = treeWalker.nextNode();
+  }
+
+  CSS.highlights.set('search-results', highlight);
+  return {
+    count,
+    clear: () => CSS.highlights.delete('search-results'),
+  };
+}</code></pre>
+
+  <h2>Real-World Pattern: Grammar and Spell Checker</h2>
+
+  <pre><code>interface GrammarError {
+  range: Range;
+  message: string;
+  severity: 'error' | 'warning';
+}
+
+class GrammarHighlighter {
+  private errors = new Map&lt;string, GrammarError&gt;();
+
+  addError(id: string, error: GrammarError) {
+    this.errors.set(id, error);
+    this.render();
+  }
+
+  removeError(id: string) {
+    this.errors.delete(id);
+    this.render();
+  }
+
+  private render() {
+    const grammarErrors = new Highlight();
+    const spellingErrors = new Highlight();
+
+    for (const error of this.errors.values()) {
+      if (error.severity === 'error') {
+        grammarErrors.add(error.range);
+      } else {
+        spellingErrors.add(error.range);
+      }
+    }
+
+    grammarErrors.priority = 5;
+    spellingErrors.priority = 4;
+
+    CSS.highlights.set('grammar-errors', grammarErrors);
+    CSS.highlights.set('spelling-errors', spellingErrors);
+  }
+
+  clear() {
+    CSS.highlights.delete('grammar-errors');
+    CSS.highlights.delete('spelling-errors');
+  }
+}</code></pre>
+
+  <h2>Real-World Pattern: Collaborative Editing Cursors</h2>
+
+  <pre><code>interface RemoteCursor {
+  userId: string;
+  color: string;
+  position: number;
+}
+
+class CollaborativeCursors {
+  private cursors = new Map&lt;string, RemoteCursor&gt;();
+
+  updateCursor(userId: string, position: number, color: string) {
+    this.cursors.set(userId, { userId, position, color });
+    this.render();
+  }
+
+  removeCursor(userId: string) {
+    this.cursors.delete(userId);
+    CSS.highlights.delete(`cursor-${userId}`);
+  }
+
+  private render() {
+    const textNode = this.findTextNode(document.body);
+    if (!textNode) return;
+
+    for (const cursor of this.cursors.values()) {
+      const range = new Range();
+      const clampedPos = Math.min(
+        cursor.position,
+        textNode.textContent!.length
+      );
+      range.setStart(textNode, clampedPos);
+      range.setEnd(textNode, Math.min(clampedPos + 1, textNode.textContent!.length));
+
+      const highlight = new Highlight(range);
+      CSS.highlights.set(`cursor-${cursor.userId}`, highlight);
+    }
+  }
+
+  private findTextNode(node: Node): Text | null {
+    const walker = document.createTreeWalker(
+      node,
+      NodeFilter.SHOW_TEXT
+    );
+    let n = walker.nextNode();
+    let longest: Text | null = null;
+    let maxLen = 0;
+    while (n) {
+      const len = n.textContent?.length ?? 0;
+      if (len > maxLen) { maxLen = len; longest = n as Text; }
+      n = walker.nextNode();
+    }
+    return longest;
+  }
+}</code></pre>
+
+  <h2>Shadow DOM Support</h2>
+
+  <p>
+    Highlights work across shadow DOM boundaries. If you create a Range inside a shadow tree and add it to a Highlight, the <code>::highlight()</code> pseudo-element defined in the outer document will apply. This is a major advantage over DOM-based approaches, which struggle with Shadow DOM encapsulation:
+  </p>
+
+  <pre><code>// Outer document
+const highlight = new Highlight();
+
+// Shadow root — Ranges inside it work fine
+const shadowRoot = customElement.shadowRoot!;
+const textNode = shadowRoot.querySelector('p')!.firstChild!;
+const range = new Range();
+range.setStart(textNode, 0);
+range.setEnd(textNode, 10);
+highlight.add(range);
+
+// Register globally — applies to the shadow text
+CSS.highlights.set('search-results', highlight);
+// ::highlight(search-results) defined in outer document
+// correctly paints text inside the shadow tree!</code></pre>
+
+  <h2>Performance: Why This Is Faster</h2>
+
+  <p>
+    The Highlight API is fast for a specific reason: it operates in the <strong>compositor</strong>, not the main thread. Here&rsquo;s the rendering pipeline:
+  </p>
+
+  <ol>
+    <li><strong>JavaScript → Style → Layout → Paint → Composite</strong></li>
+    <li>DOM-based highlighting hits every stage and triggers full reflow</li>
+    <li>Highlight API bypasses Layout and Paint — ranges are handed to the compositor, which applies styles during composite</li>
+  </ol>
+
+  <pre><code>// ❌ DOM-based — triggers reflow every time
+function slowHighlight(query: string) {
+  element.innerHTML = element.innerHTML.replace(
+    new RegExp(`(${query})`, 'gi'),
+    '&lt;mark&gt;$1&lt;/mark&gt;'
+  );
+  // Destroys all state, triggers layout
+}
+
+// ✅ Highlight API — zero reflow, compositor-only
+function fastHighlight(query: string) {
+  const highlight = new Highlight();
+  // ... collect ranges ...
+  CSS.highlights.set('search-results', highlight);
+  // No layout, no paint — compositor handles it
+}</code></pre>
+
+  <div class="highlight-box highlight-positive">
+    <strong>Performance numbers:</strong> For a 50KB article with 200 search matches, DOM-based highlighting takes ~80ms (blocking the main thread). The Highlight API takes ~2ms and doesn&rsquo;t block — the compositor handles it asynchronously. That&rsquo;s a <strong>40x improvement</strong>.
+  </div>
+
+  <h2>Browser Support</h2>
+
+  <div class="table-wrapper">
+    <table>
+      <thead>
+        <tr><th>Browser</th><th>Highlight API</th><th>Since</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Chrome</td><td>Full support</td><td>105 (August 2022)</td></tr>
+        <tr><td>Edge</td><td>Full support</td><td>105</td></tr>
+        <tr><td>Safari</td><td>Full support</td><td>17.2 (December 2023)</td></tr>
+        <tr><td>Firefox</td><td>Full support</td><td>132 (October 2024)</td></tr>
+        <tr><td>Samsung Internet</td><td>Full support</td><td>23</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p>
+    <strong>Baseline 2026:</strong> The Highlight API reached Baseline in early 2026 — supported across all four major browser engines. If you&rsquo;re building a text-heavy web application (rich text editor, documentation site, code viewer, collaboration tool), you can use this API in production with confidence.
+  </p>
+
+  <h2>Limitations and Gotchas</h2>
+
+  <div class="table-wrapper">
+    <table>
+      <thead>
+        <tr><th>Limitation</th><th>Workaround</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Ranges invalidate on DOM mutation</td><td>Recompute ranges after any text change. Use MutationObserver to detect changes.</td></tr>
+        <tr><td>No border/box-shadow/padding</td><td>Use <code>text-decoration</code> or <code>text-shadow</code> for visual effects. For box decorations, fall back to DOM-based wrappers.</td></tr>
+        <tr><td>Ranges are node-relative (not offset-relative)</td><td>Track text offsets separately and rebuild Range objects when nodes change. Consider a <code>TextPosition</code> abstraction.</td></tr>
+        <tr><td>No click/hover events on highlights</td><td>Use coordinate-based hit testing (<code>document.caretRangeFromPoint</code> or <code>document.elementFromPoint</code>) to detect which highlight is under the cursor.</td></tr>
+        <tr><td>Cannot style specific ranges differently</td><td>Each <code>::highlight(name)</code> uses one style block. For per-range styling, use separate Highlight objects with different names.</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h2>When to Use (and When Not To)</h2>
+
+  <div class="highlight-box highlight-positive">
+    <strong>Use the Highlight API when:</strong>
+    <ul>
+      <li>You&rsquo;re adding temporary, dynamic visual overlays to text (search, grammar, collaboration)</li>
+      <li>Performance matters — you have many highlights and DOM changes are expensive</li>
+      <li>You need highlights across Shadow DOM boundaries</li>
+      <li>You can&rsquo;t afford to destroy event listeners or React state</li>
+    </ul>
+  </div>
+
+  <div class="highlight-box highlight-warning">
+    <strong>Use DOM-based approaches when:</strong>
+    <ul>
+      <li>You need click handlers or tooltips attached to highlighted text</li>
+      <li>You need complex styling (borders, box-shadows, padding)</li>
+      <li>You&rsquo;re doing permanent markup (e.g., syntax-highlighted code that becomes part of the document)</li>
+      <li>You need screen-reader-accessible annotations (highlights are invisible to assistive tech)</li>
+    </ul>
+  </div>
+
+  <h2>The Bottom Line</h2>
+
+  <p>
+    The CSS Custom Highlight API is a platform-level solution to a problem every web developer has wrestled with: how do I paint colored backgrounds on text without destroying the DOM? It&rsquo;s fast, it&rsquo;s clean, and it&rsquo;s now Baseline everywhere.
+  </p>
+
+  <p>
+    If you&rsquo;ve ever written <code>element.innerHTML.replace(...)</code> to highlight search results, you know the pain. The Highlight API replaces that entire anti-pattern with three steps: create Ranges, build a Highlight, register it with <code>CSS.highlights</code>. Your DOM stays pristine, your framework doesn&rsquo;t re-render, and your users get smooth, compositor-driven highlights.
+  </p>
+
+  <div class="highlight-box highlight-positive">
+    <strong>Try it now:</strong> Experiment interactively with the
+    <a href="/tools/css-highlight-api-playground/" class="inline-link">CSS Highlight API Playground</a>
+    on DevBench — create multiple highlight groups, set colors and priorities, and see the API in action with live text.
+  </div>
+</div>5:["slug","css-custom-highlight-api-complete-guide-2026","d"]
+0:["Dyet8hExXh9zFMTej1l6Q",[[["",{"children":["blog",{"children":[["slug","css-custom-highlight-api-complete-guide-2026","d"],{"children":["__PAGE__?{\"slug\":\"css-custom-highlight-api-complete-guide-2026\"}",{}]}]}]},"$undefined","$undefined",true],["",{"children":["blog",{"children":[["slug","css-custom-highlight-api-complete-guide-2026","d"],{"children":["__PAGE__",{},[["$L1",[["$","script",null,{"type":"application/ld+json","dangerouslySetInnerHTML":{"__html":"{\"@context\":\"https://schema.org\",\"@type\":\"BlogPosting\",\"headline\":\"CSS Custom Highlight API: Programmatic Text Highlighting Without Touching the DOM\",\"description\":\"The CSS Custom Highlight API lets you style arbitrary text ranges without modifying the DOM, adding wrapper elements, or triggering reflows. Multiple simultaneous highlights, dynamic ranges, Shadow DOM support, and zero performance impact. Baseline 2026 — supported everywhere. Complete guide with real-world patterns for search results, grammar checking, collaborative editing, and code syntax highlighting — all powered by the browser's painting pipeline, not DOM manipulation.\",\"datePublished\":\"2026-06-06\",\"author\":{\"@type\":\"Person\",\"name\":\"DevBench\"},\"url\":\"https://devbench-roan.vercel.app/blog/css-custom-highlight-api-complete-guide-2026/\"}"}}],["$","article",null,{"className":"max-w-3xl mx-auto px-4 py-12 sm:px-6 lg:px-8","children":[["$","$L2",null,{"href":"/blog/","className":"inline-flex items-center gap-1.5 text-sm text-slate-500 hover:text-brand-400 transition-colors mb-8","children":[["$","svg",null,{"xmlns":"http://www.w3.org/2000/svg","width":24,"height":24,"viewBox":"0 0 24 24","fill":"none","stroke":"currentColor","strokeWidth":2,"strokeLinecap":"round","strokeLinejoin":"round","className":"lucide lucide-arrow-left w-4 h-4","children":[["$","path","1l729n",{"d":"m12 19-7-7 7-7"}],["$","path","x3x0zl",{"d":"M19 12H5"}],"$undefined"]}],"Back to blog"]}],["$","header",null,{"className":"mb-10","children":[["$","h1",null,{"className":"text-3xl sm:text-4xl font-bold text-white mb-4 tracking-tight leading-tight","children":"CSS Custom Highlight API: Programmatic Text Highlighting Without Touching the DOM"}],["$","p",null,{"className":"text-lg text-slate-400 mb-6","children":"The CSS Custom Highlight API lets you style arbitrary text ranges without modifying the DOM, adding wrapper elements, or triggering reflows. Multiple simultaneous highlights, dynamic ranges, Shadow DOM support, and zero performance impact. Baseline 2026 — supported everywhere. Complete guide with real-world patterns for search results, grammar checking, collaborative editing, and code syntax highlighting — all powered by the browser's painting pipeline, not DOM manipulation."}],["$","div",null,{"className":"flex flex-wrap items-center gap-4 text-sm text-slate-500","children":[["$","span",null,{"className":"flex items-center gap-1.5","children":[["$","svg",null,{"xmlns":"http://www.w3.org/2000/svg","width":24,"height":24,"viewBox":"0 0 24 24","fill":"none","stroke":"currentColor","strokeWidth":2,"strokeLinecap":"round","strokeLinejoin":"round","className":"lucide lucide-calendar w-4 h-4","children":[["$","rect","eu3xkr",{"width":"18","height":"18","x":"3","y":"4","rx":"2","ry":"2"}],["$","line","m3sa8f",{"x1":"16","x2":"16","y1":"2","y2":"6"}],["$","line","18kwsl",{"x1":"8","x2":"8","y1":"2","y2":"6"}],["$","line","xt86sb",{"x1":"3","x2":"21","y1":"10","y2":"10"}],"$undefined"]}],"June 6, 2026"]}],["$","span",null,{"className":"flex items-center gap-1.5","children":[["$","svg",null,{"xmlns":"http://www.w3.org/2000/svg","width":24,"height":24,"viewBox":"0 0 24 24","fill":"none","stroke":"currentColor","strokeWidth":2,"strokeLinecap":"round","strokeLinejoin":"round","className":"lucide lucide-clock w-4 h-4","children":[["$","circle","1mglay",{"cx":"12","cy":"12","r":"10"}],["$","polyline","68esgv",{"points":"12 6 12 12 16 14"}],"$undefined"]}],"12 min read"]}],["$","span",null,{"className":"text-slate-600","children":["by ","DevBench"]}]]}],["$","div",null,{"className":"flex flex-wrap gap-2 mt-4","children":[["$","span","CSS",{"className":"px-2 py-0.5 rounded-md bg-brand-500/10 text-brand-400 text-xs font-medium border border-brand-500/20","children":"CSS"}],["$","span","Highlight API",{"className":"px-2 py-0.5 rounded-md bg-brand-500/10 text-brand-400 text-xs font-medium border border-brand-500/20","children":"Highlight API"}],["$","span","Baseline 2026",{"className":"px-2 py-0.5 rounded-md bg-brand-500/10 text-brand-400 text-xs font-medium border border-brand-500/20","children":"Baseline 2026"}],["$","span","Text Highlighting",{"className":"px-2 py-0.5 rounded-md bg-brand-500/10 text-brand-400 text-xs font-medium border border-brand-500/20","children":"Text Highlighting"}],["$","span","Web Platform",{"className":"px-2 py-0.5 rounded-md bg-brand-500/10 text-brand-400 text-xs font-medium border border-brand-500/20","children":"Web Platform"}],["$","span","Performance",{"className":"px-2 py-0.5 rounded-md bg-brand-500/10 text-brand-400 text-xs font-medium border border-brand-500/20","children":"Performance"}],["$","span","Ranges",{"className":"px-2 py-0.5 rounded-md bg-brand-500/10 text-brand-400 text-xs font-medium border border-brand-500/20","children":"Ranges"}],["$","span","::highlight()",{"className":"px-2 py-0.5 rounded-md bg-brand-500/10 text-brand-400 text-xs font-medium border border-brand-500/20","children":"::highlight()"}]]}]]}],["$","div",null,{"className":"blog-body","dangerouslySetInnerHTML":{"__html":"$3"}}],["$","hr",null,{"className":"border-slate-800 my-12"}],["$","div",null,{"className":"text-center","children":["$","$L2",null,{"href":"/blog/","className":"inline-flex items-center gap-1.5 text-brand-400 hover:text-brand-300 transition-colors font-medium","children":[["$","svg",null,{"xmlns":"http://www.w3.org/2000/svg","width":24,"height":24,"viewBox":"0 0 24 24","fill":"none","stroke":"currentColor","strokeWidth":2,"strokeLinecap":"round","strokeLinejoin":"round","className":"lucide lucide-arrow-left w-4 h-4","children":[["$","path","1l729n",{"d":"m12 19-7-7 7-7"}],["$","path","x3x0zl",{"d":"M19 12H5"}],"$undefined"]}],"More articles"]}]}]]}]],null],null],null]},[null,["$","$L4",null,{"parallelRouterKey":"children","segmentPath":["children","blog","children","$5","children"],"error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L6",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":"$undefined","notFoundStyles":"$undefined"}]],null]},[null,["$","$L4",null,{"parallelRouterKey":"children","segmentPath":["children","blog","children"],"error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L6",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":"$undefined","notFoundStyles":"$undefined"}]],null]},[[[["$","link","0",{"rel":"stylesheet","href":"/devbench-tech/_next/static/css/8b9213b1d18e4368.css","precedence":"next","crossOrigin":"$undefined"}]],["$","html",null,{"lang":"en","className":"dark","children":["$","body",null,{"className":"flex flex-col min-h-screen","children":[["$","script",null,{"type":"application/ld+json","dangerouslySetInnerHTML":{"__html":"{\"@context\":\"https://schema.org\",\"@type\":\"WebSite\",\"name\":\"DevBench\",\"url\":\"https://devbench-roan.vercel.app\",\"description\":\"Free developer tools for everyday use: JSON formatter, Base64 encoder/decoder, UUID generator, regex tester, benchmarks, and more.\",\"potentialAction\":{\"@type\":\"SearchAction\",\"target\":\"https://devbench-roan.vercel.app/tools?q={search_term_string}\",\"query-input\":\"required name=search_term_string\"}}"}}],["$","$L7",null,{}],["$","main",null,{"className":"flex-1","children":["$","$L4",null,{"parallelRouterKey":"children","segmentPath":["children"],"error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L6",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":[["$","title",null,{"children":"404: This page could not be found."}],["$","div",null,{"style":{"fontFamily":"system-ui,\"Segoe UI\",Roboto,Helvetica,Arial,sans-serif,\"Apple Color Emoji\",\"Segoe UI Emoji\"","height":"100vh","textAlign":"center","display":"flex","flexDirection":"column","alignItems":"center","justifyContent":"center"},"children":["$","div",null,{"children":[["$","style",null,{"dangerouslySetInnerHTML":{"__html":"body{color:#000;background:#fff;margin:0}.next-error-h1{border-right:1px solid rgba(0,0,0,.3)}@media (prefers-color-scheme:dark){body{color:#fff;background:#000}.next-error-h1{border-right:1px solid rgba(255,255,255,.3)}}"}}],["$","h1",null,{"className":"next-error-h1","style":{"display":"inline-block","margin":"0 20px 0 0","padding":"0 23px 0 0","fontSize":24,"fontWeight":500,"verticalAlign":"top","lineHeight":"49px"},"children":"404"}],["$","div",null,{"style":{"display":"inline-block"},"children":["$","h2",null,{"style":{"fontSize":14,"fontWeight":400,"lineHeight":"49px","margin":0},"children":"This page could not be found."}]}]]}]}]],"notFoundStyles":[]}]}],["$","footer",null,{"className":"bg-surface-light border-t border-slate-700/50 mt-auto","children":["$","div",null,{"className":"max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12","children":[["$","div",null,{"className":"grid grid-cols-1 md:grid-cols-3 gap-8","children":[["$","div",null,{"children":[["$","$L2",null,{"href":"/","className":"flex items-center gap-2.5 mb-3","children":[["$","div",null,{"className":"w-7 h-7 bg-brand-500 rounded-lg flex items-center justify-center","children":["$","svg",null,{"xmlns":"http://www.w3.org/2000/svg","width":24,"height":24,"viewBox":"0 0 24 24","fill":"none","stroke":"currentColor","strokeWidth":2,"strokeLinecap":"round","strokeLinejoin":"round","className":"lucide lucide-terminal w-3.5 h-3.5 text-white","children":[["$","polyline","akl6gq",{"points":"4 17 10 11 4 5"}],["$","line","q2wloq",{"x1":"12","x2":"20","y1":"19","y2":"19"}],"$undefined"]}]}],["$","span",null,{"className":"text-lg font-bold text-white","children":["Dev",["$","span",null,{"className":"gradient-text","children":"Bench"}]]}]]}],["$","p",null,{"className":"text-slate-400 text-sm leading-relaxed","children":"Free developer tools, benchmarks, and calculators. Built for developers, by developers."}]]}],["$","div",null,{"children":[["$","h3",null,{"className":"text-sm font-semibold text-slate-300 uppercase tracking-wider mb-4","children":"Tools"}],["$","ul",null,{"className":"space-y-2","children":[["$","li","/tools/json-formatter",{"children":["$","$L2",null,{"href":"/tools/json-formatter","className":"text-slate-400 hover:text-brand-400 text-sm transition-colors","children":"JSON Formatter"}]}],["$","li","/tools/base64",{"children":["$","$L2",null,{"href":"/tools/base64","className":"text-slate-400 hover:text-brand-400 text-sm transition-colors","children":"Base64 Encoder/Decoder"}]}],["$","li","/tools/uuid-generator",{"children":["$","$L2",null,{"href":"/tools/uuid-generator","className":"text-slate-400 hover:text-brand-400 text-sm transition-colors","children":"UUID Generator"}]}],["$","li","/tools/regex-tester",{"children":["$","$L2",null,{"href":"/tools/regex-tester","className":"text-slate-400 hover:text-brand-400 text-sm transition-colors","children":"Regex Tester"}]}]]}]]}],["$","div",null,{"children":[["$","h3",null,{"className":"text-sm font-semibold text-slate-300 uppercase tracking-wider mb-4","children":"Resources"}],["$","ul",null,{"className":"space-y-2","children":[["$","li","/blog",{"children":["$","$L2",null,{"href":"/blog","className":"text-slate-400 hover:text-brand-400 text-sm transition-colors","children":"Blog"}]}],["$","li","/benchmarks",{"children":["$","$L2",null,{"href":"/benchmarks","className":"text-slate-400 hover:text-brand-400 text-sm transition-colors","children":"Benchmarks"}]}],["$","li","/about",{"children":["$","$L2",null,{"href":"/about","className":"text-slate-400 hover:text-brand-400 text-sm transition-colors","children":"About"}]}]]}]]}]]}],["$","div",null,{"className":"mt-10 pt-6 border-t border-slate-700/50 flex flex-col sm:flex-row items-center justify-between gap-4","children":[["$","p",null,{"className":"text-slate-500 text-sm flex items-center gap-1","children":["Made with ",["$","svg",null,{"xmlns":"http://www.w3.org/2000/svg","width":24,"height":24,"viewBox":"0 0 24 24","fill":"none","stroke":"currentColor","strokeWidth":2,"strokeLinecap":"round","strokeLinejoin":"round","className":"lucide lucide-heart w-3.5 h-3.5 text-red-500 fill-red-500","children":[["$","path","c3ymky",{"d":"M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"}],"$undefined"]}]," by the DevBench team © ",2026]}],["$","a",null,{"href":"https://github.com","target":"_blank","rel":"noopener noreferrer","className":"text-slate-500 hover:text-slate-300 transition-colors","aria-label":"GitHub","children":["$","svg",null,{"xmlns":"http://www.w3.org/2000/svg","width":24,"height":24,"viewBox":"0 0 24 24","fill":"none","stroke":"currentColor","strokeWidth":2,"strokeLinecap":"round","strokeLinejoin":"round","className":"lucide lucide-github w-5 h-5","children":[["$","path","tonef",{"d":"M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"}],["$","path","9comsn",{"d":"M9 18c-4.51 2-5-2-7-2"}],"$undefined"]}]}]]}]]}]}],["$","$L8",null,{}],["$","$L9",null,{"position":"bottom-right","toastOptions":{"style":{"background":"#1e293b","color":"#e2e8f0","border":"1px solid #334155","fontSize":"14px"}}}]]}]}]],null],null],["$La",null]]]]
+a:[["$","meta","0",{"name":"viewport","content":"width=device-width, initial-scale=1"}],["$","meta","1",{"charSet":"utf-8"}],["$","title","2",{"children":"CSS Custom Highlight API: Programmatic Text Highlighting Without Touching the DOM | DevBench"}],["$","meta","3",{"name":"description","content":"The CSS Custom Highlight API lets you style arbitrary text ranges without modifying the DOM, adding wrapper elements, or triggering reflows. Multiple simultaneous highlights, dynamic ranges, Shadow DOM support, and zero performance impact. Baseline 2026 — supported everywhere. Complete guide with real-world patterns for search results, grammar checking, collaborative editing, and code syntax highlighting — all powered by the browser's painting pipeline, not DOM manipulation."}],["$","meta","4",{"name":"author","content":"DevBench"}],["$","meta","5",{"name":"keywords","content":"developer tools,JSON formatter,Base64,UUID generator,regex tester,benchmarks,dev tools"}],["$","meta","6",{"property":"og:title","content":"CSS Custom Highlight API: Programmatic Text Highlighting Without Touching the DOM"}],["$","meta","7",{"property":"og:description","content":"The CSS Custom Highlight API lets you style arbitrary text ranges without modifying the DOM, adding wrapper elements, or triggering reflows. Multiple simultaneous highlights, dynamic ranges, Shadow DOM support, and zero performance impact. Baseline 2026 — supported everywhere. Complete guide with real-world patterns for search results, grammar checking, collaborative editing, and code syntax highlighting — all powered by the browser's painting pipeline, not DOM manipulation."}],["$","meta","8",{"property":"og:type","content":"article"}],["$","meta","9",{"property":"article:published_time","content":"2026-06-06"}],["$","meta","10",{"property":"article:author","content":"DevBench"}],["$","meta","11",{"property":"article:tag","content":"CSS"}],["$","meta","12",{"property":"article:tag","content":"Highlight API"}],["$","meta","13",{"property":"article:tag","content":"Baseline 2026"}],["$","meta","14",{"property":"article:tag","content":"Text Highlighting"}],["$","meta","15",{"property":"article:tag","content":"Web Platform"}],["$","meta","16",{"property":"article:tag","content":"Performance"}],["$","meta","17",{"property":"article:tag","content":"Ranges"}],["$","meta","18",{"property":"article:tag","content":"::highlight()"}],["$","meta","19",{"name":"twitter:card","content":"summary"}],["$","meta","20",{"name":"twitter:title","content":"CSS Custom Highlight API: Programmatic Text Highlighting Without Touching the DOM"}],["$","meta","21",{"name":"twitter:description","content":"The CSS Custom Highlight API lets you style arbitrary text ranges without modifying the DOM, adding wrapper elements, or triggering reflows. Multiple simultaneous highlights, dynamic ranges, Shadow DOM support, and zero performance impact. Baseline 2026 — supported everywhere. Complete guide with real-world patterns for search results, grammar checking, collaborative editing, and code syntax highlighting — all powered by the browser's painting pipeline, not DOM manipulation."}],["$","link","22",{"rel":"icon","href":"/favicon.svg"}]]
+1:null

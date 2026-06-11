@@ -1,0 +1,404 @@
+<!DOCTYPE html><html lang="en" class="dark"><head><meta charSet="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/><link rel="stylesheet" href="/devbench-tech/_next/static/css/8b9213b1d18e4368.css" data-precedence="next"/><link rel="preload" as="script" fetchPriority="low" href="/devbench-tech/_next/static/chunks/webpack-b521a83317325026.js"/><script src="/devbench-tech/_next/static/chunks/fd9d1056-04e0aa683dc3c41f.js" async=""></script><script src="/devbench-tech/_next/static/chunks/2117-8374a93ea77a2be4.js" async=""></script><script src="/devbench-tech/_next/static/chunks/main-app-aaec773b36366bc0.js" async=""></script><script src="/devbench-tech/_next/static/chunks/2972-4aaa15d119eeb022.js" async=""></script><script src="/devbench-tech/_next/static/chunks/app/blog/%5Bslug%5D/page-a411190e7012c687.js" async=""></script><script src="/devbench-tech/_next/static/chunks/44530001-4ecf7a22b5b24163.js" async=""></script><script src="/devbench-tech/_next/static/chunks/8375-c77b8de36f6696fb.js" async=""></script><script src="/devbench-tech/_next/static/chunks/6829-f51803445ddf1872.js" async=""></script><script src="/devbench-tech/_next/static/chunks/app/layout-488e5c40aa6ffa72.js" async=""></script><title>CSS @scope: The End of Specificity Wars and BEM Naming | DevBench</title><meta name="description" content="CSS @scope lets you define a &quot;donut&quot; of style reach — styles apply only within a scope root and stop at a scope boundary. No more !important arms races, no more .card__title__icon__badge naming, no more specificity hacks. This complete guide covers @scope syntax, proximity (the most underrated CSS feature of 2026), donut scoping, real-world component patterns, and why @scope replaces CSS Modules for many use cases."/><meta name="author" content="DevBench"/><meta name="keywords" content="developer tools,JSON formatter,Base64,UUID generator,regex tester,benchmarks,dev tools"/><meta property="og:title" content="CSS @scope: The End of Specificity Wars and BEM Naming"/><meta property="og:description" content="CSS @scope lets you define a &quot;donut&quot; of style reach — styles apply only within a scope root and stop at a scope boundary. No more !important arms races, no more .card__title__icon__badge naming, no more specificity hacks. This complete guide covers @scope syntax, proximity (the most underrated CSS feature of 2026), donut scoping, real-world component patterns, and why @scope replaces CSS Modules for many use cases."/><meta property="og:type" content="article"/><meta property="article:published_time" content="2026-06-10"/><meta property="article:author" content="DevBench"/><meta property="article:tag" content="CSS"/><meta property="article:tag" content="@scope"/><meta property="article:tag" content="Cascade"/><meta property="article:tag" content="Scoping"/><meta property="article:tag" content="Specificity"/><meta property="article:tag" content="Components"/><meta property="article:tag" content="Baseline 2026"/><meta property="article:tag" content="Architecture"/><meta name="twitter:card" content="summary"/><meta name="twitter:title" content="CSS @scope: The End of Specificity Wars and BEM Naming"/><meta name="twitter:description" content="CSS @scope lets you define a &quot;donut&quot; of style reach — styles apply only within a scope root and stop at a scope boundary. No more !important arms races, no more .card__title__icon__badge naming, no more specificity hacks. This complete guide covers @scope syntax, proximity (the most underrated CSS feature of 2026), donut scoping, real-world component patterns, and why @scope replaces CSS Modules for many use cases."/><link rel="icon" href="/favicon.svg"/><script src="/devbench-tech/_next/static/chunks/polyfills-42372ed130431b0a.js" noModule=""></script></head><body class="flex flex-col min-h-screen"><script type="application/ld+json">{"@context":"https://schema.org","@type":"WebSite","name":"DevBench","url":"https://devbench-roan.vercel.app","description":"Free developer tools for everyday use: JSON formatter, Base64 encoder/decoder, UUID generator, regex tester, benchmarks, and more.","potentialAction":{"@type":"SearchAction","target":"https://devbench-roan.vercel.app/tools?q={search_term_string}","query-input":"required name=search_term_string"}}</script><header class="sticky top-0 z-50 transition-all duration-300 bg-surface border-b border-transparent"><div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8"><div class="flex items-center justify-between h-16"><a class="flex items-center gap-2.5 group" href="/devbench-tech/"><div class="w-8 h-8 bg-brand-500 rounded-lg flex items-center justify-center group-hover:bg-brand-400 transition-colors"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-terminal w-4 h-4 text-white"><polyline points="4 17 10 11 4 5"></polyline><line x1="12" x2="20" y1="19" y2="19"></line></svg></div><span class="text-xl font-bold text-white tracking-tight">Dev<span class="gradient-text">Bench</span></span></a><nav class="hidden md:flex items-center gap-1"><a class="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 text-slate-400 hover:text-slate-200 hover:bg-surface-lighter" href="/devbench-tech/tools/"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-wrench w-4 h-4"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path></svg>Tools</a><a class="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 text-slate-400 hover:text-slate-200 hover:bg-surface-lighter" href="/devbench-tech/benchmarks/"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-bar-chart3 w-4 h-4"><path d="M3 3v18h18"></path><path d="M18 17V9"></path><path d="M13 17V5"></path><path d="M8 17v-3"></path></svg>Benchmarks</a><a class="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 bg-brand-500/10 text-brand-400" href="/devbench-tech/blog/"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-book-open w-4 h-4"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg>Blog</a><a class="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 text-slate-400 hover:text-slate-200 hover:bg-surface-lighter" href="/devbench-tech/about/"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-info w-4 h-4"><circle cx="12" cy="12" r="10"></circle><path d="M12 16v-4"></path><path d="M12 8h.01"></path></svg>About</a></nav><button class="md:hidden p-2 rounded-lg text-slate-400 hover:text-white hover:bg-surface-lighter transition-colors" aria-label="Toggle menu"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-menu w-5 h-5"><line x1="4" x2="20" y1="12" y2="12"></line><line x1="4" x2="20" y1="6" y2="6"></line><line x1="4" x2="20" y1="18" y2="18"></line></svg></button></div></div></header><main class="flex-1"><script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","headline":"CSS @scope: The End of Specificity Wars and BEM Naming","description":"CSS @scope lets you define a \"donut\" of style reach — styles apply only within a scope root and stop at a scope boundary. No more !important arms races, no more .card__title__icon__badge naming, no more specificity hacks. This complete guide covers @scope syntax, proximity (the most underrated CSS feature of 2026), donut scoping, real-world component patterns, and why @scope replaces CSS Modules for many use cases.","datePublished":"2026-06-10","author":{"@type":"Person","name":"DevBench"},"url":"https://devbench-roan.vercel.app/blog/css-scope-complete-guide-2026/"}</script><article class="max-w-3xl mx-auto px-4 py-12 sm:px-6 lg:px-8"><a class="inline-flex items-center gap-1.5 text-sm text-slate-500 hover:text-brand-400 transition-colors mb-8" href="/devbench-tech/blog/"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-arrow-left w-4 h-4"><path d="m12 19-7-7 7-7"></path><path d="M19 12H5"></path></svg>Back to blog</a><header class="mb-10"><h1 class="text-3xl sm:text-4xl font-bold text-white mb-4 tracking-tight leading-tight">CSS @scope: The End of Specificity Wars and BEM Naming</h1><p class="text-lg text-slate-400 mb-6">CSS @scope lets you define a &quot;donut&quot; of style reach — styles apply only within a scope root and stop at a scope boundary. No more !important arms races, no more .card__title__icon__badge naming, no more specificity hacks. This complete guide covers @scope syntax, proximity (the most underrated CSS feature of 2026), donut scoping, real-world component patterns, and why @scope replaces CSS Modules for many use cases.</p><div class="flex flex-wrap items-center gap-4 text-sm text-slate-500"><span class="flex items-center gap-1.5"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-calendar w-4 h-4"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"></rect><line x1="16" x2="16" y1="2" y2="6"></line><line x1="8" x2="8" y1="2" y2="6"></line><line x1="3" x2="21" y1="10" y2="10"></line></svg>June 10, 2026</span><span class="flex items-center gap-1.5"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-clock w-4 h-4"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>12 min read</span><span class="text-slate-600">by <!-- -->DevBench</span></div><div class="flex flex-wrap gap-2 mt-4"><span class="px-2 py-0.5 rounded-md bg-brand-500/10 text-brand-400 text-xs font-medium border border-brand-500/20">CSS</span><span class="px-2 py-0.5 rounded-md bg-brand-500/10 text-brand-400 text-xs font-medium border border-brand-500/20">@scope</span><span class="px-2 py-0.5 rounded-md bg-brand-500/10 text-brand-400 text-xs font-medium border border-brand-500/20">Cascade</span><span class="px-2 py-0.5 rounded-md bg-brand-500/10 text-brand-400 text-xs font-medium border border-brand-500/20">Scoping</span><span class="px-2 py-0.5 rounded-md bg-brand-500/10 text-brand-400 text-xs font-medium border border-brand-500/20">Specificity</span><span class="px-2 py-0.5 rounded-md bg-brand-500/10 text-brand-400 text-xs font-medium border border-brand-500/20">Components</span><span class="px-2 py-0.5 rounded-md bg-brand-500/10 text-brand-400 text-xs font-medium border border-brand-500/20">Baseline 2026</span><span class="px-2 py-0.5 rounded-md bg-brand-500/10 text-brand-400 text-xs font-medium border border-brand-500/20">Architecture</span></div></header><div class="blog-body"><div class="blog-content">
+<h2 class="post-h2">The Problem: CSS Is Global by Default</h2>
+
+<p class="post-p">
+Every CSS rule you write applies <strong>everywhere in the document</strong> — unless you explicitly scope it with a descendant combinator, a class chain, or a naming convention. This is why we have BEM (<code>.block__element--modifier</code>), CSS Modules (<code>styles.card_title_hash</code>), and the entire shadow DOM pattern.
+</p>
+
+<p class="post-p">
+The cascade was designed for documents, not component trees. In a world of React, Vue, and Svelte components — where a <code>.title</code> in a sidebar card should never bleed into a <code>.title</code> in a modal — the global cascade is a liability.
+</p>
+
+<p class="post-p">
+<code>@scope</code> fixes this at the CSS level. Not a preprocessor. Not a build tool. Not JavaScript. Just CSS.
+</p>
+
+<h2 class="post-h2">@scope Basics: A Container for Style Reach</h2>
+
+<p class="post-p">
+<code>@scope</code> wraps a block of CSS and restricts where those styles apply. Everything inside the <code>@scope</code> block only matches elements <strong>within</strong> the scope root.
+</p>
+
+<pre><code>/* Without @scope — .title matches EVERYWHERE */
+.title { color: red; }
+
+/* With @scope — .title only matches inside .card */
+@scope (.card) {
+  .title { color: red; }
+}</code></pre>
+
+<p class="post-p">
+Under the hood, the browser rewrites <code>.title</code> to <code>.card .title</code> — but with proper scoping semantics. The selector's specificity doesn't change. The scoping root adds zero specificity weight. This is the first massive win: <strong>@scope does not inflate specificity</strong>.
+</p>
+
+<p class="post-p">
+Contrast this with the manual approach — <code>.card .title</code> has specificity (0,2,0) while <code>.title</code> has (0,1,0). With <code>@scope</code>, your styles stay at their original specificity level. The scoping is structural, not specificitational.
+</p>
+
+<h2 class="post-h2">Donut Scoping: The Feature That Changes Everything</h2>
+
+<p class="post-p">
+The <code>@scope</code> syntax accepts an optional <strong>upper boundary</strong>. This creates a "donut" of style reach: styles apply within the scope root, but <strong>stop</strong> at the boundary. They do not apply to nested instances.
+</p>
+
+<pre><code>/* Donut scoping: styles apply within .card */
+/* but STOP at any nested .card (or .no-style) */
+@scope (.card) to (.card, .no-style) {
+  .title { font-size: 1.5rem; }
+  .body  { line-height: 1.6; }
+}</code></pre>
+
+<p class="post-p">
+What this means: a <code>.card</code> nested inside another <code>.card</code> does <em>not</em> receive the outer card's styles. This solves the deepest nesting problem in CSS — where deeply nested components inherit styles from all their ancestors.
+</p>
+
+<p class="post-p">
+Think of comments: a top-level comment and a reply comment are both <code>.comment</code> components. With <code>@scope</code>, you can style the top-level component without worrying that nested replies will doubly apply those styles:
+</p>
+
+<pre><code>@scope (.comment) to (.comment) {
+  .comment-body { padding: 16px; }
+  .comment-author { font-weight: 600; }
+  .reply-thread { margin-left: 32px; }
+}</code></pre>
+
+<p class="post-p">
+This also means: no more <code>.comment:not(.comment .comment)</code> hacks. No more <code>&gt;</code> (child combinator) overuse. Scoping just works.
+</p>
+
+<h2 class="post-h2">Proximity: The Most Underrated CSS Feature of 2026</h2>
+
+<p class="post-p">
+Here's where <code>@scope</code> goes from "useful" to "revolutionary." When multiple <code>@scope</code> blocks in a component tree match the same element, the browser compares their <strong>proximity</strong> to the element — and the <strong>closer scope root wins</strong>.
+</p>
+
+<p class="post-p">
+This is a new cascade layer. After origin and specificity and order, the browser now checks <strong>scope proximity</strong>. The innermost matching scope overrides the outer scope, regardless of specificity. Let that sink in.
+</p>
+
+<pre><code>/* Light theme scope */
+@scope (.theme-light) {
+  .button {
+    background: white;
+    color: black;
+    border: 1px solid #ddd;
+  }
+}
+
+/* Dark theme scope — nested inside light */
+@scope (.theme-dark) {
+  .button {
+    background: #1a1a2e;
+    color: #e0e0e0;
+    border: 1px solid #333;
+  }
+}</code></pre>
+
+<pre><code>&lt;!-- HTML -->
+&lt;div class="theme-light">
+  &lt;button class="button">Light button&lt;/button>
+
+  &lt;div class="theme-dark">
+    &lt;button class="button">
+      Dark button &lt;!-- PROXIMITY WINS: .theme-dark is closer -->
+    &lt;/button>
+  &lt;/div>
+&lt;/div></code></pre>
+
+<p class="post-p">
+The dark button gets the dark styles — even though both scopes match — because <code>.theme-dark</code> is closer to the button in the DOM tree. <strong>No specificity tricks, no !important, no CSS-in-JS theme provider.</strong>
+</p>
+
+<p class="post-p">
+This is the feature that makes <code>@scope</code> a legitimate replacement for React Context-based theming, CSS-in-JS scoping, and the cascade management gymnastics that frameworks force us into.
+</p>
+
+<h2 class="post-h2">Proximity vs Specificity: The New Cascade Layer</h2>
+
+<p class="post-p">
+The full cascade order, with <code>@scope</code>, is now:
+</p>
+
+<ol>
+<li><strong>Origin &amp; Importance</strong> — user-agent, user, author, author !important, user !important, user-agent !important</li>
+<li><strong>Context</strong> — shadow DOM encapsulation</li>
+<li><strong>Style attribute</strong> — inline styles</li>
+<li><strong>Layers</strong> — @layer (first declared wins for normal, last declared wins for !important)</li>
+<li><strong>Specificity</strong> — (id, class, type)</li>
+<li><strong>Scope proximity</strong> — ✨ NEW — closer scope root wins</li>
+<li><strong>Order of appearance</strong> — last declared wins</li>
+</ol>
+
+<p class="post-p">
+Scope proximity sits <strong>between specificity and order</strong>. This is the sweet spot: it's stronger than specificity (so nested themes always win) but weaker than cascade layers (so you can still use <code>@layer</code> for architectural control).
+</p>
+
+<table>
+<thead><tr><th>Feature</th><th>Where It Sits</th><th>Use Case</th></tr></thead>
+<tbody>
+<tr><td><code>@layer</code></td><td>Before specificity</td><td>Architectural organization: base → components → utilities → overrides</td></tr>
+<tr><td><strong><code>@scope</code> proximity</strong></td><td><strong>After specificity, before order</strong></td><td><strong>Component nesting: theme overrides, nested widget isolation</strong></td></tr>
+<tr><td>Specificity</td><td>After layers, before proximity</td><td>Targeted overrides within the same scope</td></tr>
+<tr><td>Order</td><td>After everything</td><td>Last-resort tiebreaker</td></tr>
+</tbody>
+</table>
+
+<h2 class="post-h2">Real-World Pattern 1: Component Library Without BEM</h2>
+
+<p class="post-p">
+A design system with <code>@scope</code> — no BEM, no hashed class names, no <code>:where()</code> hacks:
+</p>
+
+<pre><code>/* card.css */
+@scope (.card) {
+  .header { padding: 16px; border-bottom: 1px solid #eee; }
+  .title  { font-size: 1.25rem; font-weight: 700; }
+  .body   { padding: 16px; line-height: 1.6; }
+  .footer { padding: 12px 16px; background: #f9f9f9; }
+
+  /* Compact variant */
+  .card--compact .body { padding: 8px; }
+  .card--compact .title { font-size: 1rem; }
+}
+
+/* tabs.css */
+@scope (.tabs) {
+  .tab { padding: 8px 16px; cursor: pointer; }
+  .tab--active { border-bottom: 2px solid blue; }
+  .panel { padding: 16px; }
+}</code></pre>
+
+<p class="post-p">
+Notice: <code>.header</code>, <code>.title</code>, <code>.body</code> — generic class names that would be a collision nightmare without scoping. With <code>@scope</code>, they're perfectly safe. You can drop <code>.card__header</code>, <code>.card__title</code>, <code>.card__body</code> from your vocabulary.
+</p>
+
+<p class="post-p">
+Also notice how <code>.card--compact .body</code> still works! You can have class variants on the scope root and use descendant selectors normally — they still stay within the scope.
+</p>
+
+<h2 class="post-h2">Real-World Pattern 2: Nested Components That Don't Leak</h2>
+
+<p class="post-p">
+A comment thread with replies — the classic "nested same-component" problem:
+</p>
+
+<pre><code>@scope (.comment) to (.comment) {
+  .comment-body {
+    padding: 12px;
+    border-left: 3px solid #e0e0e0;
+    margin-bottom: 8px;
+  }
+  .comment-author { font-weight: 600; font-size: 0.9rem; }
+  .comment-time   { color: #888; font-size: 0.8rem; }
+  .replies {
+    margin-left: 32px;
+    padding-left: 0; /* Resets are scoped too */
+  }
+}</code></pre>
+
+<pre><code>&lt;!-- Each .comment gets its styles exactly once -->
+&lt;div class="comment">
+  &lt;div class="comment-body">Top-level comment&lt;/div>
+  &lt;div class="replies">
+    &lt;div class="comment">
+      &lt;div class="comment-body">Reply — gets its OWN styles&lt;/div>
+      &lt;div class="replies">
+        &lt;div class="comment">
+          &lt;div class="comment-body">Nested reply — still gets its own&lt;/div>
+        &lt;/div>
+      &lt;/div>
+    &lt;/div>
+  &lt;/div>
+&lt;/div></code></pre>
+
+<p class="post-p">
+Without <code>@scope</code>, the nested <code>.comment-body</code> would match <code>.comment .comment .comment-body</code> from the outer scope — getting styles applied 2-3 times with compounding effects (double padding, double borders). With <code>@scope to (.comment)</code>, each comment instance only sees its own immediate scope.
+</p>
+
+<h2 class="post-h2">Real-World Pattern 3: Theme Zones</h2>
+
+<p class="post-p">
+A page with multiple theme zones — light, dark, high-contrast — using only CSS:
+</p>
+
+<pre><code>/* Default (light) */
+@scope (.theme-light) to (.theme-dark, .theme-contrast) {
+  body, .card, .modal { background: white; color: #1a1a1a; }
+  .link { color: #0066cc; }
+  .button { background: #0066cc; color: white; }
+  .input { background: white; border: 1px solid #ccc; }
+}
+
+@scope (.theme-dark) to (.theme-light, .theme-contrast) {
+  body, .card, .modal { background: #1a1a2e; color: #e0e0e0; }
+  .link { color: #66b3ff; }
+  .button { background: #4a4aff; color: #e0e0e0; }
+  .input { background: #16213e; border: 1px solid #333; }
+}
+
+@scope (.theme-contrast) to (.theme-light, .theme-dark) {
+  body, .card, .modal { background: black; color: white; }
+  .link { color: yellow; }
+  .button { background: yellow; color: black; }
+  .input { background: black; border: 2px solid white; }
+}</code></pre>
+
+<p class="post-p">
+No JavaScript theme context needed. No CSS custom properties cascade to manage. No specificity wars when themes nest. The donut boundaries (<code>to (...)</code>) ensure a <code>.theme-dark</code> inside a <code>.theme-light</code> completely takes over — and proximity ensures the innermost theme wins.
+</p>
+
+<h2 class="post-h2">Performance: @scope Is Free</h2>
+
+<p class="post-p">
+<code>@scope</code> doesn't incur a runtime cost. During style resolution, the browser already walks up the ancestor tree to compute specificity and inheritance. Checking for a scope root on that same walk is essentially zero-cost.
+</p>
+
+<p class="post-p">
+Compare this to CSS-in-JS runtime solutions: generating unique class names, injecting <code>&lt;style&gt;</code> tags, hashing, runtime insertion. <code>@scope</code> in a static stylesheet is orders of magnitude faster than any JS-based scoping strategy.
+</p>
+
+<table>
+<thead><tr><th>Approach</th><th>Build Cost</th><th>Runtime Cost</th><th>Scoping Granularity</th></tr></thead>
+<tbody>
+<tr><td>BEM naming</td><td>None (manual)</td><td>None</td><td>Convention only (leaks)</td></tr>
+<tr><td>CSS Modules</td><td>Hash + source map</td><td>None</td><td>Per-file</td></tr>
+<tr><td>CSS-in-JS (runtime)</td><td>None</td><td>Hash + inject + parse</td><td>Per-component</td></tr>
+<tr><td>Shadow DOM</td><td>None</td><td>Style encapsulation</td><td>Per-shadow-root</td></tr>
+<tr><td><strong>@scope</strong></td><td><strong>None</strong></td><td><strong>~Zero</strong></td><td><strong>Per-scope-root</strong></td></tr>
+</tbody>
+</table>
+
+<h2 class="post-h2">@scope + @layer: The Ultimate CSS Architecture</h2>
+
+<p class="post-p">
+<code>@scope</code> and <code>@layer</code> solve different problems and compose beautifully:
+</p>
+
+<ul>
+<li><strong>@layer</strong> controls the <em>order</em> of styles across your entire codebase. Use it for architectural boundaries: reset → base → components → utilities.</li>
+<li><strong>@scope</strong> controls the <em>reach</em> of styles within components. Use it for isolation: this component's styles only apply here, with proximity-based overrides.</li>
+</ul>
+
+<pre><code>@layer components {
+  @scope (.card) to (.card) {
+    .header { padding: 16px; }
+    .title  { font-size: 1.25rem; }
+    .body   { padding: 16px; }
+  }
+
+  @scope (.modal) to (.modal) {
+    .header { padding: 20px; }
+    .title  { font-size: 1.5rem; }
+    .body   { padding: 20px; }
+  }
+}</code></pre>
+
+<p class="post-p">
+The <code>.header</code> in a card and the <code>.header</code> in a modal are completely isolated. They can have completely different styles with zero interference. And both are in the <code>components</code> layer, so they both beat utilities but lose to overrides.
+</p>
+
+<h2 class="post-h2">Browser Support (June 2026)</h2>
+
+<table>
+<thead><tr><th>Browser</th><th>Supported Since</th></tr></thead>
+<tbody>
+<tr><td>Chrome</td><td>118 (October 2023)</td></tr>
+<tr><td>Edge</td><td>118 (October 2023)</td></tr>
+<tr><td>Safari</td><td>17.4 (March 2024)</td></tr>
+<tr><td>Firefox</td><td>128 (July 2024)</td></tr>
+</tbody>
+</table>
+
+<p class="post-p">
+<strong>Baseline since September 2024.</strong> Global coverage: ~95%. <code>@scope</code> is production-ready everywhere. The <code>to</code> (upper boundary) syntax is also fully supported in all major browsers.
+</p>
+
+<h2 class="post-h2">Progressive Enhancement</h2>
+
+<p class="post-p">
+For older browsers, the fallback is the default CSS behavior — styles apply everywhere. This is usually fine: scoping is a "nice to have" for correctness, not a hard requirement for functionality.
+</p>
+
+<pre><code>/* Modern: scoped */
+@scope (.card) to (.card) {
+  .title { font-size: 1.25rem; }
+}
+
+/* Fallback for browsers without @scope support */
+@supports not (scope(.card)) {
+  .card .title { font-size: 1.25rem; }
+  .card .card .title { font-size: inherit; } /* Undo nesting */
+}</code></pre>
+
+<p class="post-p">
+In practice, with 95% global support, most projects can use <code>@scope</code> directly with no fallback. The <code>@supports</code> fallback is only necessary for enterprise products targeting IE-mode or very old environments.
+</p>
+
+<h2 class="post-h2">When NOT to Use @scope</h2>
+
+<ul>
+<li><strong>Single-scope pages:</strong> If your entire app has one theme and no nested same-component patterns, <code>@scope</code> adds no value.</li>
+<li><strong>Shadow DOM components:</strong> Shadow DOM already provides style encapsulation. <code>@scope</code> is for light DOM scoping.</li>
+<li><strong>Framework-managed scoping:</strong> If you're deeply invested in CSS Modules or a CSS-in-JS library that already solves scoping, migrating to <code>@scope</code> is a nice-to-have, not a must-have.</li>
+<li><strong>Global utilities:</strong> A <code>.sr-only</code> or <code>.visually-hidden</code> utility should <em>not</em> be scoped. Use <code>@layer utilities</code> for those instead.</li>
+</ul>
+
+<h2 class="post-h2">:scope Pseudo-Class — The Implicit Selector</h2>
+
+<p class="post-p">
+Within an <code>@scope</code> block, <code>:scope</code> refers to the scope root. This is useful for self-referencing selectors:
+</p>
+
+<pre><code>@scope (.card) {
+  /* Style the .card itself when it's being hovered */
+  :scope:hover {
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  }
+
+  /* Style .card when it contains an image */
+  :scope:has(img) {
+    padding: 0;
+  }
+
+  /* The title, but only inside a hovered card */
+  :scope:hover .title {
+    color: blue;
+  }
+}</code></pre>
+
+<p class="post-p">
+<code>:scope</code> is particularly powerful with <code>:has()</code> — you can style the card differently depending on its content, all within the scoped block.
+</p>
+
+<h2 class="post-h2">The Bottom Line</h2>
+
+<p class="post-p">
+CSS has spent 25 years fighting global scope creep. BEM. SMACSS. OOCSS. CSS Modules. Scoped styles in Vue. CSS-in-JS. Shadow DOM. Every solution was either a naming convention (easy to break), a build tool (fragile), or a JavaScript runtime (heavy).
+</p>
+
+<p class="post-p">
+<code>@scope</code> is the platform-level solution. It gives you:
+</p>
+
+<ul>
+<li><strong>Donut scoping:</strong> Styles apply here, stop there. No leakage.</li>
+<li><strong>Proximity:</strong> Innermost scope wins. No specificity wars.</li>
+<li><strong>Zero runtime cost:</strong> Browser-native. No JS. No build step.</li>
+<li><strong>Clean class names:</strong> <code>.title</code> not <code>.card__title__icon--large</code>.</li>
+</ul>
+
+<p class="post-p">
+If you're starting a new project in 2026, <code>@scope</code> should be your default scoping strategy. Combined with <code>@layer</code> for architectural boundaries and <code>:has()</code> for parent-aware selectors, it forms the foundation of a modern CSS architecture that's simpler, faster, and more maintainable than anything that came before.
+</p>
+
+<p class="post-p">
+The specificity wars are over. <code>@scope</code> won.
+</p>
+
+<hr/>
+
+<p class="post-p"><strong>Try it live:</strong> <a href="/tools/css-scope-playground" class="inline-link">CSS Scope Playground</a> — experiment with <code>@scope</code> scoping roots, donut boundaries, and proximity-based overrides with live preview.</p>
+
+<p class="post-p"><em>Further reading: Check out the <a href="/blog/css-nesting-complete-guide-2026" class="inline-link">CSS Nesting Complete Guide</a> for native nesting syntax, the <a href="/blog/css-cascade-layers" class="inline-link">CSS Cascade Layers guide</a> for architectural layering, and the <a href="/blog/css-container-queries-complete-guide-2026" class="inline-link">Container Queries guide</a> for component-level responsive design.</em></p>
+
+</div></div><hr class="border-slate-800 my-12"/><div class="text-center"><a class="inline-flex items-center gap-1.5 text-brand-400 hover:text-brand-300 transition-colors font-medium" href="/devbench-tech/blog/"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-arrow-left w-4 h-4"><path d="m12 19-7-7 7-7"></path><path d="M19 12H5"></path></svg>More articles</a></div></article></main><footer class="bg-surface-light border-t border-slate-700/50 mt-auto"><div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12"><div class="grid grid-cols-1 md:grid-cols-3 gap-8"><div><a class="flex items-center gap-2.5 mb-3" href="/devbench-tech/"><div class="w-7 h-7 bg-brand-500 rounded-lg flex items-center justify-center"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-terminal w-3.5 h-3.5 text-white"><polyline points="4 17 10 11 4 5"></polyline><line x1="12" x2="20" y1="19" y2="19"></line></svg></div><span class="text-lg font-bold text-white">Dev<span class="gradient-text">Bench</span></span></a><p class="text-slate-400 text-sm leading-relaxed">Free developer tools, benchmarks, and calculators. Built for developers, by developers.</p></div><div><h3 class="text-sm font-semibold text-slate-300 uppercase tracking-wider mb-4">Tools</h3><ul class="space-y-2"><li><a class="text-slate-400 hover:text-brand-400 text-sm transition-colors" href="/devbench-tech/tools/json-formatter/">JSON Formatter</a></li><li><a class="text-slate-400 hover:text-brand-400 text-sm transition-colors" href="/devbench-tech/tools/base64/">Base64 Encoder/Decoder</a></li><li><a class="text-slate-400 hover:text-brand-400 text-sm transition-colors" href="/devbench-tech/tools/uuid-generator/">UUID Generator</a></li><li><a class="text-slate-400 hover:text-brand-400 text-sm transition-colors" href="/devbench-tech/tools/regex-tester/">Regex Tester</a></li></ul></div><div><h3 class="text-sm font-semibold text-slate-300 uppercase tracking-wider mb-4">Resources</h3><ul class="space-y-2"><li><a class="text-slate-400 hover:text-brand-400 text-sm transition-colors" href="/devbench-tech/blog/">Blog</a></li><li><a class="text-slate-400 hover:text-brand-400 text-sm transition-colors" href="/devbench-tech/benchmarks/">Benchmarks</a></li><li><a class="text-slate-400 hover:text-brand-400 text-sm transition-colors" href="/devbench-tech/about/">About</a></li></ul></div></div><div class="mt-10 pt-6 border-t border-slate-700/50 flex flex-col sm:flex-row items-center justify-between gap-4"><p class="text-slate-500 text-sm flex items-center gap-1">Made with <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-heart w-3.5 h-3.5 text-red-500 fill-red-500"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"></path></svg> by the DevBench team © <!-- -->2026</p><a href="https://github.com" target="_blank" rel="noopener noreferrer" class="text-slate-500 hover:text-slate-300 transition-colors" aria-label="GitHub"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-github w-5 h-5"><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"></path><path d="M9 18c-4.51 2-5-2-7-2"></path></svg></a></div></div></footer><div data-rht-toaster="" style="position:fixed;z-index:9999;top:16px;left:16px;right:16px;bottom:16px;pointer-events:none"></div><script src="/devbench-tech/_next/static/chunks/webpack-b521a83317325026.js" async=""></script><script>(self.__next_f=self.__next_f||[]).push([0]);self.__next_f.push([2,null])</script><script>self.__next_f.push([1,"1:HL[\"/devbench-tech/_next/static/css/8b9213b1d18e4368.css\",\"style\"]\n"])</script><script>self.__next_f.push([1,"2:I[12846,[],\"\"]\n4:I[72972,[\"2972\",\"static/chunks/2972-4aaa15d119eeb022.js\",\"308\",\"static/chunks/app/blog/%5Bslug%5D/page-a411190e7012c687.js\"],\"\"]\n6:I[4707,[],\"\"]\n8:I[36423,[],\"\"]\n9:I[39295,[\"9762\",\"static/chunks/44530001-4ecf7a22b5b24163.js\",\"2972\",\"static/chunks/2972-4aaa15d119eeb022.js\",\"8375\",\"static/chunks/8375-c77b8de36f6696fb.js\",\"6829\",\"static/chunks/6829-f51803445ddf1872.js\",\"3185\",\"static/chunks/app/layout-488e5c40aa6ffa72.js\"],\"Header\"]\na:I[66506,[\"9762\",\"static/chunks/44530001-4ecf7a22b5b24163.js\",\"2972\",\"static/chunks/2972-4aaa15d119eeb022.js\",\"8375\",\"static/chunks/8375-c77b8de36f6696fb.js\",\"6829\",\"static/chunks/6829-f51803445ddf1872.js\",\"3185\",\"static/chunks/app/layout-488e5c40aa6ffa72.js\"],\"Analytics\"]\nb:I[69064,[\"9762\",\"static/chunks/44530001-4ecf7a22b5b24163.js\",\"2972\",\"static/chunks/2972-4aaa15d119eeb022.js\",\"8375\",\"static/chunks/8375-c77b8de36f6696fb.js\",\"6829\",\"static/chunks/6829-f51803445ddf1872.js\",\"3185\",\"static/chunks/app/layout-488e5c40aa6ffa72.js\"],\"Toaster\"]\nd:I[61060,[],\"\"]\n5:T473d,"])</script><script>self.__next_f.push([1,"\u003cdiv class=\"blog-content\"\u003e\n\u003ch2 class=\"post-h2\"\u003eThe Problem: CSS Is Global by Default\u003c/h2\u003e\n\n\u003cp class=\"post-p\"\u003e\nEvery CSS rule you write applies \u003cstrong\u003eeverywhere in the document\u003c/strong\u003e — unless you explicitly scope it with a descendant combinator, a class chain, or a naming convention. This is why we have BEM (\u003ccode\u003e.block__element--modifier\u003c/code\u003e), CSS Modules (\u003ccode\u003estyles.card_title_hash\u003c/code\u003e), and the entire shadow DOM pattern.\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\nThe cascade was designed for documents, not component trees. In a world of React, Vue, and Svelte components — where a \u003ccode\u003e.title\u003c/code\u003e in a sidebar card should never bleed into a \u003ccode\u003e.title\u003c/code\u003e in a modal — the global cascade is a liability.\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n\u003ccode\u003e@scope\u003c/code\u003e fixes this at the CSS level. Not a preprocessor. Not a build tool. Not JavaScript. Just CSS.\n\u003c/p\u003e\n\n\u003ch2 class=\"post-h2\"\u003e@scope Basics: A Container for Style Reach\u003c/h2\u003e\n\n\u003cp class=\"post-p\"\u003e\n\u003ccode\u003e@scope\u003c/code\u003e wraps a block of CSS and restricts where those styles apply. Everything inside the \u003ccode\u003e@scope\u003c/code\u003e block only matches elements \u003cstrong\u003ewithin\u003c/strong\u003e the scope root.\n\u003c/p\u003e\n\n\u003cpre\u003e\u003ccode\u003e/* Without @scope — .title matches EVERYWHERE */\n.title { color: red; }\n\n/* With @scope — .title only matches inside .card */\n@scope (.card) {\n  .title { color: red; }\n}\u003c/code\u003e\u003c/pre\u003e\n\n\u003cp class=\"post-p\"\u003e\nUnder the hood, the browser rewrites \u003ccode\u003e.title\u003c/code\u003e to \u003ccode\u003e.card .title\u003c/code\u003e — but with proper scoping semantics. The selector's specificity doesn't change. The scoping root adds zero specificity weight. This is the first massive win: \u003cstrong\u003e@scope does not inflate specificity\u003c/strong\u003e.\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\nContrast this with the manual approach — \u003ccode\u003e.card .title\u003c/code\u003e has specificity (0,2,0) while \u003ccode\u003e.title\u003c/code\u003e has (0,1,0). With \u003ccode\u003e@scope\u003c/code\u003e, your styles stay at their original specificity level. The scoping is structural, not specificitational.\n\u003c/p\u003e\n\n\u003ch2 class=\"post-h2\"\u003eDonut Scoping: The Feature That Changes Everything\u003c/h2\u003e\n\n\u003cp class=\"post-p\"\u003e\nThe \u003ccode\u003e@scope\u003c/code\u003e syntax accepts an optional \u003cstrong\u003eupper boundary\u003c/strong\u003e. This creates a \"donut\" of style reach: styles apply within the scope root, but \u003cstrong\u003estop\u003c/strong\u003e at the boundary. They do not apply to nested instances.\n\u003c/p\u003e\n\n\u003cpre\u003e\u003ccode\u003e/* Donut scoping: styles apply within .card */\n/* but STOP at any nested .card (or .no-style) */\n@scope (.card) to (.card, .no-style) {\n  .title { font-size: 1.5rem; }\n  .body  { line-height: 1.6; }\n}\u003c/code\u003e\u003c/pre\u003e\n\n\u003cp class=\"post-p\"\u003e\nWhat this means: a \u003ccode\u003e.card\u003c/code\u003e nested inside another \u003ccode\u003e.card\u003c/code\u003e does \u003cem\u003enot\u003c/em\u003e receive the outer card's styles. This solves the deepest nesting problem in CSS — where deeply nested components inherit styles from all their ancestors.\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\nThink of comments: a top-level comment and a reply comment are both \u003ccode\u003e.comment\u003c/code\u003e components. With \u003ccode\u003e@scope\u003c/code\u003e, you can style the top-level component without worrying that nested replies will doubly apply those styles:\n\u003c/p\u003e\n\n\u003cpre\u003e\u003ccode\u003e@scope (.comment) to (.comment) {\n  .comment-body { padding: 16px; }\n  .comment-author { font-weight: 600; }\n  .reply-thread { margin-left: 32px; }\n}\u003c/code\u003e\u003c/pre\u003e\n\n\u003cp class=\"post-p\"\u003e\nThis also means: no more \u003ccode\u003e.comment:not(.comment .comment)\u003c/code\u003e hacks. No more \u003ccode\u003e\u0026gt;\u003c/code\u003e (child combinator) overuse. Scoping just works.\n\u003c/p\u003e\n\n\u003ch2 class=\"post-h2\"\u003eProximity: The Most Underrated CSS Feature of 2026\u003c/h2\u003e\n\n\u003cp class=\"post-p\"\u003e\nHere's where \u003ccode\u003e@scope\u003c/code\u003e goes from \"useful\" to \"revolutionary.\" When multiple \u003ccode\u003e@scope\u003c/code\u003e blocks in a component tree match the same element, the browser compares their \u003cstrong\u003eproximity\u003c/strong\u003e to the element — and the \u003cstrong\u003ecloser scope root wins\u003c/strong\u003e.\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\nThis is a new cascade layer. After origin and specificity and order, the browser now checks \u003cstrong\u003escope proximity\u003c/strong\u003e. The innermost matching scope overrides the outer scope, regardless of specificity. Let that sink in.\n\u003c/p\u003e\n\n\u003cpre\u003e\u003ccode\u003e/* Light theme scope */\n@scope (.theme-light) {\n  .button {\n    background: white;\n    color: black;\n    border: 1px solid #ddd;\n  }\n}\n\n/* Dark theme scope — nested inside light */\n@scope (.theme-dark) {\n  .button {\n    background: #1a1a2e;\n    color: #e0e0e0;\n    border: 1px solid #333;\n  }\n}\u003c/code\u003e\u003c/pre\u003e\n\n\u003cpre\u003e\u003ccode\u003e\u0026lt;!-- HTML --\u003e\n\u0026lt;div class=\"theme-light\"\u003e\n  \u0026lt;button class=\"button\"\u003eLight button\u0026lt;/button\u003e\n\n  \u0026lt;div class=\"theme-dark\"\u003e\n    \u0026lt;button class=\"button\"\u003e\n      Dark button \u0026lt;!-- PROXIMITY WINS: .theme-dark is closer --\u003e\n    \u0026lt;/button\u003e\n  \u0026lt;/div\u003e\n\u0026lt;/div\u003e\u003c/code\u003e\u003c/pre\u003e\n\n\u003cp class=\"post-p\"\u003e\nThe dark button gets the dark styles — even though both scopes match — because \u003ccode\u003e.theme-dark\u003c/code\u003e is closer to the button in the DOM tree. \u003cstrong\u003eNo specificity tricks, no !important, no CSS-in-JS theme provider.\u003c/strong\u003e\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\nThis is the feature that makes \u003ccode\u003e@scope\u003c/code\u003e a legitimate replacement for React Context-based theming, CSS-in-JS scoping, and the cascade management gymnastics that frameworks force us into.\n\u003c/p\u003e\n\n\u003ch2 class=\"post-h2\"\u003eProximity vs Specificity: The New Cascade Layer\u003c/h2\u003e\n\n\u003cp class=\"post-p\"\u003e\nThe full cascade order, with \u003ccode\u003e@scope\u003c/code\u003e, is now:\n\u003c/p\u003e\n\n\u003col\u003e\n\u003cli\u003e\u003cstrong\u003eOrigin \u0026amp; Importance\u003c/strong\u003e — user-agent, user, author, author !important, user !important, user-agent !important\u003c/li\u003e\n\u003cli\u003e\u003cstrong\u003eContext\u003c/strong\u003e — shadow DOM encapsulation\u003c/li\u003e\n\u003cli\u003e\u003cstrong\u003eStyle attribute\u003c/strong\u003e — inline styles\u003c/li\u003e\n\u003cli\u003e\u003cstrong\u003eLayers\u003c/strong\u003e — @layer (first declared wins for normal, last declared wins for !important)\u003c/li\u003e\n\u003cli\u003e\u003cstrong\u003eSpecificity\u003c/strong\u003e — (id, class, type)\u003c/li\u003e\n\u003cli\u003e\u003cstrong\u003eScope proximity\u003c/strong\u003e — ✨ NEW — closer scope root wins\u003c/li\u003e\n\u003cli\u003e\u003cstrong\u003eOrder of appearance\u003c/strong\u003e — last declared wins\u003c/li\u003e\n\u003c/ol\u003e\n\n\u003cp class=\"post-p\"\u003e\nScope proximity sits \u003cstrong\u003ebetween specificity and order\u003c/strong\u003e. This is the sweet spot: it's stronger than specificity (so nested themes always win) but weaker than cascade layers (so you can still use \u003ccode\u003e@layer\u003c/code\u003e for architectural control).\n\u003c/p\u003e\n\n\u003ctable\u003e\n\u003cthead\u003e\u003ctr\u003e\u003cth\u003eFeature\u003c/th\u003e\u003cth\u003eWhere It Sits\u003c/th\u003e\u003cth\u003eUse Case\u003c/th\u003e\u003c/tr\u003e\u003c/thead\u003e\n\u003ctbody\u003e\n\u003ctr\u003e\u003ctd\u003e\u003ccode\u003e@layer\u003c/code\u003e\u003c/td\u003e\u003ctd\u003eBefore specificity\u003c/td\u003e\u003ctd\u003eArchitectural organization: base → components → utilities → overrides\u003c/td\u003e\u003c/tr\u003e\n\u003ctr\u003e\u003ctd\u003e\u003cstrong\u003e\u003ccode\u003e@scope\u003c/code\u003e proximity\u003c/strong\u003e\u003c/td\u003e\u003ctd\u003e\u003cstrong\u003eAfter specificity, before order\u003c/strong\u003e\u003c/td\u003e\u003ctd\u003e\u003cstrong\u003eComponent nesting: theme overrides, nested widget isolation\u003c/strong\u003e\u003c/td\u003e\u003c/tr\u003e\n\u003ctr\u003e\u003ctd\u003eSpecificity\u003c/td\u003e\u003ctd\u003eAfter layers, before proximity\u003c/td\u003e\u003ctd\u003eTargeted overrides within the same scope\u003c/td\u003e\u003c/tr\u003e\n\u003ctr\u003e\u003ctd\u003eOrder\u003c/td\u003e\u003ctd\u003eAfter everything\u003c/td\u003e\u003ctd\u003eLast-resort tiebreaker\u003c/td\u003e\u003c/tr\u003e\n\u003c/tbody\u003e\n\u003c/table\u003e\n\n\u003ch2 class=\"post-h2\"\u003eReal-World Pattern 1: Component Library Without BEM\u003c/h2\u003e\n\n\u003cp class=\"post-p\"\u003e\nA design system with \u003ccode\u003e@scope\u003c/code\u003e — no BEM, no hashed class names, no \u003ccode\u003e:where()\u003c/code\u003e hacks:\n\u003c/p\u003e\n\n\u003cpre\u003e\u003ccode\u003e/* card.css */\n@scope (.card) {\n  .header { padding: 16px; border-bottom: 1px solid #eee; }\n  .title  { font-size: 1.25rem; font-weight: 700; }\n  .body   { padding: 16px; line-height: 1.6; }\n  .footer { padding: 12px 16px; background: #f9f9f9; }\n\n  /* Compact variant */\n  .card--compact .body { padding: 8px; }\n  .card--compact .title { font-size: 1rem; }\n}\n\n/* tabs.css */\n@scope (.tabs) {\n  .tab { padding: 8px 16px; cursor: pointer; }\n  .tab--active { border-bottom: 2px solid blue; }\n  .panel { padding: 16px; }\n}\u003c/code\u003e\u003c/pre\u003e\n\n\u003cp class=\"post-p\"\u003e\nNotice: \u003ccode\u003e.header\u003c/code\u003e, \u003ccode\u003e.title\u003c/code\u003e, \u003ccode\u003e.body\u003c/code\u003e — generic class names that would be a collision nightmare without scoping. With \u003ccode\u003e@scope\u003c/code\u003e, they're perfectly safe. You can drop \u003ccode\u003e.card__header\u003c/code\u003e, \u003ccode\u003e.card__title\u003c/code\u003e, \u003ccode\u003e.card__body\u003c/code\u003e from your vocabulary.\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\nAlso notice how \u003ccode\u003e.card--compact .body\u003c/code\u003e still works! You can have class variants on the scope root and use descendant selectors normally — they still stay within the scope.\n\u003c/p\u003e\n\n\u003ch2 class=\"post-h2\"\u003eReal-World Pattern 2: Nested Components That Don't Leak\u003c/h2\u003e\n\n\u003cp class=\"post-p\"\u003e\nA comment thread with replies — the classic \"nested same-component\" problem:\n\u003c/p\u003e\n\n\u003cpre\u003e\u003ccode\u003e@scope (.comment) to (.comment) {\n  .comment-body {\n    padding: 12px;\n    border-left: 3px solid #e0e0e0;\n    margin-bottom: 8px;\n  }\n  .comment-author { font-weight: 600; font-size: 0.9rem; }\n  .comment-time   { color: #888; font-size: 0.8rem; }\n  .replies {\n    margin-left: 32px;\n    padding-left: 0; /* Resets are scoped too */\n  }\n}\u003c/code\u003e\u003c/pre\u003e\n\n\u003cpre\u003e\u003ccode\u003e\u0026lt;!-- Each .comment gets its styles exactly once --\u003e\n\u0026lt;div class=\"comment\"\u003e\n  \u0026lt;div class=\"comment-body\"\u003eTop-level comment\u0026lt;/div\u003e\n  \u0026lt;div class=\"replies\"\u003e\n    \u0026lt;div class=\"comment\"\u003e\n      \u0026lt;div class=\"comment-body\"\u003eReply — gets its OWN styles\u0026lt;/div\u003e\n      \u0026lt;div class=\"replies\"\u003e\n        \u0026lt;div class=\"comment\"\u003e\n          \u0026lt;div class=\"comment-body\"\u003eNested reply — still gets its own\u0026lt;/div\u003e\n        \u0026lt;/div\u003e\n      \u0026lt;/div\u003e\n    \u0026lt;/div\u003e\n  \u0026lt;/div\u003e\n\u0026lt;/div\u003e\u003c/code\u003e\u003c/pre\u003e\n\n\u003cp class=\"post-p\"\u003e\nWithout \u003ccode\u003e@scope\u003c/code\u003e, the nested \u003ccode\u003e.comment-body\u003c/code\u003e would match \u003ccode\u003e.comment .comment .comment-body\u003c/code\u003e from the outer scope — getting styles applied 2-3 times with compounding effects (double padding, double borders). With \u003ccode\u003e@scope to (.comment)\u003c/code\u003e, each comment instance only sees its own immediate scope.\n\u003c/p\u003e\n\n\u003ch2 class=\"post-h2\"\u003eReal-World Pattern 3: Theme Zones\u003c/h2\u003e\n\n\u003cp class=\"post-p\"\u003e\nA page with multiple theme zones — light, dark, high-contrast — using only CSS:\n\u003c/p\u003e\n\n\u003cpre\u003e\u003ccode\u003e/* Default (light) */\n@scope (.theme-light) to (.theme-dark, .theme-contrast) {\n  body, .card, .modal { background: white; color: #1a1a1a; }\n  .link { color: #0066cc; }\n  .button { background: #0066cc; color: white; }\n  .input { background: white; border: 1px solid #ccc; }\n}\n\n@scope (.theme-dark) to (.theme-light, .theme-contrast) {\n  body, .card, .modal { background: #1a1a2e; color: #e0e0e0; }\n  .link { color: #66b3ff; }\n  .button { background: #4a4aff; color: #e0e0e0; }\n  .input { background: #16213e; border: 1px solid #333; }\n}\n\n@scope (.theme-contrast) to (.theme-light, .theme-dark) {\n  body, .card, .modal { background: black; color: white; }\n  .link { color: yellow; }\n  .button { background: yellow; color: black; }\n  .input { background: black; border: 2px solid white; }\n}\u003c/code\u003e\u003c/pre\u003e\n\n\u003cp class=\"post-p\"\u003e\nNo JavaScript theme context needed. No CSS custom properties cascade to manage. No specificity wars when themes nest. The donut boundaries (\u003ccode\u003eto (...)\u003c/code\u003e) ensure a \u003ccode\u003e.theme-dark\u003c/code\u003e inside a \u003ccode\u003e.theme-light\u003c/code\u003e completely takes over — and proximity ensures the innermost theme wins.\n\u003c/p\u003e\n\n\u003ch2 class=\"post-h2\"\u003ePerformance: @scope Is Free\u003c/h2\u003e\n\n\u003cp class=\"post-p\"\u003e\n\u003ccode\u003e@scope\u003c/code\u003e doesn't incur a runtime cost. During style resolution, the browser already walks up the ancestor tree to compute specificity and inheritance. Checking for a scope root on that same walk is essentially zero-cost.\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\nCompare this to CSS-in-JS runtime solutions: generating unique class names, injecting \u003ccode\u003e\u0026lt;style\u0026gt;\u003c/code\u003e tags, hashing, runtime insertion. \u003ccode\u003e@scope\u003c/code\u003e in a static stylesheet is orders of magnitude faster than any JS-based scoping strategy.\n\u003c/p\u003e\n\n\u003ctable\u003e\n\u003cthead\u003e\u003ctr\u003e\u003cth\u003eApproach\u003c/th\u003e\u003cth\u003eBuild Cost\u003c/th\u003e\u003cth\u003eRuntime Cost\u003c/th\u003e\u003cth\u003eScoping Granularity\u003c/th\u003e\u003c/tr\u003e\u003c/thead\u003e\n\u003ctbody\u003e\n\u003ctr\u003e\u003ctd\u003eBEM naming\u003c/td\u003e\u003ctd\u003eNone (manual)\u003c/td\u003e\u003ctd\u003eNone\u003c/td\u003e\u003ctd\u003eConvention only (leaks)\u003c/td\u003e\u003c/tr\u003e\n\u003ctr\u003e\u003ctd\u003eCSS Modules\u003c/td\u003e\u003ctd\u003eHash + source map\u003c/td\u003e\u003ctd\u003eNone\u003c/td\u003e\u003ctd\u003ePer-file\u003c/td\u003e\u003c/tr\u003e\n\u003ctr\u003e\u003ctd\u003eCSS-in-JS (runtime)\u003c/td\u003e\u003ctd\u003eNone\u003c/td\u003e\u003ctd\u003eHash + inject + parse\u003c/td\u003e\u003ctd\u003ePer-component\u003c/td\u003e\u003c/tr\u003e\n\u003ctr\u003e\u003ctd\u003eShadow DOM\u003c/td\u003e\u003ctd\u003eNone\u003c/td\u003e\u003ctd\u003eStyle encapsulation\u003c/td\u003e\u003ctd\u003ePer-shadow-root\u003c/td\u003e\u003c/tr\u003e\n\u003ctr\u003e\u003ctd\u003e\u003cstrong\u003e@scope\u003c/strong\u003e\u003c/td\u003e\u003ctd\u003e\u003cstrong\u003eNone\u003c/strong\u003e\u003c/td\u003e\u003ctd\u003e\u003cstrong\u003e~Zero\u003c/strong\u003e\u003c/td\u003e\u003ctd\u003e\u003cstrong\u003ePer-scope-root\u003c/strong\u003e\u003c/td\u003e\u003c/tr\u003e\n\u003c/tbody\u003e\n\u003c/table\u003e\n\n\u003ch2 class=\"post-h2\"\u003e@scope + @layer: The Ultimate CSS Architecture\u003c/h2\u003e\n\n\u003cp class=\"post-p\"\u003e\n\u003ccode\u003e@scope\u003c/code\u003e and \u003ccode\u003e@layer\u003c/code\u003e solve different problems and compose beautifully:\n\u003c/p\u003e\n\n\u003cul\u003e\n\u003cli\u003e\u003cstrong\u003e@layer\u003c/strong\u003e controls the \u003cem\u003eorder\u003c/em\u003e of styles across your entire codebase. Use it for architectural boundaries: reset → base → components → utilities.\u003c/li\u003e\n\u003cli\u003e\u003cstrong\u003e@scope\u003c/strong\u003e controls the \u003cem\u003ereach\u003c/em\u003e of styles within components. Use it for isolation: this component's styles only apply here, with proximity-based overrides.\u003c/li\u003e\n\u003c/ul\u003e\n\n\u003cpre\u003e\u003ccode\u003e@layer components {\n  @scope (.card) to (.card) {\n    .header { padding: 16px; }\n    .title  { font-size: 1.25rem; }\n    .body   { padding: 16px; }\n  }\n\n  @scope (.modal) to (.modal) {\n    .header { padding: 20px; }\n    .title  { font-size: 1.5rem; }\n    .body   { padding: 20px; }\n  }\n}\u003c/code\u003e\u003c/pre\u003e\n\n\u003cp class=\"post-p\"\u003e\nThe \u003ccode\u003e.header\u003c/code\u003e in a card and the \u003ccode\u003e.header\u003c/code\u003e in a modal are completely isolated. They can have completely different styles with zero interference. And both are in the \u003ccode\u003ecomponents\u003c/code\u003e layer, so they both beat utilities but lose to overrides.\n\u003c/p\u003e\n\n\u003ch2 class=\"post-h2\"\u003eBrowser Support (June 2026)\u003c/h2\u003e\n\n\u003ctable\u003e\n\u003cthead\u003e\u003ctr\u003e\u003cth\u003eBrowser\u003c/th\u003e\u003cth\u003eSupported Since\u003c/th\u003e\u003c/tr\u003e\u003c/thead\u003e\n\u003ctbody\u003e\n\u003ctr\u003e\u003ctd\u003eChrome\u003c/td\u003e\u003ctd\u003e118 (October 2023)\u003c/td\u003e\u003c/tr\u003e\n\u003ctr\u003e\u003ctd\u003eEdge\u003c/td\u003e\u003ctd\u003e118 (October 2023)\u003c/td\u003e\u003c/tr\u003e\n\u003ctr\u003e\u003ctd\u003eSafari\u003c/td\u003e\u003ctd\u003e17.4 (March 2024)\u003c/td\u003e\u003c/tr\u003e\n\u003ctr\u003e\u003ctd\u003eFirefox\u003c/td\u003e\u003ctd\u003e128 (July 2024)\u003c/td\u003e\u003c/tr\u003e\n\u003c/tbody\u003e\n\u003c/table\u003e\n\n\u003cp class=\"post-p\"\u003e\n\u003cstrong\u003eBaseline since September 2024.\u003c/strong\u003e Global coverage: ~95%. \u003ccode\u003e@scope\u003c/code\u003e is production-ready everywhere. The \u003ccode\u003eto\u003c/code\u003e (upper boundary) syntax is also fully supported in all major browsers.\n\u003c/p\u003e\n\n\u003ch2 class=\"post-h2\"\u003eProgressive Enhancement\u003c/h2\u003e\n\n\u003cp class=\"post-p\"\u003e\nFor older browsers, the fallback is the default CSS behavior — styles apply everywhere. This is usually fine: scoping is a \"nice to have\" for correctness, not a hard requirement for functionality.\n\u003c/p\u003e\n\n\u003cpre\u003e\u003ccode\u003e/* Modern: scoped */\n@scope (.card) to (.card) {\n  .title { font-size: 1.25rem; }\n}\n\n/* Fallback for browsers without @scope support */\n@supports not (scope(.card)) {\n  .card .title { font-size: 1.25rem; }\n  .card .card .title { font-size: inherit; } /* Undo nesting */\n}\u003c/code\u003e\u003c/pre\u003e\n\n\u003cp class=\"post-p\"\u003e\nIn practice, with 95% global support, most projects can use \u003ccode\u003e@scope\u003c/code\u003e directly with no fallback. The \u003ccode\u003e@supports\u003c/code\u003e fallback is only necessary for enterprise products targeting IE-mode or very old environments.\n\u003c/p\u003e\n\n\u003ch2 class=\"post-h2\"\u003eWhen NOT to Use @scope\u003c/h2\u003e\n\n\u003cul\u003e\n\u003cli\u003e\u003cstrong\u003eSingle-scope pages:\u003c/strong\u003e If your entire app has one theme and no nested same-component patterns, \u003ccode\u003e@scope\u003c/code\u003e adds no value.\u003c/li\u003e\n\u003cli\u003e\u003cstrong\u003eShadow DOM components:\u003c/strong\u003e Shadow DOM already provides style encapsulation. \u003ccode\u003e@scope\u003c/code\u003e is for light DOM scoping.\u003c/li\u003e\n\u003cli\u003e\u003cstrong\u003eFramework-managed scoping:\u003c/strong\u003e If you're deeply invested in CSS Modules or a CSS-in-JS library that already solves scoping, migrating to \u003ccode\u003e@scope\u003c/code\u003e is a nice-to-have, not a must-have.\u003c/li\u003e\n\u003cli\u003e\u003cstrong\u003eGlobal utilities:\u003c/strong\u003e A \u003ccode\u003e.sr-only\u003c/code\u003e or \u003ccode\u003e.visually-hidden\u003c/code\u003e utility should \u003cem\u003enot\u003c/em\u003e be scoped. Use \u003ccode\u003e@layer utilities\u003c/code\u003e for those instead.\u003c/li\u003e\n\u003c/ul\u003e\n\n\u003ch2 class=\"post-h2\"\u003e:scope Pseudo-Class — The Implicit Selector\u003c/h2\u003e\n\n\u003cp class=\"post-p\"\u003e\nWithin an \u003ccode\u003e@scope\u003c/code\u003e block, \u003ccode\u003e:scope\u003c/code\u003e refers to the scope root. This is useful for self-referencing selectors:\n\u003c/p\u003e\n\n\u003cpre\u003e\u003ccode\u003e@scope (.card) {\n  /* Style the .card itself when it's being hovered */\n  :scope:hover {\n    box-shadow: 0 4px 12px rgba(0,0,0,0.15);\n  }\n\n  /* Style .card when it contains an image */\n  :scope:has(img) {\n    padding: 0;\n  }\n\n  /* The title, but only inside a hovered card */\n  :scope:hover .title {\n    color: blue;\n  }\n}\u003c/code\u003e\u003c/pre\u003e\n\n\u003cp class=\"post-p\"\u003e\n\u003ccode\u003e:scope\u003c/code\u003e is particularly powerful with \u003ccode\u003e:has()\u003c/code\u003e — you can style the card differently depending on its content, all within the scoped block.\n\u003c/p\u003e\n\n\u003ch2 class=\"post-h2\"\u003eThe Bottom Line\u003c/h2\u003e\n\n\u003cp class=\"post-p\"\u003e\nCSS has spent 25 years fighting global scope creep. BEM. SMACSS. OOCSS. CSS Modules. Scoped styles in Vue. CSS-in-JS. Shadow DOM. Every solution was either a naming convention (easy to break), a build tool (fragile), or a JavaScript runtime (heavy).\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\n\u003ccode\u003e@scope\u003c/code\u003e is the platform-level solution. It gives you:\n\u003c/p\u003e\n\n\u003cul\u003e\n\u003cli\u003e\u003cstrong\u003eDonut scoping:\u003c/strong\u003e Styles apply here, stop there. No leakage.\u003c/li\u003e\n\u003cli\u003e\u003cstrong\u003eProximity:\u003c/strong\u003e Innermost scope wins. No specificity wars.\u003c/li\u003e\n\u003cli\u003e\u003cstrong\u003eZero runtime cost:\u003c/strong\u003e Browser-native. No JS. No build step.\u003c/li\u003e\n\u003cli\u003e\u003cstrong\u003eClean class names:\u003c/strong\u003e \u003ccode\u003e.title\u003c/code\u003e not \u003ccode\u003e.card__title__icon--large\u003c/code\u003e.\u003c/li\u003e\n\u003c/ul\u003e\n\n\u003cp class=\"post-p\"\u003e\nIf you're starting a new project in 2026, \u003ccode\u003e@scope\u003c/code\u003e should be your default scoping strategy. Combined with \u003ccode\u003e@layer\u003c/code\u003e for architectural boundaries and \u003ccode\u003e:has()\u003c/code\u003e for parent-aware selectors, it forms the foundation of a modern CSS architecture that's simpler, faster, and more maintainable than anything that came before.\n\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\nThe specificity wars are over. \u003ccode\u003e@scope\u003c/code\u003e won.\n\u003c/p\u003e\n\n\u003chr/\u003e\n\n\u003cp class=\"post-p\"\u003e\u003cstrong\u003eTry it live:\u003c/strong\u003e \u003ca href=\"/tools/css-scope-playground\" class=\"inline-link\"\u003eCSS Scope Playground\u003c/a\u003e — experiment with \u003ccode\u003e@scope\u003c/code\u003e scoping roots, donut boundaries, and proximity-based overrides with live preview.\u003c/p\u003e\n\n\u003cp class=\"post-p\"\u003e\u003cem\u003eFurther reading: Check out the \u003ca href=\"/blog/css-nesting-complete-guide-2026\" class=\"inline-link\"\u003eCSS Nesting Complete Guide\u003c/a\u003e for native nesting syntax, the \u003ca href=\"/blog/css-cascade-layers\" class=\"inline-link\"\u003eCSS Cascade Layers guide\u003c/a\u003e for architectural layering, and the \u003ca href=\"/blog/css-container-queries-complete-guide-2026\" class=\"inline-link\"\u003eContainer Queries guide\u003c/a\u003e for component-level responsive design.\u003c/em\u003e\u003c/p\u003e\n\n\u003c/div\u003e"])</script><script>self.__next_f.push([1,"7:[\"slug\",\"css-scope-complete-guide-2026\",\"d\"]\ne:[]\n"])</script><script>self.__next_f.push([1,"0:[\"$\",\"$L2\",null,{\"buildId\":\"Dyet8hExXh9zFMTej1l6Q\",\"assetPrefix\":\"/devbench-tech\",\"urlParts\":[\"\",\"blog\",\"css-scope-complete-guide-2026\",\"\"],\"initialTree\":[\"\",{\"children\":[\"blog\",{\"children\":[[\"slug\",\"css-scope-complete-guide-2026\",\"d\"],{\"children\":[\"__PAGE__?{\\\"slug\\\":\\\"css-scope-complete-guide-2026\\\"}\",{}]}]}]},\"$undefined\",\"$undefined\",true],\"initialSeedData\":[\"\",{\"children\":[\"blog\",{\"children\":[[\"slug\",\"css-scope-complete-guide-2026\",\"d\"],{\"children\":[\"__PAGE__\",{},[[\"$L3\",[[\"$\",\"script\",null,{\"type\":\"application/ld+json\",\"dangerouslySetInnerHTML\":{\"__html\":\"{\\\"@context\\\":\\\"https://schema.org\\\",\\\"@type\\\":\\\"BlogPosting\\\",\\\"headline\\\":\\\"CSS @scope: The End of Specificity Wars and BEM Naming\\\",\\\"description\\\":\\\"CSS @scope lets you define a \\\\\\\"donut\\\\\\\" of style reach — styles apply only within a scope root and stop at a scope boundary. No more !important arms races, no more .card__title__icon__badge naming, no more specificity hacks. This complete guide covers @scope syntax, proximity (the most underrated CSS feature of 2026), donut scoping, real-world component patterns, and why @scope replaces CSS Modules for many use cases.\\\",\\\"datePublished\\\":\\\"2026-06-10\\\",\\\"author\\\":{\\\"@type\\\":\\\"Person\\\",\\\"name\\\":\\\"DevBench\\\"},\\\"url\\\":\\\"https://devbench-roan.vercel.app/blog/css-scope-complete-guide-2026/\\\"}\"}}],[\"$\",\"article\",null,{\"className\":\"max-w-3xl mx-auto px-4 py-12 sm:px-6 lg:px-8\",\"children\":[[\"$\",\"$L4\",null,{\"href\":\"/blog/\",\"className\":\"inline-flex items-center gap-1.5 text-sm text-slate-500 hover:text-brand-400 transition-colors mb-8\",\"children\":[[\"$\",\"svg\",null,{\"xmlns\":\"http://www.w3.org/2000/svg\",\"width\":24,\"height\":24,\"viewBox\":\"0 0 24 24\",\"fill\":\"none\",\"stroke\":\"currentColor\",\"strokeWidth\":2,\"strokeLinecap\":\"round\",\"strokeLinejoin\":\"round\",\"className\":\"lucide lucide-arrow-left w-4 h-4\",\"children\":[[\"$\",\"path\",\"1l729n\",{\"d\":\"m12 19-7-7 7-7\"}],[\"$\",\"path\",\"x3x0zl\",{\"d\":\"M19 12H5\"}],\"$undefined\"]}],\"Back to blog\"]}],[\"$\",\"header\",null,{\"className\":\"mb-10\",\"children\":[[\"$\",\"h1\",null,{\"className\":\"text-3xl sm:text-4xl font-bold text-white mb-4 tracking-tight leading-tight\",\"children\":\"CSS @scope: The End of Specificity Wars and BEM Naming\"}],[\"$\",\"p\",null,{\"className\":\"text-lg text-slate-400 mb-6\",\"children\":\"CSS @scope lets you define a \\\"donut\\\" of style reach — styles apply only within a scope root and stop at a scope boundary. No more !important arms races, no more .card__title__icon__badge naming, no more specificity hacks. This complete guide covers @scope syntax, proximity (the most underrated CSS feature of 2026), donut scoping, real-world component patterns, and why @scope replaces CSS Modules for many use cases.\"}],[\"$\",\"div\",null,{\"className\":\"flex flex-wrap items-center gap-4 text-sm text-slate-500\",\"children\":[[\"$\",\"span\",null,{\"className\":\"flex items-center gap-1.5\",\"children\":[[\"$\",\"svg\",null,{\"xmlns\":\"http://www.w3.org/2000/svg\",\"width\":24,\"height\":24,\"viewBox\":\"0 0 24 24\",\"fill\":\"none\",\"stroke\":\"currentColor\",\"strokeWidth\":2,\"strokeLinecap\":\"round\",\"strokeLinejoin\":\"round\",\"className\":\"lucide lucide-calendar w-4 h-4\",\"children\":[[\"$\",\"rect\",\"eu3xkr\",{\"width\":\"18\",\"height\":\"18\",\"x\":\"3\",\"y\":\"4\",\"rx\":\"2\",\"ry\":\"2\"}],[\"$\",\"line\",\"m3sa8f\",{\"x1\":\"16\",\"x2\":\"16\",\"y1\":\"2\",\"y2\":\"6\"}],[\"$\",\"line\",\"18kwsl\",{\"x1\":\"8\",\"x2\":\"8\",\"y1\":\"2\",\"y2\":\"6\"}],[\"$\",\"line\",\"xt86sb\",{\"x1\":\"3\",\"x2\":\"21\",\"y1\":\"10\",\"y2\":\"10\"}],\"$undefined\"]}],\"June 10, 2026\"]}],[\"$\",\"span\",null,{\"className\":\"flex items-center gap-1.5\",\"children\":[[\"$\",\"svg\",null,{\"xmlns\":\"http://www.w3.org/2000/svg\",\"width\":24,\"height\":24,\"viewBox\":\"0 0 24 24\",\"fill\":\"none\",\"stroke\":\"currentColor\",\"strokeWidth\":2,\"strokeLinecap\":\"round\",\"strokeLinejoin\":\"round\",\"className\":\"lucide lucide-clock w-4 h-4\",\"children\":[[\"$\",\"circle\",\"1mglay\",{\"cx\":\"12\",\"cy\":\"12\",\"r\":\"10\"}],[\"$\",\"polyline\",\"68esgv\",{\"points\":\"12 6 12 12 16 14\"}],\"$undefined\"]}],\"12 min read\"]}],[\"$\",\"span\",null,{\"className\":\"text-slate-600\",\"children\":[\"by \",\"DevBench\"]}]]}],[\"$\",\"div\",null,{\"className\":\"flex flex-wrap gap-2 mt-4\",\"children\":[[\"$\",\"span\",\"CSS\",{\"className\":\"px-2 py-0.5 rounded-md bg-brand-500/10 text-brand-400 text-xs font-medium border border-brand-500/20\",\"children\":\"CSS\"}],[\"$\",\"span\",\"@scope\",{\"className\":\"px-2 py-0.5 rounded-md bg-brand-500/10 text-brand-400 text-xs font-medium border border-brand-500/20\",\"children\":\"@scope\"}],[\"$\",\"span\",\"Cascade\",{\"className\":\"px-2 py-0.5 rounded-md bg-brand-500/10 text-brand-400 text-xs font-medium border border-brand-500/20\",\"children\":\"Cascade\"}],[\"$\",\"span\",\"Scoping\",{\"className\":\"px-2 py-0.5 rounded-md bg-brand-500/10 text-brand-400 text-xs font-medium border border-brand-500/20\",\"children\":\"Scoping\"}],[\"$\",\"span\",\"Specificity\",{\"className\":\"px-2 py-0.5 rounded-md bg-brand-500/10 text-brand-400 text-xs font-medium border border-brand-500/20\",\"children\":\"Specificity\"}],[\"$\",\"span\",\"Components\",{\"className\":\"px-2 py-0.5 rounded-md bg-brand-500/10 text-brand-400 text-xs font-medium border border-brand-500/20\",\"children\":\"Components\"}],[\"$\",\"span\",\"Baseline 2026\",{\"className\":\"px-2 py-0.5 rounded-md bg-brand-500/10 text-brand-400 text-xs font-medium border border-brand-500/20\",\"children\":\"Baseline 2026\"}],[\"$\",\"span\",\"Architecture\",{\"className\":\"px-2 py-0.5 rounded-md bg-brand-500/10 text-brand-400 text-xs font-medium border border-brand-500/20\",\"children\":\"Architecture\"}]]}]]}],[\"$\",\"div\",null,{\"className\":\"blog-body\",\"dangerouslySetInnerHTML\":{\"__html\":\"$5\"}}],[\"$\",\"hr\",null,{\"className\":\"border-slate-800 my-12\"}],[\"$\",\"div\",null,{\"className\":\"text-center\",\"children\":[\"$\",\"$L4\",null,{\"href\":\"/blog/\",\"className\":\"inline-flex items-center gap-1.5 text-brand-400 hover:text-brand-300 transition-colors font-medium\",\"children\":[[\"$\",\"svg\",null,{\"xmlns\":\"http://www.w3.org/2000/svg\",\"width\":24,\"height\":24,\"viewBox\":\"0 0 24 24\",\"fill\":\"none\",\"stroke\":\"currentColor\",\"strokeWidth\":2,\"strokeLinecap\":\"round\",\"strokeLinejoin\":\"round\",\"className\":\"lucide lucide-arrow-left w-4 h-4\",\"children\":[[\"$\",\"path\",\"1l729n\",{\"d\":\"m12 19-7-7 7-7\"}],[\"$\",\"path\",\"x3x0zl\",{\"d\":\"M19 12H5\"}],\"$undefined\"]}],\"More articles\"]}]}]]}]],null],null],null]},[null,[\"$\",\"$L6\",null,{\"parallelRouterKey\":\"children\",\"segmentPath\":[\"children\",\"blog\",\"children\",\"$7\",\"children\"],\"error\":\"$undefined\",\"errorStyles\":\"$undefined\",\"errorScripts\":\"$undefined\",\"template\":[\"$\",\"$L8\",null,{}],\"templateStyles\":\"$undefined\",\"templateScripts\":\"$undefined\",\"notFound\":\"$undefined\",\"notFoundStyles\":\"$undefined\"}]],null]},[null,[\"$\",\"$L6\",null,{\"parallelRouterKey\":\"children\",\"segmentPath\":[\"children\",\"blog\",\"children\"],\"error\":\"$undefined\",\"errorStyles\":\"$undefined\",\"errorScripts\":\"$undefined\",\"template\":[\"$\",\"$L8\",null,{}],\"templateStyles\":\"$undefined\",\"templateScripts\":\"$undefined\",\"notFound\":\"$undefined\",\"notFoundStyles\":\"$undefined\"}]],null]},[[[[\"$\",\"link\",\"0\",{\"rel\":\"stylesheet\",\"href\":\"/devbench-tech/_next/static/css/8b9213b1d18e4368.css\",\"precedence\":\"next\",\"crossOrigin\":\"$undefined\"}]],[\"$\",\"html\",null,{\"lang\":\"en\",\"className\":\"dark\",\"children\":[\"$\",\"body\",null,{\"className\":\"flex flex-col min-h-screen\",\"children\":[[\"$\",\"script\",null,{\"type\":\"application/ld+json\",\"dangerouslySetInnerHTML\":{\"__html\":\"{\\\"@context\\\":\\\"https://schema.org\\\",\\\"@type\\\":\\\"WebSite\\\",\\\"name\\\":\\\"DevBench\\\",\\\"url\\\":\\\"https://devbench-roan.vercel.app\\\",\\\"description\\\":\\\"Free developer tools for everyday use: JSON formatter, Base64 encoder/decoder, UUID generator, regex tester, benchmarks, and more.\\\",\\\"potentialAction\\\":{\\\"@type\\\":\\\"SearchAction\\\",\\\"target\\\":\\\"https://devbench-roan.vercel.app/tools?q={search_term_string}\\\",\\\"query-input\\\":\\\"required name=search_term_string\\\"}}\"}}],[\"$\",\"$L9\",null,{}],[\"$\",\"main\",null,{\"className\":\"flex-1\",\"children\":[\"$\",\"$L6\",null,{\"parallelRouterKey\":\"children\",\"segmentPath\":[\"children\"],\"error\":\"$undefined\",\"errorStyles\":\"$undefined\",\"errorScripts\":\"$undefined\",\"template\":[\"$\",\"$L8\",null,{}],\"templateStyles\":\"$undefined\",\"templateScripts\":\"$undefined\",\"notFound\":[[\"$\",\"title\",null,{\"children\":\"404: This page could not be found.\"}],[\"$\",\"div\",null,{\"style\":{\"fontFamily\":\"system-ui,\\\"Segoe UI\\\",Roboto,Helvetica,Arial,sans-serif,\\\"Apple Color Emoji\\\",\\\"Segoe UI Emoji\\\"\",\"height\":\"100vh\",\"textAlign\":\"center\",\"display\":\"flex\",\"flexDirection\":\"column\",\"alignItems\":\"center\",\"justifyContent\":\"center\"},\"children\":[\"$\",\"div\",null,{\"children\":[[\"$\",\"style\",null,{\"dangerouslySetInnerHTML\":{\"__html\":\"body{color:#000;background:#fff;margin:0}.next-error-h1{border-right:1px solid rgba(0,0,0,.3)}@media (prefers-color-scheme:dark){body{color:#fff;background:#000}.next-error-h1{border-right:1px solid rgba(255,255,255,.3)}}\"}}],[\"$\",\"h1\",null,{\"className\":\"next-error-h1\",\"style\":{\"display\":\"inline-block\",\"margin\":\"0 20px 0 0\",\"padding\":\"0 23px 0 0\",\"fontSize\":24,\"fontWeight\":500,\"verticalAlign\":\"top\",\"lineHeight\":\"49px\"},\"children\":\"404\"}],[\"$\",\"div\",null,{\"style\":{\"display\":\"inline-block\"},\"children\":[\"$\",\"h2\",null,{\"style\":{\"fontSize\":14,\"fontWeight\":400,\"lineHeight\":\"49px\",\"margin\":0},\"children\":\"This page could not be found.\"}]}]]}]}]],\"notFoundStyles\":[]}]}],[\"$\",\"footer\",null,{\"className\":\"bg-surface-light border-t border-slate-700/50 mt-auto\",\"children\":[\"$\",\"div\",null,{\"className\":\"max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12\",\"children\":[[\"$\",\"div\",null,{\"className\":\"grid grid-cols-1 md:grid-cols-3 gap-8\",\"children\":[[\"$\",\"div\",null,{\"children\":[[\"$\",\"$L4\",null,{\"href\":\"/\",\"className\":\"flex items-center gap-2.5 mb-3\",\"children\":[[\"$\",\"div\",null,{\"className\":\"w-7 h-7 bg-brand-500 rounded-lg flex items-center justify-center\",\"children\":[\"$\",\"svg\",null,{\"xmlns\":\"http://www.w3.org/2000/svg\",\"width\":24,\"height\":24,\"viewBox\":\"0 0 24 24\",\"fill\":\"none\",\"stroke\":\"currentColor\",\"strokeWidth\":2,\"strokeLinecap\":\"round\",\"strokeLinejoin\":\"round\",\"className\":\"lucide lucide-terminal w-3.5 h-3.5 text-white\",\"children\":[[\"$\",\"polyline\",\"akl6gq\",{\"points\":\"4 17 10 11 4 5\"}],[\"$\",\"line\",\"q2wloq\",{\"x1\":\"12\",\"x2\":\"20\",\"y1\":\"19\",\"y2\":\"19\"}],\"$undefined\"]}]}],[\"$\",\"span\",null,{\"className\":\"text-lg font-bold text-white\",\"children\":[\"Dev\",[\"$\",\"span\",null,{\"className\":\"gradient-text\",\"children\":\"Bench\"}]]}]]}],[\"$\",\"p\",null,{\"className\":\"text-slate-400 text-sm leading-relaxed\",\"children\":\"Free developer tools, benchmarks, and calculators. Built for developers, by developers.\"}]]}],[\"$\",\"div\",null,{\"children\":[[\"$\",\"h3\",null,{\"className\":\"text-sm font-semibold text-slate-300 uppercase tracking-wider mb-4\",\"children\":\"Tools\"}],[\"$\",\"ul\",null,{\"className\":\"space-y-2\",\"children\":[[\"$\",\"li\",\"/tools/json-formatter\",{\"children\":[\"$\",\"$L4\",null,{\"href\":\"/tools/json-formatter\",\"className\":\"text-slate-400 hover:text-brand-400 text-sm transition-colors\",\"children\":\"JSON Formatter\"}]}],[\"$\",\"li\",\"/tools/base64\",{\"children\":[\"$\",\"$L4\",null,{\"href\":\"/tools/base64\",\"className\":\"text-slate-400 hover:text-brand-400 text-sm transition-colors\",\"children\":\"Base64 Encoder/Decoder\"}]}],[\"$\",\"li\",\"/tools/uuid-generator\",{\"children\":[\"$\",\"$L4\",null,{\"href\":\"/tools/uuid-generator\",\"className\":\"text-slate-400 hover:text-brand-400 text-sm transition-colors\",\"children\":\"UUID Generator\"}]}],[\"$\",\"li\",\"/tools/regex-tester\",{\"children\":[\"$\",\"$L4\",null,{\"href\":\"/tools/regex-tester\",\"className\":\"text-slate-400 hover:text-brand-400 text-sm transition-colors\",\"children\":\"Regex Tester\"}]}]]}]]}],[\"$\",\"div\",null,{\"children\":[[\"$\",\"h3\",null,{\"className\":\"text-sm font-semibold text-slate-300 uppercase tracking-wider mb-4\",\"children\":\"Resources\"}],[\"$\",\"ul\",null,{\"className\":\"space-y-2\",\"children\":[[\"$\",\"li\",\"/blog\",{\"children\":[\"$\",\"$L4\",null,{\"href\":\"/blog\",\"className\":\"text-slate-400 hover:text-brand-400 text-sm transition-colors\",\"children\":\"Blog\"}]}],[\"$\",\"li\",\"/benchmarks\",{\"children\":[\"$\",\"$L4\",null,{\"href\":\"/benchmarks\",\"className\":\"text-slate-400 hover:text-brand-400 text-sm transition-colors\",\"children\":\"Benchmarks\"}]}],[\"$\",\"li\",\"/about\",{\"children\":[\"$\",\"$L4\",null,{\"href\":\"/about\",\"className\":\"text-slate-400 hover:text-brand-400 text-sm transition-colors\",\"children\":\"About\"}]}]]}]]}]]}],[\"$\",\"div\",null,{\"className\":\"mt-10 pt-6 border-t border-slate-700/50 flex flex-col sm:flex-row items-center justify-between gap-4\",\"children\":[[\"$\",\"p\",null,{\"className\":\"text-slate-500 text-sm flex items-center gap-1\",\"children\":[\"Made with \",[\"$\",\"svg\",null,{\"xmlns\":\"http://www.w3.org/2000/svg\",\"width\":24,\"height\":24,\"viewBox\":\"0 0 24 24\",\"fill\":\"none\",\"stroke\":\"currentColor\",\"strokeWidth\":2,\"strokeLinecap\":\"round\",\"strokeLinejoin\":\"round\",\"className\":\"lucide lucide-heart w-3.5 h-3.5 text-red-500 fill-red-500\",\"children\":[[\"$\",\"path\",\"c3ymky\",{\"d\":\"M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z\"}],\"$undefined\"]}],\" by the DevBench team © \",2026]}],[\"$\",\"a\",null,{\"href\":\"https://github.com\",\"target\":\"_blank\",\"rel\":\"noopener noreferrer\",\"className\":\"text-slate-500 hover:text-slate-300 transition-colors\",\"aria-label\":\"GitHub\",\"children\":[\"$\",\"svg\",null,{\"xmlns\":\"http://www.w3.org/2000/svg\",\"width\":24,\"height\":24,\"viewBox\":\"0 0 24 24\",\"fill\":\"none\",\"stroke\":\"currentColor\",\"strokeWidth\":2,\"strokeLinecap\":\"round\",\"strokeLinejoin\":\"round\",\"className\":\"lucide lucide-github w-5 h-5\",\"children\":[[\"$\",\"path\",\"tonef\",{\"d\":\"M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4\"}],[\"$\",\"path\",\"9comsn\",{\"d\":\"M9 18c-4.51 2-5-2-7-2\"}],\"$undefined\"]}]}]]}]]}]}],[\"$\",\"$La\",null,{}],[\"$\",\"$Lb\",null,{\"position\":\"bottom-right\",\"toastOptions\":{\"style\":{\"background\":\"#1e293b\",\"color\":\"#e2e8f0\",\"border\":\"1px solid #334155\",\"fontSize\":\"14px\"}}}]]}]}]],null],null],\"couldBeIntercepted\":false,\"initialHead\":[null,\"$Lc\"],\"globalErrorComponent\":\"$d\",\"missingSlots\":\"$We\"}]\n"])</script><script>self.__next_f.push([1,"c:[[\"$\",\"meta\",\"0\",{\"name\":\"viewport\",\"content\":\"width=device-width, initial-scale=1\"}],[\"$\",\"meta\",\"1\",{\"charSet\":\"utf-8\"}],[\"$\",\"title\",\"2\",{\"children\":\"CSS @scope: The End of Specificity Wars and BEM Naming | DevBench\"}],[\"$\",\"meta\",\"3\",{\"name\":\"description\",\"content\":\"CSS @scope lets you define a \\\"donut\\\" of style reach — styles apply only within a scope root and stop at a scope boundary. No more !important arms races, no more .card__title__icon__badge naming, no more specificity hacks. This complete guide covers @scope syntax, proximity (the most underrated CSS feature of 2026), donut scoping, real-world component patterns, and why @scope replaces CSS Modules for many use cases.\"}],[\"$\",\"meta\",\"4\",{\"name\":\"author\",\"content\":\"DevBench\"}],[\"$\",\"meta\",\"5\",{\"name\":\"keywords\",\"content\":\"developer tools,JSON formatter,Base64,UUID generator,regex tester,benchmarks,dev tools\"}],[\"$\",\"meta\",\"6\",{\"property\":\"og:title\",\"content\":\"CSS @scope: The End of Specificity Wars and BEM Naming\"}],[\"$\",\"meta\",\"7\",{\"property\":\"og:description\",\"content\":\"CSS @scope lets you define a \\\"donut\\\" of style reach — styles apply only within a scope root and stop at a scope boundary. No more !important arms races, no more .card__title__icon__badge naming, no more specificity hacks. This complete guide covers @scope syntax, proximity (the most underrated CSS feature of 2026), donut scoping, real-world component patterns, and why @scope replaces CSS Modules for many use cases.\"}],[\"$\",\"meta\",\"8\",{\"property\":\"og:type\",\"content\":\"article\"}],[\"$\",\"meta\",\"9\",{\"property\":\"article:published_time\",\"content\":\"2026-06-10\"}],[\"$\",\"meta\",\"10\",{\"property\":\"article:author\",\"content\":\"DevBench\"}],[\"$\",\"meta\",\"11\",{\"property\":\"article:tag\",\"content\":\"CSS\"}],[\"$\",\"meta\",\"12\",{\"property\":\"article:tag\",\"content\":\"@scope\"}],[\"$\",\"meta\",\"13\",{\"property\":\"article:tag\",\"content\":\"Cascade\"}],[\"$\",\"meta\",\"14\",{\"property\":\"article:tag\",\"content\":\"Scoping\"}],[\"$\",\"meta\",\"15\",{\"property\":\"article:tag\",\"content\":\"Specificity\"}],[\"$\",\"meta\",\"16\",{\"property\":\"article:tag\",\"content\":\"Components\"}],[\"$\",\"meta\",\"17\",{\"property\":\"article:tag\",\"content\":\"Baseline 2026\"}],[\"$\",\"meta\",\"18\",{\"property\":\"article:tag\",\"content\":\"Architecture\"}],[\"$\",\"meta\",\"19\",{\"name\":\"twitter:card\",\"content\":\"summary\"}],[\"$\",\"meta\",\"20\",{\"name\":\"twitter:title\",\"content\":\"CSS @scope: The End of Specificity Wars and BEM Naming\"}],[\"$\",\"meta\",\"21\",{\"name\":\"twitter:description\",\"content\":\"CSS @scope lets you define a \\\"donut\\\" of style reach — styles apply only within a scope root and stop at a scope boundary. No more !important arms races, no more .card__title__icon__badge naming, no more specificity hacks. This complete guide covers @scope syntax, proximity (the most underrated CSS feature of 2026), donut scoping, real-world component patterns, and why @scope replaces CSS Modules for many use cases.\"}],[\"$\",\"link\",\"22\",{\"rel\":\"icon\",\"href\":\"/favicon.svg\"}]]\n"])</script><script>self.__next_f.push([1,"3:null\n"])</script></body></html>

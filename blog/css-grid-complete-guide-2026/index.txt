@@ -1,0 +1,401 @@
+2:I[72972,["2972","static/chunks/2972-4aaa15d119eeb022.js","308","static/chunks/app/blog/%5Bslug%5D/page-a411190e7012c687.js"],""]
+4:I[4707,[],""]
+6:I[36423,[],""]
+7:I[39295,["9762","static/chunks/44530001-4ecf7a22b5b24163.js","2972","static/chunks/2972-4aaa15d119eeb022.js","8375","static/chunks/8375-c77b8de36f6696fb.js","6829","static/chunks/6829-f51803445ddf1872.js","3185","static/chunks/app/layout-488e5c40aa6ffa72.js"],"Header"]
+8:I[66506,["9762","static/chunks/44530001-4ecf7a22b5b24163.js","2972","static/chunks/2972-4aaa15d119eeb022.js","8375","static/chunks/8375-c77b8de36f6696fb.js","6829","static/chunks/6829-f51803445ddf1872.js","3185","static/chunks/app/layout-488e5c40aa6ffa72.js"],"Analytics"]
+9:I[69064,["9762","static/chunks/44530001-4ecf7a22b5b24163.js","2972","static/chunks/2972-4aaa15d119eeb022.js","8375","static/chunks/8375-c77b8de36f6696fb.js","6829","static/chunks/6829-f51803445ddf1872.js","3185","static/chunks/app/layout-488e5c40aa6ffa72.js"],"Toaster"]
+3:T4243,<div class="prose-content">
+  <p class="lead">
+    <strong>CSS Grid Layout</strong> is the most powerful layout system ever built into the browser. It's a two-dimensional layout engine — rows <em>and</em> columns, simultaneously — that lets you build complex page layouts with a few lines of CSS. Grid became Baseline across every major browser in 2017, but with <strong>subgrid</strong> reaching Baseline 2024 and improved animation support in 2025-2026, Grid keeps getting better. This guide covers everything: every property, every pattern, every gotcha.
+  </p>
+
+  <h2>Why CSS Grid?</h2>
+
+  <p>
+    Before 2017, web layouts were built with tables, floats, inline-block hacks, and finally Flexbox. Each solved one dimension at a time. CSS Grid solves two dimensions at once:
+  </p>
+
+  <div class="highlight-box">
+    <strong>Flexbox</strong> = 1D layout (row OR column). Perfect for navigation bars, button groups, centered content.<br/>
+    <strong>CSS Grid</strong> = 2D layout (rows AND columns). Perfect for page layouts, card grids, dashboards, magazine layouts.
+  </div>
+
+  <p>They're complementary. Use Grid for the macro layout; use Flexbox for micro layouts inside Grid cells.</p>
+
+  <h2>Defining a Grid</h2>
+
+  <p>A Grid starts with <code>display: grid</code> on a container and column/row definitions:</p>
+
+  <pre><code>/* The simplest Grid */
+.container {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 16px;
+}</code></pre>
+
+  <p>This creates three equal-width columns with 16px gaps. No media queries needed — the <code>fr</code> unit handles proportional distribution.</p>
+
+  <h2>The <code>fr</code> Unit: Flexible Sizing</h2>
+
+  <p>
+    The <code>fr</code> (fraction) unit is CSS Grid's killer feature. It distributes available space proportionally:
+  </p>
+
+  <pre><code>grid-template-columns: 1fr 2fr 1fr;
+/* 25% - 50% - 25% distribution */</code></pre>
+
+  <p><code>fr</code> competes with fixed sizes:</p>
+
+  <pre><code>grid-template-columns: 200px 1fr 1fr;
+/* 200px fixed, remaining space split 50/50 */</code></pre>
+
+  <p><code>fr</code> respects <code>gap</code>, <code>min-content</code>, and <code>max-content</code>. Unlike percentages, <code>fr</code> won't overflow — it subtracts gaps first, then distributes the remainder.</p>
+
+  <div class="highlight-box highlight-warning">
+    <strong>Gotcha:</strong> <code>fr</code> divides <em>available</em> space, not total space. If a grid item has <code>min-width: 300px</code> and the column is <code>1fr</code>, the column won't shrink below 300px. Use <code>minmax(0, 1fr)</code> to prevent this overflow protection.
+  </div>
+
+  <h2>Repeat, minmax(), auto-fill, auto-fit</h2>
+
+  <h3>repeat()</h3>
+
+  <pre><code>/* 12 equal columns */
+grid-template-columns: repeat(12, 1fr);
+
+/* Pattern repeat */
+grid-template-columns: repeat(3, 100px 1fr);
+/* Same as: 100px 1fr 100px 1fr 100px 1fr */</code></pre>
+
+  <h3>minmax()</h3>
+
+  <pre><code>/* Each column is at least 200px, at most 1fr */
+grid-template-columns: repeat(3, minmax(200px, 1fr));</code></pre>
+
+  <h3>auto-fill vs auto-fit</h3>
+
+  <p>This is the most powerful responsive pattern in CSS — zero media queries:</p>
+
+  <pre><code>/* auto-fill: creates as many tracks as possible, even empty ones */
+grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+
+/* auto-fit: collapses empty tracks, items stretch to fill */
+grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));</code></pre>
+
+  <p><strong>auto-fill</strong> preserves column slots even when empty — great for a fixed grid that wraps cleanly.<br/>
+  <strong>auto-fit</strong> collapses empty tracks, letting filled tracks grow — great for card grids that should always fill the container.</p>
+
+  <div class="highlight-box highlight-positive">
+    <strong>Production pattern:</strong> <code>grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr));</code> — This creates responsive cards that never overflow. The <code>min(100%, 300px)</code> ensures cards don't exceed the viewport width on small screens, while <code>auto-fit</code> fills the space elegantly.
+  </div>
+
+  <h2>Named Grid Lines and Areas</h2>
+
+  <h3>Named Lines</h3>
+
+  <pre><code>grid-template-columns:
+  [col-start] 1fr
+  [main-start] 2fr
+  [main-end] 1fr
+  [col-end];
+
+.item {
+  grid-column: main-start / main-end;
+}</code></pre>
+
+  <h3>Grid Template Areas</h3>
+
+  <pre><code>.layout {
+  display: grid;
+  grid-template-columns: 200px 1fr 1fr;
+  grid-template-rows: auto 1fr auto;
+  grid-template-areas:
+    "header  header  header"
+    "sidebar main   aside"
+    "footer  footer  footer";
+  min-height: 100vh;
+}
+
+.header  { grid-area: header; }
+.sidebar { grid-area: sidebar; }
+.main    { grid-area: main; }
+.aside   { grid-area: aside; }
+.footer  { grid-area: footer; }
+
+/* Responsive: go single-column on mobile */
+@media (max-width: 768px) {
+  .layout {
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      "header"
+      "main"
+      "sidebar"
+      "aside"
+      "footer";
+  }
+}</code></pre>
+
+  <p>Grid areas are the most readable way to define page layouts. The ASCII-art syntax makes the layout visually obvious. For a visual builder, use the <a href="/tools/css-grid-areas">CSS Grid Areas tool</a> on DevBench.</p>
+
+  <h2>Implicit vs Explicit Grids</h2>
+
+  <p>When you define <code>grid-template-columns</code>, you create <strong>explicit tracks</strong>. Items beyond those definitions create <strong>implicit tracks</strong>:</p>
+
+  <pre><code>.container {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr); /* explicit: 3 columns */
+  grid-auto-rows: 100px;                 /* implicit row height */
+  grid-auto-flow: row;                   /* fill row by row (default) */
+}
+
+/* grid-auto-flow: row dense — fills holes, may reorder items visually */
+/* grid-auto-flow: column — fill column by column */</code></pre>
+
+  <p>Use <code>grid-auto-rows</code> and <code>grid-auto-columns</code> to control the size of auto-generated tracks. The default is <code>auto</code>, which sizes to content.</p>
+
+  <h2>Alignment: The Complete Reference</h2>
+
+  <p>CSS Grid has six alignment properties, matching the Flexbox model:</p>
+
+  <div class="table-wrapper">
+    <table>
+      <thead>
+        <tr><th>Property</th><th>Applies to</th><th>Axis</th><th>Values</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>justify-items</code></td><td>Grid container</td><td>Inline (row)</td><td>start, end, center, stretch (default)</td></tr>
+        <tr><td><code>align-items</code></td><td>Grid container</td><td>Block (column)</td><td>start, end, center, stretch (default)</td></tr>
+        <tr><td><code>place-items</code></td><td>Grid container</td><td>Shorthand</td><td>align-items / justify-items</td></tr>
+        <tr><td><code>justify-content</code></td><td>Grid container</td><td>Inline (row)</td><td>start, end, center, stretch, space-around, space-between, space-evenly</td></tr>
+        <tr><td><code>align-content</code></td><td>Grid container</td><td>Block (column)</td><td>start, end, center, stretch, space-around, space-between, space-evenly</td></tr>
+        <tr><td><code>place-content</code></td><td>Grid container</td><td>Shorthand</td><td>align-content / justify-content</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p>Individual items can override with <code>justify-self</code>, <code>align-self</code>, and <code>place-self</code>.</p>
+
+  <p><strong>When to use which:</strong><br/>
+  - <code>stretch</code> (default): Items fill their grid cells — best for full-width cards<br/>
+  - <code>center</code>: Perfect for hero sections, logos, single centered elements<br/>
+  - <code>space-between</code>: Navigation bars, evenly distributing navigation items<br/>
+  - <code>space-around</code>: Gallery grids with breathing room around each item</p>
+
+  <h2>CSS Grid Gap: The Modern Way</h2>
+
+  <pre><code>.container {
+  display: grid;
+  gap: 16px;              /* shorthand for row-gap + column-gap */
+  row-gap: 24px;          /* vertical spacing */
+  column-gap: 16px;       /* horizontal spacing */
+}</code></pre>
+
+  <p><code>gap</code> works in Flexbox and multi-column too. The old <code>grid-gap</code>, <code>grid-row-gap</code>, and <code>grid-column-gap</code> are deprecated — use the unprefixed versions.</p>
+
+  <h2>Subgrid: Inherit Parent Tracks</h2>
+
+  <p>Subgrid lets nested grids align to their parent's tracks — no more manual coordination:</p>
+
+  <pre><code>/* Parent grid */
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+
+/* Child grid: inherit parent's column tracks */
+.card {
+  display: grid;
+  grid-template-rows: subgrid;   /* inherit parent's row tracks */
+  grid-template-columns: subgrid; /* inherit parent's column tracks */
+  grid-row: span 2;              /* this card spans 2 rows */
+}</code></pre>
+
+  <p>
+    Before subgrid, aligning nested items to a parent grid required complex CSS or matching gap/padding values manually. With subgrid, child items automatically align. Subgrid reached <strong>Baseline 2024</strong> — Chrome 117+, Safari 16+, Firefox 71+. For interactive exploration, try the <a href="/tools/css-subgrid-playground">CSS Subgrid Playground</a> on DevBench.
+  </p>
+
+  <h2>CSS Grid + Animation</h2>
+
+  <p>Modern browsers (Chrome 116+, Safari 18+, Firefox 128+) can animate grid track sizes:</p>
+
+  <pre><code>.sidebar {
+  display: grid;
+  grid-template-columns: var(--sidebar-width, 250px) 1fr;
+  transition: grid-template-columns 0.3s ease;
+}
+
+.sidebar.collapsed {
+  --sidebar-width: 0px;
+}</code></pre>
+
+  <p>This enables smooth sidebar toggle animations without JavaScript layout calculations. Combine with <code>interpolate-size: allow-keywords</code> for animating to <code>auto</code> or <code>min-content</code>.</p>
+
+  <div class="highlight-box highlight-warning">
+    <strong>Caution:</strong> Animating <code>grid-template-columns</code> or <code>grid-template-rows</code> triggers layout on every frame. For 60fps sidebar toggles, prefer <code>transform: translateX()</code> on a fixed-width sidebar. Reserve Grid animation for infrequent one-shot transitions (expand panels, responsive breakpoint changes).
+  </div>
+
+  <h2>10 Production-Ready Grid Patterns</h2>
+
+  <h3>1. Holy Grail Layout</h3>
+  <pre><code>.holy-grail {
+  display: grid;
+  grid-template-columns: 200px 1fr 200px;
+  grid-template-rows: auto 1fr auto;
+  grid-template-areas: "header header header" "nav main aside" "footer footer footer";
+  min-height: 100vh;
+}</code></pre>
+
+  <h3>2. Responsive Card Grid (Zero Media Queries)</h3>
+  <pre><code>.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr));
+  gap: 24px;
+}</code></pre>
+
+  <h3>3. Centered Single Element</h3>
+  <pre><code>.hero {
+  display: grid;
+  place-items: center;
+  min-height: 400px;
+}</code></pre>
+
+  <h3>4. Full-Bleed + Centered Content</h3>
+  <pre><code>.article {
+  display: grid;
+  grid-template-columns:
+    1fr min(65ch, 100% - 2rem) 1fr;
+}
+.article > * { grid-column: 2; }
+.article > .full-bleed { grid-column: 1 / -1; }</code></pre>
+
+  <h3>5. Overlapping Elements</h3>
+  <pre><code>.hero-banner {
+  display: grid;
+  grid-template: 1fr / 1fr; /* one cell */
+}
+.hero-banner > * {
+  grid-area: 1 / 1; /* stack everything */
+}
+.hero-banner .overlay {
+  z-index: 1;
+  align-self: end;
+}</code></pre>
+
+  <h3>6. Dashboard Layout</h3>
+  <pre><code>.dashboard {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  grid-auto-rows: 120px;
+  gap: 16px;
+}
+.chart-tall { grid-row: span 2; }
+.chart-wide { grid-column: span 2; }
+.kpi-card  { grid-column: span 1; grid-row: span 1; }</code></pre>
+
+  <h3>7. Masonry (Pinterest-Style) with Columns</h3>
+  <pre><code>.masonry {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  grid-template-rows: masonry; /* Experimental: Firefox only */
+  gap: 16px;
+}</code></pre>
+  <p><strong>Note:</strong> <code>masonry</code> is experimental and only supported in Firefox behind a flag. For cross-browser, use CSS columns or a JS library.</p>
+
+  <h3>8. Sticky Header + Scrollable Content</h3>
+  <pre><code>.app-layout {
+  display: grid;
+  grid-template-rows: auto 1fr;
+  height: 100vh;
+}
+.app-layout header { position: sticky; top: 0; }
+.app-layout main   { overflow-y: auto; }</code></pre>
+
+  <h3>9. Form Layout</h3>
+  <pre><code>.form-grid {
+  display: grid;
+  grid-template-columns: 150px 1fr;
+  gap: 16px 12px;
+  align-items: baseline;
+}
+.form-grid label { grid-column: 1; text-align: right; }
+.form-grid input[type="submit"] { grid-column: 1 / -1; }</code></pre>
+
+  <h3>10. Auto-Generated Image Gallery</h3>
+  <pre><code>.gallery {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  grid-auto-rows: 150px;
+  grid-auto-flow: dense;
+  gap: 8px;
+}
+.gallery img { width: 100%; height: 100%; object-fit: cover; }
+.gallery .featured { grid-column: span 2; grid-row: span 2; }</code></pre>
+
+  <h2>Performance Considerations</h2>
+
+  <ul>
+    <li><strong>Avoid excessive nesting.</strong> Every nested grid adds layout calculation overhead. Use subgrid to inherit parent tracks instead of defining new ones.</li>
+    <li><strong>Avoid <code>repeat(auto-fill, ...)</code> with thousands of items.</strong> It creates a track per potential item. Use <code>auto-fit</code> or fixed <code>repeat()</code> for large datasets.</li>
+    <li><strong>Prefer <code>gap</code> over margin on grid items.</strong> Gaps are calculated once by the container; margins require per-item calculation.</li>
+    <li><strong>Use <code>will-change</code> sparingly.</strong> Only for elements that animate frequently. Grid repaints are expensive; don't force them onto the GPU unless needed.</li>
+  </ul>
+
+  <h2>Common Pitfalls</h2>
+
+  <h3>"My grid items aren't filling the container"</h3>
+  <p>Check that you have <code>display: grid</code> on the parent, not the items. Grid properties only work on the grid container and its direct children.</p>
+
+  <h3>"Grid is overflowing the viewport"</h3>
+  <p>Use <code>min(100%, 300px)</code> inside <code>minmax()</code> to prevent track sizes from exceeding the viewport. Example: <code>minmax(min(100%, 300px), 1fr)</code>.</p>
+
+  <h3>"My grid gap is adding extra space at the edges"</h3>
+  <p>That's correct — <code>gap</code> adds space between tracks, not around the container. Use <code>padding</code> on the container for edge breathing room.</p>
+
+  <h3>"implicit rows are shorter than my content"</h3>
+  <p>By default, <code>grid-auto-rows: auto</code> sizes to content. Set explicit <code>grid-auto-rows</code> or use <code>minmax(0, auto)</code> to prevent height constraints.</p>
+
+  <h2>Browser Support</h2>
+
+  <div class="table-wrapper">
+    <table>
+      <thead>
+        <tr><th>Feature</th><th>Chrome</th><th>Firefox</th><th>Safari</th><th>Edge</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>CSS Grid (Level 1)</td><td>57+</td><td>52+</td><td>10.1+</td><td>16+</td></tr>
+        <tr><td>Subgrid</td><td>117+</td><td>71+</td><td>16+</td><td>117+</td></tr>
+        <tr><td>Grid animation</td><td>116+</td><td>128+</td><td>18+</td><td>116+</td></tr>
+        <tr><td>masonry layout</td><td>🔜</td><td>🚩 flag</td><td>🔜</td><td>🔜</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p>CSS Grid Level 1 has been <strong>Baseline since 2018</strong>. Subgrid reached <strong>Baseline in 2024</strong>. You can use both in production today.</p>
+
+  <h2>Grid vs Flexbox: When to Use Which</h2>
+
+  <div class="table-wrapper">
+    <table>
+      <thead>
+        <tr><th>Scenario</th><th>Use</th><th>Why</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Page layout (header-content-footer)</td><td>Grid</td><td>2D control, template areas</td></tr>
+        <tr><td>Navigation bar</td><td>Flexbox</td><td>1D row, easy spacing</td></tr>
+        <tr><td>Card grid</td><td>Grid</td><td>auto-fill/auto-fit, equal sizing</td></tr>
+        <tr><td>Centering a single element</td><td>Either</td><td>Both support place-items/place-content</td></tr>
+        <tr><td>Form label-input pairs</td><td>Grid</td><td>Aligned columns for labels</td></tr>
+        <tr><td>Button group</td><td>Flexbox</td><td>Simple 1D row, wrap support</td></tr>
+        <tr><td>Dashboard with varying sizes</td><td>Grid</td><td>Row/column spanning</td></tr>
+        <tr><td>Footer with links</td><td>Flexbox</td><td>Space-between distribution</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="highlight-box highlight-positive">
+    <strong>Start using CSS Grid today:</strong> Pick any page layout you've built with Flexbox or floats, and rebuild it with <code>grid-template-areas</code>. The difference in clarity is immediate. For interactive practice, use the <a href="/tools/css-grid-generator">CSS Grid Generator</a>, <a href="/tools/css-grid-areas">Grid Template Areas tool</a>, and <a href="/tools/css-subgrid-playground">Subgrid Playground</a> — all on DevBench, all free, all client-side.
+  </div>
+</div>5:["slug","css-grid-complete-guide-2026","d"]
+0:["Dyet8hExXh9zFMTej1l6Q",[[["",{"children":["blog",{"children":[["slug","css-grid-complete-guide-2026","d"],{"children":["__PAGE__?{\"slug\":\"css-grid-complete-guide-2026\"}",{}]}]}]},"$undefined","$undefined",true],["",{"children":["blog",{"children":[["slug","css-grid-complete-guide-2026","d"],{"children":["__PAGE__",{},[["$L1",[["$","script",null,{"type":"application/ld+json","dangerouslySetInnerHTML":{"__html":"{\"@context\":\"https://schema.org\",\"@type\":\"BlogPosting\",\"headline\":\"CSS Grid Layout: The Complete Guide for 2026 — From Basics to Production Patterns\",\"description\":\"CSS Grid is the most powerful layout system ever built into the browser. This comprehensive guide covers every CSS Grid property, the fr unit, minmax(), auto-fill vs auto-fit, named grid areas, subgrid, CSS Grid animation support, and 10 production-ready layout patterns — all with live code examples.\",\"datePublished\":\"2026-06-08\",\"author\":{\"@type\":\"Person\",\"name\":\"DevBench\"},\"url\":\"https://devbench-roan.vercel.app/blog/css-grid-complete-guide-2026/\"}"}}],["$","article",null,{"className":"max-w-3xl mx-auto px-4 py-12 sm:px-6 lg:px-8","children":[["$","$L2",null,{"href":"/blog/","className":"inline-flex items-center gap-1.5 text-sm text-slate-500 hover:text-brand-400 transition-colors mb-8","children":[["$","svg",null,{"xmlns":"http://www.w3.org/2000/svg","width":24,"height":24,"viewBox":"0 0 24 24","fill":"none","stroke":"currentColor","strokeWidth":2,"strokeLinecap":"round","strokeLinejoin":"round","className":"lucide lucide-arrow-left w-4 h-4","children":[["$","path","1l729n",{"d":"m12 19-7-7 7-7"}],["$","path","x3x0zl",{"d":"M19 12H5"}],"$undefined"]}],"Back to blog"]}],["$","header",null,{"className":"mb-10","children":[["$","h1",null,{"className":"text-3xl sm:text-4xl font-bold text-white mb-4 tracking-tight leading-tight","children":"CSS Grid Layout: The Complete Guide for 2026 — From Basics to Production Patterns"}],["$","p",null,{"className":"text-lg text-slate-400 mb-6","children":"CSS Grid is the most powerful layout system ever built into the browser. This comprehensive guide covers every CSS Grid property, the fr unit, minmax(), auto-fill vs auto-fit, named grid areas, subgrid, CSS Grid animation support, and 10 production-ready layout patterns — all with live code examples."}],["$","div",null,{"className":"flex flex-wrap items-center gap-4 text-sm text-slate-500","children":[["$","span",null,{"className":"flex items-center gap-1.5","children":[["$","svg",null,{"xmlns":"http://www.w3.org/2000/svg","width":24,"height":24,"viewBox":"0 0 24 24","fill":"none","stroke":"currentColor","strokeWidth":2,"strokeLinecap":"round","strokeLinejoin":"round","className":"lucide lucide-calendar w-4 h-4","children":[["$","rect","eu3xkr",{"width":"18","height":"18","x":"3","y":"4","rx":"2","ry":"2"}],["$","line","m3sa8f",{"x1":"16","x2":"16","y1":"2","y2":"6"}],["$","line","18kwsl",{"x1":"8","x2":"8","y1":"2","y2":"6"}],["$","line","xt86sb",{"x1":"3","x2":"21","y1":"10","y2":"10"}],"$undefined"]}],"June 8, 2026"]}],["$","span",null,{"className":"flex items-center gap-1.5","children":[["$","svg",null,{"xmlns":"http://www.w3.org/2000/svg","width":24,"height":24,"viewBox":"0 0 24 24","fill":"none","stroke":"currentColor","strokeWidth":2,"strokeLinecap":"round","strokeLinejoin":"round","className":"lucide lucide-clock w-4 h-4","children":[["$","circle","1mglay",{"cx":"12","cy":"12","r":"10"}],["$","polyline","68esgv",{"points":"12 6 12 12 16 14"}],"$undefined"]}],"13 min read"]}],["$","span",null,{"className":"text-slate-600","children":["by ","DevBench"]}]]}],["$","div",null,{"className":"flex flex-wrap gap-2 mt-4","children":[["$","span","CSS",{"className":"px-2 py-0.5 rounded-md bg-brand-500/10 text-brand-400 text-xs font-medium border border-brand-500/20","children":"CSS"}],["$","span","Grid",{"className":"px-2 py-0.5 rounded-md bg-brand-500/10 text-brand-400 text-xs font-medium border border-brand-500/20","children":"Grid"}],["$","span","Layout",{"className":"px-2 py-0.5 rounded-md bg-brand-500/10 text-brand-400 text-xs font-medium border border-brand-500/20","children":"Layout"}],["$","span","CSS Grid",{"className":"px-2 py-0.5 rounded-md bg-brand-500/10 text-brand-400 text-xs font-medium border border-brand-500/20","children":"CSS Grid"}],["$","span","Subgrid",{"className":"px-2 py-0.5 rounded-md bg-brand-500/10 text-brand-400 text-xs font-medium border border-brand-500/20","children":"Subgrid"}],["$","span","Responsive",{"className":"px-2 py-0.5 rounded-md bg-brand-500/10 text-brand-400 text-xs font-medium border border-brand-500/20","children":"Responsive"}],["$","span","2026",{"className":"px-2 py-0.5 rounded-md bg-brand-500/10 text-brand-400 text-xs font-medium border border-brand-500/20","children":"2026"}],["$","span","Production",{"className":"px-2 py-0.5 rounded-md bg-brand-500/10 text-brand-400 text-xs font-medium border border-brand-500/20","children":"Production"}]]}]]}],["$","div",null,{"className":"blog-body","dangerouslySetInnerHTML":{"__html":"$3"}}],["$","hr",null,{"className":"border-slate-800 my-12"}],["$","div",null,{"className":"text-center","children":["$","$L2",null,{"href":"/blog/","className":"inline-flex items-center gap-1.5 text-brand-400 hover:text-brand-300 transition-colors font-medium","children":[["$","svg",null,{"xmlns":"http://www.w3.org/2000/svg","width":24,"height":24,"viewBox":"0 0 24 24","fill":"none","stroke":"currentColor","strokeWidth":2,"strokeLinecap":"round","strokeLinejoin":"round","className":"lucide lucide-arrow-left w-4 h-4","children":[["$","path","1l729n",{"d":"m12 19-7-7 7-7"}],["$","path","x3x0zl",{"d":"M19 12H5"}],"$undefined"]}],"More articles"]}]}]]}]],null],null],null]},[null,["$","$L4",null,{"parallelRouterKey":"children","segmentPath":["children","blog","children","$5","children"],"error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L6",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":"$undefined","notFoundStyles":"$undefined"}]],null]},[null,["$","$L4",null,{"parallelRouterKey":"children","segmentPath":["children","blog","children"],"error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L6",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":"$undefined","notFoundStyles":"$undefined"}]],null]},[[[["$","link","0",{"rel":"stylesheet","href":"/devbench-tech/_next/static/css/8b9213b1d18e4368.css","precedence":"next","crossOrigin":"$undefined"}]],["$","html",null,{"lang":"en","className":"dark","children":["$","body",null,{"className":"flex flex-col min-h-screen","children":[["$","script",null,{"type":"application/ld+json","dangerouslySetInnerHTML":{"__html":"{\"@context\":\"https://schema.org\",\"@type\":\"WebSite\",\"name\":\"DevBench\",\"url\":\"https://devbench-roan.vercel.app\",\"description\":\"Free developer tools for everyday use: JSON formatter, Base64 encoder/decoder, UUID generator, regex tester, benchmarks, and more.\",\"potentialAction\":{\"@type\":\"SearchAction\",\"target\":\"https://devbench-roan.vercel.app/tools?q={search_term_string}\",\"query-input\":\"required name=search_term_string\"}}"}}],["$","$L7",null,{}],["$","main",null,{"className":"flex-1","children":["$","$L4",null,{"parallelRouterKey":"children","segmentPath":["children"],"error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L6",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":[["$","title",null,{"children":"404: This page could not be found."}],["$","div",null,{"style":{"fontFamily":"system-ui,\"Segoe UI\",Roboto,Helvetica,Arial,sans-serif,\"Apple Color Emoji\",\"Segoe UI Emoji\"","height":"100vh","textAlign":"center","display":"flex","flexDirection":"column","alignItems":"center","justifyContent":"center"},"children":["$","div",null,{"children":[["$","style",null,{"dangerouslySetInnerHTML":{"__html":"body{color:#000;background:#fff;margin:0}.next-error-h1{border-right:1px solid rgba(0,0,0,.3)}@media (prefers-color-scheme:dark){body{color:#fff;background:#000}.next-error-h1{border-right:1px solid rgba(255,255,255,.3)}}"}}],["$","h1",null,{"className":"next-error-h1","style":{"display":"inline-block","margin":"0 20px 0 0","padding":"0 23px 0 0","fontSize":24,"fontWeight":500,"verticalAlign":"top","lineHeight":"49px"},"children":"404"}],["$","div",null,{"style":{"display":"inline-block"},"children":["$","h2",null,{"style":{"fontSize":14,"fontWeight":400,"lineHeight":"49px","margin":0},"children":"This page could not be found."}]}]]}]}]],"notFoundStyles":[]}]}],["$","footer",null,{"className":"bg-surface-light border-t border-slate-700/50 mt-auto","children":["$","div",null,{"className":"max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12","children":[["$","div",null,{"className":"grid grid-cols-1 md:grid-cols-3 gap-8","children":[["$","div",null,{"children":[["$","$L2",null,{"href":"/","className":"flex items-center gap-2.5 mb-3","children":[["$","div",null,{"className":"w-7 h-7 bg-brand-500 rounded-lg flex items-center justify-center","children":["$","svg",null,{"xmlns":"http://www.w3.org/2000/svg","width":24,"height":24,"viewBox":"0 0 24 24","fill":"none","stroke":"currentColor","strokeWidth":2,"strokeLinecap":"round","strokeLinejoin":"round","className":"lucide lucide-terminal w-3.5 h-3.5 text-white","children":[["$","polyline","akl6gq",{"points":"4 17 10 11 4 5"}],["$","line","q2wloq",{"x1":"12","x2":"20","y1":"19","y2":"19"}],"$undefined"]}]}],["$","span",null,{"className":"text-lg font-bold text-white","children":["Dev",["$","span",null,{"className":"gradient-text","children":"Bench"}]]}]]}],["$","p",null,{"className":"text-slate-400 text-sm leading-relaxed","children":"Free developer tools, benchmarks, and calculators. Built for developers, by developers."}]]}],["$","div",null,{"children":[["$","h3",null,{"className":"text-sm font-semibold text-slate-300 uppercase tracking-wider mb-4","children":"Tools"}],["$","ul",null,{"className":"space-y-2","children":[["$","li","/tools/json-formatter",{"children":["$","$L2",null,{"href":"/tools/json-formatter","className":"text-slate-400 hover:text-brand-400 text-sm transition-colors","children":"JSON Formatter"}]}],["$","li","/tools/base64",{"children":["$","$L2",null,{"href":"/tools/base64","className":"text-slate-400 hover:text-brand-400 text-sm transition-colors","children":"Base64 Encoder/Decoder"}]}],["$","li","/tools/uuid-generator",{"children":["$","$L2",null,{"href":"/tools/uuid-generator","className":"text-slate-400 hover:text-brand-400 text-sm transition-colors","children":"UUID Generator"}]}],["$","li","/tools/regex-tester",{"children":["$","$L2",null,{"href":"/tools/regex-tester","className":"text-slate-400 hover:text-brand-400 text-sm transition-colors","children":"Regex Tester"}]}]]}]]}],["$","div",null,{"children":[["$","h3",null,{"className":"text-sm font-semibold text-slate-300 uppercase tracking-wider mb-4","children":"Resources"}],["$","ul",null,{"className":"space-y-2","children":[["$","li","/blog",{"children":["$","$L2",null,{"href":"/blog","className":"text-slate-400 hover:text-brand-400 text-sm transition-colors","children":"Blog"}]}],["$","li","/benchmarks",{"children":["$","$L2",null,{"href":"/benchmarks","className":"text-slate-400 hover:text-brand-400 text-sm transition-colors","children":"Benchmarks"}]}],["$","li","/about",{"children":["$","$L2",null,{"href":"/about","className":"text-slate-400 hover:text-brand-400 text-sm transition-colors","children":"About"}]}]]}]]}]]}],["$","div",null,{"className":"mt-10 pt-6 border-t border-slate-700/50 flex flex-col sm:flex-row items-center justify-between gap-4","children":[["$","p",null,{"className":"text-slate-500 text-sm flex items-center gap-1","children":["Made with ",["$","svg",null,{"xmlns":"http://www.w3.org/2000/svg","width":24,"height":24,"viewBox":"0 0 24 24","fill":"none","stroke":"currentColor","strokeWidth":2,"strokeLinecap":"round","strokeLinejoin":"round","className":"lucide lucide-heart w-3.5 h-3.5 text-red-500 fill-red-500","children":[["$","path","c3ymky",{"d":"M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"}],"$undefined"]}]," by the DevBench team © ",2026]}],["$","a",null,{"href":"https://github.com","target":"_blank","rel":"noopener noreferrer","className":"text-slate-500 hover:text-slate-300 transition-colors","aria-label":"GitHub","children":["$","svg",null,{"xmlns":"http://www.w3.org/2000/svg","width":24,"height":24,"viewBox":"0 0 24 24","fill":"none","stroke":"currentColor","strokeWidth":2,"strokeLinecap":"round","strokeLinejoin":"round","className":"lucide lucide-github w-5 h-5","children":[["$","path","tonef",{"d":"M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"}],["$","path","9comsn",{"d":"M9 18c-4.51 2-5-2-7-2"}],"$undefined"]}]}]]}]]}]}],["$","$L8",null,{}],["$","$L9",null,{"position":"bottom-right","toastOptions":{"style":{"background":"#1e293b","color":"#e2e8f0","border":"1px solid #334155","fontSize":"14px"}}}]]}]}]],null],null],["$La",null]]]]
+a:[["$","meta","0",{"name":"viewport","content":"width=device-width, initial-scale=1"}],["$","meta","1",{"charSet":"utf-8"}],["$","title","2",{"children":"CSS Grid Layout: The Complete Guide for 2026 — From Basics to Production Patterns | DevBench"}],["$","meta","3",{"name":"description","content":"CSS Grid is the most powerful layout system ever built into the browser. This comprehensive guide covers every CSS Grid property, the fr unit, minmax(), auto-fill vs auto-fit, named grid areas, subgrid, CSS Grid animation support, and 10 production-ready layout patterns — all with live code examples."}],["$","meta","4",{"name":"author","content":"DevBench"}],["$","meta","5",{"name":"keywords","content":"developer tools,JSON formatter,Base64,UUID generator,regex tester,benchmarks,dev tools"}],["$","meta","6",{"property":"og:title","content":"CSS Grid Layout: The Complete Guide for 2026 — From Basics to Production Patterns"}],["$","meta","7",{"property":"og:description","content":"CSS Grid is the most powerful layout system ever built into the browser. This comprehensive guide covers every CSS Grid property, the fr unit, minmax(), auto-fill vs auto-fit, named grid areas, subgrid, CSS Grid animation support, and 10 production-ready layout patterns — all with live code examples."}],["$","meta","8",{"property":"og:type","content":"article"}],["$","meta","9",{"property":"article:published_time","content":"2026-06-08"}],["$","meta","10",{"property":"article:author","content":"DevBench"}],["$","meta","11",{"property":"article:tag","content":"CSS"}],["$","meta","12",{"property":"article:tag","content":"Grid"}],["$","meta","13",{"property":"article:tag","content":"Layout"}],["$","meta","14",{"property":"article:tag","content":"CSS Grid"}],["$","meta","15",{"property":"article:tag","content":"Subgrid"}],["$","meta","16",{"property":"article:tag","content":"Responsive"}],["$","meta","17",{"property":"article:tag","content":"2026"}],["$","meta","18",{"property":"article:tag","content":"Production"}],["$","meta","19",{"name":"twitter:card","content":"summary"}],["$","meta","20",{"name":"twitter:title","content":"CSS Grid Layout: The Complete Guide for 2026 — From Basics to Production Patterns"}],["$","meta","21",{"name":"twitter:description","content":"CSS Grid is the most powerful layout system ever built into the browser. This comprehensive guide covers every CSS Grid property, the fr unit, minmax(), auto-fill vs auto-fit, named grid areas, subgrid, CSS Grid animation support, and 10 production-ready layout patterns — all with live code examples."}],["$","link","22",{"rel":"icon","href":"/favicon.svg"}]]
+1:null

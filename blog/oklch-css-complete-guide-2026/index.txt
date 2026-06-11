@@ -1,0 +1,285 @@
+2:I[72972,["2972","static/chunks/2972-4aaa15d119eeb022.js","308","static/chunks/app/blog/%5Bslug%5D/page-a411190e7012c687.js"],""]
+4:I[4707,[],""]
+6:I[36423,[],""]
+7:I[39295,["9762","static/chunks/44530001-4ecf7a22b5b24163.js","2972","static/chunks/2972-4aaa15d119eeb022.js","8375","static/chunks/8375-c77b8de36f6696fb.js","6829","static/chunks/6829-f51803445ddf1872.js","3185","static/chunks/app/layout-488e5c40aa6ffa72.js"],"Header"]
+8:I[66506,["9762","static/chunks/44530001-4ecf7a22b5b24163.js","2972","static/chunks/2972-4aaa15d119eeb022.js","8375","static/chunks/8375-c77b8de36f6696fb.js","6829","static/chunks/6829-f51803445ddf1872.js","3185","static/chunks/app/layout-488e5c40aa6ffa72.js"],"Analytics"]
+9:I[69064,["9762","static/chunks/44530001-4ecf7a22b5b24163.js","2972","static/chunks/2972-4aaa15d119eeb022.js","8375","static/chunks/8375-c77b8de36f6696fb.js","6829","static/chunks/6829-f51803445ddf1872.js","3185","static/chunks/app/layout-488e5c40aa6ffa72.js"],"Toaster"]
+3:T2f61,<div class="prose-content">
+  <p class="lead">
+    OKLCH is not just another color format — it's a <strong>fundamental rethinking</strong> of how we represent and manipulate color in CSS. With every major design system (Tailwind, Material 3, shadcn/ui) adopting it and browser support at ~94% global coverage, OKLCH is replacing HSL as the standard for modern web color. Here's why, and how to use it.
+  </p>
+
+  <h2>The Problem with HSL</h2>
+
+  <p>
+    For 20 years, HSL (Hue-Saturation-Lightness) has been the go-to color format for developers. It's intuitive: pick a hue on the color wheel, dial saturation, set lightness. But HSL has a critical flaw — <strong>its math doesn't match human perception</strong>.
+  </p>
+
+  <pre><code>/* HSL: same "Lightness" = very different perceived brightness */
+.hsl-blue   { background: hsl(240, 100%, 50%); } /* Looks dark */
+.hsl-yellow { background: hsl(60, 100%, 50%);  } /* Looks bright */
+/* Both say L=50%, but they're wildly different to the human eye */</code></pre>
+
+  <p>
+    HSL's lightness axis ignores how our eyes actually perceive brightness. Yellow is naturally bright; blue is naturally dark. HSL's L=50% is a mathematical midpoint in a flawed color space, not a perceptual one. This creates real problems:
+  </p>
+
+  <ol>
+    <li><strong>Inconsistent color scales</strong>: 50% lightness on different hues looks like completely different visual weights</li>
+    <li><strong>Broken interpolation</strong>: Animating between colors in HSL produces muddy, gray midpoints</li>
+    <li><strong>Unreliable contrast</strong>: Calculating WCAG contrast from HSL lightness is guesswork</li>
+    <li><strong>No wide gamut</strong>: HSL is locked to sRGB; it cannot represent Display P3 or Rec.2020 colors</li>
+  </ol>
+
+  <h2>What Makes OKLCH Different</h2>
+
+  <p>
+    OKLCH models color the way our eyes and brain process it. Its three dimensions map directly to human perception:
+  </p>
+
+  <pre><code>L = perceptual Lightness  (0% = black, 100% = white, consistent across hues)
+C = Chroma                (0 = gray, 0.4+ = vivid; max depends on hue + gamut)
+H = Hue angle             (0-360°, same color wheel you know from HSL)</code></pre>
+
+  <p>
+    The critical breakthrough is the <strong>L axis</strong> — it's perceptually uniform. L=50% looks equally "light" whether the hue is blue, yellow, or red. This single change unlocks everything else.
+  </p>
+
+  <pre><code>/* OKLCH: L=50% is perceptually the SAME lightness for all hues */
+.oklch-blue   { background: oklch(50% 0.2 264); } /* Consistent feel */
+.oklch-yellow { background: oklch(50% 0.2 102); } /* Same visual weight */</code></pre>
+
+  <h3>L — Perceptual Lightness</h3>
+
+  <p>
+    L is the game-changer. It's anchored to human perception, so L=60% always has the same perceived luminance. This means:
+  </p>
+
+  <ul>
+    <li><strong>Predictable contrast</strong>: You can approximate WCAG contrast ratio from the L value alone</li>
+    <li><strong>Consistent color scales</strong>: Generate 10 tints from L=10% to L=95% and each step looks visually equal</li>
+    <li><strong>Dark mode for free</strong>: Flip your L values and everything stays coherent</li>
+  </ul>
+
+  <pre><code>/* Generate a color scale — each step is perceptually equal */
+.scale-100 { background: oklch(10% 0.15 264); }
+.scale-200 { background: oklch(20% 0.15 264); }
+.scale-300 { background: oklch(30% 0.15 264); }
+/* ... all the way up ... */
+.scale-900 { background: oklch(90% 0.15 264); }
+.scale-950 { background: oklch(95% 0.15 264); }</code></pre>
+
+  <h3>C — Chroma (Real Saturation)</h3>
+
+  <p>
+    Chroma measures colorfulness — but unlike HSL saturation, it's <strong>bounded by what's actually displayable</strong>, not a fixed 0-100% range. C=0 is always gray, C=0.2 is moderately vivid, C=0.4 is highly saturated. The maximum achievable chroma varies by hue because different parts of the spectrum can display more color.
+  </p>
+
+  <p>
+    This gives you something HSL never could: <strong>safe, predictable color manipulation</strong>.
+  </p>
+
+  <pre><code>/* OKLCH: crank chroma up without worrying about clipping */
+.cta-button { background: oklch(65% 0.25 264); }  /* Moderate */
+.cta-button:hover { background: oklch(55% 0.25 264); } /* Same chroma, darker */
+/* In HSL you'd get a muddy mess trying this */</code></pre>
+
+  <h3>H — The Familiar Hue Wheel</h3>
+
+  <p>
+    H works just like the hue you know from HSL — 0/360° is red, 120° is green, 240° is blue. No learning curve needed for the wheel itself.
+  </p>
+
+  <h2>OKLCH vs HSL: Side by Side</h2>
+
+  <div class="table-wrapper">
+    <table>
+      <thead>
+        <tr><th>Property</th><th>HSL</th><th>OKLCH</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Lightness</td><td>Mathematical (broken)</td><td>Perceptual (human)</td></tr>
+        <tr><td>Color scales</td><td>Inconsistent weight</td><td>Every step feels equal</td></tr>
+        <tr><td>Interpolation</td><td>Muddy midpoints</td><td>Smooth, vibrant transitions</td></tr>
+        <tr><td>Dark mode</td><td>Rewrite everything</td><td>Flip L values</td></tr>
+        <tr><td>Wide gamut (P3)</td><td>No (sRGB only)</td><td>Yes (Full P3/Rec.2020)</td></tr>
+        <tr><td>Accessibility</td><td>Unreliable for contrast</td><td>L predicts contrast</td></tr>
+        <tr><td>CSS syntax</td><td><code>hsl(h s% l% / a)</code></td><td><code>oklch(l% c h / a)</code></td></tr>
+        <tr><td>Browser support</td><td>Everywhere</td><td>~94% global coverage</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h2>Practical Usage Patterns</h2>
+
+  <h3>Building a Design System Color Scale</h3>
+
+  <p>
+    The biggest win for design systems: generate a consistent palette from a single hue and chroma.
+  </p>
+
+  <pre><code>:root {
+  /* Primary brand color — one source of truth */
+  --color-primary-50:  oklch(97% 0.02 264);
+  --color-primary-100: oklch(90% 0.04 264);
+  --color-primary-200: oklch(80% 0.08 264);
+  --color-primary-300: oklch(70% 0.12 264);
+  --color-primary-400: oklch(60% 0.16 264);
+  --color-primary-500: oklch(50% 0.20 264);
+  --color-primary-600: oklch(40% 0.20 264);
+  --color-primary-700: oklch(30% 0.16 264);
+  --color-primary-800: oklch(20% 0.10 264);
+  --color-primary-900: oklch(13% 0.06 264);
+}</code></pre>
+
+  <p>
+    Every step between these values is <strong>perceptually uniform</strong>. The visual jump from 50 to 100 is the same as from 700 to 800. In HSL, you'd need manual tweaking for every hue.
+  </p>
+
+  <h3>Dark Mode Without the Pain</h3>
+
+  <p>
+    With OKLCH, dark mode becomes trivial: use lighter L values for dark backgrounds (since high L = light) and darker L values for text. No redesign needed.
+  </p>
+
+  <pre><code>.card {
+  background: oklch(98% 0.01 264);  /* Very light surface */
+  color: oklch(15% 0.02 264);       /* Near-black text */
+}
+
+[data-theme="dark"] .card {
+  background: oklch(18% 0.02 264);  /* Dark surface */
+  color: oklch(85% 0.02 264);       /* Light text */
+}</code></pre>
+
+  <p>
+    The key insight: you're just remapping L ranges while keeping the chroma relationship. The colors feel like the same "brand" in both modes.
+  </p>
+
+  <h3>Chroma Reduction for Disabled States</h3>
+
+  <p>
+    HSL has no clean way to make a color "grayscale-ish" without guessing. OKLCH makes it explicit:
+  </p>
+
+  <pre><code>.button:disabled {
+  background: oklch(50% 0.05 264); /* Same hue, near-zero chroma = gray */
+}</code></pre>
+
+  <h3>Wide Gamut: Display P3 Colors</h3>
+
+  <p>
+    HSL is forever trapped in sRGB — it literally cannot express colors that modern screens can display. OKLCH can push chroma beyond sRGB bounds into Display P3:
+  </p>
+
+  <pre><code>/* This vibrant cyan is only displayable on P3 screens */
+.vibrant-cyan {
+  background: oklch(70% 0.3 195);
+  /* Falls back gracefully on sRGB — no clipping artifacts */
+}</code></pre>
+
+  <p>
+    Modern MacBooks, iPhones, and OLED displays support P3. OKLCH lets you use those colors with automatic sRGB fallback. The browser handles gamut mapping.
+  </p>
+
+  <h2>Accessibility Superpowers</h2>
+
+  <p>
+    Because L in OKLCH is perceptual lightness, you can <strong>approximately verify WCAG contrast ratios</strong> from the L values alone:
+  </p>
+
+  <pre><code>/*
+  If text L = 90% and background L = 20%:
+  Approx contrast ≈ (90 + 5) / (20 + 5) = 3.8:1
+  WCAG AA for large text: 3:1 ✓
+  WCAG AA for normal text: need 4.5:1 — close enough to adjust
+*/</code></pre>
+
+  <p>
+    More importantly, OKLCH makes it trivial to build color functions that enforce accessibility:
+  </p>
+
+  <pre><code>// JavaScript helper for accessible text color
+function accessibleText(backgroundL) {
+  return backgroundL > 60 ? 'oklch(15% 0.01 0)' : 'oklch(95% 0.01 0)';
+}</code></pre>
+
+  <h2>CSS color-mix() + OKLCH = Superpower</h2>
+
+  <p>
+    Combine <code>color-mix()</code> in the <code>oklch</code> color space for the best color interpolation available in CSS:
+  </p>
+
+  <pre><code>/* Mix colors perceptually — no muddy midpoints */
+.gradient-mix {
+  background: color-mix(in oklch, #ff0000 50%, #0000ff 50%);
+  /* Result: a vibrant purple, not the gray-brown you'd get in sRGB */
+}
+
+/* Smooth hover transitions using OKLCH interpolation */
+.button {
+  background: oklch(60% 0.2 264);
+  transition: background 0.2s;
+}
+.button:hover {
+  background: oklch(50% 0.22 264);
+}
+/* OKLCH interpolation in transitions is smooth and maintains vibrancy */</code></pre>
+
+  <h2>Browser Support & Fallbacks</h2>
+
+  <p>
+    As of mid-2026, OKLCH is supported in Chrome 111+, Firefox 113+, Safari 15.4+, Edge 111+ — covering ~94% of users globally. For the remaining ~6%, provide a simple fallback:
+  </p>
+
+  <pre><code>.my-element {
+  /* Fallback for older browsers */
+  background: #4a6cf7;
+  /* OKLCH for modern browsers */
+  background: oklch(55% 0.25 264);
+}</code></pre>
+
+  <p>
+    Modern CSS handles this automatically — browsers ignore declarations they don't understand. No polyfills needed.
+  </p>
+
+  <h2>Migration Strategy: HSL to OKLCH</h2>
+
+  <ol>
+    <li><strong>Start with new components</strong>: Use OKLCH for anything you build from scratch</li>
+    <li><strong>Convert your palette</strong>: Map existing hex/RGB colors to OKLCH using the DevBench <a href="/tools/oklch-color-picker/">OKLCH Color Picker</a></li>
+    <li><strong>Update design tokens</strong>: Replace HSL-based CSS custom properties with OKLCH</li>
+    <li><strong>Add fallbacks</strong>: Duplicate key colors as hex for legacy browser support</li>
+    <li><strong>Delete HSL utilities</strong>: Remove Sass color functions that manually work around HSL's flaws</li>
+  </ol>
+
+  <pre><code>/* Before (HSL — inconsistent scaling) */
+--primary-500: hsl(240, 100%, 50%);
+--primary-300: hsl(240, 80%, 70%);
+
+/* After (OKLCH — uniform, predictable, wide-gamut-ready) */
+--primary-500: oklch(50% 0.25 264);
+--primary-300: oklch(70% 0.18 264);</code></pre>
+
+  <h2>Summary</h2>
+
+  <div class="highlight-box">
+    <strong>Key takeaways:</strong>
+    <ul>
+      <li><strong>OKLCH fixes HSL's fundamental flaw</strong> — L is perceptual lightness, not mathematical</li>
+      <li><strong>Color scales are correct by construction</strong> — every step between L values looks visually equal</li>
+      <li><strong>Dark mode becomes trivial</strong> — flip L ranges, keep chroma relationships</li>
+      <li><strong>Wide-gamut ready</strong> — Display P3 colors with automatic sRGB fallback</li>
+      <li><strong>Accessibility built in</strong> — L value alone approximates WCAG contrast</li>
+      <li><strong>~94% browser coverage</strong> — Chrome 111+, Firefox 113+, Safari 15.4+</li>
+      <li><strong>One-line fallback</strong> — duplicate as hex for legacy browsers, no polyfill needed</li>
+    </ul>
+  </div>
+
+  <div class="highlight-box highlight-positive">
+    <strong>Start today:</strong> Next time you define a color in CSS, use <code>oklch()</code> instead of <code>hsl()</code>. Use the <a href="/tools/oklch-color-picker/">OKLCH Color Picker</a> to visualize and convert your existing colors. The migration is additive — you can adopt OKLCH one component at a time.
+  </div>
+</div>5:["slug","oklch-css-complete-guide-2026","d"]
+0:["Dyet8hExXh9zFMTej1l6Q",[[["",{"children":["blog",{"children":[["slug","oklch-css-complete-guide-2026","d"],{"children":["__PAGE__?{\"slug\":\"oklch-css-complete-guide-2026\"}",{}]}]}]},"$undefined","$undefined",true],["",{"children":["blog",{"children":[["slug","oklch-css-complete-guide-2026","d"],{"children":["__PAGE__",{},[["$L1",[["$","script",null,{"type":"application/ld+json","dangerouslySetInnerHTML":{"__html":"{\"@context\":\"https://schema.org\",\"@type\":\"BlogPosting\",\"headline\":\"OKLCH in CSS: The Perceptually Uniform Color Revolution\",\"description\":\"OKLCH is the future of CSS color — perceptually uniform, wide-gamut ready, and intuitive to manipulate. It replaces HSL broken math with real perceptual lightness, lets you adjust chroma without affecting contrast, and unlocks Display P3 vibrant colors. Learn why every design system is migrating to OKLCH and how to use it today.\",\"datePublished\":\"2026-06-07\",\"author\":{\"@type\":\"Person\",\"name\":\"DevBench\"},\"url\":\"https://devbench-roan.vercel.app/blog/oklch-css-complete-guide-2026/\"}"}}],["$","article",null,{"className":"max-w-3xl mx-auto px-4 py-12 sm:px-6 lg:px-8","children":[["$","$L2",null,{"href":"/blog/","className":"inline-flex items-center gap-1.5 text-sm text-slate-500 hover:text-brand-400 transition-colors mb-8","children":[["$","svg",null,{"xmlns":"http://www.w3.org/2000/svg","width":24,"height":24,"viewBox":"0 0 24 24","fill":"none","stroke":"currentColor","strokeWidth":2,"strokeLinecap":"round","strokeLinejoin":"round","className":"lucide lucide-arrow-left w-4 h-4","children":[["$","path","1l729n",{"d":"m12 19-7-7 7-7"}],["$","path","x3x0zl",{"d":"M19 12H5"}],"$undefined"]}],"Back to blog"]}],["$","header",null,{"className":"mb-10","children":[["$","h1",null,{"className":"text-3xl sm:text-4xl font-bold text-white mb-4 tracking-tight leading-tight","children":"OKLCH in CSS: The Perceptually Uniform Color Revolution"}],["$","p",null,{"className":"text-lg text-slate-400 mb-6","children":"OKLCH is the future of CSS color — perceptually uniform, wide-gamut ready, and intuitive to manipulate. It replaces HSL broken math with real perceptual lightness, lets you adjust chroma without affecting contrast, and unlocks Display P3 vibrant colors. Learn why every design system is migrating to OKLCH and how to use it today."}],["$","div",null,{"className":"flex flex-wrap items-center gap-4 text-sm text-slate-500","children":[["$","span",null,{"className":"flex items-center gap-1.5","children":[["$","svg",null,{"xmlns":"http://www.w3.org/2000/svg","width":24,"height":24,"viewBox":"0 0 24 24","fill":"none","stroke":"currentColor","strokeWidth":2,"strokeLinecap":"round","strokeLinejoin":"round","className":"lucide lucide-calendar w-4 h-4","children":[["$","rect","eu3xkr",{"width":"18","height":"18","x":"3","y":"4","rx":"2","ry":"2"}],["$","line","m3sa8f",{"x1":"16","x2":"16","y1":"2","y2":"6"}],["$","line","18kwsl",{"x1":"8","x2":"8","y1":"2","y2":"6"}],["$","line","xt86sb",{"x1":"3","x2":"21","y1":"10","y2":"10"}],"$undefined"]}],"June 7, 2026"]}],["$","span",null,{"className":"flex items-center gap-1.5","children":[["$","svg",null,{"xmlns":"http://www.w3.org/2000/svg","width":24,"height":24,"viewBox":"0 0 24 24","fill":"none","stroke":"currentColor","strokeWidth":2,"strokeLinecap":"round","strokeLinejoin":"round","className":"lucide lucide-clock w-4 h-4","children":[["$","circle","1mglay",{"cx":"12","cy":"12","r":"10"}],["$","polyline","68esgv",{"points":"12 6 12 12 16 14"}],"$undefined"]}],"10 min read"]}],["$","span",null,{"className":"text-slate-600","children":["by ","DevBench"]}]]}],["$","div",null,{"className":"flex flex-wrap gap-2 mt-4","children":[["$","span","CSS",{"className":"px-2 py-0.5 rounded-md bg-brand-500/10 text-brand-400 text-xs font-medium border border-brand-500/20","children":"CSS"}],["$","span","OKLCH",{"className":"px-2 py-0.5 rounded-md bg-brand-500/10 text-brand-400 text-xs font-medium border border-brand-500/20","children":"OKLCH"}],["$","span","Color",{"className":"px-2 py-0.5 rounded-md bg-brand-500/10 text-brand-400 text-xs font-medium border border-brand-500/20","children":"Color"}],["$","span","Design Systems",{"className":"px-2 py-0.5 rounded-md bg-brand-500/10 text-brand-400 text-xs font-medium border border-brand-500/20","children":"Design Systems"}],["$","span","Wide Gamut",{"className":"px-2 py-0.5 rounded-md bg-brand-500/10 text-brand-400 text-xs font-medium border border-brand-500/20","children":"Wide Gamut"}],["$","span","Display P3",{"className":"px-2 py-0.5 rounded-md bg-brand-500/10 text-brand-400 text-xs font-medium border border-brand-500/20","children":"Display P3"}],["$","span","Accessibility",{"className":"px-2 py-0.5 rounded-md bg-brand-500/10 text-brand-400 text-xs font-medium border border-brand-500/20","children":"Accessibility"}],["$","span","Web Platform",{"className":"px-2 py-0.5 rounded-md bg-brand-500/10 text-brand-400 text-xs font-medium border border-brand-500/20","children":"Web Platform"}],["$","span","2026",{"className":"px-2 py-0.5 rounded-md bg-brand-500/10 text-brand-400 text-xs font-medium border border-brand-500/20","children":"2026"}]]}]]}],["$","div",null,{"className":"blog-body","dangerouslySetInnerHTML":{"__html":"$3"}}],["$","hr",null,{"className":"border-slate-800 my-12"}],["$","div",null,{"className":"text-center","children":["$","$L2",null,{"href":"/blog/","className":"inline-flex items-center gap-1.5 text-brand-400 hover:text-brand-300 transition-colors font-medium","children":[["$","svg",null,{"xmlns":"http://www.w3.org/2000/svg","width":24,"height":24,"viewBox":"0 0 24 24","fill":"none","stroke":"currentColor","strokeWidth":2,"strokeLinecap":"round","strokeLinejoin":"round","className":"lucide lucide-arrow-left w-4 h-4","children":[["$","path","1l729n",{"d":"m12 19-7-7 7-7"}],["$","path","x3x0zl",{"d":"M19 12H5"}],"$undefined"]}],"More articles"]}]}]]}]],null],null],null]},[null,["$","$L4",null,{"parallelRouterKey":"children","segmentPath":["children","blog","children","$5","children"],"error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L6",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":"$undefined","notFoundStyles":"$undefined"}]],null]},[null,["$","$L4",null,{"parallelRouterKey":"children","segmentPath":["children","blog","children"],"error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L6",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":"$undefined","notFoundStyles":"$undefined"}]],null]},[[[["$","link","0",{"rel":"stylesheet","href":"/devbench-tech/_next/static/css/8b9213b1d18e4368.css","precedence":"next","crossOrigin":"$undefined"}]],["$","html",null,{"lang":"en","className":"dark","children":["$","body",null,{"className":"flex flex-col min-h-screen","children":[["$","script",null,{"type":"application/ld+json","dangerouslySetInnerHTML":{"__html":"{\"@context\":\"https://schema.org\",\"@type\":\"WebSite\",\"name\":\"DevBench\",\"url\":\"https://devbench-roan.vercel.app\",\"description\":\"Free developer tools for everyday use: JSON formatter, Base64 encoder/decoder, UUID generator, regex tester, benchmarks, and more.\",\"potentialAction\":{\"@type\":\"SearchAction\",\"target\":\"https://devbench-roan.vercel.app/tools?q={search_term_string}\",\"query-input\":\"required name=search_term_string\"}}"}}],["$","$L7",null,{}],["$","main",null,{"className":"flex-1","children":["$","$L4",null,{"parallelRouterKey":"children","segmentPath":["children"],"error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L6",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":[["$","title",null,{"children":"404: This page could not be found."}],["$","div",null,{"style":{"fontFamily":"system-ui,\"Segoe UI\",Roboto,Helvetica,Arial,sans-serif,\"Apple Color Emoji\",\"Segoe UI Emoji\"","height":"100vh","textAlign":"center","display":"flex","flexDirection":"column","alignItems":"center","justifyContent":"center"},"children":["$","div",null,{"children":[["$","style",null,{"dangerouslySetInnerHTML":{"__html":"body{color:#000;background:#fff;margin:0}.next-error-h1{border-right:1px solid rgba(0,0,0,.3)}@media (prefers-color-scheme:dark){body{color:#fff;background:#000}.next-error-h1{border-right:1px solid rgba(255,255,255,.3)}}"}}],["$","h1",null,{"className":"next-error-h1","style":{"display":"inline-block","margin":"0 20px 0 0","padding":"0 23px 0 0","fontSize":24,"fontWeight":500,"verticalAlign":"top","lineHeight":"49px"},"children":"404"}],["$","div",null,{"style":{"display":"inline-block"},"children":["$","h2",null,{"style":{"fontSize":14,"fontWeight":400,"lineHeight":"49px","margin":0},"children":"This page could not be found."}]}]]}]}]],"notFoundStyles":[]}]}],["$","footer",null,{"className":"bg-surface-light border-t border-slate-700/50 mt-auto","children":["$","div",null,{"className":"max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12","children":[["$","div",null,{"className":"grid grid-cols-1 md:grid-cols-3 gap-8","children":[["$","div",null,{"children":[["$","$L2",null,{"href":"/","className":"flex items-center gap-2.5 mb-3","children":[["$","div",null,{"className":"w-7 h-7 bg-brand-500 rounded-lg flex items-center justify-center","children":["$","svg",null,{"xmlns":"http://www.w3.org/2000/svg","width":24,"height":24,"viewBox":"0 0 24 24","fill":"none","stroke":"currentColor","strokeWidth":2,"strokeLinecap":"round","strokeLinejoin":"round","className":"lucide lucide-terminal w-3.5 h-3.5 text-white","children":[["$","polyline","akl6gq",{"points":"4 17 10 11 4 5"}],["$","line","q2wloq",{"x1":"12","x2":"20","y1":"19","y2":"19"}],"$undefined"]}]}],["$","span",null,{"className":"text-lg font-bold text-white","children":["Dev",["$","span",null,{"className":"gradient-text","children":"Bench"}]]}]]}],["$","p",null,{"className":"text-slate-400 text-sm leading-relaxed","children":"Free developer tools, benchmarks, and calculators. Built for developers, by developers."}]]}],["$","div",null,{"children":[["$","h3",null,{"className":"text-sm font-semibold text-slate-300 uppercase tracking-wider mb-4","children":"Tools"}],["$","ul",null,{"className":"space-y-2","children":[["$","li","/tools/json-formatter",{"children":["$","$L2",null,{"href":"/tools/json-formatter","className":"text-slate-400 hover:text-brand-400 text-sm transition-colors","children":"JSON Formatter"}]}],["$","li","/tools/base64",{"children":["$","$L2",null,{"href":"/tools/base64","className":"text-slate-400 hover:text-brand-400 text-sm transition-colors","children":"Base64 Encoder/Decoder"}]}],["$","li","/tools/uuid-generator",{"children":["$","$L2",null,{"href":"/tools/uuid-generator","className":"text-slate-400 hover:text-brand-400 text-sm transition-colors","children":"UUID Generator"}]}],["$","li","/tools/regex-tester",{"children":["$","$L2",null,{"href":"/tools/regex-tester","className":"text-slate-400 hover:text-brand-400 text-sm transition-colors","children":"Regex Tester"}]}]]}]]}],["$","div",null,{"children":[["$","h3",null,{"className":"text-sm font-semibold text-slate-300 uppercase tracking-wider mb-4","children":"Resources"}],["$","ul",null,{"className":"space-y-2","children":[["$","li","/blog",{"children":["$","$L2",null,{"href":"/blog","className":"text-slate-400 hover:text-brand-400 text-sm transition-colors","children":"Blog"}]}],["$","li","/benchmarks",{"children":["$","$L2",null,{"href":"/benchmarks","className":"text-slate-400 hover:text-brand-400 text-sm transition-colors","children":"Benchmarks"}]}],["$","li","/about",{"children":["$","$L2",null,{"href":"/about","className":"text-slate-400 hover:text-brand-400 text-sm transition-colors","children":"About"}]}]]}]]}]]}],["$","div",null,{"className":"mt-10 pt-6 border-t border-slate-700/50 flex flex-col sm:flex-row items-center justify-between gap-4","children":[["$","p",null,{"className":"text-slate-500 text-sm flex items-center gap-1","children":["Made with ",["$","svg",null,{"xmlns":"http://www.w3.org/2000/svg","width":24,"height":24,"viewBox":"0 0 24 24","fill":"none","stroke":"currentColor","strokeWidth":2,"strokeLinecap":"round","strokeLinejoin":"round","className":"lucide lucide-heart w-3.5 h-3.5 text-red-500 fill-red-500","children":[["$","path","c3ymky",{"d":"M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"}],"$undefined"]}]," by the DevBench team © ",2026]}],["$","a",null,{"href":"https://github.com","target":"_blank","rel":"noopener noreferrer","className":"text-slate-500 hover:text-slate-300 transition-colors","aria-label":"GitHub","children":["$","svg",null,{"xmlns":"http://www.w3.org/2000/svg","width":24,"height":24,"viewBox":"0 0 24 24","fill":"none","stroke":"currentColor","strokeWidth":2,"strokeLinecap":"round","strokeLinejoin":"round","className":"lucide lucide-github w-5 h-5","children":[["$","path","tonef",{"d":"M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"}],["$","path","9comsn",{"d":"M9 18c-4.51 2-5-2-7-2"}],"$undefined"]}]}]]}]]}]}],["$","$L8",null,{}],["$","$L9",null,{"position":"bottom-right","toastOptions":{"style":{"background":"#1e293b","color":"#e2e8f0","border":"1px solid #334155","fontSize":"14px"}}}]]}]}]],null],null],["$La",null]]]]
+a:[["$","meta","0",{"name":"viewport","content":"width=device-width, initial-scale=1"}],["$","meta","1",{"charSet":"utf-8"}],["$","title","2",{"children":"OKLCH in CSS: The Perceptually Uniform Color Revolution | DevBench"}],["$","meta","3",{"name":"description","content":"OKLCH is the future of CSS color — perceptually uniform, wide-gamut ready, and intuitive to manipulate. It replaces HSL broken math with real perceptual lightness, lets you adjust chroma without affecting contrast, and unlocks Display P3 vibrant colors. Learn why every design system is migrating to OKLCH and how to use it today."}],["$","meta","4",{"name":"author","content":"DevBench"}],["$","meta","5",{"name":"keywords","content":"developer tools,JSON formatter,Base64,UUID generator,regex tester,benchmarks,dev tools"}],["$","meta","6",{"property":"og:title","content":"OKLCH in CSS: The Perceptually Uniform Color Revolution"}],["$","meta","7",{"property":"og:description","content":"OKLCH is the future of CSS color — perceptually uniform, wide-gamut ready, and intuitive to manipulate. It replaces HSL broken math with real perceptual lightness, lets you adjust chroma without affecting contrast, and unlocks Display P3 vibrant colors. Learn why every design system is migrating to OKLCH and how to use it today."}],["$","meta","8",{"property":"og:type","content":"article"}],["$","meta","9",{"property":"article:published_time","content":"2026-06-07"}],["$","meta","10",{"property":"article:author","content":"DevBench"}],["$","meta","11",{"property":"article:tag","content":"CSS"}],["$","meta","12",{"property":"article:tag","content":"OKLCH"}],["$","meta","13",{"property":"article:tag","content":"Color"}],["$","meta","14",{"property":"article:tag","content":"Design Systems"}],["$","meta","15",{"property":"article:tag","content":"Wide Gamut"}],["$","meta","16",{"property":"article:tag","content":"Display P3"}],["$","meta","17",{"property":"article:tag","content":"Accessibility"}],["$","meta","18",{"property":"article:tag","content":"Web Platform"}],["$","meta","19",{"property":"article:tag","content":"2026"}],["$","meta","20",{"name":"twitter:card","content":"summary"}],["$","meta","21",{"name":"twitter:title","content":"OKLCH in CSS: The Perceptually Uniform Color Revolution"}],["$","meta","22",{"name":"twitter:description","content":"OKLCH is the future of CSS color — perceptually uniform, wide-gamut ready, and intuitive to manipulate. It replaces HSL broken math with real perceptual lightness, lets you adjust chroma without affecting contrast, and unlocks Display P3 vibrant colors. Learn why every design system is migrating to OKLCH and how to use it today."}],["$","link","23",{"rel":"icon","href":"/favicon.svg"}]]
+1:null

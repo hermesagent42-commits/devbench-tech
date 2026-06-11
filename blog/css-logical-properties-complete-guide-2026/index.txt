@@ -1,0 +1,154 @@
+2:I[72972,["2972","static/chunks/2972-4aaa15d119eeb022.js","308","static/chunks/app/blog/%5Bslug%5D/page-a411190e7012c687.js"],""]
+4:I[4707,[],""]
+6:I[36423,[],""]
+7:I[39295,["9762","static/chunks/44530001-4ecf7a22b5b24163.js","2972","static/chunks/2972-4aaa15d119eeb022.js","8375","static/chunks/8375-c77b8de36f6696fb.js","6829","static/chunks/6829-f51803445ddf1872.js","3185","static/chunks/app/layout-488e5c40aa6ffa72.js"],"Header"]
+8:I[66506,["9762","static/chunks/44530001-4ecf7a22b5b24163.js","2972","static/chunks/2972-4aaa15d119eeb022.js","8375","static/chunks/8375-c77b8de36f6696fb.js","6829","static/chunks/6829-f51803445ddf1872.js","3185","static/chunks/app/layout-488e5c40aa6ffa72.js"],"Analytics"]
+9:I[69064,["9762","static/chunks/44530001-4ecf7a22b5b24163.js","2972","static/chunks/2972-4aaa15d119eeb022.js","8375","static/chunks/8375-c77b8de36f6696fb.js","6829","static/chunks/6829-f51803445ddf1872.js","3185","static/chunks/app/layout-488e5c40aa6ffa72.js"],"Toaster"]
+3:T17f9,<div class="prose-content">
+  <p class="lead">
+    Every developer learns CSS the same way: <code>margin-left</code>, <code>padding-right</code>, <code>border-top</code>. These are <strong>physical properties</strong> and they refer to literal sides of the box. For English-only, LTR-only websites they work fine. But the moment you need Arabic (RTL), Hebrew (RTL), Japanese (vertical-rl), or Mongolian (vertical-lr), <code>margin-left</code> means something physically wrong. <strong>CSS Logical Properties</strong> solve this permanently by replacing physical sides with flow-relative positions. The browser does the right thing regardless of writing direction.
+  </p>
+
+  <h2>The Core Mapping</h2>
+
+  <p>Every physical property has a logical equivalent. Here is the complete mental model:</p>
+
+  <table>
+    <thead>
+      <tr><th>Physical</th><th>Logical (LTR)</th><th>Meaning</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><code>margin-left</code></td><td><code>margin-inline-start</code></td><td>The start edge in the inline direction</td></tr>
+      <tr><td><code>margin-right</code></td><td><code>margin-inline-end</code></td><td>The end edge in the inline direction</td></tr>
+      <tr><td><code>margin-top</code></td><td><code>margin-block-start</code></td><td>The start edge in the block direction</td></tr>
+      <tr><td><code>margin-bottom</code></td><td><code>margin-block-end</code></td><td>The end edge in the block direction</td></tr>
+    </tbody>
+  </table>
+
+  <p>This applies to <strong>padding</strong>, <strong>border</strong>, <strong>inset</strong> (positioning), and <strong>size</strong>:</p>
+
+  <pre><code>margin-left      -&gt; margin-inline-start
+margin-right     -&gt; margin-inline-end
+margin-top       -&gt; margin-block-start
+margin-bottom    -&gt; margin-block-end
+
+padding-left     -&gt; padding-inline-start
+padding-right    -&gt; padding-inline-end
+padding-top      -&gt; padding-block-start
+padding-bottom   -&gt; padding-block-end
+
+border-left      -&gt; border-inline-start
+border-right     -&gt; border-inline-end
+border-top       -&gt; border-block-start
+border-bottom    -&gt; border-block-end
+
+left   -&gt; inset-inline-start
+right  -&gt; inset-inline-end
+top    -&gt; inset-block-start
+bottom -&gt; inset-block-end
+
+width   -&gt; inline-size
+height  -&gt; block-size</code></pre>
+
+  <h2>Shorthand Properties</h2>
+
+  <pre><code>.card {
+  margin-inline: 1rem;
+  margin-block: 2rem;
+  border-inline: 2px solid #e2e8f0;
+  border-block: 1px solid #64748b;
+  inline-size: 100%;
+  max-inline-size: 60ch;
+  block-size: auto;
+}</code></pre>
+
+  <h2>Writing Modes in Action</h2>
+
+  <pre><code>/* Horizontal, LTR (default) */
+body { writing-mode: horizontal-tb; direction: ltr; }
+/* inline-start = left, block-start = top */
+
+/* Horizontal, RTL */
+body { writing-mode: horizontal-tb; direction: rtl; }
+/* inline-start = right, block-start = top */
+
+/* Vertical, Japanese */
+body { writing-mode: vertical-rl; }
+/* inline-start = top, block-start = right */
+
+/* Vertical, Mongolian */
+body { writing-mode: vertical-lr; }
+/* inline-start = top, block-start = left */</code></pre>
+
+  <h2>Real-World Migration Guide</h2>
+
+  <h3>1. Replace margin-left / margin-right</h3>
+  <pre><code>/* Before */
+.card + .card { margin-left: 1.5rem; }
+/* After */
+.card + .card { margin-inline-start: 1.5rem; }</code></pre>
+
+  <h3>2. Replace padding on blockquotes</h3>
+  <pre><code>/* Before */
+blockquote { padding-left: 1rem; border-left: 3px solid blue; }
+/* After */
+blockquote { padding-inline-start: 1rem; border-inline-start: 3px solid blue; }</code></pre>
+
+  <h3>3. Replace text-align: left</h3>
+  <pre><code>/* Before */
+.header { text-align: left; }
+/* After */
+.header { text-align: start; }</code></pre>
+
+  <h3>4. Replace float: left</h3>
+  <pre><code>/* Before */
+.avatar { float: left; margin-right: 0.75rem; }
+/* After */
+.avatar { float: inline-start; margin-inline-end: 0.75rem; }</code></pre>
+
+  <h3>5. Replace width / height</h3>
+  <pre><code>/* Before */
+.container { width: 100%; max-width: 60rem; }
+/* After */
+.container { inline-size: 100%; max-inline-size: 60rem; }</code></pre>
+
+  <h3>6. Logical border-radius</h3>
+  <pre><code>/* Before - breaks in RTL */
+.card { border-radius: 8px 0 0 8px; }
+/* After */
+.card {
+  border-start-start-radius: 8px;
+  border-end-start-radius: 8px;
+}</code></pre>
+
+  <h2>The Flexbox and Grid Connection</h2>
+
+  <p>Flexbox and Grid already use flow-relative terms. <code>justify-content</code> works on the inline axis, <code>align-items</code> on the block axis. Logical properties align perfectly with this mental model.</p>
+
+  <h2>When NOT to Use Logical Properties</h2>
+
+  <ul>
+    <li><strong>Literal box decorations</strong> - a right border on a drawer that slides from the right</li>
+    <li><strong>Viewport-corner positioning</strong> - stick this to bottom-right</li>
+    <li><strong>Directional icons</strong> - a right-arrow always points right</li>
+    <li><strong>transform properties</strong> - translateX is always physical</li>
+  </ul>
+
+  <h2>Browser Support</h2>
+
+  <p>Logical properties are <strong>Baseline</strong> across all major browsers: Chrome 87+ (Nov 2020), Firefox 66+ (Mar 2019), Safari 15+ (Sep 2021), Edge 87+. Over 97% of global users. For older browsers, use <code>postcss-logical</code> to generate physical fallbacks.</p>
+
+  <div class="highlight-box">
+    <strong>Key takeaways:</strong>
+    <ul>
+      <li><strong>Logical properties replace physical sides with flow-relative positions.</strong> margin-inline-start means beginning of the text direction, left in LTR, right in RTL.</li>
+      <li><strong>Works for margins, padding, borders, positioning, and size.</strong> The full set of properties has logical equivalents.</li>
+      <li><strong>Automatic RTL and vertical writing mode support.</strong> No JavaScript, no separate stylesheets, no build-step transforms.</li>
+      <li><strong>Flexbox and Grid are already logical.</strong> Logical properties complete the flow-relative mental model.</li>
+      <li><strong>Baseline 2026, use today without polyfills.</strong> 97%+ global support.</li>
+    </ul>
+  </div>
+</div>5:["slug","css-logical-properties-complete-guide-2026","d"]
+0:["Dyet8hExXh9zFMTej1l6Q",[[["",{"children":["blog",{"children":[["slug","css-logical-properties-complete-guide-2026","d"],{"children":["__PAGE__?{\"slug\":\"css-logical-properties-complete-guide-2026\"}",{}]}]}]},"$undefined","$undefined",true],["",{"children":["blog",{"children":[["slug","css-logical-properties-complete-guide-2026","d"],{"children":["__PAGE__",{},[["$L1",[["$","script",null,{"type":"application/ld+json","dangerouslySetInnerHTML":{"__html":"{\"@context\":\"https://schema.org\",\"@type\":\"BlogPosting\",\"headline\":\"CSS Logical Properties: Stop Thinking in Left and Right\",\"description\":\"CSS Logical Properties replace physical directional properties (left/right/top/bottom) with flow-relative alternatives. Your layouts automatically adapt to RTL, vertical writing modes, and any future text direction. Complete guide: every physical-to-logical mapping, shorthands, writing-mode demos, and migration patterns.\",\"datePublished\":\"2026-06-07\",\"author\":{\"@type\":\"Person\",\"name\":\"DevBench\"},\"url\":\"https://devbench-roan.vercel.app/blog/css-logical-properties-complete-guide-2026/\"}"}}],["$","article",null,{"className":"max-w-3xl mx-auto px-4 py-12 sm:px-6 lg:px-8","children":[["$","$L2",null,{"href":"/blog/","className":"inline-flex items-center gap-1.5 text-sm text-slate-500 hover:text-brand-400 transition-colors mb-8","children":[["$","svg",null,{"xmlns":"http://www.w3.org/2000/svg","width":24,"height":24,"viewBox":"0 0 24 24","fill":"none","stroke":"currentColor","strokeWidth":2,"strokeLinecap":"round","strokeLinejoin":"round","className":"lucide lucide-arrow-left w-4 h-4","children":[["$","path","1l729n",{"d":"m12 19-7-7 7-7"}],["$","path","x3x0zl",{"d":"M19 12H5"}],"$undefined"]}],"Back to blog"]}],["$","header",null,{"className":"mb-10","children":[["$","h1",null,{"className":"text-3xl sm:text-4xl font-bold text-white mb-4 tracking-tight leading-tight","children":"CSS Logical Properties: Stop Thinking in Left and Right"}],["$","p",null,{"className":"text-lg text-slate-400 mb-6","children":"CSS Logical Properties replace physical directional properties (left/right/top/bottom) with flow-relative alternatives. Your layouts automatically adapt to RTL, vertical writing modes, and any future text direction. Complete guide: every physical-to-logical mapping, shorthands, writing-mode demos, and migration patterns."}],["$","div",null,{"className":"flex flex-wrap items-center gap-4 text-sm text-slate-500","children":[["$","span",null,{"className":"flex items-center gap-1.5","children":[["$","svg",null,{"xmlns":"http://www.w3.org/2000/svg","width":24,"height":24,"viewBox":"0 0 24 24","fill":"none","stroke":"currentColor","strokeWidth":2,"strokeLinecap":"round","strokeLinejoin":"round","className":"lucide lucide-calendar w-4 h-4","children":[["$","rect","eu3xkr",{"width":"18","height":"18","x":"3","y":"4","rx":"2","ry":"2"}],["$","line","m3sa8f",{"x1":"16","x2":"16","y1":"2","y2":"6"}],["$","line","18kwsl",{"x1":"8","x2":"8","y1":"2","y2":"6"}],["$","line","xt86sb",{"x1":"3","x2":"21","y1":"10","y2":"10"}],"$undefined"]}],"June 7, 2026"]}],["$","span",null,{"className":"flex items-center gap-1.5","children":[["$","svg",null,{"xmlns":"http://www.w3.org/2000/svg","width":24,"height":24,"viewBox":"0 0 24 24","fill":"none","stroke":"currentColor","strokeWidth":2,"strokeLinecap":"round","strokeLinejoin":"round","className":"lucide lucide-clock w-4 h-4","children":[["$","circle","1mglay",{"cx":"12","cy":"12","r":"10"}],["$","polyline","68esgv",{"points":"12 6 12 12 16 14"}],"$undefined"]}],"9 min read"]}],["$","span",null,{"className":"text-slate-600","children":["by ","DevBench"]}]]}],["$","div",null,{"className":"flex flex-wrap gap-2 mt-4","children":[["$","span","CSS",{"className":"px-2 py-0.5 rounded-md bg-brand-500/10 text-brand-400 text-xs font-medium border border-brand-500/20","children":"CSS"}],["$","span","Logical Properties",{"className":"px-2 py-0.5 rounded-md bg-brand-500/10 text-brand-400 text-xs font-medium border border-brand-500/20","children":"Logical Properties"}],["$","span","Internationalization",{"className":"px-2 py-0.5 rounded-md bg-brand-500/10 text-brand-400 text-xs font-medium border border-brand-500/20","children":"Internationalization"}],["$","span","RTL",{"className":"px-2 py-0.5 rounded-md bg-brand-500/10 text-brand-400 text-xs font-medium border border-brand-500/20","children":"RTL"}],["$","span","Writing Modes",{"className":"px-2 py-0.5 rounded-md bg-brand-500/10 text-brand-400 text-xs font-medium border border-brand-500/20","children":"Writing Modes"}],["$","span","Baseline 2026",{"className":"px-2 py-0.5 rounded-md bg-brand-500/10 text-brand-400 text-xs font-medium border border-brand-500/20","children":"Baseline 2026"}]]}]]}],["$","div",null,{"className":"blog-body","dangerouslySetInnerHTML":{"__html":"$3"}}],["$","hr",null,{"className":"border-slate-800 my-12"}],["$","div",null,{"className":"text-center","children":["$","$L2",null,{"href":"/blog/","className":"inline-flex items-center gap-1.5 text-brand-400 hover:text-brand-300 transition-colors font-medium","children":[["$","svg",null,{"xmlns":"http://www.w3.org/2000/svg","width":24,"height":24,"viewBox":"0 0 24 24","fill":"none","stroke":"currentColor","strokeWidth":2,"strokeLinecap":"round","strokeLinejoin":"round","className":"lucide lucide-arrow-left w-4 h-4","children":[["$","path","1l729n",{"d":"m12 19-7-7 7-7"}],["$","path","x3x0zl",{"d":"M19 12H5"}],"$undefined"]}],"More articles"]}]}]]}]],null],null],null]},[null,["$","$L4",null,{"parallelRouterKey":"children","segmentPath":["children","blog","children","$5","children"],"error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L6",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":"$undefined","notFoundStyles":"$undefined"}]],null]},[null,["$","$L4",null,{"parallelRouterKey":"children","segmentPath":["children","blog","children"],"error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L6",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":"$undefined","notFoundStyles":"$undefined"}]],null]},[[[["$","link","0",{"rel":"stylesheet","href":"/devbench-tech/_next/static/css/8b9213b1d18e4368.css","precedence":"next","crossOrigin":"$undefined"}]],["$","html",null,{"lang":"en","className":"dark","children":["$","body",null,{"className":"flex flex-col min-h-screen","children":[["$","script",null,{"type":"application/ld+json","dangerouslySetInnerHTML":{"__html":"{\"@context\":\"https://schema.org\",\"@type\":\"WebSite\",\"name\":\"DevBench\",\"url\":\"https://devbench-roan.vercel.app\",\"description\":\"Free developer tools for everyday use: JSON formatter, Base64 encoder/decoder, UUID generator, regex tester, benchmarks, and more.\",\"potentialAction\":{\"@type\":\"SearchAction\",\"target\":\"https://devbench-roan.vercel.app/tools?q={search_term_string}\",\"query-input\":\"required name=search_term_string\"}}"}}],["$","$L7",null,{}],["$","main",null,{"className":"flex-1","children":["$","$L4",null,{"parallelRouterKey":"children","segmentPath":["children"],"error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L6",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":[["$","title",null,{"children":"404: This page could not be found."}],["$","div",null,{"style":{"fontFamily":"system-ui,\"Segoe UI\",Roboto,Helvetica,Arial,sans-serif,\"Apple Color Emoji\",\"Segoe UI Emoji\"","height":"100vh","textAlign":"center","display":"flex","flexDirection":"column","alignItems":"center","justifyContent":"center"},"children":["$","div",null,{"children":[["$","style",null,{"dangerouslySetInnerHTML":{"__html":"body{color:#000;background:#fff;margin:0}.next-error-h1{border-right:1px solid rgba(0,0,0,.3)}@media (prefers-color-scheme:dark){body{color:#fff;background:#000}.next-error-h1{border-right:1px solid rgba(255,255,255,.3)}}"}}],["$","h1",null,{"className":"next-error-h1","style":{"display":"inline-block","margin":"0 20px 0 0","padding":"0 23px 0 0","fontSize":24,"fontWeight":500,"verticalAlign":"top","lineHeight":"49px"},"children":"404"}],["$","div",null,{"style":{"display":"inline-block"},"children":["$","h2",null,{"style":{"fontSize":14,"fontWeight":400,"lineHeight":"49px","margin":0},"children":"This page could not be found."}]}]]}]}]],"notFoundStyles":[]}]}],["$","footer",null,{"className":"bg-surface-light border-t border-slate-700/50 mt-auto","children":["$","div",null,{"className":"max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12","children":[["$","div",null,{"className":"grid grid-cols-1 md:grid-cols-3 gap-8","children":[["$","div",null,{"children":[["$","$L2",null,{"href":"/","className":"flex items-center gap-2.5 mb-3","children":[["$","div",null,{"className":"w-7 h-7 bg-brand-500 rounded-lg flex items-center justify-center","children":["$","svg",null,{"xmlns":"http://www.w3.org/2000/svg","width":24,"height":24,"viewBox":"0 0 24 24","fill":"none","stroke":"currentColor","strokeWidth":2,"strokeLinecap":"round","strokeLinejoin":"round","className":"lucide lucide-terminal w-3.5 h-3.5 text-white","children":[["$","polyline","akl6gq",{"points":"4 17 10 11 4 5"}],["$","line","q2wloq",{"x1":"12","x2":"20","y1":"19","y2":"19"}],"$undefined"]}]}],["$","span",null,{"className":"text-lg font-bold text-white","children":["Dev",["$","span",null,{"className":"gradient-text","children":"Bench"}]]}]]}],["$","p",null,{"className":"text-slate-400 text-sm leading-relaxed","children":"Free developer tools, benchmarks, and calculators. Built for developers, by developers."}]]}],["$","div",null,{"children":[["$","h3",null,{"className":"text-sm font-semibold text-slate-300 uppercase tracking-wider mb-4","children":"Tools"}],["$","ul",null,{"className":"space-y-2","children":[["$","li","/tools/json-formatter",{"children":["$","$L2",null,{"href":"/tools/json-formatter","className":"text-slate-400 hover:text-brand-400 text-sm transition-colors","children":"JSON Formatter"}]}],["$","li","/tools/base64",{"children":["$","$L2",null,{"href":"/tools/base64","className":"text-slate-400 hover:text-brand-400 text-sm transition-colors","children":"Base64 Encoder/Decoder"}]}],["$","li","/tools/uuid-generator",{"children":["$","$L2",null,{"href":"/tools/uuid-generator","className":"text-slate-400 hover:text-brand-400 text-sm transition-colors","children":"UUID Generator"}]}],["$","li","/tools/regex-tester",{"children":["$","$L2",null,{"href":"/tools/regex-tester","className":"text-slate-400 hover:text-brand-400 text-sm transition-colors","children":"Regex Tester"}]}]]}]]}],["$","div",null,{"children":[["$","h3",null,{"className":"text-sm font-semibold text-slate-300 uppercase tracking-wider mb-4","children":"Resources"}],["$","ul",null,{"className":"space-y-2","children":[["$","li","/blog",{"children":["$","$L2",null,{"href":"/blog","className":"text-slate-400 hover:text-brand-400 text-sm transition-colors","children":"Blog"}]}],["$","li","/benchmarks",{"children":["$","$L2",null,{"href":"/benchmarks","className":"text-slate-400 hover:text-brand-400 text-sm transition-colors","children":"Benchmarks"}]}],["$","li","/about",{"children":["$","$L2",null,{"href":"/about","className":"text-slate-400 hover:text-brand-400 text-sm transition-colors","children":"About"}]}]]}]]}]]}],["$","div",null,{"className":"mt-10 pt-6 border-t border-slate-700/50 flex flex-col sm:flex-row items-center justify-between gap-4","children":[["$","p",null,{"className":"text-slate-500 text-sm flex items-center gap-1","children":["Made with ",["$","svg",null,{"xmlns":"http://www.w3.org/2000/svg","width":24,"height":24,"viewBox":"0 0 24 24","fill":"none","stroke":"currentColor","strokeWidth":2,"strokeLinecap":"round","strokeLinejoin":"round","className":"lucide lucide-heart w-3.5 h-3.5 text-red-500 fill-red-500","children":[["$","path","c3ymky",{"d":"M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"}],"$undefined"]}]," by the DevBench team © ",2026]}],["$","a",null,{"href":"https://github.com","target":"_blank","rel":"noopener noreferrer","className":"text-slate-500 hover:text-slate-300 transition-colors","aria-label":"GitHub","children":["$","svg",null,{"xmlns":"http://www.w3.org/2000/svg","width":24,"height":24,"viewBox":"0 0 24 24","fill":"none","stroke":"currentColor","strokeWidth":2,"strokeLinecap":"round","strokeLinejoin":"round","className":"lucide lucide-github w-5 h-5","children":[["$","path","tonef",{"d":"M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"}],["$","path","9comsn",{"d":"M9 18c-4.51 2-5-2-7-2"}],"$undefined"]}]}]]}]]}]}],["$","$L8",null,{}],["$","$L9",null,{"position":"bottom-right","toastOptions":{"style":{"background":"#1e293b","color":"#e2e8f0","border":"1px solid #334155","fontSize":"14px"}}}]]}]}]],null],null],["$La",null]]]]
+a:[["$","meta","0",{"name":"viewport","content":"width=device-width, initial-scale=1"}],["$","meta","1",{"charSet":"utf-8"}],["$","title","2",{"children":"CSS Logical Properties: Stop Thinking in Left and Right | DevBench"}],["$","meta","3",{"name":"description","content":"CSS Logical Properties replace physical directional properties (left/right/top/bottom) with flow-relative alternatives. Your layouts automatically adapt to RTL, vertical writing modes, and any future text direction. Complete guide: every physical-to-logical mapping, shorthands, writing-mode demos, and migration patterns."}],["$","meta","4",{"name":"author","content":"DevBench"}],["$","meta","5",{"name":"keywords","content":"developer tools,JSON formatter,Base64,UUID generator,regex tester,benchmarks,dev tools"}],["$","meta","6",{"property":"og:title","content":"CSS Logical Properties: Stop Thinking in Left and Right"}],["$","meta","7",{"property":"og:description","content":"CSS Logical Properties replace physical directional properties (left/right/top/bottom) with flow-relative alternatives. Your layouts automatically adapt to RTL, vertical writing modes, and any future text direction. Complete guide: every physical-to-logical mapping, shorthands, writing-mode demos, and migration patterns."}],["$","meta","8",{"property":"og:type","content":"article"}],["$","meta","9",{"property":"article:published_time","content":"2026-06-07"}],["$","meta","10",{"property":"article:author","content":"DevBench"}],["$","meta","11",{"property":"article:tag","content":"CSS"}],["$","meta","12",{"property":"article:tag","content":"Logical Properties"}],["$","meta","13",{"property":"article:tag","content":"Internationalization"}],["$","meta","14",{"property":"article:tag","content":"RTL"}],["$","meta","15",{"property":"article:tag","content":"Writing Modes"}],["$","meta","16",{"property":"article:tag","content":"Baseline 2026"}],["$","meta","17",{"name":"twitter:card","content":"summary"}],["$","meta","18",{"name":"twitter:title","content":"CSS Logical Properties: Stop Thinking in Left and Right"}],["$","meta","19",{"name":"twitter:description","content":"CSS Logical Properties replace physical directional properties (left/right/top/bottom) with flow-relative alternatives. Your layouts automatically adapt to RTL, vertical writing modes, and any future text direction. Complete guide: every physical-to-logical mapping, shorthands, writing-mode demos, and migration patterns."}],["$","link","20",{"rel":"icon","href":"/favicon.svg"}]]
+1:null
