@@ -1020,6 +1020,13 @@ const allTools = [
     tags: ['CSS', '@font-palette-values', 'COLRv1', 'Color Fonts'],
   },
   {
+    title: 'font-size-adjust Playground',
+    description: 'Preserve consistent x-height across fallback fonts — the CSS property that makes Arial look the same visual size as any serif. 8 font pairings, side-by-side comparison, live preview — Baseline 2024.',
+    href: '/tools/css-font-size-adjust-playground',
+    icon: Ruler,
+    tags: ['CSS', 'font-size-adjust', 'Typography', 'Fallback', 'Baseline 2024'],
+  },
+  {
     title: 'Variable Fonts Playground',
     description: 'Explore variable fonts in real-time — adjust weight, width, slant, optical size, and more across 7 fonts (Roboto Flex, Inter, Recursive, Fraunces, and more). 8 presets, live preview, and instant CSS output.',
     href: '/tools/variable-fonts-playground',
