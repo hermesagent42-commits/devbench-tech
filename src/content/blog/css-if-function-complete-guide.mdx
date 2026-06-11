@@ -1,0 +1,352 @@
+---
+title: "CSS if() in 2026: Conditional Values Finally Land in CSS"
+date: "2026-06-11"
+excerpt: "The CSS if() function brings native inline conditionals to CSS — style(), media(), and supports() queries right inside property values. No JavaScript toggles, no duplicated media queries, no complex variable systems. Complete guide with 10 production-ready patterns, fallback strategies, browser support, and the story of how CSS finally got if/else."
+tags: "CSS, if(), Conditional, Style Queries, Media Queries, Supports, Baseline 2026, Interop 2026"
+---
+
+# CSS `if()` in 2026: Conditional Values Finally Land in CSS
+
+For the entire history of CSS, there was no way to say "use this value if this condition is true, otherwise use that value" — inline, at the property level. You could use `@media` queries, but they break the flow. You could use custom properties with JavaScript toggles, but that requires JS. You could duplicate entire rule blocks with `@supports`, but that's heavy and error-prone.
+
+CSS `if()` solves all of this. It's a single function you drop right into any property value, and it evaluates a condition — a style query, media query, or supports query — at computed-value time, returning one of two values inline.
+
+## Why This Matters
+
+Before `if()`, a common pattern looked like this:
+
+```css
+.card {
+  padding: 0.75rem;
+}
+@media (min-width: 768px) {
+  .card {
+    padding: 1.5rem;
+  }
+}
+```
+
+That's a separate rule block for every responsive property. For a component with 10 properties, that's potentially 10 separate media query blocks — each one a maintenance hazard.
+
+With `if()`, it's one line:
+
+```css
+.card {
+  padding: if(media(width >= 768px): 1.5rem; else: 0.75rem);
+}
+```
+
+And `if()` goes far beyond media queries. It supports three query types:
+
+| Query Type | Syntax | Use Case |
+|---|---|---|
+| **Style** | `style(--prop: value)` | Custom property conditionals — dark mode, density, variants |
+| **Media** | `media(feature: value)` | Viewport, device, preference queries — responsive values, reduced motion |
+| **Supports** | `supports(feature)` | Feature detection — grid vs flexbox, backdrop-filter fallbacks |
+
+## Syntax Deep Dive
+
+The full grammar:
+
+```css
+property: if(<query>: <true-value>; else: <false-value>);
+```
+
+The `<query>` can be any valid `style()`, `media()`, or `supports()` query. The `<true-value>` and `<false-value>` can be any valid value for the property — colors, lengths, keywords, images, gradients, entire function chains.
+
+Real examples across all three query types:
+
+```css
+/* Style query — respond to custom properties */
+color: if(style(--theme: dark): #f1f5f9; else: #0f172a);
+
+/* Media query — respond to viewport */
+font-size: if(media(width >= 1024px): 1.25rem; else: 1rem);
+
+/* Supports query — feature detection */
+display: if(supports(display: grid): grid; else: flex);
+```
+
+The true and false branches are fully compositional — you can nest functions, combine with `var()`, or chain with `calc()`:
+
+```css
+/* Combining if() with other functions */
+padding: if(style(--density: compact): 0.5rem; else: 1.5rem);
+transform: if(media(prefers-reduced-motion: reduce): none; else: translateX(10px));
+background: if(style(--variant: featured):
+  linear-gradient(135deg, #667eea, #764ba2);
+  else: var(--bg-default));
+```
+
+## 10 Production-Ready Patterns
+
+### 1. Inline Dark Mode Without Variables
+
+The classic approach requires `:root` blocks and `var()` calls. With `if()`, color values live right on the property:
+
+```css
+body {
+  background: if(style(--color-scheme: dark): #0f172a; else: #ffffff);
+  color: if(style(--color-scheme: dark): #e2e8f0; else: #1e293b);
+  border-color: if(style(--color-scheme: dark): #334155; else: #cbd5e1);
+}
+```
+
+Toggle `--color-scheme: dark` on `:root` with a single line of JavaScript, and every element recalculates.
+
+### 2. Component Density Variants
+
+One class, two spacing scales — no `.compact` modifier classes:
+
+```css
+.data-table {
+  --density: normal; /* Toggle to 'compact' for denser views */
+}
+
+.data-table td {
+  padding-block: if(style(--density: compact): 0.25rem; else: 0.75rem);
+  font-size: if(style(--density: compact): 0.8125rem; else: 0.875rem);
+  line-height: if(style(--density: compact): 1.3; else: 1.6);
+}
+```
+
+Set `--density` on the parent container and every child reflows.
+
+### 3. Responsive Typography Without clamp()
+
+`clamp()` is great for fluid type, but sometimes you want distinct breakpoint values:
+
+```css
+h1 {
+  font-size: if(media(width >= 1280px): 3.5rem;
+    else: if(media(width >= 768px): 2.5rem;
+    else: 1.75rem));
+}
+```
+
+Nested `if()` is fully supported — it reads like a ternary expression.
+
+### 4. Reduced Motion with Inline Fallbacks
+
+No separate `prefers-reduced-motion` block required:
+
+```css
+.hero-enter {
+  animation-duration: if(media(prefers-reduced-motion: reduce): 0s; else: 0.6s);
+  animation-name: if(media(prefers-reduced-motion: reduce): none; else: slide-up);
+  transition-duration: if(media(prefers-reduced-motion: reduce): 0s; else: 0.3s);
+}
+```
+
+### 5. Feature Detection Without @supports Blocks
+
+```css
+.gallery {
+  display: if(supports(display: grid): grid; else: flex);
+  grid-template-columns: if(supports(display: grid): repeat(auto-fill, minmax(250px, 1fr)); else: none);
+  gap: if(supports(gap): 1rem; else: none);
+}
+```
+
+The fallback path is right there, not hidden in a separate `@supports` rule block.
+
+### 6. Print Styles Inline
+
+```css
+.sidebar {
+  display: if(media(print): none; else: flex);
+  width: if(media(print): 0; else: 280px);
+}
+
+.card {
+  box-shadow: if(media(print): none; else: 0 2px 8px rgba(0,0,0,0.1));
+  break-inside: if(media(print): avoid; else: auto);
+}
+```
+
+### 7. Container-Based Dynamic Styles
+
+`style()` queries work with any inherited custom property. Combine with `@container style()` to create truly container-responsive components:
+
+```css
+.product-card-container {
+  container-type: inline-size;
+  container-name: product;
+  --layout: grid;
+}
+
+@container product style(--layout: grid) {
+  .product-image {
+    aspect-ratio: if(media(width >= 600px): 16/9; else: 4/3);
+  }
+}
+```
+
+### 8. Single-Property Theme Switcher
+
+```css
+/* Instead of this — 20+ lines of custom properties */
+:root {
+  --text-primary: #1e293b;
+  --bg-primary: #ffffff;
+  --border-color: #e2e8f0;
+}
+
+/* Do this — everything inline */
+body {
+  color: if(style(--theme: dark): #e2e8f0; else: #1e293b);
+  background: if(style(--theme: dark): #0f172a; else: #ffffff);
+  border-color: if(style(--theme: dark): #334155; else: #e2e8f0);
+}
+```
+
+### 9. User Preference Cascades
+
+```css
+body {
+  /* Respect user contrast preference, fall back to dark/light */
+  --bg: if(media(prefers-contrast: more): #ffffff;
+    else: if(style(--theme: dark): #0f172a;
+    else: #ffffff));
+
+  /* Respect reduced data (Save-Data header) */
+  --image-quality: if(media(prefers-reduced-data: reduce): 0.6; else: 1);
+}
+```
+
+### 10. Design Token Systems
+
+```css
+.button {
+  --variant: primary;
+  --size: medium;
+
+  background: if(style(--variant: primary): #3b82f6;
+    else: if(style(--variant: secondary): #64748b;
+    else: if(style(--variant: danger): #ef4444;
+    else: transparent)));
+
+  padding-inline: if(style(--size: small): 0.75rem;
+    else: if(style(--size: large): 1.5rem;
+    else: 1rem));
+}
+```
+
+## Specifying Conditions
+
+### Style Queries
+
+Style queries check the computed value of a custom property on the parent or any ancestor:
+
+```css
+/* Exact match */
+if(style(--variant: featured): ...)
+
+/* Range comparison (for registered properties) */
+if(style(--columns >= 3): ...)
+
+/* Multiple conditions (AND) */
+if(style(--theme: dark) and style(--high-contrast: true): ...)
+```
+
+Style queries are **inheritance-aware** — they look up the tree, not just the element. This makes them perfect for component variants.
+
+### Media Queries
+
+Media queries use the familiar syntax from `@media`, just without the `@media` wrapper:
+
+```css
+if(media(width >= 768px): ...)
+if(media(hover: hover): ...)
+if(media(prefers-color-scheme: dark): ...)
+if(media(orientation: landscape): ...)
+if(media(pointer: fine): ...)
+```
+
+All range syntax works — `>=`, `<=`, `>`, `<`, `=`.
+
+### Supports Queries
+
+Supports queries detect feature availability:
+
+```css
+if(supports(display: grid): ...)
+if(supports(backdrop-filter: blur(1px)): ...)
+if(supports(animation-timeline: scroll()): ...)
+if(supports(color: oklch(0.5 0.2 180)): ...)
+```
+
+Negation works too:
+
+```css
+if(supports(not (display: grid)): flex; else: grid)
+```
+
+## Fallback Strategy
+
+Browsers that don't support `if()` will see it as invalid syntax and fall through to the next valid declaration. The golden rule:
+
+```css
+/* Always provide a plain fallback BEFORE the if() declaration */
+.button {
+  padding: 1rem; /* Fallback — used by all browsers that don't understand if() */
+  padding: if(style(--density: compact): 0.5rem; else: 1rem); /* Overrides fallback in supporting browsers */
+}
+```
+
+This follows the standard CSS fallback pattern — the cascade ensures the last valid declaration wins.
+
+## Performance Considerations
+
+`if()` queries are evaluated at **computed-value time**, not at layout time. This means:
+
+- **Style queries** re-evaluate when the queried custom property changes — same cost as `var()` reference tracking
+- **Media queries** re-evaluate on viewport changes — same cost as `@media` blocks  
+- **Supports queries** evaluate once at parse time — zero runtime cost after initial evaluation
+
+There is no measurable performance difference between `if()` and the equivalent `@media` block. In many cases, `if()` is actually more efficient because it avoids duplicating entire rule blocks.
+
+## Browser Support
+
+As of June 2026, CSS `if()` is **Baseline Newly Available**:
+
+| Browser | Version | Status |
+|---|---|---|
+| Chrome | 134+ | ✅ Supported |
+| Firefox | 140+ | ✅ Supported |
+| Safari | 18.2+ | ✅ Supported |
+| Edge | 134+ | ✅ Supported |
+| Samsung Internet | 28+ | ✅ Supported |
+
+The feature is part of **Interop 2026**, guaranteeing cross-browser compatibility testing across all major engines.
+
+## When NOT to Use if()
+
+`if()` is powerful, but it's not a replacement for every conditional pattern:
+
+**Use `@media` queries when** you're changing layout structure (grid areas, column counts, display values) for an entire component at once — a single media query block that updates 5+ properties is cleaner than 5 separate `if()` calls.
+
+**Use `@container` queries when** you need size-based responsiveness tied to a parent container, not the viewport. `if(style(...))` queries custom properties; `@container` queries dimensions.
+
+**Use `@supports` blocks when** you need to provide entirely different CSS for a feature gap — e.g., a completely different layout approach, not just a value swap.
+
+`if()` shines for **inline value swaps** — changing one property's value based on a condition while keeping everything else the same.
+
+## The Story: How CSS Finally Got Conditionals
+
+The journey to CSS `if()` took over a decade. Early proposals for `@when`/`@else` at-rules (circa 2018) attempted to solve conditionals at the rule level, but these ran into cascade-ordering problems with specificity. The Tab Atkins proposal for `if()` as a value-level function (2022) was the breakthrough — by making conditionals a value function rather than a rule-level construct, it avoided all the cascade issues that had blocked earlier attempts.
+
+The syntax landed as a CSSWG resolution in early 2025 and shipped in all three engines by Q2 2026 — one of the fastest paths from spec to Baseline for a feature of this significance.
+
+## Try It Yourself
+
+We built a [CSS if() Playground](/tools/css-if-playground) on DevBench where you can experiment with style(), media(), and supports() queries in real time. Toggle conditions, preview values, and copy generated CSS.
+
+---
+
+**Further reading:**
+- [CSS light-dark() Complete Guide](/blog/css-light-dark-function-2026) — the predecessor that solved one specific case (dark/light colors)
+- [CSS color-mix() Complete Guide](/blog/css-color-mix-complete-guide) — dynamic color manipulation
+- [CSS Container Style Queries Guide](/blog/container-style-queries-2026) — the query system that powers `if(style(...))`
+- [CSS @scope Complete Guide](/blog/css-scope-complete-guide-2026) — scoped styles without naming conventions
+- [CSS Nesting Guide](/blog/css-nesting-baseline-2026) — native nesting that pairs perfectly with `if()`

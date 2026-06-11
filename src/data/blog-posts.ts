@@ -511,6 +511,298 @@ For the remaining 11%, use <code>@supports</code> to provide a fallback:
 </div>`,
   },
   {
+    slug: 'css-if-function-complete-guide-2026',
+    title: 'CSS if() in 2026: Conditional Values Finally Land in CSS',
+    description: 'The CSS if() function brings native inline conditionals to CSS — style(), media(), and supports() queries right inside property values. No JavaScript toggles, no duplicated media queries, no complex variable systems. Complete guide with 10 production-ready patterns, fallback strategies, browser support, and the story of how CSS finally got if/else.',
+    date: '2026-06-11',
+    author: 'DevBench',
+    tags: ['CSS', 'if()', 'Conditional', 'Style Queries', 'Media Queries', 'Supports', 'Baseline 2026', 'Interop 2026'],
+    readingTime: '14 min read',
+    content: `<div class="blog-content">
+<h2 class="post-h2">The Missing Piece: 30 Years Without Inline Conditionals</h2>
+
+<p class="post-p">
+For the entire history of CSS, there was no way to say "use this value if this condition is true, otherwise use that value" — inline, at the property level. You could use <code>@media</code> queries, but they break the flow. You could use custom properties with JavaScript toggles, but that requires JS. You could duplicate entire rule blocks with <code>@supports</code>, but that's heavy and error-prone.
+</p>
+
+<p class="post-p">
+<strong>CSS <code>if()</code> solves all of this.</strong> It's a single function you drop right into any property value, and it evaluates a condition — a style query, media query, or supports query — at computed-value time, returning one of two values inline.
+</p>
+
+<h2 class="post-h2">Why This Matters</h2>
+
+<p class="post-p">
+Before <code>if()</code>, responsive properties required separate rule blocks for every breakpoint:
+</p>
+
+<pre><code>.card {
+  padding: 0.75rem;
+}
+@media (min-width: 768px) {
+  .card {
+    padding: 1.5rem;
+  }
+}</code></pre>
+
+<p class="post-p">
+That's a separate rule block for every responsive property. For a component with 10 properties, potentially 10 separate media query blocks — each one a maintenance hazard. With <code>if()</code>, it's one line:
+</p>
+
+<pre><code>.card {
+  padding: if(media(width >= 768px): 1.5rem; else: 0.75rem);
+}</code></pre>
+
+<p class="post-p">
+And <code>if()</code> goes far beyond media queries. It supports three query types:
+</p>
+
+<table>
+<thead><tr><th>Query Type</th><th>Syntax</th><th>Use Case</th></tr></thead>
+<tbody>
+<tr><td><strong>Style</strong></td><td><code>style(--prop: value)</code></td><td>Custom property conditionals — dark mode, density, variants</td></tr>
+<tr><td><strong>Media</strong></td><td><code>media(feature: value)</code></td><td>Viewport, device, preference queries</td></tr>
+<tr><td><strong>Supports</strong></td><td><code>supports(feature)</code></td><td>Feature detection — grid vs flexbox, backdrop-filter fallbacks</td></tr>
+</tbody>
+</table>
+
+<h2 class="post-h2">Syntax Deep Dive</h2>
+
+<p class="post-p">
+The full grammar:
+</p>
+
+<pre><code>property: if(&lt;query&gt;: &lt;true-value&gt;; else: &lt;false-value&gt;);</code></pre>
+
+<p class="post-p">
+Real examples across all three query types:
+</p>
+
+<pre><code>/* Style query — respond to custom properties */
+color: if(style(--theme: dark): #f1f5f9; else: #0f172a);
+
+/* Media query — respond to viewport */
+font-size: if(media(width >= 1024px): 1.25rem; else: 1rem);
+
+/* Supports query — feature detection */
+display: if(supports(display: grid): grid; else: flex);</code></pre>
+
+<p class="post-p">
+The true and false branches are fully compositional — you can nest functions, combine with <code>var()</code>, or chain with <code>calc()</code>:
+</p>
+
+<pre><code>padding: if(style(--density: compact): 0.5rem; else: 1.5rem);
+transform: if(media(prefers-reduced-motion: reduce): none; else: translateX(10px));
+background: if(style(--variant: featured):
+  linear-gradient(135deg, #667eea, #764ba2);
+  else: var(--bg-default));</code></pre>
+
+<h2 class="post-h2">10 Production-Ready Patterns</h2>
+
+<h3 class="post-h3">1. Inline Dark Mode Without Variables</h3>
+
+<p class="post-p">
+The classic approach requires <code>:root</code> blocks and <code>var()</code> calls. With <code>if()</code>, color values live right on the property:
+</p>
+
+<pre><code>body {
+  background: if(style(--color-scheme: dark): #0f172a; else: #ffffff);
+  color: if(style(--color-scheme: dark): #e2e8f0; else: #1e293b);
+  border-color: if(style(--color-scheme: dark): #334155; else: #cbd5e1);
+}</code></pre>
+
+<h3 class="post-h3">2. Component Density Variants</h3>
+
+<p class="post-p">
+One class, two spacing scales — no <code>.compact</code> modifier classes:
+</p>
+
+<pre><code>.data-table { --density: normal; }
+.data-table td {
+  padding-block: if(style(--density: compact): 0.25rem; else: 0.75rem);
+  font-size: if(style(--density: compact): 0.8125rem; else: 0.875rem);
+  line-height: if(style(--density: compact): 1.3; else: 1.6);
+}</code></pre>
+
+<h3 class="post-h3">3. Responsive Typography Without clamp()</h3>
+
+<p class="post-p">
+<code>clamp()</code> is great for fluid type, but sometimes you want distinct breakpoint values:
+</p>
+
+<pre><code>h1 {
+  font-size: if(media(width >= 1280px): 3.5rem;
+    else: if(media(width >= 768px): 2.5rem;
+    else: 1.75rem));
+}</code></pre>
+
+<h3 class="post-h3">4. Reduced Motion with Inline Fallbacks</h3>
+
+<pre><code>.hero-enter {
+  animation-duration: if(media(prefers-reduced-motion: reduce): 0s; else: 0.6s);
+  animation-name: if(media(prefers-reduced-motion: reduce): none; else: slide-up);
+  transition-duration: if(media(prefers-reduced-motion: reduce): 0s; else: 0.3s);
+}</code></pre>
+
+<h3 class="post-h3">5. Feature Detection Without @supports Blocks</h3>
+
+<pre><code>.gallery {
+  display: if(supports(display: grid): grid; else: flex);
+  grid-template-columns: if(supports(display: grid): repeat(auto-fill, minmax(250px, 1fr)); else: none);
+  gap: if(supports(gap): 1rem; else: none);
+}</code></pre>
+
+<h3 class="post-h3">6. Print Styles Inline</h3>
+
+<pre><code>.sidebar {
+  display: if(media(print): none; else: flex);
+  width: if(media(print): 0; else: 280px);
+}
+.card {
+  box-shadow: if(media(print): none; else: 0 2px 8px rgba(0,0,0,0.1));
+  break-inside: if(media(print): avoid; else: auto);
+}</code></pre>
+
+<h3 class="post-h3">7. Container-Based Dynamic Styles</h3>
+
+<pre><code>.product-card-container {
+  container-type: inline-size;
+  container-name: product;
+  --layout: grid;
+}
+@container product style(--layout: grid) {
+  .product-image {
+    aspect-ratio: if(media(width >= 600px): 16/9; else: 4/3);
+  }
+}</code></pre>
+
+<h3 class="post-h3">8. Single-Property Theme Switcher</h3>
+
+<pre><code>body {
+  color: if(style(--theme: dark): #e2e8f0; else: #1e293b);
+  background: if(style(--theme: dark): #0f172a; else: #ffffff);
+  border-color: if(style(--theme: dark): #334155; else: #e2e8f0);
+}</code></pre>
+
+<h3 class="post-h3">9. User Preference Cascades</h3>
+
+<pre><code>body {
+  --bg: if(media(prefers-contrast: more): #ffffff;
+    else: if(style(--theme: dark): #0f172a;
+    else: #ffffff));
+  --image-quality: if(media(prefers-reduced-data: reduce): 0.6; else: 1);
+}</code></pre>
+
+<h3 class="post-h3">10. Design Token Systems</h3>
+
+<pre><code>.button {
+  --variant: primary;
+  --size: medium;
+  background: if(style(--variant: primary): #3b82f6;
+    else: if(style(--variant: secondary): #64748b;
+    else: if(style(--variant: danger): #ef4444;
+    else: transparent)));
+  padding-inline: if(style(--size: small): 0.75rem;
+    else: if(style(--size: large): 1.5rem;
+    else: 1rem));
+}</code></pre>
+
+<h2 class="post-h2">Specifying Conditions</h2>
+
+<h3 class="post-h3">Style Queries</h3>
+
+<p class="post-p">
+Style queries check the computed value of a custom property on the parent or any ancestor. They are <strong>inheritance-aware</strong> — they look up the tree, not just the element:
+</p>
+
+<pre><code>if(style(--variant: featured): ...)
+if(style(--columns >= 3): ...)
+if(style(--theme: dark) and style(--high-contrast: true): ...)</code></pre>
+
+<h3 class="post-h3">Media Queries</h3>
+
+<pre><code>if(media(width >= 768px): ...)
+if(media(hover: hover): ...)
+if(media(prefers-color-scheme: dark): ...)
+if(media(orientation: landscape): ...)</code></pre>
+
+<h3 class="post-h3">Supports Queries</h3>
+
+<pre><code>if(supports(display: grid): ...)
+if(supports(backdrop-filter: blur(1px)): ...)
+if(supports(not (display: grid)): flex; else: grid)</code></pre>
+
+<h2 class="post-h2">Fallback Strategy</h2>
+
+<p class="post-p">
+Browsers that don't support <code>if()</code> will see it as invalid syntax and fall through to the next valid declaration. The golden rule: <strong>always provide a plain fallback BEFORE the if() declaration.</strong>
+</p>
+
+<pre><code>.button {
+  padding: 1rem; /* Fallback for non-supporting browsers */
+  padding: if(style(--density: compact): 0.5rem; else: 1rem);
+}</code></pre>
+
+<h2 class="post-h2">Performance Considerations</h2>
+
+<ul class="post-ul">
+<li><strong>Style queries</strong> re-evaluate when the queried custom property changes — same cost as <code>var()</code> reference tracking</li>
+<li><strong>Media queries</strong> re-evaluate on viewport changes — same cost as <code>@media</code> blocks</li>
+<li><strong>Supports queries</strong> evaluate once at parse time — zero runtime cost after initial evaluation</li>
+</ul>
+
+<p class="post-p">
+There is no measurable performance difference between <code>if()</code> and the equivalent <code>@media</code> block. In many cases, <code>if()</code> is actually more efficient because it avoids duplicating entire rule blocks.
+</p>
+
+<h2 class="post-h2">Browser Support</h2>
+
+<p class="post-p">
+As of June 2026, CSS <code>if()</code> is <strong>Baseline Newly Available</strong> across all major browsers: Chrome 134+, Firefox 140+, Safari 18.2+, Edge 134+, Samsung Internet 28+. The feature is part of <strong>Interop 2026</strong>, guaranteeing cross-browser compatibility testing across all major engines.
+</p>
+
+<h2 class="post-h2">When NOT to Use if()</h2>
+
+<ul class="post-ul">
+<li><strong>Use <code>@media</code> queries when</strong> you're changing layout structure for an entire component at once — a single media query block updating 5+ properties is cleaner than 5 separate <code>if()</code> calls.</li>
+<li><strong>Use <code>@container</code> queries when</strong> you need size-based responsiveness tied to a parent container, not the viewport.</li>
+<li><strong>Use <code>@supports</code> blocks when</strong> you need to provide entirely different CSS for a feature gap — not just a value swap.</li>
+</ul>
+
+<p class="post-p">
+<code>if()</code> shines for <strong>inline value swaps</strong> — changing one property's value based on a condition while keeping everything else the same.
+</p>
+
+<h2 class="post-h2">The Story: How CSS Finally Got Conditionals</h2>
+
+<p class="post-p">
+The journey to CSS <code>if()</code> took over a decade. Early proposals for <code>@when</code>/<code>@else</code> at-rules (circa 2018) attempted to solve conditionals at the rule level, but these ran into cascade-ordering problems with specificity. The Tab Atkins proposal for <code>if()</code> as a value-level function (2022) was the breakthrough — by making conditionals a value function rather than a rule-level construct, it avoided all the cascade issues that had blocked earlier attempts.
+</p>
+
+<p class="post-p">
+The syntax landed as a CSSWG resolution in early 2025 and shipped in all three engines by Q2 2026 — one of the fastest paths from spec to Baseline for a feature of this significance.
+</p>
+
+<h2 class="post-h2">Key Takeaways</h2>
+
+<ul class="post-ul">
+<li><strong>CSS if() is native ternary for CSS values.</strong> No preprocessors, no JavaScript. Works at computed-value time.</li>
+<li><strong>Three query types, one syntax.</strong> <code>style()</code>, <code>media()</code>, and <code>supports()</code> all use the same <code>if(query: true; else: false)</code> grammar.</li>
+<li><strong>Fully nestable and composable.</strong> Chain <code>if()</code> calls indefinitely. Combine with <code>var()</code>, <code>calc()</code>, <code>light-dark()</code>, <code>color-mix()</code>.</li>
+<li><strong>Always provide a fallback.</strong> Put a plain value declaration before the <code>if()</code> declaration. The cascade handles the rest.</li>
+<li><strong>Style queries unlock design tokens.</strong> Use <code>style(--variant: primary)</code> to build variant systems without modifier classes.</li>
+<li><strong>Media queries go inline.</strong> Responsive values without duplicating rule blocks. One property, one line.</li>
+<li><strong>Supports queries enable progressive enhancement.</strong> Feature detection without separate <code>@supports</code> blocks.</li>
+</ul>
+
+<hr/>
+
+<p class="post-p"><strong>Try it live:</strong> <a href="/tools/css-if-playground" class="inline-link">CSS if() Playground</a> — experiment with style(), media(), and supports() queries in real time. Toggle conditions, preview values, and copy generated CSS.</p>
+
+<p class="post-p"><em>Further reading: <a href="/blog/css-light-dark-function-2026" class="inline-link">CSS light-dark() Complete Guide</a> — the predecessor that solved one specific case (dark/light colors). <a href="/blog/css-color-mix-complete-guide" class="inline-link">CSS color-mix() Complete Guide</a> — dynamic color manipulation. <a href="/blog/css-scope-complete-guide-2026" class="inline-link">CSS @scope Complete Guide</a> — scoped styles without naming conventions. <a href="/blog/css-nesting-baseline-2026" class="inline-link">CSS Nesting Guide</a> — native nesting that pairs perfectly with <code>if()</code>.</em></p>
+
+</div>`,
+  },
+  {
     slug: 'css-linear-easing-function-2026',
     title: "CSS linear() Easing: Build Bounce, Spring, and Elastic Curves Without JavaScript",
     description:
