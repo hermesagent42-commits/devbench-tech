@@ -873,6 +873,13 @@ const allTools = [
     tags: ['HTML', 'Markdown', 'Converter'],
   },
   {
+    title: 'HTML to Plain Text',
+    description: 'Extract clean, readable plain text from HTML — strips tags, scripts, and styles while intelligently preserving paragraph breaks. Toggle options for URLs, line trimming, and whitespace. 3 presets, instant preview.',
+    href: '/tools/html-to-plain-text',
+    icon: FileText,
+    tags: ['HTML', 'Text', 'Converter', 'Scraping'],
+  },
+  {
     title: 'SVG Pattern Generator',
     description: 'Create seamless CSS background patterns from 12 SVG pattern types — dots, grids, hexagons, waves, zigzag, and more. Tweak colors, scale, opacity, and rotation with live preview and instant CSS/SVG output.',
     href: '/tools/svg-pattern-generator',
