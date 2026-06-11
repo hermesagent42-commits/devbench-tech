@@ -118,6 +118,7 @@ import {
   ShieldAlert,
   ToggleLeft,
   Contrast,
+  Calculator,
 } from 'lucide-react';
 
 export const metadata: Metadata = {
@@ -525,6 +526,13 @@ const featuredTools = [
     href: '/tools/css-trigonometry-playground',
     icon: Crosshair,
     tags: ['CSS', 'Trigonometry', 'Math', 'Animation'],
+  },
+  {
+    title: 'CSS round()/mod()/rem() Playground',
+    description: 'Explore CSS stepped value functions — snap to multiples with round(), compute cyclic remainders with mod() and rem(). Number line visualization, 10 presets, instant CSS copy. Baseline 2024.',
+    href: '/tools/css-stepped-value-playground',
+    icon: Calculator,
+    tags: ['CSS', 'round()', 'mod()', 'rem()', 'Math', 'Baseline 2024'],
   },
   {
     title: 'DNS Lookup',
