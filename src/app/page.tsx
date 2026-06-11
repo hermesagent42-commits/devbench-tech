@@ -1494,6 +1494,13 @@ const featuredTools = [
     tags: ['JSON', 'Java', 'Record', 'POJO', 'Code Gen'],
   },
   {
+    title: 'HTML to JSX Converter',
+    description: 'Convert HTML markup to valid JSX — class → className, style strings → objects, self-close void elements, boolean attributes, and more. 4 presets, live conversion, 100% client-side.',
+    href: '/tools/html-to-jsx',
+    icon: Braces,
+    tags: ['HTML', 'JSX', 'React', 'Converter'],
+  },
+  {
     title: 'Web Animations API Playground',
     description: 'Build, preview, and generate code for element.animate() keyframe animations — fade, slide, bounce, shake, pulse, flip, spin 3D, and more with live preview.',
     href: '/tools/web-animations-playground',
