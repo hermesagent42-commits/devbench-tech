@@ -884,6 +884,13 @@ const featuredTools = [
     tags: ['Regex', 'Explainer', 'Learning'],
   },
   {
+    title: 'CSS interpolate-size Playground',
+    description: 'Animate to/from auto, max-content, min-content, fit-content, and stretch — the Baseline 2025 property that makes intrinsic size transitions work natively. Side-by-side comparison, 6 real-world scenarios, instant CSS output.',
+    href: '/tools/css-interpolate-size-playground',
+    icon: Layers,
+    tags: ['CSS', 'interpolate-size', 'Animation', 'Baseline 2025'],
+  },
+  {
     title: 'CSS 3D Transform Playground',
     description: 'Build CSS 3D transforms visually — perspective, rotateX/Y/Z, translateZ, backface-visibility, and card flip presets. Live preview, instant CSS copy.',
     href: '/tools/css-3d-transform-playground',
