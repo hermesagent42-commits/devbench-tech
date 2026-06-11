@@ -11,6 +11,506 @@ export interface BlogPost {
 
 export const blogPosts: BlogPost[] = [
   {
+    slug: 'css-scroll-driven-animations-2026',
+    title: 'CSS Scroll-Driven Animations: Replace Intersection Observer with 3 Lines of CSS',
+    description:
+      'Scroll-driven animations let you link CSS animation progress directly to scroll position — no JavaScript, no IntersectionObserver, no requestAnimationFrame. The animation-timeline property with scroll() and view() timelines runs entirely on the compositor thread for 60fps jank-free scroll effects. Complete guide with 12 production-ready presets, performance deep-dive, named timelines, animation-range mastery, and cross-browser fallback strategies.',
+    date: '2026-06-11',
+    author: 'DevBench',
+    tags: ['CSS', 'Scroll-Driven', 'Animation', 'Scroll Timeline', 'View Timeline', 'Performance', '2026', 'Compositor'],
+    readingTime: '16 min read',
+    content: `<div class="blog-content">
+<h2 class="post-h2">The Scroll-Animation Problem: 15 Years of JavaScript</h2>
+
+<p class="post-p">
+Every parallax effect you've ever built. Every "fade in on scroll" reveal. Every sticky header that changes size. Every progress bar tied to reading position. For 15 years, every single one required JavaScript — an <code>IntersectionObserver</code> or <code>scroll</code> event listener, a <code>requestAnimationFrame</code> loop, and manual interpolation between states.
+</p>
+
+<p class="post-p">
+The problem: JavaScript runs on the main thread. Every scroll event fires at up to 60 times per second during active scrolling. If your handler takes even 3ms to run, that's 3ms stolen from frame budget. On mid-range mobile devices, this means jank — visible stuttering where animations hitch or tear.
+</p>
+
+<p class="post-p">
+<strong>CSS Scroll-Driven Animations eliminate all of this.</strong> Instead of watching scroll position in JavaScript and manually updating element properties, you declare the animation once in CSS and let the browser run it natively on the compositor thread — zero main thread involvement, guaranteed 60fps, and 3-10x better battery life on mobile.
+</p>
+
+<div class="post-highlight">
+<p class="post-p"><strong>Before (JavaScript):</strong> 30+ lines of imperative code</p>
+<pre><code>const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    const ratio = entry.intersectionRatio;
+    entry.target.style.opacity = ratio;
+    entry.target.style.transform = \`translateY(\${20 * (1 - ratio)}px)\`;
+  });
+}, { threshold: Array.from({length: 100}, (_, i) => i / 100) });
+document.querySelectorAll('.reveal').forEach(el => observer.observe(el));</code></pre>
+
+<p class="post-p"><strong>After (CSS):</strong> 3 lines of declarative animation</p>
+<pre><code>.reveal {
+  animation: fade-up linear both;
+  animation-timeline: view();
+  animation-range: entry 0% entry 100%;
+}</code></pre>
+</div>
+
+<h2 class="post-h2">How Scroll-Driven Animations Work: The Core Concepts</h2>
+
+<p class="post-p">
+Scroll-driven animations extend the CSS Animations model with a new concept: instead of time driving the animation progress (the default <code>animation-timeline: auto</code>), <strong>scroll position</strong> drives it. The browser maps the scroll offset of an element — or an element's visibility within a scrollport — to a 0–100% progress value that feeds into your regular <code>@keyframes</code>.
+</p>
+
+<p class="post-p">
+The key property is <code>animation-timeline</code>, which accepts one of three values:
+</p>
+
+<table class="post-table">
+<thead><tr><th>Value</th><th>What Drives Progress</th><th>Progress Range</th></tr></thead>
+<tbody>
+<tr><td><code>scroll()</code></td><td>Scroll position of a scroll container</td><td>0% = top of scrollable area, 100% = bottom</td></tr>
+<tr><td><code>view()</code></td><td>Element's visibility within the scrollport</td><td>0% = element enters scrollport, 100% = element exits</td></tr>
+<tr><td><code>&lt;named-timeline&gt;</code></td><td>Custom timeline defined by <code>scroll-timeline</code> property</td><td>Whatever you define with <code>scroll-timeline-axis</code></td></tr>
+</tbody>
+</table>
+
+<p class="post-p">
+<strong>The critical difference:</strong> <code>scroll()</code> is about the scroll container's position. <code>view()</code> is about the element's visibility within that container. Use <code>scroll()</code> for reading-progress bars, parallax backgrounds, and shrinking headers. Use <code>view()</code> for entrance animations, fade-in reveals, and staggered list effects.
+</p>
+
+<h2 class="post-h2">The scroll() Timeline: Progress Bars, Parallax, and Shrinking Headers</h2>
+
+<p class="post-p">
+The <code>scroll()</code> function maps scroll offset to animation progress. Its full signature:
+</p>
+
+<pre><code>animation-timeline: scroll(&lt;scroller&gt; &lt;axis&gt;);
+
+/* Examples */
+animation-timeline: scroll();              /* nearest ancestor scroller, block axis */
+animation-timeline: scroll(nearest);       /* same as above, explicit */
+animation-timeline: scroll(root);          /* document scroll position */
+animation-timeline: scroll(self);          /* element's own scrollable overflow */
+animation-timeline: scroll(inline);        /* horizontal scroll (x-axis) */
+animation-timeline: scroll(root block);    /* document scroll, vertical axis */</code></pre>
+
+<p class="post-p">
+<strong>Scroller reference:</strong> <code>nearest</code> walks up the DOM to the first scrollable ancestor. <code>root</code> is always the document viewport. <code>self</code> means the element itself must have <code>overflow: scroll | auto</code>.
+</p>
+
+<p class="post-p">
+<strong>Axis:</strong> <code>block</code> (logical vertical), <code>inline</code> (logical horizontal), <code>x</code>, or <code>y</code>.
+</p>
+
+<h3>Recipe 1: Reading Progress Bar</h3>
+
+<p class="post-p">
+The classic "how far through this article" bar at the top of blog posts. Previously required a scroll event + rAF loop updating width. Now:
+</p>
+
+<pre><code>.reading-progress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #6366f1, #a855f7);
+
+  animation: grow-width linear;
+  animation-timeline: scroll(root);
+  transform-origin: 0 0;
+}
+
+@keyframes grow-width {
+  from { transform: scaleX(0); }
+  to   { transform: scaleX(1); }
+}</code></pre>
+
+<p class="post-p">
+That's it. Zero JavaScript. The progress bar tracks document scroll from 0% to 100% and runs entirely on the compositor.
+</p>
+
+<h3>Recipe 2: Parallax Background</h3>
+
+<p class="post-p">
+The hero-section parallax effect — a background image that moves slower than foreground content as you scroll. Every website has one, and every one currently uses JavaScript.
+</p>
+
+<pre><code>.hero {
+  background-image: url('mountains.webp');
+  background-size: cover;
+  background-position: center;
+
+  animation: parallax-bg linear;
+  animation-timeline: scroll(root);
+}
+
+@keyframes parallax-bg {
+  from { background-position-y: 0%; }
+  to   { background-position-y: 100%; }
+}</code></pre>
+
+<p class="post-p">
+Want a slower parallax rate? Use <code>animation-range</code> to compress the animation over a shorter scroll distance — the background moves less per page-scroll-unit.
+</p>
+
+<pre><code>.hero {
+  animation: parallax-bg linear;
+  animation-timeline: scroll(root);
+  animation-range: 0% 50%;  /* animation completes in first 50% of scroll */
+}</code></pre>
+
+<h3>Recipe 3: Shrinking Sticky Header</h3>
+
+<pre><code>.site-header {
+  position: sticky;
+  top: 0;
+  padding: 1.5rem;
+
+  animation: shrink-header linear;
+  animation-timeline: scroll(root);
+  animation-range: 0% 200px;
+}
+
+@keyframes shrink-header {
+  from {
+    padding: 1.5rem;
+    background: rgba(15, 23, 42, 0);
+    backdrop-filter: blur(0px);
+  }
+  to {
+    padding: 0.5rem;
+    background: rgba(15, 23, 42, 0.9);
+    backdrop-filter: blur(12px);
+  }
+}</code></pre>
+
+<p class="post-p">
+The header transitions from transparent-lg to opaque-sm over the first 200px of scroll. The <code>animation-range: 0% 200px</code> syntax means "start at 0px scroll, finish at 200px scroll." After 200px the animation is done and the header stays in its final state.
+</p>
+
+<h2 class="post-h2">The view() Timeline: Entrance Animations, Staggered Lists, and Scroll-Triggered Reveals</h2>
+
+<p class="post-p">
+The <code>view()</code> function tracks an element's visibility as it crosses the scrollport. This is the <code>IntersectionObserver</code> killer.
+</p>
+
+<pre><code>animation-timeline: view(&lt;axis&gt; &lt;view-timeline-inset&gt;);
+
+/* Examples */
+animation-timeline: view();                        /* default: block axis, no inset */
+animation-timeline: view(block);                   /* vertical scroll */
+animation-timeline: view(inline);                  /* horizontal scroll */
+animation-timeline: view(block 20%);               /* 20% inset from all sides */
+animation-timeline: view(block 10% 20%);           /* 10% start, 20% end inset */
+animation-timeline: view(y 20%);                   /* explicit y axis + inset */</code></pre>
+
+<p class="post-p">
+<strong>View-timeline-inset:</strong> Shrinks (positive values) or expands (negative values) the scrollport for determining visibility. Inset <code>20%</code> means the element must be 20% inside the viewport to be considered "visible." Negative insets like <code>-10%</code> mean the animation starts before the element enters the viewport.
+</p>
+
+<p class="post-p">
+The key realization: a <code>view()</code> timeline has four distinct phases:
+</p>
+
+<ul class="post-ul">
+<li><strong>cover 0%</strong> — element starts entering scrollport (first pixel visible)</li>
+<li><strong>contain 0%</strong> — element is fully inside scrollport</li>
+<li><strong>contain 100%</strong> — element starts leaving scrollport</li>
+<li><strong>cover 100%</strong> — element fully exits scrollport</li>
+</ul>
+
+<p class="post-p">
+You control which phase drives the animation with <code>animation-range</code> (detailed below), but the common pattern is <code>entry</code> (element enters) for reveal animations and <code>exit</code> for hiding animations.
+</p>
+
+<h3>Recipe 4: Fade-Up Reveal on Scroll</h3>
+
+<pre><code>.reveal {
+  opacity: 0;
+  transform: translateY(30px);
+
+  animation: fade-up 0.5s ease-out forwards;
+  animation-timeline: view();
+  animation-range: entry 10% entry 100%;
+}
+
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}</code></pre>
+
+<p class="post-p">
+The <code>animation-range: entry 10% entry 100%</code> means: start when the element is 10% into the viewport, finish when the element is fully visible (entry 100% = first pixel at top of viewport). The animation runs only during the entry phase, not the entire crossing.
+</p>
+
+<h3>Recipe 5: Staggered List with Custom Property</h3>
+
+<pre><code>.staggered-list li {
+  opacity: 0;
+  transform: translateX(-20px);
+
+  animation: slide-in 0.4s ease-out forwards;
+  animation-timeline: view();
+  animation-range: entry 0% entry 100%;
+
+  /* No JavaScript needed for staggering! */
+  animation-delay: calc(var(--item-index) * 0.1s);
+}
+
+/* In HTML: &lt;li style="--item-index: 0"&gt;...&lt;/li&gt; */</code></pre>
+
+<p class="post-p">
+While you still need an inline style for the index, the animation itself is pure CSS. No JavaScript animation libraries, no <code>gsap.registerPlugin(ScrollTrigger)</code>, no 50KB of overhead.
+</p>
+
+<h3>Recipe 6: Horizontal Scroll Gallery</h3>
+
+<pre><code>.gallery-track {
+  display: flex;
+
+  animation: horizontal-scroll linear;
+  animation-timeline: view(inline);
+  animation-range: cover 0% cover 100%;
+}
+
+@keyframes horizontal-scroll {
+  from { translate: 0 0; }
+  to   { translate: calc(var(--track-width) * -1 + 100vw) 0; }
+}</code></pre>
+
+<h2 class="post-h2">Named Timelines: The scroll-timeline Property</h2>
+
+<p class="post-p">
+For complex layouts with multiple elements animating against the same scroll source, named timelines prevent repetition and improve maintainability. Define a timeline once, reference it everywhere.
+</p>
+
+<pre><code>/* Define the timeline on the scroll container */
+.scroll-container {
+  overflow-y: auto;
+  scroll-timeline: --gallery-timeline block;
+}
+
+/* Reference it on any descendant */
+.gallery-progress {
+  animation: progress-bar linear;
+  animation-timeline: --gallery-timeline;
+}
+
+.gallery-items img {
+  animation: reveal linear;
+  animation-timeline: --gallery-timeline;
+  animation-range: entry 0% entry 100%;
+}</code></pre>
+
+<p class="post-p">
+The <code>scroll-timeline</code> shorthand accepts <code>&lt;name&gt; &lt;axis&gt;</code>. Any element inside the scroll container can reference <code>--gallery-timeline</code> — no DOM traversal, no JavaScript plumbing, just CSS.
+</p>
+
+<h2 class="post-h2">animation-range: Precision Over What Part of Scroll Drives the Animation</h2>
+
+<p class="post-p">
+Without <code>animation-range</code>, a <code>scroll()</code> timeline maps the entire scroll range (0–100% of the scroll container) to 0–100% of your keyframes. With <code>animation-range</code>, you can compress or expand this mapping.
+</p>
+
+<p class="post-p">
+<code>animation-range</code> accepts two values: the start offset and end offset of the animation within the timeline. Each offset can be:
+</p>
+
+<ul class="post-ul">
+<li>A <strong>length</strong> (e.g., <code>200px</code>): absolute scroll distance</li>
+<li>A <strong>percentage</strong> (e.g., <code>50%</code>): relative to the full timeline range</li>
+<li>A <strong>named range</strong> for <code>view()</code> timelines: <code>cover</code>, <code>contain</code>, <code>entry</code>, <code>exit</code>, <code>entry-crossing</code>, <code>exit-crossing</code></li>
+</ul>
+
+<table class="post-table">
+<thead><tr><th>Named Range</th><th>Start Offset Meaning</th><th>End Offset Meaning</th></tr></thead>
+<tbody>
+<tr><td><code>cover</code></td><td>Element starts entering scrollport</td><td>Element fully exits scrollport</td></tr>
+<tr><td><code>contain</code></td><td>Element fully inside scrollport</td><td>Element starts leaving scrollport</td></tr>
+<tr><td><code>entry</code></td><td>Element starts entering scrollport</td><td>Element fully inside scrollport</td></tr>
+<tr><td><code>exit</code></td><td>Element starts leaving scrollport</td><td>Element fully exits scrollport</td></tr>
+<tr><td><code>entry-crossing</code></td><td>Element starts entering</td><td>Element crosses completely past entry</td></tr>
+<tr><td><code>exit-crossing</code></td><td>Element starts leaving</td><td>Element crosses completely past exit</td></tr>
+</tbody>
+</table>
+
+<p class="post-p">
+Each named range also accepts a percentage modifier: <code>entry 50%</code> means "halfway through the entry phase." This gives surgical precision:
+</p>
+
+<pre><code>/* Element starts fading when 20% visible, fully opaque at 80% visible */
+animation-range: entry 20% entry 80%;
+
+/* Element only animates during the center of the viewport crossing */
+animation-range: contain 0% contain 100%;</code></pre>
+
+<h2 class="post-h2">Performance: The Compositor-Only Advantage</h2>
+
+<p class="post-p">
+This is where CSS Scroll-Driven Animations become genuinely transformative. The entire pipeline runs on the compositor thread.
+</p>
+
+<table class="post-table">
+<thead><tr><th>Aspect</th><th>JavaScript (IntersectionObserver)</th><th>CSS Scroll-Driven Animations</th></tr></thead>
+<tbody>
+<tr><td>Thread</td><td>Main thread (blocked by JS execution)</td><td>Compositor thread (never blocked)</td></tr>
+<tr><td>Frame budget impact</td><td>~1-3ms per element per frame</td><td>0ms (free)</td></tr>
+<tr><td>Jank during heavy JS</td><td>Yes — scroll effects freeze</td><td>No — compositor always runs</td></tr>
+<tr><td>Battery</td><td>CPU-pinned during scroll</td><td>GPU-efficient, minimal CPU</td></tr>
+<tr><td>Throttled in background tabs</td><td>Yes (rAF paused)</td><td>No (compositor unaffected)</td></tr>
+<tr><td>Animatable properties</td><td>Any (via JS mutation)</td><td>GPU-friendly only (transform, opacity, filter)</td></tr>
+</tbody>
+</table>
+
+<p class="post-p">
+The compositor-thread guarantee means your scroll animations keep running at 60fps even when the main thread is slammed with JavaScript — loading analytics, processing data, rendering React components. This is physically impossible to achieve with JavaScript scroll watchers.
+</p>
+
+<p class="post-p">
+<strong>But wait — CSS animations can only animate compositable properties.</strong> If you need to animate <code>background-color</code>, <code>font-size</code>, or non-composited properties on scroll, you must use JavaScript. However, for the 90% of scroll effects that are transforms and opacity (reveals, parallax, scaling, rotation, fading), CSS scroll-driven animations are categorically superior.
+</p>
+
+<h2 class="post-h2">The Complete 12-Recipe Production Cheatsheet</h2>
+
+<h3>Recipe 7: Image Scale-Reveal Hero</h3>
+<pre><code>.hero-image {
+  animation: scale-reveal linear;
+  animation-timeline: view();
+  animation-range: entry 0% entry 100%;
+}
+@keyframes scale-reveal {
+  from { transform: scale(1.2); opacity: 0; filter: blur(10px); }
+  to   { transform: scale(1); opacity: 1; filter: blur(0); }
+}</code></pre>
+
+<h3>Recipe 8: Counter That Counts Up on Scroll</h3>
+<pre><code>.counter {
+  animation: count-up both steps(1);
+  animation-timeline: view();
+  animation-range: entry 0% entry 100%;
+  counter-reset: num var(--target);
+}
+.counter::after {
+  content: counter(num);
+}
+@keyframes count-up {
+  from { counter-increment: num calc(var(--target) * -1); }
+  to   { counter-increment: num 0; }
+}</code></pre>
+
+<h3>Recipe 9: Sticky Cards That Stack</h3>
+<pre><code>.card-stack .card {
+  position: sticky;
+  top: 80px;
+  animation: card-scale linear;
+  animation-timeline: view();
+  animation-range: cover 0% cover 100%;
+}
+@keyframes card-scale {
+  from { transform: scale(0.92); opacity: 0.6; }
+  30%  { transform: scale(1); opacity: 1; }
+  70%  { transform: scale(1); opacity: 1; }
+  to   { transform: scale(0.92); opacity: 0.6; }
+}</code></pre>
+
+<h3>Recipe 10: Clip-Path Reveal</h3>
+<pre><code>.clip-reveal {
+  animation: clip-unveil linear;
+  animation-timeline: view();
+  animation-range: entry 20% entry 100%;
+}
+@keyframes clip-unveil {
+  from { clip-path: inset(100% 0% 0% 0%); }
+  to   { clip-path: inset(0% 0% 0% 0%); }
+}</code></pre>
+
+<h3>Recipe 11: Rotating Text Carousel on Scroll</h3>
+<pre><code>.rotating-words {
+  animation: rotate-words linear;
+  animation-timeline: scroll(root);
+  animation-range: 0% 100%;
+}
+@keyframes rotate-words {
+  0%   { translate: 0 -100%; }
+  100% { translate: 0 100%; }
+}</code></pre>
+
+<h3>Recipe 12: SVG Path Drawing on Scroll</h3>
+<pre><code>.draw-path {
+  animation: draw linear both;
+  animation-timeline: view();
+  animation-range: entry 0% entry 100%;
+}
+@keyframes draw {
+  from { stroke-dashoffset: var(--path-length); }
+  to   { stroke-dashoffset: 0; }
+}
+/* Set --path-length via getTotalLength() once in JS */</code></pre>
+
+<h2 class="post-h2">Browser Support and Progressive Enhancement</h2>
+
+<p class="post-p">
+As of June 2026, <code>animation-timeline: scroll()</code> and <code>animation-timeline: view()</code> are <strong>Baseline 2024</strong> — shipping in Chrome 115+, Edge 115+, Safari 18+, and Firefox 128+. Global coverage is approximately 89% of users.
+</p>
+
+<p class="post-p">
+For the remaining 11%, use <code>@supports</code> to provide a fallback:
+</p>
+
+<pre><code>.reveal {
+  /* Default: always visible (no animation) */
+  opacity: 1;
+}
+
+@supports (animation-timeline: view()) {
+  .reveal {
+    opacity: 0;
+    animation: fade-up 0.5s ease-out forwards;
+    animation-timeline: view();
+    animation-range: entry 0% entry 100%;
+  }
+}</code></pre>
+
+<p class="post-p">
+<strong>Detect at runtime:</strong> Use <code>CSS.supports('animation-timeline', 'view()')</code> to conditionally load polyfills or fall back to IntersectionObserver for unsupported browsers. The <code>scroll-timeline</code> polyfill (by Bramus/flackr) covers older Chromium versions back to Chrome 69.
+</p>
+
+<h2 class="post-h2">Common Pitfalls</h2>
+
+<ul class="post-ul">
+<li><strong>Scrollable ancestor not found:</strong> <code>scroll(nearest)</code> walks up the DOM. If no ancestor is scrollable (overflow: scroll/auto + content overflow), it falls back to the root scroller. Verify your container has actual overflow.</li>
+<li><strong>animation-fill-mode matters:</strong> Always use <code>both</code> or <code>forwards</code> for view timelines — otherwise the element snaps back when fully visible.</li>
+<li><strong>animation-range works with scroll() too:</strong> It's not just for view(). Compress a scroll() timeline over a specific scroll distance for variable-rate effects.</li>
+<li><strong>Not every property composites:</strong> Animating <code>width</code>, <code>height</code>, <code>font-size</code>, or <code>background-color</code> on scroll still triggers layout/paint. Stick to <code>transform</code> and <code>opacity</code> for compositor-only performance.</li>
+<li><strong>Firefox vs. Chrome behavior divergence:</strong> As of Firefox 128, named timelines using <code>scroll-timeline</code> have subtle differences in <code>animation-range</code> handling. Test cross-browser.</li>
+<li><strong>Custom properties don't animate:</strong> You can't animate <code>--my-var</code> from 0 to 100 on scroll. Use <code>@property</code> registration for typed custom properties that can animate.</li>
+</ul>
+
+<h2 class="post-h2">Key Takeaways</h2>
+
+<ul class="post-ul">
+<li><strong>CSS Scroll-Driven Animations are the biggest animation feature since CSS Animations itself.</strong> They eliminate the JavaScript-middleman for the most common scroll effects.</li>
+<li><strong>scroll() for container position, view() for element visibility.</strong> The two timelines cover completely different use cases — learn both.</li>
+<li><strong>animation-range is the secret weapon.</strong> Without it, you're stuck with full-timeline mappings. With it, you have surgical control over what scroll interval drives each animation.</li>
+<li><strong>Named timelines scale.</strong> Define once on the container, reference on every child. Clean, maintainable, zero repetition.</li>
+<li><strong>Compositor-only performance is the killer feature.</strong> 0ms main thread cost per frame. Jank-resistant even under heavy JS load. This is physically impossible with JavaScript.</li>
+<li><strong>Progressive enhancement is trivial.</strong> One <code>@supports</code> block and you have full fallback. No complex polyfill loading required for most use cases.</li>
+<li><strong>Shipping now.</strong> 89% global coverage in 2026. By 2027, this will be as fundamental as CSS Grid — you'll wonder how you ever built scroll effects without it.</li>
+</ul>
+
+<hr/>
+
+<p class="post-p"><strong>Try it live:</strong> <a href="/tools/scroll-driven-animations" class="inline-link">Scroll-Driven Animations Playground</a> — experiment with scroll() and view() timelines in real-time with 12 interactive presets. <a href="/tools/css-scroll-snap-playground" class="inline-link">CSS Scroll Snap Playground</a> — combine scroll-driven animations with scroll snapping for carousel effects. <a href="/tools/intersection-observer-playground" class="inline-link">Intersection Observer Playground</a> — compare JavaScript approaches against native CSS timelines.</p>
+
+<p class="post-p"><em>Further reading: <a href="/blog/css-linear-easing-function-2026" class="inline-link">CSS linear() Easing</a> for custom easing curves, <a href="/blog/view-transitions-api-guide" class="inline-link">View Transitions API Guide</a> for page transitions that pair with scroll timelines, and <a href="/tools/web-animations-playground" class="inline-link">Web Animations API Playground</a> for imperative animation control.</em></p>
+
+</div>`,
+  },
+  {
     slug: 'css-linear-easing-function-2026',
     title: "CSS linear() Easing: Build Bounce, Spring, and Elastic Curves Without JavaScript",
     description:

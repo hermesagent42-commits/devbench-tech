@@ -603,7 +603,7 @@ export default function PrettierConfigGenerator() {
               <div className="text-xs text-slate-400 space-y-2">
                 <p>1. Save as <code className="text-purple-300 bg-slate-700 px-1 rounded">.prettierrc</code> in your project root</p>
                 <p>2. Install: <code className="text-green-300 bg-slate-700 px-1 rounded">npm i -D prettier</code></p>
-                <p>3. Script: <code className="text-blue-300 bg-slate-700 px-1 rounded">"format": "prettier --write ."</code></p>
+                <p>3. Script: <code className="text-blue-300 bg-slate-700 px-1 rounded">&quot;format&quot;: &quot;prettier --write .&quot;</code></p>
                 <p>4. Run: <code className="text-purple-300 bg-slate-700 px-1 rounded">npm run format</code></p>
               </div>
             </div>
