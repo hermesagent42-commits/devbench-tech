@@ -1766,6 +1766,20 @@ const featuredTools = [
     icon: Languages,
     tags: ['CSS', 'Hyphens', 'Typography', 'Baseline 2025'],
   },
+  {
+    title: 'YAML Formatter',
+    description: 'Format, beautify, and minify YAML with syntax highlighting. 4 presets — GitHub Actions, Docker Compose, Kubernetes, and OpenAPI — all client-side.',
+    href: '/tools/yaml-formatter',
+    icon: FileCode,
+    tags: ['YAML', 'Formatter', 'Config', 'CI/CD'],
+  },
+  {
+    title: 'CSS Masonry Layout Playground',
+    description: 'Build Pinterest-style masonry grids — 3 approaches (CSS Columns, Flexbox Columns, grid masonry). Live preview with adjustable columns, gaps, and random item sizes. Copy-ready CSS output.',
+    href: '/tools/css-masonry-playground',
+    icon: ColumnsIcon,
+    tags: ['CSS', 'Masonry', 'Layout', 'Pinterest', 'Grid'],
+  },
 ];
 
 const sampleBlogPosts = [

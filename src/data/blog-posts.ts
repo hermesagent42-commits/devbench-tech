@@ -11822,4 +11822,25 @@ All 11 CSS filter functions have been supported since Chrome 53 (2016), Firefox 
 
 </div>`,
   },
+  {
+    slug: 'css-masonry-layout-2026',
+    title: 'CSS Masonry Layout in 2026: Pinterest-Style Grids Finally Go Native',
+    description: 'Masonry layouts have required JavaScript libraries for over a decade. In 2026, CSS gives us three ways: CSS Columns, Flexbox column wrapping, and the experimental grid masonry. Complete guide with production-ready code.',
+    date: '2026-06-11',
+    author: 'DevBench',
+    tags: ['CSS', 'Masonry', 'Layout', 'Grid', 'Columns', 'Pinterest', '2026'],
+    readingTime: '8 min read',
+    content: '<div><h2>What Is Masonry Layout?</h2><p>A masonry layout arranges items in a tight grid where each column is filled with items of varying heights — like a brick wall, but with staggered vertical positions. Unlike a standard grid where every row aligns, masonry lets content flow into the shortest column.</p><p>Pinterest popularized this pattern. For years, the only way to achieve true masonry in CSS was with JavaScript libraries. In 2026, you have three pure-CSS options.</p><h2>Approach 1: CSS Columns (Best All-Round)</h2><p><code>column-count</code> + <code>break-inside: avoid</code> is the most reliable cross-browser approach. It works everywhere, is responsive by default, and handles variable-height content without JavaScript.</p><pre><code>.masonry-container { column-count: 4; column-gap: 12px; } .masonry-item { break-inside: avoid; margin-bottom: 12px; }</code></pre><p><strong>Caveat:</strong> Items flow top-to-bottom within columns, not left-to-right. For chronological feeds, use Flexbox Columns instead.</p><h2>Approach 2: Flexbox Columns</h2><p>If you know the container height, Flexbox with column wrapping gives left-to-right ordering:</p><pre><code>.masonry-container { display: flex; flex-direction: column; flex-wrap: wrap; gap: 12px; height: 1200px; } .masonry-item { width: calc((100% - 36px) / 4); }</code></pre><h2>Approach 3: Grid Masonry (Experimental)</h2><p>CSS Grid Level 3 introduces native masonry:</p><pre><code>.masonry-container { display: grid; gap: 12px; grid-template-columns: repeat(4, 1fr); grid-template-rows: masonry; }</code></pre><p><strong>Status:</strong> Only Firefox behind a flag as of June 2026.</p><h2>Which Approach Should You Use?</h2><p>Use <strong>CSS Columns</strong> for 95% of production layouts — reliable, responsive, everywhere. Use <strong>Flexbox Columns</strong> when you need left-to-right ordering. Reserve <strong>Grid masonry</strong> for Firefox-internal tools or progressive enhancement.</p><h2>Responsive Masonry</h2><pre><code>.masonry-container { column-count: 1; } @media (min-width: 640px) { .masonry-container { column-count: 2; } } @media (min-width: 1024px) { .masonry-container { column-count: 3; } } @media (min-width: 1280px) { .masonry-container { column-count: 4; } }</code></pre><h2>Try It Yourself</h2><p>We built a <a href="/tools/css-masonry-playground">CSS Masonry Layout Playground</a> on DevBench where you can experiment with all three approaches in real time.</p><h2>The Future</h2><p>Interop 2026 includes masonry in its focus areas. Once it ships everywhere, masonry layouts will require a single CSS property. Until then, CSS Columns is your production-ready solution.</p></div>',
+  },
+  {
+    slug: 'new-tools-yaml-formatter-masonry-2026',
+    title: 'DevBench Daily: YAML Formatter + CSS Masonry Playground',
+    description: 'Two new tools: format and minify YAML with syntax highlighting, and build Pinterest-style masonry layouts with 3 CSS approaches. All free, client-side.',
+    date: '2026-06-11',
+    author: 'DevBench',
+    tags: ['DevBench', 'YAML', 'Masonry', 'CSS', 'Tools', 'Formatter'],
+    readingTime: '3 min read',
+    content: '<div><h2>What is New</h2><p>Today we shipped two powerful new developer tools:</p><h3>YAML Formatter</h3><p>YAML is everywhere — GitHub Actions workflows, Docker Compose files, Kubernetes manifests, OpenAPI specs. But it is notoriously finicky about indentation. The <a href="/tools/yaml-formatter">YAML Formatter</a> solves this with auto-indentation, minification, syntax highlighting, and 4 presets (GitHub Actions, Docker Compose, Kubernetes, OpenAPI). 100% client-side.</p><h3>CSS Masonry Layout Playground</h3><p>The <a href="/tools/css-masonry-playground">CSS Masonry Layout Playground</a> lets you build Pinterest-style grids with three approaches: CSS Columns, Flexbox Columns, and the experimental grid masonry. Adjust columns, gaps, and item sizes with sliders — see the layout rebuild in real time. Copy CSS with one click.</p><h2>What is Next</h2><p>More config language formatters (TOML, INI) and more CSS Interop 2026 playgrounds are on the roadmap. Every tool runs entirely in your browser — no backend, no data collection, no login.</p></div>',
+  },
+
 ];

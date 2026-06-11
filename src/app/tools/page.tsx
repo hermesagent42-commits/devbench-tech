@@ -144,6 +144,13 @@ const allTools = [
     tags: ['GraphQL', 'Formatter', 'Query', 'Minifier'],
   },
   {
+    title: 'YAML Formatter',
+    description: 'Format, beautify, and minify YAML with syntax highlighting. Works with GitHub Actions, Docker Compose, Kubernetes manifests, and OpenAPI specs — 100% client-side.',
+    href: '/tools/yaml-formatter',
+    icon: FileCode,
+    tags: ['YAML', 'Formatter', 'Config', 'Minifier'],
+  },
+  {
     title: 'Base64 Encoder/Decoder',
     description: 'Encode text to Base64 or decode Base64 back to text. Fast and client-side only.',
     href: '/tools/base64',
@@ -1544,6 +1551,13 @@ const allTools = [
     href: '/tools/css-gap-decorations-playground',
     icon: Grid3X3,
     tags: ['CSS', 'Gap', 'Grid', 'Flexbox', 'column-rule', 'row-rule', 'Chrome 149'],
+  },
+  {
+    title: 'CSS Masonry Layout Playground',
+    description: 'Build Pinterest-style masonry grids with CSS Columns, Flexbox, and the experimental grid masonry. Adjust columns, gaps, and item sizes with a live preview — copy-ready CSS output.',
+    href: '/tools/css-masonry-playground',
+    icon: Columns,
+    tags: ['CSS', 'Masonry', 'Layout', 'Grid', 'Pinterest', 'Columns'],
   },
   {
     title: 'Intl.RelativeTimeFormat Playground',
