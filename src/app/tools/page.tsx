@@ -459,6 +459,13 @@ const allTools = [
     tags: ['Text', 'Case', 'Converter', 'Formatter'],
   },
   {
+    title: 'Text ↔ Binary Converter',
+    description: 'Convert text to binary (8-bit bytes) and binary back to readable text. UTF-8 aware with byte-spaced, nibble-grouped, and continuous output formats.',
+    href: '/tools/text-binary-converter',
+    icon: Binary,
+    tags: ['Text', 'Binary', 'Encoder', 'Decoder', 'ASCII'],
+  },
+  {
     title: 'HTML Entity Converter',
     description: 'Encode and decode HTML entities — named and numeric. Searchable reference table of 200+ entities for characters, symbols, math, arrows, and more.',
     href: '/tools/html-entity-converter',
