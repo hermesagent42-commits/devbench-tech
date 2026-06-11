@@ -1539,6 +1539,13 @@ const allTools = [
     tags: ['CSS', 'Gap', 'Grid', 'Flexbox', 'column-rule', 'row-rule', 'Chrome 149'],
   },
   {
+    title: 'Intl.RelativeTimeFormat Playground',
+    description: 'Explore JavaScript RelativeTimeFormat — format relative times like "3 days ago" or "in 2 hours" in 50+ locales. Style and numeric mode control, formatToParts() breakdown, instant JS code generation.',
+    href: '/tools/intl-relative-time',
+    icon: Clock,
+    tags: ['JavaScript', 'Intl', 'RelativeTimeFormat', 'i18n', 'Locale', 'Relative Time'],
+  },
+  {
     title: 'CSS Reading Flow Playground',
     description: 'Control tab and screen reader navigation order in flex and grid layouts with reading-flow (CSS Display Level 4). Align accessibility with visual order without changing HTML.',
     href: '/tools/css-reading-flow-playground',
